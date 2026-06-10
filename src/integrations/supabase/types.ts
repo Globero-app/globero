@@ -14,16 +14,255 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      app_config: {
+        Row: {
+          accent_color: string
+          button_color: string
+          display_font: string
+          font_family: string
+          id: number
+          primary_color: string
+          team_name: string
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string
+          button_color?: string
+          display_font?: string
+          font_family?: string
+          id?: number
+          primary_color?: string
+          team_name?: string
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string
+          button_color?: string
+          display_font?: string
+          font_family?: string
+          id?: number
+          primary_color?: string
+          team_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      competitions: {
+        Row: {
+          created_at: string
+          date: string
+          distance_km: number
+          duration_hours: number | null
+          elevation_m: number
+          gpx_data: string | null
+          gpx_filename: string | null
+          id: string
+          intensity: string | null
+          menu_plan: Json | null
+          name: string
+          notes: string | null
+          nutrition_plan: Json | null
+          track_points: Json | null
+          type: string
+          updated_at: string
+          user_id: string
+          waypoints: Json | null
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          distance_km?: number
+          duration_hours?: number | null
+          elevation_m?: number
+          gpx_data?: string | null
+          gpx_filename?: string | null
+          id?: string
+          intensity?: string | null
+          menu_plan?: Json | null
+          name: string
+          notes?: string | null
+          nutrition_plan?: Json | null
+          track_points?: Json | null
+          type?: string
+          updated_at?: string
+          user_id: string
+          waypoints?: Json | null
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          distance_km?: number
+          duration_hours?: number | null
+          elevation_m?: number
+          gpx_data?: string | null
+          gpx_filename?: string | null
+          id?: string
+          intensity?: string | null
+          menu_plan?: Json | null
+          name?: string
+          notes?: string | null
+          nutrition_plan?: Json | null
+          track_points?: Json | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+          waypoints?: Json | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          age: number | null
+          created_at: string
+          dietary_preferences: string | null
+          email: string
+          ftp: number | null
+          full_name: string | null
+          gender: string | null
+          height_cm: number | null
+          id: string
+          nutrition_focus: string
+          pre_race_days: number
+          strava_access_token: string | null
+          strava_athlete_id: number | null
+          strava_client_id: string | null
+          strava_client_secret: string | null
+          strava_expires_at: number | null
+          strava_refresh_token: string | null
+          updated_at: string
+          weight_kg: number | null
+        }
+        Insert: {
+          age?: number | null
+          created_at?: string
+          dietary_preferences?: string | null
+          email: string
+          ftp?: number | null
+          full_name?: string | null
+          gender?: string | null
+          height_cm?: number | null
+          id: string
+          nutrition_focus?: string
+          pre_race_days?: number
+          strava_access_token?: string | null
+          strava_athlete_id?: number | null
+          strava_client_id?: string | null
+          strava_client_secret?: string | null
+          strava_expires_at?: number | null
+          strava_refresh_token?: string | null
+          updated_at?: string
+          weight_kg?: number | null
+        }
+        Update: {
+          age?: number | null
+          created_at?: string
+          dietary_preferences?: string | null
+          email?: string
+          ftp?: number | null
+          full_name?: string | null
+          gender?: string | null
+          height_cm?: number | null
+          id?: string
+          nutrition_focus?: string
+          pre_race_days?: number
+          strava_access_token?: string | null
+          strava_athlete_id?: number | null
+          strava_client_id?: string | null
+          strava_client_secret?: string | null
+          strava_expires_at?: number | null
+          strava_refresh_token?: string | null
+          updated_at?: string
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
+      strava_activities: {
+        Row: {
+          average_heartrate: number | null
+          average_speed: number | null
+          average_watts: number | null
+          distance: number | null
+          id: number
+          moving_time: number | null
+          name: string | null
+          raw: Json | null
+          start_date: string | null
+          suffer_score: number | null
+          synced_at: string
+          total_elevation_gain: number | null
+          type: string | null
+          user_id: string
+        }
+        Insert: {
+          average_heartrate?: number | null
+          average_speed?: number | null
+          average_watts?: number | null
+          distance?: number | null
+          id: number
+          moving_time?: number | null
+          name?: string | null
+          raw?: Json | null
+          start_date?: string | null
+          suffer_score?: number | null
+          synced_at?: string
+          total_elevation_gain?: number | null
+          type?: string | null
+          user_id: string
+        }
+        Update: {
+          average_heartrate?: number | null
+          average_speed?: number | null
+          average_watts?: number | null
+          distance?: number | null
+          id?: number
+          moving_time?: number | null
+          name?: string | null
+          raw?: Json | null
+          start_date?: string | null
+          suffer_score?: number | null
+          synced_at?: string
+          total_elevation_gain?: number | null
+          type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +389,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
