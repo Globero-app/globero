@@ -9,50 +9,250 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedRecetasRouteImport } from './routes/_authenticated/recetas'
+import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
+import { Route as AuthenticatedBackendRouteImport } from './routes/_authenticated/backend'
+import { Route as AuthenticatedActividadesRouteImport } from './routes/_authenticated/actividades'
+import { Route as AuthenticatedCompeticionesIndexRouteImport } from './routes/_authenticated/competiciones.index'
+import { Route as ApiPublicSetupAdminRouteImport } from './routes/api/public/setup-admin'
+import { Route as AuthenticatedCompeticionesIdRouteImport } from './routes/_authenticated/competiciones.$id'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRecetasRoute = AuthenticatedRecetasRouteImport.update({
+  id: '/recetas',
+  path: '/recetas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBackendRoute = AuthenticatedBackendRouteImport.update({
+  id: '/backend',
+  path: '/backend',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedActividadesRoute =
+  AuthenticatedActividadesRouteImport.update({
+    id: '/actividades',
+    path: '/actividades',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCompeticionesIndexRoute =
+  AuthenticatedCompeticionesIndexRouteImport.update({
+    id: '/competiciones/',
+    path: '/competiciones/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const ApiPublicSetupAdminRoute = ApiPublicSetupAdminRouteImport.update({
+  id: '/api/public/setup-admin',
+  path: '/api/public/setup-admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedCompeticionesIdRoute =
+  AuthenticatedCompeticionesIdRouteImport.update({
+    id: '/competiciones/$id',
+    path: '/competiciones/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/auth': typeof AuthRoute
+  '/actividades': typeof AuthenticatedActividadesRoute
+  '/backend': typeof AuthenticatedBackendRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
+  '/recetas': typeof AuthenticatedRecetasRoute
+  '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
+  '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
+  '/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/actividades': typeof AuthenticatedActividadesRoute
+  '/backend': typeof AuthenticatedBackendRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
+  '/recetas': typeof AuthenticatedRecetasRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
+  '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
+  '/competiciones': typeof AuthenticatedCompeticionesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/actividades': typeof AuthenticatedActividadesRoute
+  '/_authenticated/backend': typeof AuthenticatedBackendRoute
+  '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
+  '/_authenticated/recetas': typeof AuthenticatedRecetasRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
+  '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
+  '/_authenticated/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/actividades'
+    | '/backend'
+    | '/perfil'
+    | '/recetas'
+    | '/competiciones/$id'
+    | '/api/public/setup-admin'
+    | '/competiciones/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/auth'
+    | '/actividades'
+    | '/backend'
+    | '/perfil'
+    | '/recetas'
+    | '/'
+    | '/competiciones/$id'
+    | '/api/public/setup-admin'
+    | '/competiciones'
+  id:
+    | '__root__'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/actividades'
+    | '/_authenticated/backend'
+    | '/_authenticated/perfil'
+    | '/_authenticated/recetas'
+    | '/_authenticated/'
+    | '/_authenticated/competiciones/$id'
+    | '/api/public/setup-admin'
+    | '/_authenticated/competiciones/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  ApiPublicSetupAdminRoute: typeof ApiPublicSetupAdminRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/recetas': {
+      id: '/_authenticated/recetas'
+      path: '/recetas'
+      fullPath: '/recetas'
+      preLoaderRoute: typeof AuthenticatedRecetasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/perfil': {
+      id: '/_authenticated/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof AuthenticatedPerfilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/backend': {
+      id: '/_authenticated/backend'
+      path: '/backend'
+      fullPath: '/backend'
+      preLoaderRoute: typeof AuthenticatedBackendRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/actividades': {
+      id: '/_authenticated/actividades'
+      path: '/actividades'
+      fullPath: '/actividades'
+      preLoaderRoute: typeof AuthenticatedActividadesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/competiciones/': {
+      id: '/_authenticated/competiciones/'
+      path: '/competiciones'
+      fullPath: '/competiciones/'
+      preLoaderRoute: typeof AuthenticatedCompeticionesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/setup-admin': {
+      id: '/api/public/setup-admin'
+      path: '/api/public/setup-admin'
+      fullPath: '/api/public/setup-admin'
+      preLoaderRoute: typeof ApiPublicSetupAdminRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/competiciones/$id': {
+      id: '/_authenticated/competiciones/$id'
+      path: '/competiciones/$id'
+      fullPath: '/competiciones/$id'
+      preLoaderRoute: typeof AuthenticatedCompeticionesIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedActividadesRoute: typeof AuthenticatedActividadesRoute
+  AuthenticatedBackendRoute: typeof AuthenticatedBackendRoute
+  AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
+  AuthenticatedRecetasRoute: typeof AuthenticatedRecetasRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedCompeticionesIdRoute: typeof AuthenticatedCompeticionesIdRoute
+  AuthenticatedCompeticionesIndexRoute: typeof AuthenticatedCompeticionesIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedActividadesRoute: AuthenticatedActividadesRoute,
+  AuthenticatedBackendRoute: AuthenticatedBackendRoute,
+  AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
+  AuthenticatedRecetasRoute: AuthenticatedRecetasRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedCompeticionesIdRoute: AuthenticatedCompeticionesIdRoute,
+  AuthenticatedCompeticionesIndexRoute: AuthenticatedCompeticionesIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  ApiPublicSetupAdminRoute: ApiPublicSetupAdminRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
