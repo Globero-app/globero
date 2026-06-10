@@ -14,9 +14,9 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedRecetasRouteImport } from './routes/_authenticated/recetas'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
-import { Route as AuthenticatedCompeticionesRouteImport } from './routes/_authenticated/competiciones'
 import { Route as AuthenticatedBackendRouteImport } from './routes/_authenticated/backend'
 import { Route as AuthenticatedActividadesRouteImport } from './routes/_authenticated/actividades'
+import { Route as AuthenticatedCompeticionesIndexRouteImport } from './routes/_authenticated/competiciones.index'
 import { Route as ApiPublicSetupAdminRouteImport } from './routes/api/public/setup-admin'
 import { Route as AuthenticatedCompeticionesIdRouteImport } from './routes/_authenticated/competiciones.$id'
 
@@ -44,12 +44,6 @@ const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
   path: '/perfil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedCompeticionesRoute =
-  AuthenticatedCompeticionesRouteImport.update({
-    id: '/competiciones',
-    path: '/competiciones',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedBackendRoute = AuthenticatedBackendRouteImport.update({
   id: '/backend',
   path: '/backend',
@@ -61,6 +55,12 @@ const AuthenticatedActividadesRoute =
     path: '/actividades',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCompeticionesIndexRoute =
+  AuthenticatedCompeticionesIndexRouteImport.update({
+    id: '/competiciones/',
+    path: '/competiciones/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicSetupAdminRoute = ApiPublicSetupAdminRouteImport.update({
   id: '/api/public/setup-admin',
   path: '/api/public/setup-admin',
@@ -68,9 +68,9 @@ const ApiPublicSetupAdminRoute = ApiPublicSetupAdminRouteImport.update({
 } as any)
 const AuthenticatedCompeticionesIdRoute =
   AuthenticatedCompeticionesIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedCompeticionesRoute,
+    id: '/competiciones/$id',
+    path: '/competiciones/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -78,22 +78,22 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/actividades': typeof AuthenticatedActividadesRoute
   '/backend': typeof AuthenticatedBackendRoute
-  '/competiciones': typeof AuthenticatedCompeticionesRouteWithChildren
   '/perfil': typeof AuthenticatedPerfilRoute
   '/recetas': typeof AuthenticatedRecetasRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
+  '/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/actividades': typeof AuthenticatedActividadesRoute
   '/backend': typeof AuthenticatedBackendRoute
-  '/competiciones': typeof AuthenticatedCompeticionesRouteWithChildren
   '/perfil': typeof AuthenticatedPerfilRoute
   '/recetas': typeof AuthenticatedRecetasRoute
   '/': typeof AuthenticatedIndexRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
+  '/competiciones': typeof AuthenticatedCompeticionesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -101,12 +101,12 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/actividades': typeof AuthenticatedActividadesRoute
   '/_authenticated/backend': typeof AuthenticatedBackendRoute
-  '/_authenticated/competiciones': typeof AuthenticatedCompeticionesRouteWithChildren
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/recetas': typeof AuthenticatedRecetasRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
+  '/_authenticated/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -115,34 +115,34 @@ export interface FileRouteTypes {
     | '/auth'
     | '/actividades'
     | '/backend'
-    | '/competiciones'
     | '/perfil'
     | '/recetas'
     | '/competiciones/$id'
     | '/api/public/setup-admin'
+    | '/competiciones/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
     | '/actividades'
     | '/backend'
-    | '/competiciones'
     | '/perfil'
     | '/recetas'
     | '/'
     | '/competiciones/$id'
     | '/api/public/setup-admin'
+    | '/competiciones'
   id:
     | '__root__'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/actividades'
     | '/_authenticated/backend'
-    | '/_authenticated/competiciones'
     | '/_authenticated/perfil'
     | '/_authenticated/recetas'
     | '/_authenticated/'
     | '/_authenticated/competiciones/$id'
     | '/api/public/setup-admin'
+    | '/_authenticated/competiciones/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -188,13 +188,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPerfilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/competiciones': {
-      id: '/_authenticated/competiciones'
-      path: '/competiciones'
-      fullPath: '/competiciones'
-      preLoaderRoute: typeof AuthenticatedCompeticionesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/backend': {
       id: '/_authenticated/backend'
       path: '/backend'
@@ -209,6 +202,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedActividadesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/competiciones/': {
+      id: '/_authenticated/competiciones/'
+      path: '/competiciones'
+      fullPath: '/competiciones/'
+      preLoaderRoute: typeof AuthenticatedCompeticionesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/setup-admin': {
       id: '/api/public/setup-admin'
       path: '/api/public/setup-admin'
@@ -218,44 +218,32 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/competiciones/$id': {
       id: '/_authenticated/competiciones/$id'
-      path: '/$id'
+      path: '/competiciones/$id'
       fullPath: '/competiciones/$id'
       preLoaderRoute: typeof AuthenticatedCompeticionesIdRouteImport
-      parentRoute: typeof AuthenticatedCompeticionesRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
-interface AuthenticatedCompeticionesRouteChildren {
-  AuthenticatedCompeticionesIdRoute: typeof AuthenticatedCompeticionesIdRoute
-}
-
-const AuthenticatedCompeticionesRouteChildren: AuthenticatedCompeticionesRouteChildren =
-  {
-    AuthenticatedCompeticionesIdRoute: AuthenticatedCompeticionesIdRoute,
-  }
-
-const AuthenticatedCompeticionesRouteWithChildren =
-  AuthenticatedCompeticionesRoute._addFileChildren(
-    AuthenticatedCompeticionesRouteChildren,
-  )
-
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedActividadesRoute: typeof AuthenticatedActividadesRoute
   AuthenticatedBackendRoute: typeof AuthenticatedBackendRoute
-  AuthenticatedCompeticionesRoute: typeof AuthenticatedCompeticionesRouteWithChildren
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedRecetasRoute: typeof AuthenticatedRecetasRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedCompeticionesIdRoute: typeof AuthenticatedCompeticionesIdRoute
+  AuthenticatedCompeticionesIndexRoute: typeof AuthenticatedCompeticionesIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedActividadesRoute: AuthenticatedActividadesRoute,
   AuthenticatedBackendRoute: AuthenticatedBackendRoute,
-  AuthenticatedCompeticionesRoute: AuthenticatedCompeticionesRouteWithChildren,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedRecetasRoute: AuthenticatedRecetasRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedCompeticionesIdRoute: AuthenticatedCompeticionesIdRoute,
+  AuthenticatedCompeticionesIndexRoute: AuthenticatedCompeticionesIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -269,3 +257,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

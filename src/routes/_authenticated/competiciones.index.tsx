@@ -8,7 +8,7 @@ import { Plus, Trash2, ChevronRight, Pencil, X } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
-export const Route = createFileRoute("/_authenticated/competiciones")({
+export const Route = createFileRoute("/_authenticated/competiciones/")({
   component: CompetitionsPage,
 });
 
