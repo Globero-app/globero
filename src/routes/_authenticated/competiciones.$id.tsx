@@ -72,9 +72,9 @@ function CompetitionDetail() {
     await supabase.from("competitions").update({
       gpx_data: text,
       gpx_filename: file.name,
-      track_points: simplified,
-      waypoints: waypointsWithCoords,
-      nutrition_plan: { total: plan.totalCarbs, perHour: plan.perHour, durationH: plan.durationH },
+      track_points: simplified as any,
+      waypoints: waypointsWithCoords as any,
+      nutrition_plan: { total: plan.totalCarbs, perHour: plan.perHour, durationH: plan.durationH } as any,
       distance_km: stats.distance_km,
       elevation_m: stats.elevation_m,
       name: c.name || name || file.name,
