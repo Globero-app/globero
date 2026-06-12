@@ -10,6 +10,7 @@ import { parseGpx, simplifyTrack, trackStats, buildGpxWithWaypoints, pointAtKm }
 import { planRaceNutrition, dailyMacros } from "@/lib/carbs";
 import { GpxMap } from "@/components/GpxMap";
 import { Upload, Download, ChefHat, Sparkles, ArrowLeft, RefreshCcw, FileDown, X, Eye } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
