@@ -198,3 +198,36 @@ function StatCard({ label, value, sub, icon: Icon, accent }: any) {
     </div>
   );
 }
+
+function Dot({ color, on }: { color: string; on: boolean }) {
+  return <span className={`size-4 rounded-full ${color} transition-opacity ${on ? "opacity-100 ring-2 ring-offset-2 ring-offset-surface ring-current shadow-lg" : "opacity-20"}`} />;
+}
+
+function computeForm(acts: Array<{ start_date: string | null; suffer_score: number | null }>) {
+  if (!acts.length) return { ctl: 0, atl: 0, tsb: 0 };
+  const byDay = new Map<string, number>();
+  for (const a of acts) {
+    if (!a.start_date) continue;
+    const k = a.start_date.slice(0, 10);
+    byDay.set(k, (byDay.get(k) ?? 0) + (a.suffer_score ?? 0));
+  }
+  const days = [...byDay.keys()].sort();
+  if (!days.length) return { ctl: 0, atl: 0, tsb: 0 };
+  const start = new Date(days[0]);
+  const end = new Date();
+  const kCtl = 2 / (42 + 1);
+  const kAtl = 2 / (7 + 1);
+  let ctl = 0, atl = 0;
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const tss = byDay.get(d.toISOString().slice(0, 10)) ?? 0;
+    ctl = ctl + kCtl * (tss - ctl);
+    atl = atl + kAtl * (tss - atl);
+  }
+  return { ctl, atl, tsb: ctl - atl };
+}
+
+function interpretTSB(tsb: number): { level: "green" | "yellow" | "red"; title: string; message: string } {
+  if (tsb >= 5) return { level: "green", title: "Frescura óptima", message: "Estás descansado y listo para competir. Aprovecha." };
+  if (tsb >= -10) return { level: "yellow", title: "Carga equilibrada", message: "Buen punto de entrenamiento, mantén ritmo y cuida descansos." };
+  return { level: "red", title: "Sobrecarga: descansa", message: "Fatiga alta. Reduce intensidad y prioriza recuperación esta semana." };
+}
