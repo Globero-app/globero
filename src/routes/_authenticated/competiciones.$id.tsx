@@ -44,7 +44,17 @@ function CompetitionDetail() {
   const [swapping, setSwapping] = useState<string | null>(null);
   const [viewRecipe, setViewRecipe] = useState<any | null>(null);
 
-  if (comp.isLoading || !comp.data) return <p className="text-sm text-muted-foreground">Cargando…</p>;
+  if (comp.isLoading || !comp.data) return (
+    <div className="space-y-6 animate-fade-in">
+      <Skeleton className="h-5 w-32" />
+      <Skeleton className="h-10 w-2/3" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
+      </div>
+      <Skeleton className="h-72 rounded-xl" />
+      <Skeleton className="h-48 rounded-xl" />
+    </div>
+  );
   const c = comp.data;
   const points = (c.track_points as any[] | null) ?? [];
   const wpts = (c.waypoints as any[] | null) ?? [];
