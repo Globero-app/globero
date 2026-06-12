@@ -78,7 +78,7 @@ function ActividadesPage() {
       </div>
 
       <div className="bg-surface border rounded-xl p-5">
-        <h2 className="font-display text-lg font-bold uppercase mb-4">Carga de Entrenamiento &amp; Fatiga</h2>
+        <h2 className="font-display text-lg font-bold uppercase mb-4">Carga, Fatiga &amp; Forma</h2>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
@@ -89,6 +89,7 @@ function ActividadesPage() {
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <Line type="monotone" dataKey="carga" stroke="var(--primary)" strokeWidth={2} dot={false} name="Carga (CTL)" />
               <Line type="monotone" dataKey="fatiga" stroke="var(--accent)" strokeWidth={2} dot={false} name="Fatiga (ATL)" />
+              <Line type="monotone" dataKey="tsb" stroke="#22c55e" strokeWidth={2} dot={false} name="Forma (TSB)" />
             </LineChart>
           </ResponsiveContainer>
         </div>
