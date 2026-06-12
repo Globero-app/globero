@@ -8,6 +8,7 @@ import {
   Settings, LogOut, Menu, X,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
