@@ -76,10 +76,63 @@ function Dashboard() {
         </h1>
       </div>
 
+      {/* Countdown + Form */}
+      {(next || (acts.data?.length ?? 0) > 0) && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {next && (
+            <div className="bg-accent text-accent-foreground border border-accent rounded-xl p-6">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-accent-foreground/60 flex items-center gap-2">
+                  <Timer className="size-3.5 text-primary" /> Cuenta atrás
+                </p>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-primary">{format(new Date(next.date), "d MMM", { locale: es })}</span>
+              </div>
+              <p className="font-display text-3xl font-bold uppercase tracking-tight truncate">{next.name}</p>
+              <p className="font-display text-5xl font-bold mt-2">
+                <span className="text-primary">⏱ Faltan {daysToNext}</span>
+                <span className="text-2xl text-accent-foreground/60 ml-2">{daysToNext === 1 ? "día" : "días"}</span>
+              </p>
+              <div className="mt-5">
+                <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-accent-foreground/60 mb-1.5">
+                  <span>Plan de carga</span>
+                  <span className="text-primary">{planProgress.toFixed(0)}%</span>
+                </div>
+                <div className="h-2 bg-accent-foreground/10 rounded-full overflow-hidden">
+                  <div className="h-full bg-primary transition-all duration-500" style={{ width: `${planProgress}%` }} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="bg-surface border rounded-xl p-6">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-2">
+                <Heart className="size-3.5 text-primary" /> Estado de forma
+              </p>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Performance Manager</span>
+            </div>
+            <div className="flex items-center gap-4 mt-2">
+              <div className="flex flex-col gap-1.5">
+                <Dot color="bg-emerald-500" on={form.level === "green"} />
+                <Dot color="bg-amber-400" on={form.level === "yellow"} />
+                <Dot color="bg-red-500" on={form.level === "red"} />
+              </div>
+              <div className="min-w-0">
+                <p className="font-display text-2xl font-bold uppercase tracking-tight">{form.title}</p>
+                <p className="text-sm text-muted-foreground mt-1">{form.message}</p>
+              </div>
+            </div>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-4">
+              Carga {ctl.toFixed(0)} · Fatiga {atl.toFixed(0)}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard label="Próxima cita" value={next?.name ?? "—"} sub={next ? `en ${daysToNext}d` : "Sin competiciones"} icon={Trophy} accent />
-        <StatCard label="Carga semanal" value={isNaN(ctl) ? "—" : ctl.toFixed(0)} sub="Strava (suffer score)" icon={Flame} />
+        <StatCard label="Carga (CTL)" value={ctl > 0 ? ctl.toFixed(0) : "—"} sub="42 días" icon={Flame} />
         <StatCard label="Actividades" value={String(acts.data?.length ?? 0)} sub="últimas sincronizadas" icon={Activity} />
         <StatCard label="Competiciones" value={String(comps.data?.length ?? 0)} sub="totales" icon={Bike} />
       </div>
