@@ -138,7 +138,8 @@ function buildCtlAtl(acts: any[]) {
   days.forEach(([d, tss]) => {
     ctl = ctl + (tss - ctl) * (1 - Math.exp(-1 / 42));
     atl = atl + (tss - atl) * (1 - Math.exp(-1 / 7));
-    result.push({ label: format(new Date(d), "d MMM", { locale: es }), carga: Math.round(ctl), fatiga: Math.round(atl) });
+    const tsb = ctl - atl;
+    result.push({ label: format(new Date(d), "d MMM", { locale: es }), carga: Math.round(ctl), fatiga: Math.round(atl), tsb: Math.round(tsb) });
   });
   return result;
 }
