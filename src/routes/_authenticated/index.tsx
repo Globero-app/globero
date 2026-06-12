@@ -6,6 +6,7 @@ import { Trophy, Flame, Bike, ChevronRight, Plus, Trash2, Activity, Timer, Heart
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: Dashboard,
