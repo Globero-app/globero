@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
-import { Trophy, Flame, Bike, ChevronRight, Plus, Trash2, Activity } from "lucide-react";
+import { Trophy, Flame, Bike, ChevronRight, Plus, Trash2, Activity, Timer, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -36,7 +36,7 @@ function Dashboard() {
   const acts = useQuery({
     queryKey: ["recent_activities", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("strava_activities").select("*").eq("user_id", user!.id).order("start_date", { ascending: false }).limit(7);
+      const { data } = await supabase.from("strava_activities").select("*").eq("user_id", user!.id).order("start_date", { ascending: false }).limit(60);
       return data ?? [];
     },
     enabled: !!user,
@@ -57,8 +57,15 @@ function Dashboard() {
   const next = upcoming[0];
   const daysToNext = next ? Math.ceil((new Date(next.date).getTime() - today.getTime()) / 86400000) : null;
 
-  // Carga / Fatiga simplificada (CTL/ATL) desde Strava suffer_score
-  const ctl = (acts.data ?? []).reduce((a, b) => a + (b.suffer_score ?? 0), 0) / Math.max(1, acts.data?.length ?? 1);
+  // CTL (42d EMA) y ATL (7d EMA) basados en suffer_score como proxy de TSS
+  const { ctl, atl, tsb } = computeForm(acts.data ?? []);
+  const form = interpretTSB(tsb);
+
+  // Progreso del plan de carga: días transcurridos vs ventana de plan (90 días antes de la cita)
+  const PLAN_WINDOW_DAYS = 90;
+  const planProgress = next
+    ? Math.max(0, Math.min(100, ((PLAN_WINDOW_DAYS - (daysToNext ?? 0)) / PLAN_WINDOW_DAYS) * 100))
+    : 0;
 
   return (
     <div className="space-y-8">
@@ -69,10 +76,63 @@ function Dashboard() {
         </h1>
       </div>
 
+      {/* Countdown + Form */}
+      {(next || (acts.data?.length ?? 0) > 0) && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {next && (
+            <div className="bg-accent text-accent-foreground border border-accent rounded-xl p-6">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-accent-foreground/60 flex items-center gap-2">
+                  <Timer className="size-3.5 text-primary" /> Cuenta atrás
+                </p>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-primary">{format(new Date(next.date), "d MMM", { locale: es })}</span>
+              </div>
+              <p className="font-display text-3xl font-bold uppercase tracking-tight truncate">{next.name}</p>
+              <p className="font-display text-5xl font-bold mt-2">
+                <span className="text-primary">⏱ Faltan {daysToNext}</span>
+                <span className="text-2xl text-accent-foreground/60 ml-2">{daysToNext === 1 ? "día" : "días"}</span>
+              </p>
+              <div className="mt-5">
+                <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-accent-foreground/60 mb-1.5">
+                  <span>Plan de carga</span>
+                  <span className="text-primary">{planProgress.toFixed(0)}%</span>
+                </div>
+                <div className="h-2 bg-accent-foreground/10 rounded-full overflow-hidden">
+                  <div className="h-full bg-primary transition-all duration-500" style={{ width: `${planProgress}%` }} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="bg-surface border rounded-xl p-6">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-2">
+                <Heart className="size-3.5 text-primary" /> Estado de forma
+              </p>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Performance Manager</span>
+            </div>
+            <div className="flex items-center gap-4 mt-2">
+              <div className="flex flex-col gap-1.5">
+                <Dot color="bg-emerald-500" on={form.level === "green"} />
+                <Dot color="bg-amber-400" on={form.level === "yellow"} />
+                <Dot color="bg-red-500" on={form.level === "red"} />
+              </div>
+              <div className="min-w-0">
+                <p className="font-display text-2xl font-bold uppercase tracking-tight">{form.title}</p>
+                <p className="text-sm text-muted-foreground mt-1">{form.message}</p>
+              </div>
+            </div>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-4">
+              Carga {ctl.toFixed(0)} · Fatiga {atl.toFixed(0)}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard label="Próxima cita" value={next?.name ?? "—"} sub={next ? `en ${daysToNext}d` : "Sin competiciones"} icon={Trophy} accent />
-        <StatCard label="Carga semanal" value={isNaN(ctl) ? "—" : ctl.toFixed(0)} sub="Strava (suffer score)" icon={Flame} />
+        <StatCard label="Carga (CTL)" value={ctl > 0 ? ctl.toFixed(0) : "—"} sub="42 días" icon={Flame} />
         <StatCard label="Actividades" value={String(acts.data?.length ?? 0)} sub="últimas sincronizadas" icon={Activity} />
         <StatCard label="Competiciones" value={String(comps.data?.length ?? 0)} sub="totales" icon={Bike} />
       </div>
@@ -137,4 +197,37 @@ function StatCard({ label, value, sub, icon: Icon, accent }: any) {
       <p className={`text-[10px] mt-0.5 ${accent ? "text-accent-foreground/60" : "text-muted-foreground"}`}>{sub}</p>
     </div>
   );
+}
+
+function Dot({ color, on }: { color: string; on: boolean }) {
+  return <span className={`size-4 rounded-full ${color} transition-opacity ${on ? "opacity-100 ring-2 ring-offset-2 ring-offset-surface ring-current shadow-lg" : "opacity-20"}`} />;
+}
+
+function computeForm(acts: Array<{ start_date: string | null; suffer_score: number | null }>) {
+  if (!acts.length) return { ctl: 0, atl: 0, tsb: 0 };
+  const byDay = new Map<string, number>();
+  for (const a of acts) {
+    if (!a.start_date) continue;
+    const k = a.start_date.slice(0, 10);
+    byDay.set(k, (byDay.get(k) ?? 0) + (a.suffer_score ?? 0));
+  }
+  const days = [...byDay.keys()].sort();
+  if (!days.length) return { ctl: 0, atl: 0, tsb: 0 };
+  const start = new Date(days[0]);
+  const end = new Date();
+  const kCtl = 2 / (42 + 1);
+  const kAtl = 2 / (7 + 1);
+  let ctl = 0, atl = 0;
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const tss = byDay.get(d.toISOString().slice(0, 10)) ?? 0;
+    ctl = ctl + kCtl * (tss - ctl);
+    atl = atl + kAtl * (tss - atl);
+  }
+  return { ctl, atl, tsb: ctl - atl };
+}
+
+function interpretTSB(tsb: number): { level: "green" | "yellow" | "red"; title: string; message: string } {
+  if (tsb >= 5) return { level: "green", title: "Frescura óptima", message: "Estás descansado y listo para competir. Aprovecha." };
+  if (tsb >= -10) return { level: "yellow", title: "Carga equilibrada", message: "Buen punto de entrenamiento, mantén ritmo y cuida descansos." };
+  return { level: "red", title: "Sobrecarga: descansa", message: "Fatiga alta. Reduce intensidad y prioriza recuperación esta semana." };
 }
