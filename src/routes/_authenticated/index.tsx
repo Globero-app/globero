@@ -36,7 +36,7 @@ function Dashboard() {
   const acts = useQuery({
     queryKey: ["recent_activities", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("strava_activities").select("*").eq("user_id", user!.id).order("start_date", { ascending: false }).limit(7);
+      const { data } = await supabase.from("strava_activities").select("*").eq("user_id", user!.id).order("start_date", { ascending: false }).limit(60);
       return data ?? [];
     },
     enabled: !!user,
@@ -57,8 +57,15 @@ function Dashboard() {
   const next = upcoming[0];
   const daysToNext = next ? Math.ceil((new Date(next.date).getTime() - today.getTime()) / 86400000) : null;
 
-  // Carga / Fatiga simplificada (CTL/ATL) desde Strava suffer_score
-  const ctl = (acts.data ?? []).reduce((a, b) => a + (b.suffer_score ?? 0), 0) / Math.max(1, acts.data?.length ?? 1);
+  // CTL (42d EMA) y ATL (7d EMA) basados en suffer_score como proxy de TSS
+  const { ctl, atl, tsb } = computeForm(acts.data ?? []);
+  const form = interpretTSB(tsb);
+
+  // Progreso del plan de carga: días transcurridos vs ventana de plan (90 días antes de la cita)
+  const PLAN_WINDOW_DAYS = 90;
+  const planProgress = next
+    ? Math.max(0, Math.min(100, ((PLAN_WINDOW_DAYS - (daysToNext ?? 0)) / PLAN_WINDOW_DAYS) * 100))
+    : 0;
 
   return (
     <div className="space-y-8">
