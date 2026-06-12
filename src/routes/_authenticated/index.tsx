@@ -6,6 +6,7 @@ import { Trophy, Flame, Bike, ChevronRight, Plus, Trash2, Activity, Timer, Heart
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: Dashboard,
@@ -146,7 +147,18 @@ function Dashboard() {
           </Link>
         </div>
         {comps.isLoading ? (
-          <p className="text-sm text-muted-foreground">Cargando…</p>
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="bg-surface border rounded-xl p-5 space-y-3">
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-6 w-3/4" />
+                <div className="grid grid-cols-3 gap-3 pt-3 border-t">
+                  <Skeleton className="h-8" /><Skeleton className="h-8" /><Skeleton className="h-8" />
+                </div>
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            ))}
+          </div>
         ) : (comps.data?.length ?? 0) === 0 ? (
           <div className="border-2 border-dashed rounded-xl p-12 text-center">
             <p className="text-sm text-muted-foreground mb-3">No tienes competiciones aún.</p>

@@ -8,6 +8,7 @@ import {
   Settings, LogOut, Menu, X,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -130,7 +131,17 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Main */}
       <main className="lg:pl-64 pb-20 lg:pb-0">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-6 lg:py-10">
-          {children}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={path}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </main>
 
