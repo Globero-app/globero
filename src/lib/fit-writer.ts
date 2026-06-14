@@ -196,7 +196,7 @@ export function encodeWorkoutFit(wk: FitWorkout): Uint8Array {
 
 export function downloadFit(workout: FitWorkout, filename: string) {
   const bytes = encodeWorkoutFit(workout);
-  const blob = new Blob([bytes], { type: "application/octet-stream" });
+  const blob = new Blob([bytes.buffer as ArrayBuffer], { type: "application/octet-stream" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
