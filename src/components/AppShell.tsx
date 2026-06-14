@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAppConfig } from "@/lib/use-app-config";
 import {
-  LayoutDashboard, User, Activity, Trophy, UtensilsCrossed,
+  LayoutDashboard, User, Activity, Trophy, UtensilsCrossed, Dumbbell,
   Settings, LogOut, Menu, X,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -14,6 +14,7 @@ const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/perfil", label: "Perfil", icon: User },
   { to: "/actividades", label: "Actividades", icon: Activity },
+  { to: "/entrenamientos", label: "Entrenamientos", icon: Dumbbell },
   { to: "/competiciones", label: "Competiciones", icon: Trophy },
   { to: "/recetas", label: "Recetas", icon: UtensilsCrossed },
 ] as const;
