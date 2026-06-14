@@ -179,17 +179,16 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function WorkoutCard({
   w,
-  onDownload,
   onComplete,
   onDelete,
 }: {
   w: any;
-  onDownload: () => void;
   onComplete: (rpe: number, notes?: string) => Promise<void>;
   onDelete: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [showRpe, setShowRpe] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [rpe, setRpe] = useState(3);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -197,100 +196,179 @@ function WorkoutCard({
   const plan = w.plan ?? {};
   const completed = w.status === "completed";
 
-  return (
-    <div className={`bg-surface border rounded-xl overflow-hidden ${completed ? "opacity-75" : ""}`}>
-      <div className="p-4 flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-semibold truncate">{plan.title ?? plan.name ?? "Entrenamiento"}</h3>
-            {completed && <span className="text-[10px] font-mono uppercase bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">Completado</span>}
-            <span className="text-[10px] font-mono uppercase bg-secondary px-2 py-0.5 rounded">{w.training_type}</span>
-            <span className="text-[10px] font-mono uppercase bg-secondary px-2 py-0.5 rounded">{w.bike_type}</span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {w.duration_minutes} min · {plan.steps?.length ?? 0} bloques
-            {completed && w.completed_at && ` · Completado ${format(new Date(w.completed_at), "d MMM", { locale: es })} · RPE ${w.rpe}/5`}
-          </p>
-          {plan.summary && <p className="text-sm mt-2">{plan.summary}</p>}
-        </div>
-        <div className="flex items-center gap-1 shrink-0">
-          <button onClick={onDownload} title="Descargar .FIT" className="p-2 rounded-md hover:bg-secondary text-primary">
-            <Download className="size-4" />
-          </button>
-          {!completed && (
-            <button onClick={() => setShowRpe((s) => !s)} title="Marcar completado" className="p-2 rounded-md hover:bg-secondary text-emerald-600">
-              <CheckCircle2 className="size-4" />
-            </button>
-          )}
-          <button onClick={onDelete} title="Eliminar" className="p-2 rounded-md hover:bg-secondary text-destructive">
-            <Trash2 className="size-4" />
-          </button>
-          <button onClick={() => setOpen((o) => !o)} className="p-2 rounded-md hover:bg-secondary">
-            <ChevronDown className={`size-4 transition-transform ${open ? "rotate-180" : ""}`} />
-          </button>
-        </div>
-      </div>
+  const handleDownload = () => {
+    const fit: FitWorkout = {
+      name: plan.name ?? "Workout",
+      sport: "cycling",
+      steps: (plan.steps ?? []).map((s: any): FitWorkoutStep => ({
+        name: s.name,
+        duration_type: s.duration_type === "open" ? "open" : "time",
+        duration_value: s.duration_seconds,
+        target: s.target,
+        target_low: s.target_low ?? 0,
+        target_high: s.target_high ?? 0,
+        intensity: s.intensity,
+      })),
+    };
+    const safe = (plan.name || "entrenamiento").replace(/[^a-zA-Z0-9_-]/g, "_");
+    downloadFit(fit, `${safe}_${w.id.slice(0, 6)}.fit`);
+    toast.success("Archivo .FIT descargado");
+    setShowPreview(false);
+  };
 
-      {showRpe && !completed && (
-        <div className="border-t bg-secondary/40 p-4 space-y-3">
-          <p className="text-sm font-semibold">¿Cómo te has sentido?</p>
-          <div className="flex gap-2">
-            {[1, 2, 3, 4, 5].map((n) => (
-              <button
-                key={n}
-                onClick={() => setRpe(n)}
-                className={`flex-1 py-3 rounded-lg border-2 font-bold transition ${rpe === n ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
-              >
-                {n}
+  return (
+    <>
+      <div className={`bg-surface border rounded-xl overflow-hidden ${completed ? "opacity-75" : ""}`}>
+        <div className="p-4 flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-semibold truncate">{plan.title ?? plan.name ?? "Entrenamiento"}</h3>
+              {completed && <span className="text-[10px] font-mono uppercase bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">Completado</span>}
+              <span className="text-[10px] font-mono uppercase bg-secondary px-2 py-0.5 rounded">{w.training_type}</span>
+              <span className="text-[10px] font-mono uppercase bg-secondary px-2 py-0.5 rounded">{w.bike_type}</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {w.duration_minutes} min · {plan.steps?.length ?? 0} bloques
+              {completed && w.completed_at && ` · Completado ${format(new Date(w.completed_at), "d MMM", { locale: es })} · RPE ${w.rpe}/5`}
+            </p>
+            {plan.summary && <p className="text-sm mt-2">{plan.summary}</p>}
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <button onClick={() => setShowPreview(true)} title="Ver y descargar .FIT" className="p-2 rounded-md hover:bg-secondary text-primary">
+              <Eye className="size-4" />
+            </button>
+            {!completed && (
+              <button onClick={() => setShowRpe((s) => !s)} title="Marcar completado" className="p-2 rounded-md hover:bg-secondary text-emerald-600">
+                <CheckCircle2 className="size-4" />
               </button>
+            )}
+            <button onClick={onDelete} title="Eliminar" className="p-2 rounded-md hover:bg-secondary text-destructive">
+              <Trash2 className="size-4" />
+            </button>
+            <button onClick={() => setOpen((o) => !o)} className="p-2 rounded-md hover:bg-secondary">
+              <ChevronDown className={`size-4 transition-transform ${open ? "rotate-180" : ""}`} />
+            </button>
+          </div>
+        </div>
+
+        {showRpe && !completed && (
+          <div className="border-t bg-secondary/40 p-4 space-y-3">
+            <p className="text-sm font-semibold">¿Cómo te has sentido?</p>
+            <div className="flex gap-2">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => setRpe(n)}
+                  className={`flex-1 py-3 rounded-lg border-2 font-bold transition ${rpe === n ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">1 = muy fácil · 5 = imposible terminar</p>
+            <textarea
+              className="input min-h-[60px]"
+              placeholder="Notas opcionales (sensaciones, dolor, condiciones…)"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => setShowRpe(false)} className="text-xs px-3 py-1.5 rounded-md hover:bg-secondary">Cancelar</button>
+              <button
+                disabled={submitting}
+                onClick={async () => {
+                  setSubmitting(true);
+                  try { await onComplete(rpe, notes || undefined); setShowRpe(false); }
+                  finally { setSubmitting(false); }
+                }}
+                className="text-xs font-semibold px-3 py-1.5 rounded-md bg-emerald-600 text-white hover:opacity-90 disabled:opacity-50"
+              >
+                {submitting ? "Guardando…" : "Confirmar"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {open && (
+          <div className="border-t bg-background/50 p-4 space-y-2">
+            <h4 className="text-xs font-mono uppercase text-muted-foreground tracking-wider mb-2">Estructura del entrenamiento</h4>
+            {(plan.steps ?? []).map((s: any, i: number) => (
+              <div key={i} className="flex items-start gap-3 py-2 border-b last:border-0">
+                <div className="w-6 text-center text-xs font-mono text-muted-foreground">{i + 1}</div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm">
+                    {s.name}
+                    <span className="ml-2 text-[10px] font-mono uppercase text-muted-foreground">{s.intensity}</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground">{s.description}</p>
+                  <p className="text-xs mt-0.5">
+                    {s.duration_type === "time" ? formatDuration(s.duration_seconds) : "Hasta lap"}
+                    {s.target !== "open" && ` · ${targetLabel(s)}`}
+                  </p>
+                </div>
+              </div>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground">1 = muy fácil · 5 = imposible terminar</p>
-          <textarea
-            className="input min-h-[60px]"
-            placeholder="Notas opcionales (sensaciones, dolor, condiciones…)"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
-          <div className="flex gap-2 justify-end">
-            <button onClick={() => setShowRpe(false)} className="text-xs px-3 py-1.5 rounded-md hover:bg-secondary">Cancelar</button>
+        )}
+      </div>
+
+      {/* Preview Modal */}
+      <Dialog open={showPreview} onOpenChange={setShowPreview}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl uppercase">{plan.title ?? plan.name ?? "Entrenamiento"}</DialogTitle>
+            <DialogDescription>
+              {w.duration_minutes} min · {plan.steps?.length ?? 0} bloques · {w.training_type} · {w.bike_type}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 mt-2">
+            {plan.summary && <p className="text-sm text-muted-foreground">{plan.summary}</p>}
+            <h4 className="text-xs font-mono uppercase text-muted-foreground tracking-wider">Estructura completa</h4>
+            <div className="space-y-2">
+              {(plan.steps ?? []).map((s: any, i: number) => (
+                <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/30 border">
+                  <div className="w-7 h-7 flex items-center justify-center rounded-full bg-primary/10 text-xs font-mono font-bold text-primary shrink-0">
+                    {i + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-semibold text-sm">{s.name}</p>
+                      <span className="text-[10px] font-mono uppercase bg-secondary px-1.5 py-0.5 rounded">{s.intensity}</span>
+                    </div>
+                    {s.description && <p className="text-xs text-muted-foreground mt-0.5">{s.description}</p>}
+                    <div className="flex gap-3 mt-1.5 text-xs">
+                      <span className="font-mono">
+                        {s.duration_type === "time" ? formatDuration(s.duration_seconds) : "Hasta lap"}
+                      </span>
+                      {s.target !== "open" && (
+                        <span className="font-mono text-primary">
+                          {targetLabel(s)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {(plan.steps ?? []).length === 0 && (
+                <p className="text-sm text-muted-foreground">No hay pasos definidos en este entrenamiento.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4 flex justify-end gap-2">
+            <button onClick={() => setShowPreview(false)} className="text-xs px-4 py-2 rounded-md hover:bg-secondary">Cerrar</button>
             <button
-              disabled={submitting}
-              onClick={async () => {
-                setSubmitting(true);
-                try { await onComplete(rpe, notes || undefined); setShowRpe(false); }
-                finally { setSubmitting(false); }
-              }}
-              className="text-xs font-semibold px-3 py-1.5 rounded-md bg-emerald-600 text-white hover:opacity-90 disabled:opacity-50"
+              onClick={handleDownload}
+              className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-md bg-primary text-primary-foreground hover:opacity-90"
             >
-              {submitting ? "Guardando…" : "Confirmar"}
+              <Download className="size-4" />
+              Descargar .FIT
             </button>
           </div>
-        </div>
-      )}
-
-      {open && (
-        <div className="border-t bg-background/50 p-4 space-y-2">
-          <h4 className="text-xs font-mono uppercase text-muted-foreground tracking-wider mb-2">Estructura del entrenamiento</h4>
-          {(plan.steps ?? []).map((s: any, i: number) => (
-            <div key={i} className="flex items-start gap-3 py-2 border-b last:border-0">
-              <div className="w-6 text-center text-xs font-mono text-muted-foreground">{i + 1}</div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm">
-                  {s.name}
-                  <span className="ml-2 text-[10px] font-mono uppercase text-muted-foreground">{s.intensity}</span>
-                </p>
-                <p className="text-xs text-muted-foreground">{s.description}</p>
-                <p className="text-xs mt-0.5">
-                  {s.duration_type === "time" ? formatDuration(s.duration_seconds) : "Hasta lap"}
-                  {s.target !== "open" && ` · ${targetLabel(s)}`}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
