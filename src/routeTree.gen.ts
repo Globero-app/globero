@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedRecetasRouteImport } from './routes/_authenticated/recetas'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
+import { Route as AuthenticatedEntrenamientosRouteImport } from './routes/_authenticated/entrenamientos'
 import { Route as AuthenticatedBackendRouteImport } from './routes/_authenticated/backend'
 import { Route as AuthenticatedActividadesRouteImport } from './routes/_authenticated/actividades'
 import { Route as AuthenticatedCompeticionesIndexRouteImport } from './routes/_authenticated/competiciones.index'
@@ -44,6 +45,12 @@ const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
   path: '/perfil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEntrenamientosRoute =
+  AuthenticatedEntrenamientosRouteImport.update({
+    id: '/entrenamientos',
+    path: '/entrenamientos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedBackendRoute = AuthenticatedBackendRouteImport.update({
   id: '/backend',
   path: '/backend',
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/actividades': typeof AuthenticatedActividadesRoute
   '/backend': typeof AuthenticatedBackendRoute
+  '/entrenamientos': typeof AuthenticatedEntrenamientosRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/recetas': typeof AuthenticatedRecetasRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
@@ -88,6 +96,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/actividades': typeof AuthenticatedActividadesRoute
   '/backend': typeof AuthenticatedBackendRoute
+  '/entrenamientos': typeof AuthenticatedEntrenamientosRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/recetas': typeof AuthenticatedRecetasRoute
   '/': typeof AuthenticatedIndexRoute
@@ -101,6 +110,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/actividades': typeof AuthenticatedActividadesRoute
   '/_authenticated/backend': typeof AuthenticatedBackendRoute
+  '/_authenticated/entrenamientos': typeof AuthenticatedEntrenamientosRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/recetas': typeof AuthenticatedRecetasRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/actividades'
     | '/backend'
+    | '/entrenamientos'
     | '/perfil'
     | '/recetas'
     | '/competiciones/$id'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/actividades'
     | '/backend'
+    | '/entrenamientos'
     | '/perfil'
     | '/recetas'
     | '/'
@@ -137,6 +149,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/actividades'
     | '/_authenticated/backend'
+    | '/_authenticated/entrenamientos'
     | '/_authenticated/perfil'
     | '/_authenticated/recetas'
     | '/_authenticated/'
@@ -188,6 +201,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPerfilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/entrenamientos': {
+      id: '/_authenticated/entrenamientos'
+      path: '/entrenamientos'
+      fullPath: '/entrenamientos'
+      preLoaderRoute: typeof AuthenticatedEntrenamientosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/backend': {
       id: '/_authenticated/backend'
       path: '/backend'
@@ -229,6 +249,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedActividadesRoute: typeof AuthenticatedActividadesRoute
   AuthenticatedBackendRoute: typeof AuthenticatedBackendRoute
+  AuthenticatedEntrenamientosRoute: typeof AuthenticatedEntrenamientosRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedRecetasRoute: typeof AuthenticatedRecetasRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
@@ -239,6 +260,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedActividadesRoute: AuthenticatedActividadesRoute,
   AuthenticatedBackendRoute: AuthenticatedBackendRoute,
+  AuthenticatedEntrenamientosRoute: AuthenticatedEntrenamientosRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedRecetasRoute: AuthenticatedRecetasRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,

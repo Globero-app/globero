@@ -248,6 +248,51 @@ export type Database = {
         }
         Relationships: []
       }
+      workouts: {
+        Row: {
+          bike_type: string
+          completed_at: string | null
+          created_at: string
+          duration_minutes: number
+          feedback_notes: string | null
+          id: string
+          plan: Json
+          rpe: number | null
+          status: string
+          training_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bike_type: string
+          completed_at?: string | null
+          created_at?: string
+          duration_minutes: number
+          feedback_notes?: string | null
+          id?: string
+          plan: Json
+          rpe?: number | null
+          status?: string
+          training_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bike_type?: string
+          completed_at?: string | null
+          created_at?: string
+          duration_minutes?: number
+          feedback_notes?: string | null
+          id?: string
+          plan?: Json
+          rpe?: number | null
+          status?: string
+          training_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
