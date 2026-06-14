@@ -72,25 +72,6 @@ function EntrenamientosPage() {
     onError: (e: any) => toast.error(e.message ?? "Error generando entrenamientos"),
   });
 
-  const handleDownload = (w: any) => {
-    const plan = w.plan;
-    const fit: FitWorkout = {
-      name: plan.name ?? "Workout",
-      sport: "cycling",
-      steps: (plan.steps ?? []).map((s: any): FitWorkoutStep => ({
-        name: s.name,
-        duration_type: s.duration_type === "open" ? "open" : "time",
-        duration_value: s.duration_seconds,
-        target: s.target,
-        target_low: s.target_low ?? 0,
-        target_high: s.target_high ?? 0,
-        intensity: s.intensity,
-      })),
-    };
-    const safe = (plan.name || "entrenamiento").replace(/[^a-zA-Z0-9_-]/g, "_");
-    downloadFit(fit, `${safe}_${w.id.slice(0, 6)}.fit`);
-    toast.success("Archivo .FIT descargado");
-  };
 
   return (
     <div className="space-y-8">
