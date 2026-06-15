@@ -105,7 +105,47 @@ export const generateWorkouts = createServerFn({ method: "POST" })
     const ftp = profile.ftp ?? null;
     const weight = profile.weight_kg ?? 70;
 
-    const prompt = `Eres un entrenador profesional de ciclismo. Diseña ${data.count} entrenamiento(s) personalizados para este ciclista.
+    // Si hay competición, sobreescribimos cantidad y construimos plan periodizado
+    let competition: any = null;
+    let effectiveCount = data.count;
+    let competitionBlock = "";
+    if (data.competition_id) {
+      const { data: comp } = await supabase
+        .from("competitions")
+        .select("name,date,type,distance_km,elevation_m,duration_hours,intensity,notes")
+        .eq("id", data.competition_id)
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (!comp) throw new Error("Competición no encontrada");
+      competition = comp;
+
+      const today = new Date();
+      const eventDate = new Date(comp.date);
+      const daysUntil = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      if (daysUntil <= 0) throw new Error("La competición ya ha pasado");
+      const weeksUntil = Math.max(1, Math.ceil(daysUntil / 7));
+      // Máximo 3 por semana, máximo 10 por generación
+      effectiveCount = Math.min(10, Math.max(1, weeksUntil * 3));
+
+      competitionBlock = `
+
+COMPETICIÓN OBJETIVO:
+- Nombre: ${comp.name}
+- Fecha del evento: ${comp.date} (en ${daysUntil} días, ~${weeksUntil} semanas)
+- Tipo: ${comp.type ?? "n/a"}
+- Distancia: ${comp.distance_km ?? "n/a"} km · Desnivel: ${comp.elevation_m ?? "n/a"} m
+- Duración estimada: ${comp.duration_hours ?? "n/a"} h · Intensidad: ${comp.intensity ?? "n/a"}
+- Notas: ${comp.notes ?? "—"}
+
+PERIODIZACIÓN OBLIGATORIA:
+- Genera exactamente ${effectiveCount} entrenamientos (máximo 3 por semana durante ${weeksUntil} semanas hasta el día del evento).
+- Distribuye los entrenamientos cronológicamente con campo "scheduled_date" (formato YYYY-MM-DD) entre HOY (${today.toISOString().slice(0, 10)}) y la fecha del evento, sin exceder 3 por semana.
+- Combina resistencia, intervalos y fuerza según las demandas de la competición (más resistencia si es larga, más intervalos si es corta/intensa, fuerza si tiene mucho desnivel).
+- Aplica progresión clásica: base → construcción → pico → tapering en la última semana antes del evento (volumen e intensidad bajos los últimos 5-7 días).
+- El último entrenamiento debe ser corto y de activación 1-2 días antes del evento.`;
+    }
+
+    const prompt = `Eres un entrenador profesional de ciclismo. Diseña ${effectiveCount} entrenamiento(s) personalizados para este ciclista.
 
 PERFIL:
 - Edad: ${profile.age ?? "n/a"}, Sexo: ${profile.gender ?? "n/a"}, Peso: ${weight}kg
@@ -113,9 +153,10 @@ PERFIL:
 - Tipo de bici: ${data.bike_type}
 
 PETICIÓN:
-- Foco: ${data.training_type} ${data.training_type === "mixto" ? "(combina resistencia, intervalos y fuerza repartidos entre los entrenamientos)" : ""}
+- Foco: ${competition ? "preparación específica para la competición indicada" : data.training_type} ${data.training_type === "mixto" && !competition ? "(combina resistencia, intervalos y fuerza)" : ""}
 - Duración objetivo de CADA entrenamiento: ${data.duration_minutes} minutos
-- Cantidad: ${data.count} entrenamiento(s) distintos
+- Cantidad: ${effectiveCount} entrenamiento(s) distintos
+${competitionBlock}
 
 ACTIVIDADES RECIENTES (Strava): ${recent && recent.length ? JSON.stringify(recent) : "ninguna"}
 
@@ -127,21 +168,22 @@ INSTRUCCIONES:
 3. Define cada step con duration_type='time' y duration_seconds, salvo descansos abiertos (open).
 4. Si hay FTP, usa target='power' con target_low/high en VATIOS basados en zonas (Z2 56-75%, Z3 76-90%, Z4 91-105%, Z5 106-120%, Z6 121-150%).
 5. Si NO hay FTP, usa target='hr' con bpm aproximados (180-edad como FCmax base) o target='open'.
-6. Para entrenamientos de fuerza sobre la bici: usa cadencia baja (50-60rpm) con potencia Z3-Z4, indica target='cadence' con target_low/high y describe en description la potencia/sensación.
+6. Para entrenamientos de fuerza sobre la bici: usa cadencia baja (50-60rpm) con potencia Z3-Z4.
 7. Nombre del entrenamiento (name) MÁXIMO 15 caracteres. Title puede ser largo.
 8. Ajusta volumen/intensidad según feedback previo: si RPE medio >4 reduce intensidad, si <2 aumenta.
 9. TODO en ESPAÑOL.
-10. Si count>1, los entrenamientos deben ser DISTINTOS y progresivos.`;
+10. Los entrenamientos deben ser DISTINTOS y progresivos.
+${competition ? '11. Cada workout DEBE incluir "scheduled_date" (YYYY-MM-DD) y "focus" coherente con la fase de periodización.' : ""}`;
 
     const result = await callAI([{ role: "user", content: prompt }], PlanSchema);
 
     // Guarda cada entrenamiento individualmente
     const rows = (result.workouts as any[]).map((w) => ({
       user_id: userId,
-      training_type: data.training_type,
+      training_type: competition ? (w.focus ?? data.training_type) : data.training_type,
       bike_type: data.bike_type,
       duration_minutes: data.duration_minutes,
-      plan: w,
+      plan: { ...w, competition_id: data.competition_id ?? null, competition_name: competition?.name ?? null, scheduled_date: w.scheduled_date ?? null },
       status: "pending",
     }));
     const { data: inserted, error } = await supabase.from("workouts").insert(rows).select();
