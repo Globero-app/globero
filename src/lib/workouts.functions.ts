@@ -103,6 +103,14 @@ export const generateWorkouts = createServerFn({ method: "POST" })
       .order("completed_at", { ascending: false })
       .limit(8);
 
+    const { data: pastRaces } = await supabase
+      .from("competitions")
+      .select("name,date,type,distance_km,elevation_m,race_feedback")
+      .eq("user_id", userId)
+      .not("race_feedback", "is", null)
+      .order("date", { ascending: false })
+      .limit(5);
+
     const ftp = profile.ftp ?? null;
     const weight = profile.weight_kg ?? 70;
 
@@ -162,6 +170,8 @@ ${competitionBlock}
 ACTIVIDADES RECIENTES (Strava): ${recent && recent.length ? JSON.stringify(recent) : "ninguna"}
 
 FEEDBACK PREVIO (RPE 1=fácil, 5=imposible): ${prevWorkouts && prevWorkouts.length ? JSON.stringify(prevWorkouts.map((w: any) => ({ tipo: w.training_type, min: w.duration_minutes, rpe: w.rpe, notas: w.feedback_notes }))) : "sin histórico"}
+
+CARRERAS PASADAS (post-race feedback del usuario, úsalo para ajustar volumen, intensidad y enfoque en nutrición/ritmo): ${pastRaces && pastRaces.length ? JSON.stringify(pastRaces) : "sin carreras previas con feedback"}
 
 INSTRUCCIONES:
 1. Cada entrenamiento DEBE durar aproximadamente ${data.duration_minutes} minutos (suma de duration_seconds de los steps).

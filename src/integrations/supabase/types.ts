@@ -62,6 +62,7 @@ export type Database = {
           name: string
           notes: string | null
           nutrition_plan: Json | null
+          race_feedback: Json | null
           track_points: Json | null
           type: string
           updated_at: string
@@ -82,6 +83,7 @@ export type Database = {
           name: string
           notes?: string | null
           nutrition_plan?: Json | null
+          race_feedback?: Json | null
           track_points?: Json | null
           type?: string
           updated_at?: string
@@ -102,6 +104,7 @@ export type Database = {
           name?: string
           notes?: string | null
           nutrition_plan?: Json | null
+          race_feedback?: Json | null
           track_points?: Json | null
           type?: string
           updated_at?: string

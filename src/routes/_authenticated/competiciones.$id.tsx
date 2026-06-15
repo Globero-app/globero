@@ -222,7 +222,130 @@ function CompetitionDetail() {
         </div>
       </div>
 
+      <PostRaceSection competition={c} onSaved={() => qc.invalidateQueries({ queryKey: ["competition", id] })} />
+
       {viewRecipe && <RecipeModal recipe={viewRecipe} onClose={() => setViewRecipe(null)} />}
+    </div>
+  );
+}
+
+function PostRaceSection({ competition, onSaved }: { competition: any; onSaved: () => void }) {
+  const isPast = new Date(competition.date) <= new Date(new Date().toDateString());
+  const existing = competition.race_feedback ?? null;
+  const [editing, setEditing] = useState(!existing);
+  const [energy, setEnergy] = useState<number>(existing?.energy ?? 3);
+  const [legs, setLegs] = useState<number>(existing?.legs ?? 3);
+  const [nutrition, setNutrition] = useState<number>(existing?.nutrition ?? 3);
+  const [hydration, setHydration] = useState<number>(existing?.hydration ?? 3);
+  const [pacing, setPacing] = useState<number>(existing?.pacing ?? 3);
+  const [overall, setOverall] = useState<number>(existing?.overall ?? 3);
+  const [worked, setWorked] = useState<string>(existing?.what_worked ?? "");
+  const [didnt, setDidnt] = useState<string>(existing?.what_didnt ?? "");
+  const [notes, setNotes] = useState<string>(existing?.notes ?? "");
+  const [saving, setSaving] = useState(false);
+
+  if (!isPast) return null;
+
+  const save = async () => {
+    setSaving(true);
+    const payload = { energy, legs, nutrition, hydration, pacing, overall, what_worked: worked, what_didnt: didnt, notes, saved_at: new Date().toISOString() };
+    const { error } = await supabase.from("competitions").update({ race_feedback: payload as any }).eq("id", competition.id);
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Feedback guardado. La IA lo usará en próximos planes.");
+    setEditing(false);
+    onSaved();
+  };
+
+  return (
+    <div className="bg-surface border rounded-xl p-5 space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary">Post-carrera</p>
+          <h2 className="font-display text-xl font-bold uppercase">¿Cómo fue la competición?</h2>
+          <p className="text-xs text-muted-foreground mt-1">La IA aprenderá y ajustará tus próximos planes y nutrición.</p>
+        </div>
+        {existing && !editing && (
+          <button onClick={() => setEditing(true)} className="text-xs font-semibold bg-secondary px-3 py-1.5 rounded-lg">Editar</button>
+        )}
+      </div>
+
+      {!editing && existing ? (
+        <div className="grid sm:grid-cols-3 gap-3 text-sm">
+          <Stat label="Energía" value={existing.energy} />
+          <Stat label="Piernas" value={existing.legs} />
+          <Stat label="Nutrición" value={existing.nutrition} />
+          <Stat label="Hidratación" value={existing.hydration} />
+          <Stat label="Ritmo" value={existing.pacing} />
+          <Stat label="Global" value={existing.overall} highlight />
+          {existing.what_worked && <div className="sm:col-span-3"><p className="text-[10px] uppercase font-mono text-muted-foreground">Funcionó</p><p>{existing.what_worked}</p></div>}
+          {existing.what_didnt && <div className="sm:col-span-3"><p className="text-[10px] uppercase font-mono text-muted-foreground">No funcionó</p><p>{existing.what_didnt}</p></div>}
+          {existing.notes && <div className="sm:col-span-3"><p className="text-[10px] uppercase font-mono text-muted-foreground">Notas</p><p className="text-muted-foreground">{existing.notes}</p></div>}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Rating label="Energía durante la carrera" value={energy} onChange={setEnergy} lo="agotado" hi="enchufado" />
+            <Rating label="Sensación de piernas" value={legs} onChange={setLegs} lo="cargadas" hi="ligeras" />
+            <Rating label="Nutrición" value={nutrition} onChange={setNutrition} lo="mal (pájara/molestias)" hi="perfecta" />
+            <Rating label="Hidratación" value={hydration} onChange={setHydration} lo="deshidratado" hi="óptima" />
+            <Rating label="Gestión del ritmo" value={pacing} onChange={setPacing} lo="descontrolado" hi="muy bien" />
+            <Rating label="Valoración global" value={overall} onChange={setOverall} lo="mala" hi="excelente" />
+          </div>
+          <Field label="¿Qué funcionó? (geles, comida, estrategia, descanso…)">
+            <textarea className="input min-h-[60px]" value={worked} onChange={(e) => setWorked(e.target.value)} placeholder="Ej: geles cada 30min, plato de pasta la noche antes, salida conservadora…" />
+          </Field>
+          <Field label="¿Qué NO funcionó?">
+            <textarea className="input min-h-[60px]" value={didnt} onChange={(e) => setDidnt(e.target.value)} placeholder="Ej: barritas pesadas, salí muy rápido, faltó agua entre KM 40-60…" />
+          </Field>
+          <Field label="Notas adicionales">
+            <textarea className="input min-h-[60px]" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Tiempo, condiciones, dolores, aprendizajes…" />
+          </Field>
+          <div className="flex justify-end gap-2">
+            {existing && <button onClick={() => setEditing(false)} className="text-xs px-3 py-1.5 rounded-md hover:bg-secondary">Cancelar</button>}
+            <button onClick={save} disabled={saving} className="text-xs font-semibold px-4 py-2 rounded-md bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50">
+              {saving ? "Guardando…" : "Guardar feedback"}
+            </button>
+          </div>
+          <style>{`.input{width:100%;padding:.55rem .75rem;border-radius:.5rem;border:1px solid var(--border);background:var(--surface);font-size:.875rem;outline:none}`}</style>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">{label}</span>
+      <div className="mt-1.5">{children}</div>
+    </label>
+  );
+}
+
+function Rating({ label, value, onChange, lo, hi }: { label: string; value: number; onChange: (n: number) => void; lo: string; hi: string }) {
+  return (
+    <div>
+      <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1.5">{label}</p>
+      <div className="flex gap-1">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button key={n} onClick={() => onChange(n)} className={`flex-1 py-2 rounded-md border-2 text-sm font-bold transition ${value === n ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/50"}`}>
+            {n}
+          </button>
+        ))}
+      </div>
+      <div className="flex justify-between text-[9px] uppercase tracking-wider text-muted-foreground mt-1">
+        <span>1 · {lo}</span><span>5 · {hi}</span>
+      </div>
+    </div>
+  );
+}
+
+function Stat({ label, value, highlight }: { label: string; value: number; highlight?: boolean }) {
+  return (
+    <div className={`rounded-lg border p-3 ${highlight ? "bg-primary/10 border-primary/30" : "bg-background"}`}>
+      <p className="text-[10px] uppercase font-mono text-muted-foreground">{label}</p>
+      <p className={`text-2xl font-bold ${highlight ? "text-primary" : ""}`}>{value}<span className="text-xs text-muted-foreground">/5</span></p>
     </div>
   );
 }
