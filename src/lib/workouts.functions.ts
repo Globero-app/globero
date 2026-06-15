@@ -66,6 +66,7 @@ const WorkoutSchema = {
     summary: { type: "string", description: "Resumen 2-3 frases del objetivo y estructura" },
     focus: { type: "string", enum: ["resistencia", "intervalos", "fuerza", "mixto"] },
     estimated_tss: { type: "number" },
+    scheduled_date: { type: "string", description: "Fecha planificada YYYY-MM-DD (solo si hay competición objetivo, si no cadena vacía)" },
     steps: { type: "array", items: StepSchema, minItems: 3 },
   },
   required: ["name", "title", "summary", "focus", "steps"],
