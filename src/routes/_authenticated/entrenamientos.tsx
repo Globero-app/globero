@@ -102,9 +102,28 @@ function EntrenamientosPage() {
       {/* Generador */}
       <div className="bg-surface border rounded-xl p-5 space-y-4">
         <h2 className="font-display text-lg font-bold uppercase">Generar nuevos entrenamientos</h2>
+
+        {competitions.data && competitions.data.length > 0 && (
+          <Field label="Competición objetivo (opcional)">
+            <select className="input" value={competitionId} onChange={(e) => setCompetitionId(e.target.value)}>
+              <option value="">— Sin competición (entrenamiento libre) —</option>
+              {competitions.data.map((c: any) => (
+                <option key={c.id} value={c.id}>
+                  {c.name} · {format(new Date(c.date), "d MMM yyyy", { locale: es })}
+                </option>
+              ))}
+            </select>
+            {hasCompetition && (
+              <p className="text-[11px] text-muted-foreground mt-1.5">
+                La IA generará un plan periodizado (máx. 3/semana) hasta el día del evento. Tipo y cantidad se calculan automáticamente.
+              </p>
+            )}
+          </Field>
+        )}
+
         <div className="grid md:grid-cols-2 gap-4">
           <Field label="Tipo de entrenamiento">
-            <select className="input" value={trainingType} onChange={(e) => setTrainingType(e.target.value as any)}>
+            <select disabled={hasCompetition} className="input disabled:opacity-50 disabled:cursor-not-allowed" value={trainingType} onChange={(e) => setTrainingType(e.target.value as any)}>
               {TRAINING_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </Field>
@@ -113,8 +132,8 @@ function EntrenamientosPage() {
               {BIKE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </Field>
-          <Field label={`Cantidad: ${count} entrenamiento${count > 1 ? "s" : ""}`}>
-            <input type="range" min={1} max={10} value={count} onChange={(e) => setCount(Number(e.target.value))} className="w-full" />
+          <Field label={hasCompetition ? "Cantidad: la calcula la IA" : `Cantidad: ${count} entrenamiento${count > 1 ? "s" : ""}`}>
+            <input disabled={hasCompetition} type="range" min={1} max={10} value={count} onChange={(e) => setCount(Number(e.target.value))} className="w-full disabled:opacity-50 disabled:cursor-not-allowed" />
           </Field>
           <Field label={`Duración por entrenamiento: ${duration} min`}>
             <input type="range" min={20} max={240} step={5} value={duration} onChange={(e) => setDuration(Number(e.target.value))} className="w-full" />
@@ -126,7 +145,7 @@ function EntrenamientosPage() {
           className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50"
         >
           {generateMut.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
-          {generateMut.isPending ? "Generando con IA…" : "Generar con IA"}
+          {generateMut.isPending ? "Generando con IA…" : hasCompetition ? "Generar plan para la competición" : "Generar con IA"}
         </button>
       </div>
 
