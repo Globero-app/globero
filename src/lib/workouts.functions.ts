@@ -171,6 +171,8 @@ ACTIVIDADES RECIENTES (Strava): ${recent && recent.length ? JSON.stringify(recen
 
 FEEDBACK PREVIO (RPE 1=fácil, 5=imposible): ${prevWorkouts && prevWorkouts.length ? JSON.stringify(prevWorkouts.map((w: any) => ({ tipo: w.training_type, min: w.duration_minutes, rpe: w.rpe, notas: w.feedback_notes }))) : "sin histórico"}
 
+CARRERAS PASADAS (post-race feedback del usuario, úsalo para ajustar volumen, intensidad y enfoque en nutrición/ritmo): ${pastRaces && pastRaces.length ? JSON.stringify(pastRaces) : "sin carreras previas con feedback"}
+
 INSTRUCCIONES:
 1. Cada entrenamiento DEBE durar aproximadamente ${data.duration_minutes} minutos (suma de duration_seconds de los steps).
 2. Incluye SIEMPRE un calentamiento (warmup) y vuelta a la calma (cooldown).
