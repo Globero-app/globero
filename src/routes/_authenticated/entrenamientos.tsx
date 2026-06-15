@@ -49,6 +49,24 @@ function EntrenamientosPage() {
   const [bikeType, setBikeType] = useState<typeof BIKE_OPTIONS[number]["value"]>("carretera");
   const [count, setCount] = useState(3);
   const [duration, setDuration] = useState(60);
+  const [competitionId, setCompetitionId] = useState<string>("");
+
+  const competitions = useQuery({
+    queryKey: ["competitions-future", user?.id],
+    queryFn: async () => {
+      const today = new Date().toISOString().slice(0, 10);
+      const { data } = await supabase
+        .from("competitions")
+        .select("id,name,date")
+        .eq("user_id", user!.id)
+        .gte("date", today)
+        .order("date", { ascending: true });
+      return data ?? [];
+    },
+    enabled: !!user,
+  });
+
+  const hasCompetition = !!competitionId;
 
   const workouts = useQuery({
     queryKey: ["workouts", user?.id],
@@ -64,9 +82,10 @@ function EntrenamientosPage() {
   });
 
   const generateMut = useMutation({
-    mutationFn: () => gen({ data: { training_type: trainingType, bike_type: bikeType, count, duration_minutes: duration } }),
-    onSuccess: () => {
-      toast.success(`${count} entrenamiento${count > 1 ? "s" : ""} generado${count > 1 ? "s" : ""}`);
+    mutationFn: () => gen({ data: { training_type: trainingType, bike_type: bikeType, count, duration_minutes: duration, competition_id: competitionId || null } }),
+    onSuccess: (inserted: any) => {
+      const n = Array.isArray(inserted) ? inserted.length : count;
+      toast.success(hasCompetition ? `Plan para tu competición creado: ${n} entrenamientos` : `${n} entrenamiento${n > 1 ? "s" : ""} generado${n > 1 ? "s" : ""}`);
       qc.invalidateQueries({ queryKey: ["workouts"] });
     },
     onError: (e: any) => toast.error(e.message ?? "Error generando entrenamientos"),
