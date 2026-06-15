@@ -40,6 +40,7 @@ const GenInput = z.object({
   bike_type: z.enum(BIKE_TYPES),
   count: z.number().int().min(1).max(10),
   duration_minutes: z.number().int().min(20).max(360),
+  competition_id: z.string().uuid().optional().nullable(),
 });
 
 const StepSchema = {
