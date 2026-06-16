@@ -209,10 +209,12 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function WorkoutCard({
   w,
+  ftp,
   onComplete,
   onDelete,
 }: {
   w: any;
+  ftp: number;
   onComplete: (rpe: number, notes?: string) => Promise<void>;
   onDelete: () => void;
 }) {
