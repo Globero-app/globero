@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { SponsorsFooter } from "@/components/SponsorsFooter";
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -144,6 +145,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </motion.div>
           </AnimatePresence>
         </div>
+        <SponsorsFooter />
       </main>
 
       {/* Mobile bottom nav */}
