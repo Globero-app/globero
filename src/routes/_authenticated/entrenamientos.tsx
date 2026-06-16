@@ -248,6 +248,28 @@ function WorkoutCard({
     setShowPreview(false);
   };
 
+  const handleDownloadZwo = () => {
+    const zwo: ZwoWorkout = {
+      name: plan.title ?? plan.name ?? "Workout",
+      description: plan.summary ?? "",
+      author: "Sentmenat Bici",
+      steps: (plan.steps ?? []).map((s: any): ZwoStep => ({
+        name: s.name,
+        description: s.description,
+        duration_type: s.duration_type === "open" ? "open" : "time",
+        duration_seconds: s.duration_seconds,
+        target: s.target,
+        target_low: s.target_low ?? 0,
+        target_high: s.target_high ?? 0,
+        intensity: s.intensity,
+      })),
+    };
+    const safe = (plan.name || "entrenamiento").replace(/[^a-zA-Z0-9_-]/g, "_");
+    downloadZwo(zwo, ftp, `${safe}_${w.id.slice(0, 6)}.zwo`);
+    toast.success(`Archivo .ZWO descargado (FTP ${ftp}W)`);
+    setShowPreview(false);
+  };
+
   return (
     <>
       <div className={`bg-surface border rounded-xl overflow-hidden ${completed ? "opacity-75" : ""}`}>
