@@ -412,15 +412,27 @@ function WorkoutCard({
             </div>
           </div>
 
-          <div className="mt-4 flex justify-end gap-2">
-            <button onClick={() => setShowPreview(false)} className="text-xs px-4 py-2 rounded-md hover:bg-secondary">Cerrar</button>
-            <button
-              onClick={handleDownload}
-              className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-md bg-primary text-primary-foreground hover:opacity-90"
-            >
-              <Download className="size-4" />
-              Descargar .FIT
-            </button>
+          <div className="mt-4 space-y-2">
+            <p className="text-[11px] text-muted-foreground text-center">
+              Garmin / Wahoo / Edge → <span className="font-semibold">.FIT</span> · TrainingPeaks / Zwift → <span className="font-semibold">.ZWO</span>
+            </p>
+            <div className="flex flex-wrap justify-end gap-2">
+              <button onClick={() => setShowPreview(false)} className="text-xs px-4 py-2 rounded-md hover:bg-secondary">Cerrar</button>
+              <button
+                onClick={handleDownloadZwo}
+                className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-md border-2 border-primary text-primary hover:bg-primary/10"
+              >
+                <FileDown className="size-4" />
+                Descargar .ZWO
+              </button>
+              <button
+                onClick={handleDownload}
+                className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-md bg-primary text-primary-foreground hover:opacity-90"
+              >
+                <Download className="size-4" />
+                Descargar .FIT
+              </button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
