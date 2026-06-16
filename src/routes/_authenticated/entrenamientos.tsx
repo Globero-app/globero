@@ -6,7 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { generateWorkouts, completeWorkout, deleteWorkout } from "@/lib/workouts.functions";
 import { downloadFit, type FitWorkout, type FitWorkoutStep } from "@/lib/fit-writer";
-import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye } from "lucide-react";
+import { downloadZwo, type ZwoWorkout, type ZwoStep } from "@/lib/zwo-writer";
+import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown } from "lucide-react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -65,6 +66,16 @@ function EntrenamientosPage() {
     },
     enabled: !!user,
   });
+
+  const profile = useQuery({
+    queryKey: ["profile-ftp", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("ftp").eq("id", user!.id).maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+  const ftp = profile.data?.ftp ?? 250;
 
   const hasCompetition = !!competitionId;
 
@@ -167,6 +178,7 @@ function EntrenamientosPage() {
           <WorkoutCard
             key={w.id}
             w={w}
+            ftp={ftp}
             onComplete={async (rpe, notes) => {
               await complete({ data: { workout_id: w.id, rpe, notes } });
               toast.success("Entrenamiento marcado como completado");
@@ -197,10 +209,12 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function WorkoutCard({
   w,
+  ftp,
   onComplete,
   onDelete,
 }: {
   w: any;
+  ftp: number;
   onComplete: (rpe: number, notes?: string) => Promise<void>;
   onDelete: () => void;
 }) {
@@ -231,6 +245,28 @@ function WorkoutCard({
     const safe = (plan.name || "entrenamiento").replace(/[^a-zA-Z0-9_-]/g, "_");
     downloadFit(fit, `${safe}_${w.id.slice(0, 6)}.fit`);
     toast.success("Archivo .FIT descargado");
+    setShowPreview(false);
+  };
+
+  const handleDownloadZwo = () => {
+    const zwo: ZwoWorkout = {
+      name: plan.title ?? plan.name ?? "Workout",
+      description: plan.summary ?? "",
+      author: "Sentmenat Bici",
+      steps: (plan.steps ?? []).map((s: any): ZwoStep => ({
+        name: s.name,
+        description: s.description,
+        duration_type: s.duration_type === "open" ? "open" : "time",
+        duration_seconds: s.duration_seconds,
+        target: s.target,
+        target_low: s.target_low ?? 0,
+        target_high: s.target_high ?? 0,
+        intensity: s.intensity,
+      })),
+    };
+    const safe = (plan.name || "entrenamiento").replace(/[^a-zA-Z0-9_-]/g, "_");
+    downloadZwo(zwo, ftp, `${safe}_${w.id.slice(0, 6)}.zwo`);
+    toast.success(`Archivo .ZWO descargado (FTP ${ftp}W)`);
     setShowPreview(false);
   };
 
@@ -376,15 +412,27 @@ function WorkoutCard({
             </div>
           </div>
 
-          <div className="mt-4 flex justify-end gap-2">
-            <button onClick={() => setShowPreview(false)} className="text-xs px-4 py-2 rounded-md hover:bg-secondary">Cerrar</button>
-            <button
-              onClick={handleDownload}
-              className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-md bg-primary text-primary-foreground hover:opacity-90"
-            >
-              <Download className="size-4" />
-              Descargar .FIT
-            </button>
+          <div className="mt-4 space-y-2">
+            <p className="text-[11px] text-muted-foreground text-center">
+              Garmin / Wahoo / Edge → <span className="font-semibold">.FIT</span> · TrainingPeaks / Zwift → <span className="font-semibold">.ZWO</span>
+            </p>
+            <div className="flex flex-wrap justify-end gap-2">
+              <button onClick={() => setShowPreview(false)} className="text-xs px-4 py-2 rounded-md hover:bg-secondary">Cerrar</button>
+              <button
+                onClick={handleDownloadZwo}
+                className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-md border-2 border-primary text-primary hover:bg-primary/10"
+              >
+                <FileDown className="size-4" />
+                Descargar .ZWO
+              </button>
+              <button
+                onClick={handleDownload}
+                className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-md bg-primary text-primary-foreground hover:opacity-90"
+              >
+                <Download className="size-4" />
+                Descargar .FIT
+              </button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
