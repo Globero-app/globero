@@ -67,6 +67,16 @@ function EntrenamientosPage() {
     enabled: !!user,
   });
 
+  const profile = useQuery({
+    queryKey: ["profile-ftp", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("ftp").eq("id", user!.id).maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+  const ftp = profile.data?.ftp ?? 250;
+
   const hasCompetition = !!competitionId;
 
   const workouts = useQuery({
