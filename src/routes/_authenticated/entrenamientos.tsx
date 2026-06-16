@@ -178,6 +178,7 @@ function EntrenamientosPage() {
           <WorkoutCard
             key={w.id}
             w={w}
+            ftp={ftp}
             onComplete={async (rpe, notes) => {
               await complete({ data: { workout_id: w.id, rpe, notes } });
               toast.success("Entrenamiento marcado como completado");
