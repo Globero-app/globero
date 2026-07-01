@@ -6,10 +6,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { stravaSync } from "@/lib/strava.functions";
 import { toast } from "sonner";
 import { RefreshCw, Activity, ExternalLink } from "lucide-react";
+import { useEffect, useRef } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
-import { format } from "date-fns";
+import { format, eachDayOfInterval } from "date-fns";
 import { es } from "date-fns/locale";
 
 export const Route = createFileRoute("/_authenticated/actividades")({
