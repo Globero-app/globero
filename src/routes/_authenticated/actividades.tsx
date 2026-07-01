@@ -138,23 +138,30 @@ function ActividadesPage() {
 
 function buildCtlAtl(acts: any[]) {
   if (acts.length === 0) return [];
-  // Ordena ascendente por fecha
   const sorted = [...acts].sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
-  // Agrupa por día
   const dayMap = new Map<string, number>();
   sorted.forEach((a) => {
     const d = format(new Date(a.start_date), "yyyy-MM-dd");
     dayMap.set(d, (dayMap.get(d) ?? 0) + (a.suffer_score ?? 0));
   });
-  const days = Array.from(dayMap.entries());
-  // EMA CTL=42 ATL=7
+  const start = new Date(sorted[0].start_date);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date();
+  end.setHours(0, 0, 0, 0);
+  const allDays = eachDayOfInterval({ start, end });
   const result: any[] = [];
   let ctl = 0, atl = 0;
-  days.forEach(([d, tss]) => {
+  allDays.forEach((day) => {
+    const key = format(day, "yyyy-MM-dd");
+    const tss = dayMap.get(key) ?? 0; // día sin actividad = descanso
     ctl = ctl + (tss - ctl) * (1 - Math.exp(-1 / 42));
     atl = atl + (tss - atl) * (1 - Math.exp(-1 / 7));
-    const tsb = ctl - atl;
-    result.push({ label: format(new Date(d), "d MMM", { locale: es }), carga: Math.round(ctl), fatiga: Math.round(atl), tsb: Math.round(tsb) });
+    result.push({
+      label: format(day, "d MMM", { locale: es }),
+      carga: Math.round(ctl),
+      fatiga: Math.round(atl),
+      tsb: Math.round(ctl - atl),
+    });
   });
   return result;
 }
