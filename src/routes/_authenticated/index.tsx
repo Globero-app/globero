@@ -2,11 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
+import { useServerFn } from "@tanstack/react-start";
+import { stravaSync } from "@/lib/strava.functions";
 import { Trophy, Flame, Bike, ChevronRight, Plus, Trash2, Activity, Timer, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useRef } from "react";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: Dashboard,
