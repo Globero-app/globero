@@ -18,6 +18,7 @@ export const Route = createFileRoute("/_authenticated/")({
 function Dashboard() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const sync = useServerFn(stravaSync);
 
   const profile = useQuery({
     queryKey: ["profile", user?.id],
