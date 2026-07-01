@@ -47,6 +47,23 @@ function Dashboard() {
     enabled: !!user,
   });
 
+  // Auto-sync Strava al abrir el dashboard (una vez cada 10 min)
+  const autoSyncedRef = useRef(false);
+  useEffect(() => {
+    if (!user || !profile.data?.strava_access_token || autoSyncedRef.current) return;
+    const key = `strava:lastSync:${user.id}`;
+    const last = Number(localStorage.getItem(key) ?? 0);
+    if (Date.now() - last < 10 * 60 * 1000) return;
+    autoSyncedRef.current = true;
+    localStorage.setItem(key, String(Date.now()));
+    sync({ data: undefined })
+      .then(() => {
+        qc.invalidateQueries({ queryKey: ["recent_activities"] });
+        qc.invalidateQueries({ queryKey: ["strava_activities"] });
+      })
+      .catch(() => {});
+  }, [user, profile.data?.strava_access_token, sync, qc]);
+
   const handleDelete = async (id: string) => {
     if (!confirm("¿Eliminar esta competición?")) return;
     const { error } = await supabase.from("competitions").delete().eq("id", id);
