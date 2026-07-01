@@ -6,10 +6,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { stravaSync } from "@/lib/strava.functions";
 import { toast } from "sonner";
 import { RefreshCw, Activity, ExternalLink } from "lucide-react";
+import { useEffect, useRef } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
-import { format } from "date-fns";
+import { format, eachDayOfInterval } from "date-fns";
 import { es } from "date-fns/locale";
 
 export const Route = createFileRoute("/_authenticated/actividades")({
@@ -48,6 +49,20 @@ function ActividadesPage() {
       toast.error(e.message);
     }
   };
+
+  // Auto-sync al entrar si hay Strava conectado (una vez cada 10 min)
+  const autoSyncedRef = useRef(false);
+  useEffect(() => {
+    if (!user || !profile.data?.strava_access_token || autoSyncedRef.current) return;
+    const key = `strava:lastSync:${user.id}`;
+    const last = Number(localStorage.getItem(key) ?? 0);
+    if (Date.now() - last < 10 * 60 * 1000) return;
+    autoSyncedRef.current = true;
+    localStorage.setItem(key, String(Date.now()));
+    sync({ data: undefined })
+      .then(() => qc.invalidateQueries({ queryKey: ["strava_activities"] }))
+      .catch(() => {});
+  }, [user, profile.data?.strava_access_token, sync, qc]);
 
   // Calcula CTL (carga crónica, 42 días) y ATL (fatiga, 7 días) con suffer_score
   const chartData = buildCtlAtl(acts.data ?? []);
@@ -123,23 +138,30 @@ function ActividadesPage() {
 
 function buildCtlAtl(acts: any[]) {
   if (acts.length === 0) return [];
-  // Ordena ascendente por fecha
   const sorted = [...acts].sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
-  // Agrupa por día
   const dayMap = new Map<string, number>();
   sorted.forEach((a) => {
     const d = format(new Date(a.start_date), "yyyy-MM-dd");
     dayMap.set(d, (dayMap.get(d) ?? 0) + (a.suffer_score ?? 0));
   });
-  const days = Array.from(dayMap.entries());
-  // EMA CTL=42 ATL=7
+  const start = new Date(sorted[0].start_date);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date();
+  end.setHours(0, 0, 0, 0);
+  const allDays = eachDayOfInterval({ start, end });
   const result: any[] = [];
   let ctl = 0, atl = 0;
-  days.forEach(([d, tss]) => {
+  allDays.forEach((day) => {
+    const key = format(day, "yyyy-MM-dd");
+    const tss = dayMap.get(key) ?? 0; // día sin actividad = descanso
     ctl = ctl + (tss - ctl) * (1 - Math.exp(-1 / 42));
     atl = atl + (tss - atl) * (1 - Math.exp(-1 / 7));
-    const tsb = ctl - atl;
-    result.push({ label: format(new Date(d), "d MMM", { locale: es }), carga: Math.round(ctl), fatiga: Math.round(atl), tsb: Math.round(tsb) });
+    result.push({
+      label: format(day, "d MMM", { locale: es }),
+      carga: Math.round(ctl),
+      fatiga: Math.round(atl),
+      tsb: Math.round(ctl - atl),
+    });
   });
   return result;
 }

@@ -2,11 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
+import { useServerFn } from "@tanstack/react-start";
+import { stravaSync } from "@/lib/strava.functions";
 import { Trophy, Flame, Bike, ChevronRight, Plus, Trash2, Activity, Timer, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect, useRef } from "react";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: Dashboard,
@@ -15,6 +18,7 @@ export const Route = createFileRoute("/_authenticated/")({
 function Dashboard() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const sync = useServerFn(stravaSync);
 
   const profile = useQuery({
     queryKey: ["profile", user?.id],
@@ -42,6 +46,23 @@ function Dashboard() {
     },
     enabled: !!user,
   });
+
+  // Auto-sync Strava al abrir el dashboard (una vez cada 10 min)
+  const autoSyncedRef = useRef(false);
+  useEffect(() => {
+    if (!user || !profile.data?.strava_access_token || autoSyncedRef.current) return;
+    const key = `strava:lastSync:${user.id}`;
+    const last = Number(localStorage.getItem(key) ?? 0);
+    if (Date.now() - last < 10 * 60 * 1000) return;
+    autoSyncedRef.current = true;
+    localStorage.setItem(key, String(Date.now()));
+    sync({ data: undefined })
+      .then(() => {
+        qc.invalidateQueries({ queryKey: ["recent_activities"] });
+        qc.invalidateQueries({ queryKey: ["strava_activities"] });
+      })
+      .catch(() => {});
+  }, [user, profile.data?.strava_access_token, sync, qc]);
 
   const handleDelete = async (id: string) => {
     if (!confirm("¿Eliminar esta competición?")) return;
