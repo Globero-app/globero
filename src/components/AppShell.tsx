@@ -10,6 +10,7 @@ import {
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { SponsorsFooter } from "@/components/SponsorsFooter";
+import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -74,6 +75,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background">
+      <NetworkStatusBanner />
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 border-r bg-surface flex-col">
         <div className="px-6 py-6 border-b">
