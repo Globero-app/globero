@@ -104,6 +104,9 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   useEffect(() => {
+    void import("../lib/pwa-register").then((m) => m.registerPWA());
+  }, []);
+  useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
         router.invalidate();
@@ -112,6 +115,13 @@ function RootComponent() {
     });
     return () => sub.subscription.unsubscribe();
   }, [router, queryClient]);
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Outlet />
+      <Toaster position="top-right" richColors />
+    </QueryClientProvider>
+  );
+}
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
