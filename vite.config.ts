@@ -38,7 +38,7 @@ export default defineConfig({
           ],
         },
         workbox: {
-          navigateFallback: "/",
+          navigateFallback: "/offline",
           navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//],
           globPatterns: ["**/*.{js,css,html,svg,png,ico,woff,woff2}"],
           cleanupOutdatedCaches: true,
