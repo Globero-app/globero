@@ -10,6 +10,7 @@ import {
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { SponsorsFooter } from "@/components/SponsorsFooter";
+import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
