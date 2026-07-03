@@ -14,7 +14,7 @@ export type CalendarEvent = {
   title: string;
   subtitle?: string;
   status?: string | null;
-  meta?: Record<string, unknown>;
+  meta?: { workout_id?: string; competition_id?: string; activity_id?: string };
 };
 
 export const getCalendar = createServerFn({ method: "GET" })
@@ -74,7 +74,7 @@ export const getCalendar = createServerFn({ method: "GET" })
           a.moving_time ? `${Math.round(Number(a.moving_time) / 60)} min` : null,
           a.total_elevation_gain ? `${Math.round(Number(a.total_elevation_gain))} m+` : null,
         ].filter(Boolean).join(" · "),
-        meta: { activity_id: a.id },
+        meta: { activity_id: String(a.id) },
       });
     }
 
