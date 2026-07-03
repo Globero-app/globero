@@ -18,7 +18,7 @@ export default defineConfig({
       VitePWA({
         registerType: "autoUpdate",
         injectRegister: null,
-        devOptions: { enabled: false },
+        devOptions: { enabled: true, type: "module", navigateFallback: "/offline" },
         filename: "sw.js",
         manifest: {
           name: "Sentmenat Bici",
