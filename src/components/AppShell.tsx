@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAppConfig } from "@/lib/use-app-config";
 import {
   LayoutDashboard, User, Activity, Trophy, UtensilsCrossed, Dumbbell,
-  Settings, LogOut, Menu, X,
+  Settings, LogOut, Menu, X, CalendarRange,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -15,6 +15,7 @@ import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/perfil", label: "Perfil", icon: User },
+  { to: "/calendario", label: "Calendario", icon: CalendarRange },
   { to: "/actividades", label: "Actividades", icon: Activity },
   { to: "/entrenamientos", label: "Entrenamientos", icon: Dumbbell },
   { to: "/competiciones", label: "Competiciones", icon: Trophy },
