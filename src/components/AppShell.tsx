@@ -11,6 +11,7 @@ import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { SponsorsFooter } from "@/components/SponsorsFooter";
 import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
+import { InstallAppButton } from "@/components/InstallAppButton";
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
