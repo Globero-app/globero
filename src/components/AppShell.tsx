@@ -11,6 +11,7 @@ import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { SponsorsFooter } from "@/components/SponsorsFooter";
 import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
+import { InstallAppButton } from "@/components/InstallAppButton";
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -90,6 +91,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
           <NavLinks />
+          <div className="pt-2 mt-2 border-t border-border/50">
+            <InstallAppButton />
+          </div>
         </nav>
         <div className="border-t p-4">
           <div className="flex items-center gap-3 mb-3 px-2">
@@ -126,6 +130,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
           <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             <NavLinks onClick={() => setMobileOpen(false)} />
+            <div className="pt-2 mt-2 border-t border-border/50">
+              <InstallAppButton />
+            </div>
             <button onClick={() => { setMobileOpen(false); handleSignOut(); }} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10">
               <LogOut className="size-4" /> Cerrar sesión
             </button>
