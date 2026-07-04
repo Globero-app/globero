@@ -91,6 +91,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
           <NavLinks />
+          <div className="pt-2 mt-2 border-t border-border/50">
+            <InstallAppButton />
+          </div>
         </nav>
         <div className="border-t p-4">
           <div className="flex items-center gap-3 mb-3 px-2">
