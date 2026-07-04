@@ -67,11 +67,25 @@ function CalendarioPage() {
 
   const mv = useMutation({
     mutationFn: (v: { workout_id: string; scheduled_date: string }) => reschedule({ data: v }),
-    onSuccess: () => {
-      toast.success("Entrenamiento reprogramado");
-      qc.invalidateQueries({ queryKey: ["calendar"] });
+    onMutate: async (v) => {
+      await qc.cancelQueries({ queryKey: ["calendar"] });
+      const key = ["calendar", from, to] as const;
+      const prev = qc.getQueryData<CalendarEvent[]>(key);
+      if (prev) {
+        qc.setQueryData<CalendarEvent[]>(key, prev.map((e) =>
+          e.kind === "workout" && (e.meta as any)?.workout_id === v.workout_id
+            ? { ...e, date: v.scheduled_date }
+            : e,
+        ));
+      }
+      return { prev, key };
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error, _v, ctx) => {
+      if (ctx?.prev) qc.setQueryData(ctx.key, ctx.prev);
+      toast.error(e.message);
+    },
+    onSuccess: () => toast.success("Entrenamiento reprogramado"),
+    onSettled: () => qc.invalidateQueries({ queryKey: ["calendar"] }),
   });
 
   const days: Date[] = useMemo(() => {
