@@ -35,7 +35,7 @@ export function MaintenanceNotifyPrefs() {
   });
 
   const savePref = async (field: "notify_maintenance_email" | "notify_maintenance_push", value: boolean) => {
-    const { error } = await supabase.from("profiles").update({ [field]: value }).eq("id", user!.id);
+    const { error } = await supabase.from("profiles").update({ [field]: value } as never).eq("id", user!.id);
     if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["notify_prefs"] });
   };
