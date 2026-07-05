@@ -6,7 +6,8 @@ import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { stravaExchange, stravaDisconnect } from "@/lib/strava.functions";
-import { Bike, CheckCircle2, Link as LinkIcon, Unlink } from "lucide-react";
+import { Bike, CheckCircle2, Link as LinkIcon, Unlink, Wrench } from "lucide-react";
+import { BikesManager } from "@/components/BikesManager";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
   component: PerfilPage,
