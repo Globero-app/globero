@@ -99,6 +99,8 @@ function Dashboard() {
         </h1>
       </div>
 
+      <MaintenanceAlertsBanner />
+
       {/* Countdown + Form */}
       {(next || (acts.data?.length ?? 0) > 0) && (
         <div className="grid gap-4 lg:grid-cols-2">
