@@ -24,12 +24,8 @@ export function MaintenanceNotifyPrefs() {
   const prefsQ = useQuery({
     queryKey: ["notify_prefs", user?.id],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("notify_maintenance_email, notify_maintenance_push")
-        .eq("id", user!.id)
-        .maybeSingle();
-      return data;
+      const { data } = await supabase.from("profiles").select("*").eq("id", user!.id).maybeSingle();
+      return data as (Record<string, unknown> & { notify_maintenance_email?: boolean; notify_maintenance_push?: boolean }) | null;
     },
     enabled: !!user,
   });
