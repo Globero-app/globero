@@ -216,6 +216,8 @@ export type Database = {
           gender: string | null
           height_cm: number | null
           id: string
+          notify_maintenance_email: boolean
+          notify_maintenance_push: boolean
           nutrition_focus: string
           pre_race_days: number
           strava_access_token: string | null
@@ -237,6 +239,8 @@ export type Database = {
           gender?: string | null
           height_cm?: number | null
           id: string
+          notify_maintenance_email?: boolean
+          notify_maintenance_push?: boolean
           nutrition_focus?: string
           pre_race_days?: number
           strava_access_token?: string | null
@@ -258,6 +262,8 @@ export type Database = {
           gender?: string | null
           height_cm?: number | null
           id?: string
+          notify_maintenance_email?: boolean
+          notify_maintenance_push?: boolean
           nutrition_focus?: string
           pre_race_days?: number
           strava_access_token?: string | null

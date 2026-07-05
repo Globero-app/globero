@@ -8,6 +8,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { stravaExchange, stravaDisconnect } from "@/lib/strava.functions";
 import { Bike, CheckCircle2, Link as LinkIcon, Unlink, Wrench } from "lucide-react";
 import { BikesManager } from "@/components/BikesManager";
+import { MaintenanceNotifyPrefs } from "@/components/MaintenanceNotifyPrefs";
+import { MaintenanceAlertsBanner } from "@/components/MaintenanceAlertsBanner";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
   component: PerfilPage,
@@ -150,6 +152,8 @@ function PerfilPage() {
         </Section>
 
         <Section title="Material y mantenimiento" className="lg:col-span-2">
+          <MaintenanceAlertsBanner variant="inline" />
+          <MaintenanceNotifyPrefs />
           <BikesManager />
         </Section>
 

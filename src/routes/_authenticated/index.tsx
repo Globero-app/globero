@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MaintenanceAlertsBanner } from "@/components/MaintenanceAlertsBanner";
 import { useEffect, useRef } from "react";
 
 export const Route = createFileRoute("/_authenticated/")({
@@ -97,6 +98,8 @@ function Dashboard() {
           Hola, <span className="text-primary italic">{profile.data?.full_name?.split(" ")[0] ?? "ciclista"}</span>
         </h1>
       </div>
+
+      <MaintenanceAlertsBanner />
 
       {/* Countdown + Form */}
       {(next || (acts.data?.length ?? 0) > 0) && (
