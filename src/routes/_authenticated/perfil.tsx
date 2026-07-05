@@ -149,6 +149,10 @@ function PerfilPage() {
           )}
         </Section>
 
+        <Section title="Material y mantenimiento" className="lg:col-span-2">
+          <BikesManager />
+        </Section>
+
         <div className="lg:col-span-2 flex justify-end">
           <button type="submit" className="bg-primary text-primary-foreground px-6 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90">
             Guardar cambios
