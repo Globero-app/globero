@@ -152,6 +152,8 @@ function PerfilPage() {
         </Section>
 
         <Section title="Material y mantenimiento" className="lg:col-span-2">
+          <MaintenanceAlertsBanner variant="inline" />
+          <MaintenanceNotifyPrefs />
           <BikesManager />
         </Section>
 
