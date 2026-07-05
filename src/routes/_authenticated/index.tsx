@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MaintenanceAlertsBanner } from "@/components/MaintenanceAlertsBanner";
 import { useEffect, useRef } from "react";
 
 export const Route = createFileRoute("/_authenticated/")({
