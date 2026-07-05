@@ -47,6 +47,98 @@ export type Database = {
         }
         Relationships: []
       }
+      bike_components: {
+        Row: {
+          active: boolean
+          bike_id: string
+          component_type: string
+          created_at: string
+          id: string
+          install_km: number
+          installed_at: string
+          lifespan_km: number
+          name: string | null
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          bike_id: string
+          component_type: string
+          created_at?: string
+          id?: string
+          install_km?: number
+          installed_at?: string
+          lifespan_km?: number
+          name?: string | null
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          bike_id?: string
+          component_type?: string
+          created_at?: string
+          id?: string
+          install_km?: number
+          installed_at?: string
+          lifespan_km?: number
+          name?: string | null
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bike_components_bike_id_fkey"
+            columns: ["bike_id"]
+            isOneToOne: false
+            referencedRelation: "bikes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bikes: {
+        Row: {
+          bike_type: string | null
+          brand: string | null
+          created_at: string
+          current_km: number
+          id: string
+          model: string | null
+          name: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bike_type?: string | null
+          brand?: string | null
+          created_at?: string
+          current_km?: number
+          id?: string
+          model?: string | null
+          name: string
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bike_type?: string | null
+          brand?: string | null
+          created_at?: string
+          current_km?: number
+          id?: string
+          model?: string | null
+          name?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       competitions: {
         Row: {
           created_at: string
