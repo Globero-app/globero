@@ -108,3 +108,23 @@ export const stravaDisconnect = createServerFn({ method: "POST" })
     }).eq("id", context.userId);
     return { ok: true };
   });
+
+const DetailInput = z.object({ id: z.union([z.string(), z.number()]).transform((v) => String(v)) });
+
+export const stravaActivityDetail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => DetailInput.parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const token = await refreshIfNeeded(supabase, userId);
+    const headers = { Authorization: `Bearer ${token}` };
+    const streamKeys = "time,latlng,altitude,distance,velocity_smooth,heartrate,cadence,watts,temp,moving,grade_smooth";
+    const [actRes, streamsRes] = await Promise.all([
+      fetch(`${STRAVA_API}/activities/${data.id}?include_all_efforts=true`, { headers }),
+      fetch(`${STRAVA_API}/activities/${data.id}/streams?keys=${streamKeys}&key_by_type=true`, { headers }),
+    ]);
+    if (!actRes.ok) throw new Error(`Strava API ${actRes.status}`);
+    const activity = await actRes.json();
+    const streams = streamsRes.ok ? await streamsRes.json() : {};
+    return { activity, streams };
+  });
