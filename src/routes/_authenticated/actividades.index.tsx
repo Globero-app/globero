@@ -13,7 +13,7 @@ import {
 import { format, eachDayOfInterval } from "date-fns";
 import { es } from "date-fns/locale";
 
-export const Route = createFileRoute("/_authenticated/actividades")({
+export const Route = createFileRoute("/_authenticated/actividades/")({
   component: ActividadesPage,
 });
 
