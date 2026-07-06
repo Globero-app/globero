@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
@@ -13,7 +13,7 @@ import {
 import { format, eachDayOfInterval } from "date-fns";
 import { es } from "date-fns/locale";
 
-export const Route = createFileRoute("/_authenticated/actividades")({
+export const Route = createFileRoute("/_authenticated/actividades/")({
   component: ActividadesPage,
 });
 
@@ -113,7 +113,12 @@ function ActividadesPage() {
       <div className="space-y-2">
         <h2 className="font-display text-lg font-bold uppercase mb-2">Últimas 20 actividades</h2>
         {(acts.data ?? []).map((a) => (
-          <div key={a.id} className="bg-surface border rounded-lg p-4 flex items-center justify-between hover:border-primary/40">
+          <Link
+            key={a.id}
+            to="/actividades/$id"
+            params={{ id: String(a.id) }}
+            className="bg-surface border rounded-lg p-4 flex items-center justify-between hover:border-primary/40 transition"
+          >
             <div className="min-w-0">
               <p className="font-semibold truncate">{a.name}</p>
               <p className="text-xs text-muted-foreground">
@@ -124,11 +129,17 @@ function ActividadesPage() {
               <div className="text-right"><p className="text-muted-foreground">Distancia</p><p className="font-semibold">{((a.distance ?? 0) / 1000).toFixed(1)}km</p></div>
               <div className="text-right hidden md:block"><p className="text-muted-foreground">Desnivel</p><p className="font-semibold">+{Math.round(a.total_elevation_gain ?? 0)}m</p></div>
               <div className="text-right hidden md:block"><p className="text-muted-foreground">Sufrimiento</p><p className="font-semibold">{a.suffer_score ?? "—"}</p></div>
-              <a href={`https://www.strava.com/activities/${a.id}`} target="_blank" rel="noopener" className="text-primary hover:opacity-80">
+              <a
+                href={`https://www.strava.com/activities/${a.id}`}
+                target="_blank"
+                rel="noopener"
+                onClick={(e) => e.stopPropagation()}
+                className="text-primary hover:opacity-80"
+              >
                 <ExternalLink className="size-4" />
               </a>
             </div>
-          </div>
+          </Link>
         ))}
         {acts.data?.length === 0 && <p className="text-sm text-muted-foreground">Aún no hay actividades. Pulsa "Sincronizar".</p>}
       </div>
