@@ -23,7 +23,6 @@ import { Route as AuthenticatedCompeticionesIndexRouteImport } from './routes/_a
 import { Route as ApiPublicSetupAdminRouteImport } from './routes/api/public/setup-admin'
 import { Route as AuthenticatedCompeticionesIdRouteImport } from './routes/_authenticated/competiciones.$id'
 import { Route as AuthenticatedActividadesIdRouteImport } from './routes/_authenticated/actividades.$id'
-import { Route as AuthenticatedActividadesIdRouteImport } from './routes/_authenticated/actividades.$id'
 
 const OfflineRoute = OfflineRouteImport.update({
   id: '/offline',
@@ -91,6 +90,12 @@ const AuthenticatedCompeticionesIdRoute =
   AuthenticatedCompeticionesIdRouteImport.update({
     id: '/competiciones/$id',
     path: '/competiciones/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedActividadesIdRoute =
+  AuthenticatedActividadesIdRouteImport.update({
+    id: '/actividades/$id',
+    path: '/actividades/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedActividadesIdRoute =
