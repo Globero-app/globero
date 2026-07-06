@@ -22,6 +22,7 @@ import { Route as AuthenticatedActividadesRouteImport } from './routes/_authenti
 import { Route as AuthenticatedCompeticionesIndexRouteImport } from './routes/_authenticated/competiciones.index'
 import { Route as ApiPublicSetupAdminRouteImport } from './routes/api/public/setup-admin'
 import { Route as AuthenticatedCompeticionesIdRouteImport } from './routes/_authenticated/competiciones.$id'
+import { Route as AuthenticatedActividadesIdRouteImport } from './routes/_authenticated/actividades.$id'
 
 const OfflineRoute = OfflineRouteImport.update({
   id: '/offline',
@@ -91,17 +92,24 @@ const AuthenticatedCompeticionesIdRoute =
     path: '/competiciones/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedActividadesIdRoute =
+  AuthenticatedActividadesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedActividadesRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/offline': typeof OfflineRoute
-  '/actividades': typeof AuthenticatedActividadesRoute
+  '/actividades': typeof AuthenticatedActividadesRouteWithChildren
   '/backend': typeof AuthenticatedBackendRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/entrenamientos': typeof AuthenticatedEntrenamientosRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/recetas': typeof AuthenticatedRecetasRoute
+  '/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
   '/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
@@ -109,13 +117,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/offline': typeof OfflineRoute
-  '/actividades': typeof AuthenticatedActividadesRoute
+  '/actividades': typeof AuthenticatedActividadesRouteWithChildren
   '/backend': typeof AuthenticatedBackendRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/entrenamientos': typeof AuthenticatedEntrenamientosRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/recetas': typeof AuthenticatedRecetasRoute
   '/': typeof AuthenticatedIndexRoute
+  '/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
   '/competiciones': typeof AuthenticatedCompeticionesIndexRoute
@@ -125,13 +134,14 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/offline': typeof OfflineRoute
-  '/_authenticated/actividades': typeof AuthenticatedActividadesRoute
+  '/_authenticated/actividades': typeof AuthenticatedActividadesRouteWithChildren
   '/_authenticated/backend': typeof AuthenticatedBackendRoute
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/entrenamientos': typeof AuthenticatedEntrenamientosRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/recetas': typeof AuthenticatedRecetasRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/_authenticated/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
   '/_authenticated/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
@@ -148,6 +158,7 @@ export interface FileRouteTypes {
     | '/entrenamientos'
     | '/perfil'
     | '/recetas'
+    | '/actividades/$id'
     | '/competiciones/$id'
     | '/api/public/setup-admin'
     | '/competiciones/'
@@ -162,6 +173,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/recetas'
     | '/'
+    | '/actividades/$id'
     | '/competiciones/$id'
     | '/api/public/setup-admin'
     | '/competiciones'
@@ -177,6 +189,7 @@ export interface FileRouteTypes {
     | '/_authenticated/perfil'
     | '/_authenticated/recetas'
     | '/_authenticated/'
+    | '/_authenticated/actividades/$id'
     | '/_authenticated/competiciones/$id'
     | '/api/public/setup-admin'
     | '/_authenticated/competiciones/'
@@ -282,11 +295,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCompeticionesIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/actividades/$id': {
+      id: '/_authenticated/actividades/$id'
+      path: '/$id'
+      fullPath: '/actividades/$id'
+      preLoaderRoute: typeof AuthenticatedActividadesIdRouteImport
+      parentRoute: typeof AuthenticatedActividadesRoute
+    }
   }
 }
 
+interface AuthenticatedActividadesRouteChildren {
+  AuthenticatedActividadesIdRoute: typeof AuthenticatedActividadesIdRoute
+}
+
+const AuthenticatedActividadesRouteChildren: AuthenticatedActividadesRouteChildren =
+  {
+    AuthenticatedActividadesIdRoute: AuthenticatedActividadesIdRoute,
+  }
+
+const AuthenticatedActividadesRouteWithChildren =
+  AuthenticatedActividadesRoute._addFileChildren(
+    AuthenticatedActividadesRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedActividadesRoute: typeof AuthenticatedActividadesRoute
+  AuthenticatedActividadesRoute: typeof AuthenticatedActividadesRouteWithChildren
   AuthenticatedBackendRoute: typeof AuthenticatedBackendRoute
   AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedEntrenamientosRoute: typeof AuthenticatedEntrenamientosRoute
@@ -298,7 +332,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedActividadesRoute: AuthenticatedActividadesRoute,
+  AuthenticatedActividadesRoute: AuthenticatedActividadesRouteWithChildren,
   AuthenticatedBackendRoute: AuthenticatedBackendRoute,
   AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedEntrenamientosRoute: AuthenticatedEntrenamientosRoute,
