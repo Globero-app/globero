@@ -94,12 +94,6 @@ const AuthenticatedCompeticionesIdRoute =
   } as any)
 const AuthenticatedActividadesIdRoute =
   AuthenticatedActividadesIdRouteImport.update({
-    id: '/actividades/$id',
-    path: '/actividades/$id',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedActividadesIdRoute =
-  AuthenticatedActividadesIdRouteImport.update({
     id: '/$id',
     path: '/$id',
     getParentRoute: () => AuthenticatedActividadesRoute,
