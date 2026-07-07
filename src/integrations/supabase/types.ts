@@ -260,6 +260,7 @@ export type Database = {
           notify_strava_push: boolean
           notify_training_push: boolean
           nutrition_focus: string
+          onboarding_completed_at: string | null
           pre_race_days: number
           strava_access_token: string | null
           strava_athlete_id: number | null
@@ -288,6 +289,7 @@ export type Database = {
           notify_strava_push?: boolean
           notify_training_push?: boolean
           nutrition_focus?: string
+          onboarding_completed_at?: string | null
           pre_race_days?: number
           strava_access_token?: string | null
           strava_athlete_id?: number | null
@@ -316,6 +318,7 @@ export type Database = {
           notify_strava_push?: boolean
           notify_training_push?: boolean
           nutrition_focus?: string
+          onboarding_completed_at?: string | null
           pre_race_days?: number
           strava_access_token?: string | null
           strava_athlete_id?: number | null

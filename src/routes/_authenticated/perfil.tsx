@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { stravaExchange, stravaDisconnect, stravaEstimateFtp } from "@/lib/strava.functions";
 import { Bike, CheckCircle2, Link as LinkIcon, Unlink, Wrench, Wand2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { computePowerZones } from "@/lib/zones";
 import { BikesManager } from "@/components/BikesManager";
 import { NotificationsPrefs } from "@/components/NotificationsPrefs";
 import { MaintenanceAlertsBanner } from "@/components/MaintenanceAlertsBanner";
@@ -144,6 +146,12 @@ function PerfilPage() {
             {!!profileQ.data?.strava_access_token && (
               <p className="mt-1 text-[10px] text-muted-foreground">Se calcula desde tus actividades Strava con potencia. Puedes modificarlo manualmente.</p>
             )}
+            <div className="mt-2">
+              <Link to="/ftp-test" className="text-xs font-semibold text-primary hover:underline">
+                ¿No conoces tu FTP? Hacer el test guiado de 20 min →
+              </Link>
+            </div>
+            <PowerZonesPreview ftp={form.ftp ? Number(form.ftp) : null} />
           </Field>
         </Section>
 
@@ -250,4 +258,27 @@ function Section({ title, children, className = "" }: any) {
 }
 function Field({ label, children }: any) {
   return <label className="block"><span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">{label}</span><div className="mt-1">{children}</div></label>;
+}
+
+function PowerZonesPreview({ ftp }: { ftp: number | null }) {
+  const zones = computePowerZones(ftp);
+  if (!zones) return null;
+  return (
+    <div className="mt-3 rounded-lg border bg-muted/30 p-3 space-y-1.5">
+      <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
+        Zonas de potencia calculadas ({ftp} W)
+      </p>
+      <div className="grid grid-cols-1 gap-1 text-xs">
+        {zones.map((z) => (
+          <div key={z.key} className="flex items-center gap-2">
+            <span className="inline-block size-2.5 rounded-full shrink-0" style={{ background: z.color }} />
+            <span className="font-semibold truncate">{z.label}</span>
+            <span className="ml-auto font-mono tabular-nums">
+              {z.low}{z.high === Infinity ? "+" : `–${z.high}`} W
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
