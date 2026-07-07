@@ -61,6 +61,8 @@ function PerfilPage() {
       dietary_preferences: form.dietary_preferences,
       strava_client_id: form.strava_client_id,
       strava_client_secret: form.strava_client_secret,
+      hrv_push_enabled: form.hrv_push_enabled ?? true,
+      hrv_push_hour: form.hrv_push_hour != null && form.hrv_push_hour !== "" ? Number(form.hrv_push_hour) : 7,
     }, { onConflict: "id" });
     if (error) toast.error(error.message);
     else { toast.success("Perfil guardado"); qc.invalidateQueries({ queryKey: ["profile"] }); }
