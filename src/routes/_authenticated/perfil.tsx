@@ -47,7 +47,9 @@ function PerfilPage() {
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { error } = await supabase.from("profiles").update({
+    const { error } = await supabase.from("profiles").upsert({
+      id: user!.id,
+      email: user!.email ?? "",
       full_name: form.full_name,
       age: form.age ? Number(form.age) : null,
       gender: form.gender,
@@ -59,7 +61,7 @@ function PerfilPage() {
       dietary_preferences: form.dietary_preferences,
       strava_client_id: form.strava_client_id,
       strava_client_secret: form.strava_client_secret,
-    }).eq("id", user!.id);
+    }, { onConflict: "id" });
     if (error) toast.error(error.message);
     else { toast.success("Perfil guardado"); qc.invalidateQueries({ queryKey: ["profile"] }); }
   };
