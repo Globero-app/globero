@@ -11,6 +11,8 @@ import { es } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MaintenanceAlertsBanner } from "@/components/MaintenanceAlertsBanner";
 import { useEffect, useRef } from "react";
+import { useTodayPushTriggers, notifyStravaSync } from "@/lib/push-triggers";
+
 
 export const Route = createFileRoute("/_authenticated/")({
   component: Dashboard,
@@ -48,6 +50,9 @@ function Dashboard() {
     enabled: !!user,
   });
 
+  // Notificaciones locales: entreno de hoy y pre-carrera
+  useTodayPushTriggers();
+
   // Auto-sync Strava al abrir el dashboard (una vez cada 10 min)
   const autoSyncedRef = useRef(false);
   useEffect(() => {
@@ -58,12 +63,14 @@ function Dashboard() {
     autoSyncedRef.current = true;
     localStorage.setItem(key, String(Date.now()));
     sync({ data: undefined })
-      .then(() => {
+      .then((res: any) => {
         qc.invalidateQueries({ queryKey: ["recent_activities"] });
         qc.invalidateQueries({ queryKey: ["strava_activities"] });
+        void notifyStravaSync(user.id, res?.count ?? 0);
       })
       .catch(() => {});
   }, [user, profile.data?.strava_access_token, sync, qc]);
+
 
   const handleDelete = async (id: string) => {
     if (!confirm("¿Eliminar esta competición?")) return;
