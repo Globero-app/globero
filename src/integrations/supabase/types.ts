@@ -255,6 +255,8 @@ export type Database = {
           hrv_push_enabled: boolean
           hrv_push_hour: number
           id: string
+          lthr: number | null
+          max_hr: number | null
           notify_maintenance_email: boolean
           notify_maintenance_push: boolean
           notify_prerace_push: boolean
@@ -271,6 +273,7 @@ export type Database = {
           strava_refresh_token: string | null
           updated_at: string
           weight_kg: number | null
+          zones_display_mode: string
         }
         Insert: {
           age?: number | null
@@ -285,6 +288,8 @@ export type Database = {
           hrv_push_enabled?: boolean
           hrv_push_hour?: number
           id: string
+          lthr?: number | null
+          max_hr?: number | null
           notify_maintenance_email?: boolean
           notify_maintenance_push?: boolean
           notify_prerace_push?: boolean
@@ -301,6 +306,7 @@ export type Database = {
           strava_refresh_token?: string | null
           updated_at?: string
           weight_kg?: number | null
+          zones_display_mode?: string
         }
         Update: {
           age?: number | null
@@ -315,6 +321,8 @@ export type Database = {
           hrv_push_enabled?: boolean
           hrv_push_hour?: number
           id?: string
+          lthr?: number | null
+          max_hr?: number | null
           notify_maintenance_email?: boolean
           notify_maintenance_push?: boolean
           notify_prerace_push?: boolean
@@ -331,6 +339,7 @@ export type Database = {
           strava_refresh_token?: string | null
           updated_at?: string
           weight_kg?: number | null
+          zones_display_mode?: string
         }
         Relationships: []
       }

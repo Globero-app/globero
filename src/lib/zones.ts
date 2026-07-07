@@ -39,3 +39,33 @@ export function ftpFrom20Min(avgWatts: number): number {
 export function ftpFromRampMAP(mapWatts: number): number {
   return Math.round(mapWatts * 0.75);
 }
+
+/**
+ * Zonas de frecuencia cardíaca (Friel) a partir del LTHR (Umbral de FC).
+ * Si no hay LTHR pero sí FC máx, se estima LTHR ≈ 92% de FCmáx.
+ */
+const HR_ZONES: Array<Omit<PowerZone, "low" | "high">> = [
+  { id: 1, key: "z1", label: "Z1 · Recuperación", pctLow: 0,   pctHigh: 81,  focus: "Rodaje muy suave, regeneración", color: "#94a3b8" },
+  { id: 2, key: "z2", label: "Z2 · Resistencia",  pctLow: 82,  pctHigh: 88,  focus: "Base aeróbica larga",             color: "#22c55e" },
+  { id: 3, key: "z3", label: "Z3 · Tempo",        pctLow: 89,  pctHigh: 93,  focus: "Ritmo sostenido",                  color: "#eab308" },
+  { id: 4, key: "z4", label: "Z4 · Umbral",       pctLow: 94,  pctHigh: 99,  focus: "Series al umbral",                 color: "#f97316" },
+  { id: 5, key: "z5a", label: "Z5a · VO₂ (bajo)", pctLow: 100, pctHigh: 102, focus: "Intervalos largos VO₂",            color: "#ef4444" },
+  { id: 6, key: "z5b", label: "Z5b · VO₂ (alto)", pctLow: 103, pctHigh: 106, focus: "Intervalos cortos VO₂",            color: "#a855f7" },
+  { id: 7, key: "z5c", label: "Z5c · Máxima",     pctLow: 107, pctHigh: 999, focus: "Esfuerzos máximos",                color: "#0ea5e9" },
+];
+
+export function computeHrZones(lthr: number | null | undefined, maxHr?: number | null): PowerZone[] | null {
+  let ref = lthr && lthr > 0 ? lthr : null;
+  if (!ref && maxHr && maxHr > 0) ref = Math.round(maxHr * 0.92);
+  if (!ref) return null;
+  return HR_ZONES.map((z) => ({
+    ...z,
+    low: Math.round((z.pctLow / 100) * ref!),
+    high: z.pctHigh >= 999 ? Infinity : Math.round((z.pctHigh / 100) * ref!),
+  }));
+}
+
+/** LTHR estimado a partir de la FC media de los 20 min del test FTP (Friel): ~95%. */
+export function lthrFrom20Min(avgHr: number): number {
+  return Math.round(avgHr * 0.95);
+}

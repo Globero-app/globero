@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Play, Pause, RotateCcw, Gauge, CheckCircle2, ChevronRight, Download, Bike, FileDown, CheckCheck } from "lucide-react";
-import { computePowerZones, ftpFrom20Min } from "@/lib/zones";
+import { computePowerZones, computeHrZones, ftpFrom20Min, lthrFrom20Min } from "@/lib/zones";
 import { downloadFit, type FitWorkoutStep } from "@/lib/fit-writer";
 import { downloadZwo, type ZwoStep } from "@/lib/zwo-writer";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -100,7 +100,7 @@ function FtpTestPage() {
   const profileQ = useQuery({
     queryKey: ["profile", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("ftp,strava_access_token,ftp_test_completed_at").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("ftp,strava_access_token,ftp_test_completed_at,max_hr,lthr,zones_display_mode").eq("id", user!.id).maybeSingle();
       return data;
     },
     enabled: !!user,
@@ -178,17 +178,37 @@ function FtpTestPage() {
     return n > 0 ? ftpFrom20Min(n) : null;
   }, [avgWatts]);
 
-  const zones = useMemo(() => computePowerZones(estimatedFtp), [estimatedFtp]);
+  const estimatedLthr = useMemo(() => {
+    const n = Number(avgHr);
+    return n > 0 ? lthrFrom20Min(n) : null;
+  }, [avgHr]);
+
+  const powerZones = useMemo(() => computePowerZones(estimatedFtp), [estimatedFtp]);
+  const hrZones = useMemo(() => computeHrZones(estimatedLthr, profileQ.data?.max_hr ?? null), [estimatedLthr, profileQ.data?.max_hr]);
+  const [zonesMode, setZonesMode] = useState<"watts" | "hr">((profileQ.data?.zones_display_mode as any) || "watts");
+  useEffect(() => {
+    if (profileQ.data?.zones_display_mode) setZonesMode(profileQ.data.zones_display_mode as any);
+  }, [profileQ.data?.zones_display_mode]);
+  const zones = zonesMode === "hr" ? hrZones : powerZones;
+  const unit = zonesMode === "hr" ? "bpm" : "W";
 
   const save = async () => {
-    if (!estimatedFtp || !user) { toast.error("Introduce la potencia media de los 20 min"); return; }
+    if (!user) { toast.error("Debes iniciar sesión"); return; }
+    if (!estimatedFtp && !estimatedLthr) { toast.error("Introduce potencia media o FC media de los 20 min"); return; }
+    const payload: any = { id: user.id, email: user.email ?? "", ftp_test_completed_at: new Date().toISOString() };
+    if (estimatedFtp) payload.ftp = estimatedFtp;
+    if (estimatedLthr) payload.lthr = estimatedLthr;
     const { error } = await supabase
       .from("profiles")
-      .upsert({ id: user.id, email: user.email ?? "", ftp: estimatedFtp, ftp_test_completed_at: new Date().toISOString() }, { onConflict: "id" });
+      .upsert(payload, { onConflict: "id" });
     if (error) return toast.error(error.message);
-    setSaved(estimatedFtp);
+    setSaved(estimatedFtp ?? 0);
     qc.invalidateQueries({ queryKey: ["profile"] });
-    toast.success(`FTP guardado: ${estimatedFtp} W. Zonas calculadas.`);
+    const parts = [
+      estimatedFtp ? `FTP: ${estimatedFtp} W` : null,
+      estimatedLthr ? `LTHR: ${estimatedLthr} bpm` : null,
+    ].filter(Boolean).join(" · ");
+    toast.success(`Guardado (${parts}). Zonas calculadas.`);
   };
 
   const referenceFtp = profileQ.data?.ftp && profileQ.data.ftp > 0 ? profileQ.data.ftp : 200;
@@ -399,6 +419,12 @@ function FtpTestPage() {
                 <p className="font-display text-4xl font-bold">{estimatedFtp} W</p>
               </div>
             )}
+            {estimatedLthr && (
+              <div className="rounded-lg bg-primary/10 border border-primary/30 p-4">
+                <p className="text-[10px] uppercase tracking-wider font-semibold text-primary">LTHR estimado (95% FC media)</p>
+                <p className="font-display text-4xl font-bold">{estimatedLthr} bpm</p>
+              </div>
+            )}
 
             <div className="flex gap-2">
               <button onClick={save} disabled={!estimatedFtp} className="bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50">
@@ -410,15 +436,23 @@ function FtpTestPage() {
 
           {zones && (
             <div className="bg-surface border rounded-xl p-6 space-y-3">
-              <h3 className="font-display text-lg font-bold uppercase tracking-tight">Zonas Coggan calculadas</h3>
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="font-display text-lg font-bold uppercase tracking-tight">
+                  {zonesMode === "hr" ? "Zonas de FC (Friel)" : "Zonas de potencia (Coggan)"}
+                </h3>
+                <div className="inline-flex rounded-md border bg-surface p-0.5 text-xs font-semibold">
+                  <button type="button" onClick={() => setZonesMode("watts")} disabled={!powerZones} className={`px-3 py-1 rounded-sm disabled:opacity-40 ${zonesMode === "watts" ? "bg-primary text-primary-foreground" : ""}`}>Vatios</button>
+                  <button type="button" onClick={() => setZonesMode("hr")} disabled={!hrZones} className={`px-3 py-1 rounded-sm disabled:opacity-40 ${zonesMode === "hr" ? "bg-primary text-primary-foreground" : ""}`}>Pulsaciones</button>
+                </div>
+              </div>
               <div className="space-y-2">
                 {zones.map((z) => (
                   <div key={z.key} className="flex items-center gap-3 text-sm">
                     <span className="inline-block size-3 rounded-full" style={{ background: z.color }} />
                     <span className="font-semibold w-40">{z.label}</span>
-                    <span className="font-mono text-xs text-muted-foreground w-24">{z.pctLow}–{z.pctHigh === 999 ? "∞" : z.pctHigh}% FTP</span>
+                    <span className="font-mono text-xs text-muted-foreground w-24">{z.pctLow}–{z.pctHigh === 999 ? "∞" : z.pctHigh}% {zonesMode === "hr" ? "LTHR" : "FTP"}</span>
                     <span className="font-mono font-bold">
-                      {z.low}{z.high === Infinity ? "+" : `–${z.high}`} W
+                      {z.low}{z.high === Infinity ? "+" : `–${z.high}`} {unit}
                     </span>
                     <span className="text-xs text-muted-foreground flex-1 hidden md:block">{z.focus}</span>
                   </div>
