@@ -259,3 +259,26 @@ function Section({ title, children, className = "" }: any) {
 function Field({ label, children }: any) {
   return <label className="block"><span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">{label}</span><div className="mt-1">{children}</div></label>;
 }
+
+function PowerZonesPreview({ ftp }: { ftp: number | null }) {
+  const zones = computePowerZones(ftp);
+  if (!zones) return null;
+  return (
+    <div className="mt-3 rounded-lg border bg-muted/30 p-3 space-y-1.5">
+      <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
+        Zonas de potencia calculadas ({ftp} W)
+      </p>
+      <div className="grid grid-cols-1 gap-1 text-xs">
+        {zones.map((z) => (
+          <div key={z.key} className="flex items-center gap-2">
+            <span className="inline-block size-2.5 rounded-full shrink-0" style={{ background: z.color }} />
+            <span className="font-semibold truncate">{z.label}</span>
+            <span className="ml-auto font-mono tabular-nums">
+              {z.low}{z.high === Infinity ? "+" : `–${z.high}`} W
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
