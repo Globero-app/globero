@@ -211,6 +211,36 @@ export type Database = {
         }
         Relationships: []
       }
+      hrv_entries: {
+        Row: {
+          created_at: string
+          entry_date: string
+          id: string
+          note: string | null
+          updated_at: string
+          user_id: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          entry_date: string
+          id?: string
+          note?: string | null
+          updated_at?: string
+          user_id: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          entry_date?: string
+          id?: string
+          note?: string | null
+          updated_at?: string
+          user_id?: string
+          value?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age: number | null
@@ -221,6 +251,8 @@ export type Database = {
           full_name: string | null
           gender: string | null
           height_cm: number | null
+          hrv_push_enabled: boolean
+          hrv_push_hour: number
           id: string
           notify_maintenance_email: boolean
           notify_maintenance_push: boolean
@@ -247,6 +279,8 @@ export type Database = {
           full_name?: string | null
           gender?: string | null
           height_cm?: number | null
+          hrv_push_enabled?: boolean
+          hrv_push_hour?: number
           id: string
           notify_maintenance_email?: boolean
           notify_maintenance_push?: boolean
@@ -273,6 +307,8 @@ export type Database = {
           full_name?: string | null
           gender?: string | null
           height_cm?: number | null
+          hrv_push_enabled?: boolean
+          hrv_push_hour?: number
           id?: string
           notify_maintenance_email?: boolean
           notify_maintenance_push?: boolean
