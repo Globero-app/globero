@@ -248,6 +248,7 @@ export type Database = {
           dietary_preferences: string | null
           email: string
           ftp: number | null
+          ftp_test_completed_at: string | null
           full_name: string | null
           gender: string | null
           height_cm: number | null
@@ -277,6 +278,7 @@ export type Database = {
           dietary_preferences?: string | null
           email: string
           ftp?: number | null
+          ftp_test_completed_at?: string | null
           full_name?: string | null
           gender?: string | null
           height_cm?: number | null
@@ -306,6 +308,7 @@ export type Database = {
           dietary_preferences?: string | null
           email?: string
           ftp?: number | null
+          ftp_test_completed_at?: string | null
           full_name?: string | null
           gender?: string | null
           height_cm?: number | null
