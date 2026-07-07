@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { stravaExchange, stravaDisconnect, stravaEstimateFtp } from "@/lib/strava.functions";
 import { Bike, CheckCircle2, Link as LinkIcon, Unlink, Wrench, Wand2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { computePowerZones } from "@/lib/zones";
 import { BikesManager } from "@/components/BikesManager";
 import { NotificationsPrefs } from "@/components/NotificationsPrefs";
 import { MaintenanceAlertsBanner } from "@/components/MaintenanceAlertsBanner";
@@ -144,6 +146,12 @@ function PerfilPage() {
             {!!profileQ.data?.strava_access_token && (
               <p className="mt-1 text-[10px] text-muted-foreground">Se calcula desde tus actividades Strava con potencia. Puedes modificarlo manualmente.</p>
             )}
+            <div className="mt-2">
+              <Link to="/ftp-test" className="text-xs font-semibold text-primary hover:underline">
+                ¿No conoces tu FTP? Hacer el test guiado de 20 min →
+              </Link>
+            </div>
+            <PowerZonesPreview ftp={form.ftp ? Number(form.ftp) : null} />
           </Field>
         </Section>
 
