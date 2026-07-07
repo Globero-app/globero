@@ -3,8 +3,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/lib/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Play, Pause, RotateCcw, Gauge, CheckCircle2, ChevronRight } from "lucide-react";
+import { Play, Pause, RotateCcw, Gauge, CheckCircle2, ChevronRight, Download, Bike, FileDown, CheckCheck } from "lucide-react";
 import { computePowerZones, ftpFrom20Min } from "@/lib/zones";
+import { downloadFit, type FitWorkoutStep } from "@/lib/fit-writer";
+import { downloadZwo, type ZwoStep } from "@/lib/zwo-writer";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { stravaImportFtpTest, markFtpTestCompleted } from "@/lib/strava.functions";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 export const Route = createFileRoute("/_authenticated/ftp-test")({
   component: FtpTestPage,
@@ -25,9 +32,99 @@ function fmt(s: number) {
   return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 }
 
+/** Construye los pasos del test FTP como bloque estándar de entrenamiento. */
+function buildTestSteps(referenceFtp: number): Array<ZwoStep & FitWorkoutStep & { intensity: any }> {
+  // Traducimos las fases a pasos con targets de potencia relativos al FTP de referencia.
+  const steps: Array<any> = [];
+  const pct = (p: number) => Math.round((p / 100) * referenceFtp);
+
+  // Fase 1: calentamiento continuo (Warmup)
+  steps.push({
+    name: "Calentamiento",
+    description: "Z1-Z2, cadencia 85-95 rpm",
+    duration_type: "time", duration_seconds: 10 * 60, duration_value: 10 * 60,
+    target: "power", target_low: pct(45), target_high: pct(65),
+    intensity: "warmup",
+  });
+  // Fase 2: 3 x (1 min alta cadencia + 1 min suave)
+  for (let i = 0; i < 3; i++) {
+    steps.push({
+      name: `Acel ${i + 1}`,
+      description: "Alta cadencia 100-110 rpm",
+      duration_type: "time", duration_seconds: 60, duration_value: 60,
+      target: "power", target_low: pct(75), target_high: pct(90),
+      intensity: "interval",
+    });
+    steps.push({
+      name: "Recuperación",
+      description: "Suave entre aceleraciones",
+      duration_type: "time", duration_seconds: 60, duration_value: 60,
+      target: "power", target_low: pct(50), target_high: pct(60),
+      intensity: "recovery",
+    });
+  }
+  // Fase 3: rodaje suave antes del bloque duro
+  steps.push({
+    name: "Rodaje",
+    description: "Baja pulso antes del all-out",
+    duration_type: "time", duration_seconds: 5 * 60, duration_value: 5 * 60,
+    target: "power", target_low: pct(45), target_high: pct(60),
+    intensity: "active",
+  });
+  // Fase 4: 20 min ALL-OUT
+  steps.push({
+    name: "FTP 20 min",
+    description: "Máximo sostenible 20 min",
+    duration_type: "time", duration_seconds: 20 * 60, duration_value: 20 * 60,
+    target: "power", target_low: pct(95), target_high: pct(105),
+    intensity: "interval",
+  });
+  // Fase 5: vuelta a la calma
+  steps.push({
+    name: "Vuelta calma",
+    description: "Z1 muy suave",
+    duration_type: "time", duration_seconds: 10 * 60, duration_value: 10 * 60,
+    target: "power", target_low: pct(40), target_high: pct(55),
+    intensity: "cooldown",
+  });
+  return steps;
+}
+
 function FtpTestPage() {
   const { user } = useAuth();
   const router = useRouter();
+  const qc = useQueryClient();
+  const importFromStrava = useServerFn(stravaImportFtpTest);
+  const markCompleted = useServerFn(markFtpTestCompleted);
+
+  const profileQ = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("ftp,strava_access_token,ftp_test_completed_at").eq("id", user!.id).maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const stravaConnected = !!profileQ.data?.strava_access_token;
+
+  // Actividades recientes de Strava con potencia y ≥ 30 min (candidatas a test FTP)
+  const recentActs = useQuery({
+    queryKey: ["strava-ftp-candidates", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("strava_activities")
+        .select("id,name,start_date,moving_time,distance,average_watts,total_elevation_gain")
+        .eq("user_id", user!.id)
+        .gte("moving_time", 20 * 60)
+        .not("average_watts", "is", null)
+        .order("start_date", { ascending: false })
+        .limit(15);
+      return data ?? [];
+    },
+    enabled: !!user && stravaConnected,
+  });
+
   const [phaseIdx, setPhaseIdx] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const [running, setRunning] = useState(false);
@@ -35,6 +132,7 @@ function FtpTestPage() {
   const [avgHr, setAvgHr] = useState<string>("");
   const [finished, setFinished] = useState(false);
   const [saved, setSaved] = useState<number | null>(null);
+  const [importingId, setImportingId] = useState<string | null>(null);
   const intervalRef = useRef<number | null>(null);
 
   const phase = PHASES[phaseIdx];
@@ -86,10 +184,48 @@ function FtpTestPage() {
     if (!estimatedFtp || !user) { toast.error("Introduce la potencia media de los 20 min"); return; }
     const { error } = await supabase
       .from("profiles")
-      .upsert({ id: user.id, email: user.email ?? "", ftp: estimatedFtp }, { onConflict: "id" });
+      .upsert({ id: user.id, email: user.email ?? "", ftp: estimatedFtp, ftp_test_completed_at: new Date().toISOString() }, { onConflict: "id" });
     if (error) return toast.error(error.message);
     setSaved(estimatedFtp);
+    qc.invalidateQueries({ queryKey: ["profile"] });
     toast.success(`FTP guardado: ${estimatedFtp} W. Zonas calculadas.`);
+  };
+
+  const referenceFtp = profileQ.data?.ftp && profileQ.data.ftp > 0 ? profileQ.data.ftp : 200;
+
+  const handleDownloadZwo = () => {
+    const steps = buildTestSteps(referenceFtp);
+    downloadZwo(
+      { name: "Test FTP 20min", description: `Protocolo Coggan 20 min. FTP referencia: ${referenceFtp}W. FTP real ≈ 0.95 × media de los 20 min.`, author: "Sentmenat Bici", steps },
+      referenceFtp,
+      "test-ftp-20min",
+    );
+    toast.success(".zwo descargado. Súbelo a Zwift o TrainingPeaks.");
+  };
+
+  const handleDownloadFit = () => {
+    const steps = buildTestSteps(referenceFtp);
+    downloadFit({ name: "Test FTP", sport: "cycling", steps: steps as FitWorkoutStep[] }, "test-ftp-20min");
+    toast.success(".fit descargado. Copíalo a tu ciclocomputador (Garmin, Wahoo).");
+  };
+
+  const handleImportStrava = async (activityId: string) => {
+    setImportingId(activityId);
+    try {
+      const r = await importFromStrava({ data: { activity_id: activityId } });
+      toast.success(`FTP calculado: ${r.ftp} W (mejor 20' = ${r.avg_watts_20min} W)`);
+      setSaved(r.ftp);
+      qc.invalidateQueries({ queryKey: ["profile"] });
+    } catch (e: any) { toast.error(e.message); }
+    finally { setImportingId(null); }
+  };
+
+  const handleMarkOnly = async () => {
+    try {
+      await markCompleted({ data: undefined });
+      toast.success("Test marcado como realizado.");
+      qc.invalidateQueries({ queryKey: ["profile"] });
+    } catch (e: any) { toast.error(e.message); }
   };
 
   return (
@@ -102,6 +238,88 @@ function FtpTestPage() {
         <p className="mt-2 text-sm text-muted-foreground">
           Protocolo clásico Coggan: 20 min a máximo esfuerzo sostenible. FTP ≈ 95% de la potencia media de esos 20 min.
         </p>
+        {profileQ.data?.ftp_test_completed_at && (
+          <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
+            <CheckCheck className="size-4" /> Último test realizado el {format(new Date(profileQ.data.ftp_test_completed_at), "d MMM yyyy", { locale: es })}
+          </p>
+        )}
+      </div>
+
+      {/* Descarga del test para ciclocomputador */}
+      <div className="bg-surface border rounded-xl p-5 space-y-3">
+        <h2 className="font-display text-lg font-bold uppercase tracking-tight flex items-center gap-2">
+          <FileDown className="size-5" /> Descargar el test
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Descarga el bloque completo (calentamiento + 20 min all-out + vuelta a la calma) para hacerlo en Zwift, TrainingPeaks o tu ciclocomputador (Garmin / Wahoo).
+          {!profileQ.data?.ftp && " Sin FTP en tu perfil se usa una referencia de 200 W para calcular los porcentajes; ajústalos si es necesario."}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={handleDownloadZwo} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90">
+            <Download className="size-4" /> Descargar .zwo (Zwift)
+          </button>
+          <button onClick={handleDownloadFit} className="inline-flex items-center gap-2 border px-4 py-2 rounded-lg text-sm font-semibold hover:bg-muted">
+            <Download className="size-4" /> Descargar .fit (Garmin/Wahoo)
+          </button>
+        </div>
+      </div>
+
+      {/* Marcar como realizado + importar desde Strava */}
+      <div className="bg-surface border rounded-xl p-5 space-y-3">
+        <h2 className="font-display text-lg font-bold uppercase tracking-tight flex items-center gap-2">
+          <CheckCheck className="size-5" /> Marcar test como realizado
+        </h2>
+
+        {stravaConnected ? (
+          <>
+            <p className="text-sm text-muted-foreground">
+              Selecciona la actividad de Strava donde hiciste el test. Calcularemos el mejor esfuerzo de 20 min y actualizaremos tu FTP y zonas.
+            </p>
+            {recentActs.isLoading ? (
+              <p className="text-xs text-muted-foreground">Cargando actividades…</p>
+            ) : (recentActs.data ?? []).length === 0 ? (
+              <p className="text-xs text-muted-foreground">
+                No hay actividades recientes con potencia. Sincroniza Strava desde el <Link to="/perfil" className="underline">perfil</Link> tras subir el test.
+              </p>
+            ) : (
+              <ul className="divide-y border rounded-lg overflow-hidden">
+                {(recentActs.data ?? []).map((a: any) => (
+                  <li key={a.id} className="p-3 flex items-center justify-between gap-3 hover:bg-muted/30">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm truncate">{a.name}</p>
+                      <p className="text-[11px] text-muted-foreground font-mono">
+                        {format(new Date(a.start_date), "d MMM yyyy · HH:mm", { locale: es })} · {Math.round((a.moving_time ?? 0) / 60)} min · media {Math.round(a.average_watts)} W
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleImportStrava(String(a.id))}
+                      disabled={importingId === String(a.id)}
+                      className="shrink-0 inline-flex items-center gap-1 bg-[#fc4c02] text-white px-3 py-1.5 rounded-md text-xs font-semibold disabled:opacity-50"
+                    >
+                      <Bike className="size-3.5" />
+                      {importingId === String(a.id) ? "Calculando…" : "Usar este test"}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="pt-2 flex flex-wrap gap-2">
+              <button onClick={handleMarkOnly} className="text-xs font-semibold px-3 py-1.5 rounded-md border hover:bg-muted">
+                Marcar como realizado sin actualizar FTP
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="text-sm text-muted-foreground">
+              Conecta Strava en tu <Link to="/perfil" className="underline text-primary">perfil</Link> para importar el test directamente y calcular las zonas automáticamente.
+              Mientras tanto, introduce la potencia media de los 20 min más abajo cuando termines la prueba.
+            </p>
+            <button onClick={handleMarkOnly} className="text-xs font-semibold px-3 py-1.5 rounded-md border hover:bg-muted">
+              Marcar como realizado
+            </button>
+          </>
+        )}
       </div>
 
       {!finished ? (

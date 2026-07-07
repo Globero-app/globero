@@ -185,3 +185,99 @@ export const stravaActivityDetail = createServerFn({ method: "POST" })
     const streams = streamsRes.ok ? await streamsRes.json() : {};
     return { activity, streams };
   });
+
+/**
+ * Importa una actividad de Strava como test FTP: busca el mejor esfuerzo de 20 min
+ * de potencia media y calcula FTP = 95%. Actualiza el perfil y marca el test como realizado.
+ */
+const FtpImportInput = z.object({
+  activity_id: z.union([z.string(), z.number()]).transform((v) => String(v)),
+});
+
+export const stravaImportFtpTest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => FtpImportInput.parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const token = await refreshIfNeeded(supabase, userId);
+    const headers = { Authorization: `Bearer ${token}` };
+    const [actRes, streamsRes] = await Promise.all([
+      fetch(`${STRAVA_API}/activities/${data.activity_id}`, { headers }),
+      fetch(`${STRAVA_API}/activities/${data.activity_id}/streams?keys=time,watts,heartrate&key_by_type=true`, { headers }),
+    ]);
+    if (!actRes.ok) throw new Error(`Strava API ${actRes.status}`);
+    const activity = await actRes.json();
+    const streams = streamsRes.ok ? await streamsRes.json() : {};
+    const watts: number[] | undefined = streams?.watts?.data;
+    const time: number[] | undefined = streams?.time?.data;
+
+    // Estrategia 1: mejor ventana rodante de 20 min sobre el stream de watts
+    let best20 = 0;
+    let usedMethod: "stream_20min" | "activity_20min_avg" | "activity_avg_x0.95" = "activity_avg_x0.95";
+
+    if (watts && watts.length && time && time.length === watts.length) {
+      // Sumatorio prefijado para media rápida por tiempo (asumimos ~1s por muestra)
+      const targetWindow = 20 * 60;
+      let start = 0;
+      let sum = 0;
+      for (let end = 0; end < watts.length; end++) {
+        sum += watts[end] || 0;
+        while (time[end] - time[start] >= targetWindow) {
+          const dur = time[end] - time[start];
+          if (dur > 0) {
+            const avg = sum / (end - start + 1);
+            if (avg > best20) best20 = avg;
+          }
+          sum -= watts[start] || 0;
+          start++;
+        }
+      }
+      if (best20 > 0) usedMethod = "stream_20min";
+    }
+
+    // Estrategia 2 (fallback): si la actividad dura ≥ 20 min y tiene average_watts
+    if (!best20 && activity.moving_time >= 20 * 60 && activity.average_watts > 0) {
+      best20 = activity.average_watts;
+      usedMethod = "activity_20min_avg";
+    }
+
+    // Estrategia 3 (último recurso): media de la actividad
+    if (!best20 && activity.average_watts > 0) {
+      best20 = activity.average_watts;
+      usedMethod = "activity_avg_x0.95";
+    }
+
+    if (!best20) {
+      throw new Error("La actividad no tiene datos de potencia. Sube un test con potenciómetro o introduce el FTP manualmente.");
+    }
+
+    const ftp = Math.round(best20 * 0.95);
+
+    await supabase.from("profiles").update({
+      ftp,
+      ftp_test_completed_at: new Date().toISOString(),
+    }).eq("id", userId);
+
+    return {
+      ftp,
+      avg_watts_20min: Math.round(best20),
+      method: usedMethod,
+      activity_name: activity.name,
+      activity_date: activity.start_date,
+    };
+  });
+
+/**
+ * Marca el test FTP como realizado sin importar de Strava (útil cuando el usuario
+ * introduce la potencia media manualmente en la app).
+ */
+export const markFtpTestCompleted = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    await supabase.from("profiles").update({
+      ftp_test_completed_at: new Date().toISOString(),
+    }).eq("id", userId);
+    return { ok: true };
+  });
+
