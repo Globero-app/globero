@@ -24,6 +24,7 @@ import { Route as AuthenticatedActividadesIndexRouteImport } from './routes/_aut
 import { Route as ApiPublicSetupAdminRouteImport } from './routes/api/public/setup-admin'
 import { Route as AuthenticatedCompeticionesIdRouteImport } from './routes/_authenticated/competiciones.$id'
 import { Route as AuthenticatedActividadesIdRouteImport } from './routes/_authenticated/actividades.$id'
+import { Route as ApiPublicHooksHrvPushRouteImport } from './routes/api/public/hooks/hrv-push'
 
 const OfflineRoute = OfflineRouteImport.update({
   id: '/offline',
@@ -104,6 +105,11 @@ const AuthenticatedActividadesIdRoute =
     path: '/actividades/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicHooksHrvPushRoute = ApiPublicHooksHrvPushRouteImport.update({
+  id: '/api/public/hooks/hrv-push',
+  path: '/api/public/hooks/hrv-push',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
   '/actividades/': typeof AuthenticatedActividadesIndexRoute
   '/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
+  '/api/public/hooks/hrv-push': typeof ApiPublicHooksHrvPushRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -136,6 +143,7 @@ export interface FileRoutesByTo {
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
   '/actividades': typeof AuthenticatedActividadesIndexRoute
   '/competiciones': typeof AuthenticatedCompeticionesIndexRoute
+  '/api/public/hooks/hrv-push': typeof ApiPublicHooksHrvPushRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
   '/_authenticated/actividades/': typeof AuthenticatedActividadesIndexRoute
   '/_authenticated/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
+  '/api/public/hooks/hrv-push': typeof ApiPublicHooksHrvPushRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -172,6 +181,7 @@ export interface FileRouteTypes {
     | '/api/public/setup-admin'
     | '/actividades/'
     | '/competiciones/'
+    | '/api/public/hooks/hrv-push'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/api/public/setup-admin'
     | '/actividades'
     | '/competiciones'
+    | '/api/public/hooks/hrv-push'
   id:
     | '__root__'
     | '/_authenticated'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/api/public/setup-admin'
     | '/_authenticated/actividades/'
     | '/_authenticated/competiciones/'
+    | '/api/public/hooks/hrv-push'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -212,6 +224,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   OfflineRoute: typeof OfflineRoute
   ApiPublicSetupAdminRoute: typeof ApiPublicSetupAdminRoute
+  ApiPublicHooksHrvPushRoute: typeof ApiPublicHooksHrvPushRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -321,6 +334,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedActividadesIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/hooks/hrv-push': {
+      id: '/api/public/hooks/hrv-push'
+      path: '/api/public/hooks/hrv-push'
+      fullPath: '/api/public/hooks/hrv-push'
+      preLoaderRoute: typeof ApiPublicHooksHrvPushRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -360,6 +380,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   OfflineRoute: OfflineRoute,
   ApiPublicSetupAdminRoute: ApiPublicSetupAdminRoute,
+  ApiPublicHooksHrvPushRoute: ApiPublicHooksHrvPushRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
