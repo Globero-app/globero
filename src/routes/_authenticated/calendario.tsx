@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AppShell } from "@/components/AppShell";
 import { getCalendar, rescheduleWorkout, type CalendarEvent } from "@/lib/calendar.functions";
 import { downloadIcs } from "@/lib/ics";
 import {
@@ -121,7 +120,7 @@ function CalendarioPage() {
   const shift = (dir: -1 | 1) => setCursor((c) => (view === "month" ? addMonths(c, dir) : addDays(c, dir * 7)));
 
   return (
-    <AppShell>
+    <>
       <div className="p-4 md:p-6 space-y-4">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -273,6 +272,6 @@ function CalendarioPage() {
           )}
         </DialogContent>
       </Dialog>
-    </AppShell>
+    </>
   );
 }
