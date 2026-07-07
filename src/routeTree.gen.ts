@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedRecetasRouteImport } from './routes/_authenticated/recetas'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
+import { Route as AuthenticatedHrvRouteImport } from './routes/_authenticated/hrv'
 import { Route as AuthenticatedEntrenamientosRouteImport } from './routes/_authenticated/entrenamientos'
 import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
 import { Route as AuthenticatedBackendRouteImport } from './routes/_authenticated/backend'
@@ -51,6 +52,11 @@ const AuthenticatedRecetasRoute = AuthenticatedRecetasRouteImport.update({
 const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedHrvRoute = AuthenticatedHrvRouteImport.update({
+  id: '/hrv',
+  path: '/hrv',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedEntrenamientosRoute =
@@ -106,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/backend': typeof AuthenticatedBackendRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/entrenamientos': typeof AuthenticatedEntrenamientosRoute
+  '/hrv': typeof AuthenticatedHrvRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/recetas': typeof AuthenticatedRecetasRoute
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByTo {
   '/backend': typeof AuthenticatedBackendRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/entrenamientos': typeof AuthenticatedEntrenamientosRoute
+  '/hrv': typeof AuthenticatedHrvRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/recetas': typeof AuthenticatedRecetasRoute
   '/': typeof AuthenticatedIndexRoute
@@ -137,6 +145,7 @@ export interface FileRoutesById {
   '/_authenticated/backend': typeof AuthenticatedBackendRoute
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/entrenamientos': typeof AuthenticatedEntrenamientosRoute
+  '/_authenticated/hrv': typeof AuthenticatedHrvRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/recetas': typeof AuthenticatedRecetasRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
@@ -155,6 +164,7 @@ export interface FileRouteTypes {
     | '/backend'
     | '/calendario'
     | '/entrenamientos'
+    | '/hrv'
     | '/perfil'
     | '/recetas'
     | '/actividades/$id'
@@ -169,6 +179,7 @@ export interface FileRouteTypes {
     | '/backend'
     | '/calendario'
     | '/entrenamientos'
+    | '/hrv'
     | '/perfil'
     | '/recetas'
     | '/'
@@ -185,6 +196,7 @@ export interface FileRouteTypes {
     | '/_authenticated/backend'
     | '/_authenticated/calendario'
     | '/_authenticated/entrenamientos'
+    | '/_authenticated/hrv'
     | '/_authenticated/perfil'
     | '/_authenticated/recetas'
     | '/_authenticated/'
@@ -244,6 +256,13 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof AuthenticatedPerfilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/hrv': {
+      id: '/_authenticated/hrv'
+      path: '/hrv'
+      fullPath: '/hrv'
+      preLoaderRoute: typeof AuthenticatedHrvRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/entrenamientos': {
@@ -309,6 +328,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBackendRoute: typeof AuthenticatedBackendRoute
   AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedEntrenamientosRoute: typeof AuthenticatedEntrenamientosRoute
+  AuthenticatedHrvRoute: typeof AuthenticatedHrvRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedRecetasRoute: typeof AuthenticatedRecetasRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
@@ -322,6 +342,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBackendRoute: AuthenticatedBackendRoute,
   AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedEntrenamientosRoute: AuthenticatedEntrenamientosRoute,
+  AuthenticatedHrvRoute: AuthenticatedHrvRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedRecetasRoute: AuthenticatedRecetasRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
