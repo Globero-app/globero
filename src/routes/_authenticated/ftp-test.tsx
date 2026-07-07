@@ -100,7 +100,7 @@ function FtpTestPage() {
   const profileQ = useQuery({
     queryKey: ["profile", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("ftp,strava_access_token,ftp_test_completed_at").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("ftp,strava_access_token,ftp_test_completed_at,max_hr,lthr,zones_display_mode").eq("id", user!.id).maybeSingle();
       return data;
     },
     enabled: !!user,
