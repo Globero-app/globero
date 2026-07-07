@@ -224,6 +224,9 @@ export type Database = {
           id: string
           notify_maintenance_email: boolean
           notify_maintenance_push: boolean
+          notify_prerace_push: boolean
+          notify_strava_push: boolean
+          notify_training_push: boolean
           nutrition_focus: string
           pre_race_days: number
           strava_access_token: string | null
@@ -247,6 +250,9 @@ export type Database = {
           id: string
           notify_maintenance_email?: boolean
           notify_maintenance_push?: boolean
+          notify_prerace_push?: boolean
+          notify_strava_push?: boolean
+          notify_training_push?: boolean
           nutrition_focus?: string
           pre_race_days?: number
           strava_access_token?: string | null
@@ -270,6 +276,9 @@ export type Database = {
           id?: string
           notify_maintenance_email?: boolean
           notify_maintenance_push?: boolean
+          notify_prerace_push?: boolean
+          notify_strava_push?: boolean
+          notify_training_push?: boolean
           nutrition_focus?: string
           pre_race_days?: number
           strava_access_token?: string | null
