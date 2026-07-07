@@ -94,6 +94,21 @@ export const stravaSync = createServerFn({ method: "POST" })
     if (rows.length) {
       await supabase.from("strava_activities").upsert(rows, { onConflict: "id" });
     }
+    // Push del servidor si el usuario lo tiene habilitado
+    if (rows.length) {
+      try {
+        const { data: prof } = await supabase.from("profiles").select("notify_strava_push").eq("id", userId).maybeSingle();
+        if ((prof as any)?.notify_strava_push) {
+          const { notifyUser } = await import("./web-push.server");
+          await notifyUser(userId, {
+            title: "✅ Strava sincronizado",
+            body: `${rows.length} actividad${rows.length === 1 ? "" : "es"} importada${rows.length === 1 ? "" : "s"}.`,
+            tag: `strava-sync-${new Date().toISOString().slice(0, 10)}`,
+            url: "/entrenamientos",
+          });
+        }
+      } catch (e) { console.error("push strava sync", e); }
+    }
     return { count: rows.length };
   });
 
