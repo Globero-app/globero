@@ -143,8 +143,8 @@ function EntrenamientosPage() {
               {BIKE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </Field>
-          <Field label={hasCompetition ? "Cantidad: la calcula la IA" : `Cantidad: ${count} entrenamiento${count > 1 ? "s" : ""}`}>
-            <input disabled={hasCompetition} type="range" min={1} max={10} value={count} onChange={(e) => setCount(Number(e.target.value))} className="w-full disabled:opacity-50 disabled:cursor-not-allowed" />
+          <Field label={`Cantidad: ${count} entrenamiento${count > 1 ? "s" : ""}${hasCompetition ? " (tope, la IA ajusta)" : ""}`}>
+            <input type="range" min={1} max={30} value={count} onChange={(e) => setCount(Number(e.target.value))} className="w-full" />
           </Field>
           <Field label={`Duración por entrenamiento: ${duration} min`}>
             <input type="range" min={20} max={240} step={5} value={duration} onChange={(e) => setDuration(Number(e.target.value))} className="w-full" />
