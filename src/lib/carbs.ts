@@ -39,10 +39,12 @@ export function preRaceCarbsPerKg(daysBefore: number): number {
 /** g de CHO / hora durante la actividad según duración. Jeukendrup 2014. */
 export function inRideCarbsPerHour(durationH: number, intensity: Intensity = "media"): number {
   if (durationH < 1) return 0;
-  if (durationH < 2) return 30;
-  if (durationH < 2.5) return 60;
-  if (intensity === "alta" || intensity === "competicion") return 90;
-  return 75;
+  // Rutas cortas (1-2 h): 30-40 g/h (más alto si es alta intensidad).
+  if (durationH < 2) return intensity === "alta" || intensity === "competicion" ? 40 : 35;
+  // Salidas estándar (2-3 h): 60 g/h.
+  if (durationH < 3) return intensity === "alta" || intensity === "competicion" ? 70 : 60;
+  // >3 h o alta intensidad: 80-90 g/h.
+  return intensity === "alta" || intensity === "competicion" ? 90 : 80;
 }
 
 export interface NutritionWaypoint {
