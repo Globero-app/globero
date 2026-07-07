@@ -28,12 +28,14 @@ export function useTodayPushTriggers() {
     queryFn: async () => {
       const { data } = await supabase
         .from("workouts")
-        .select("id,name,duration_minutes,training_type")
+        .select("id,plan,status,duration_minutes,training_type")
         .eq("user_id", user!.id)
-        .eq("scheduled_date", today)
-        .eq("completed", false)
-        .limit(1);
-      return data?.[0] ?? null;
+        .neq("status", "completed");
+      const match = (data ?? []).find((w) => {
+        const p = w.plan as any;
+        return p?.scheduled_date === today;
+      });
+      return match ?? null;
     },
     enabled: !!user && !!prefsQ.data?.notify_training_push,
   });
@@ -58,15 +60,18 @@ export function useTodayPushTriggers() {
     if (!prefsQ.data?.notify_training_push) return;
     const w = trainingQ.data;
     if (!w) return;
+    const plan = w.plan as any;
+    const name = plan?.name ?? "Sesión planificada";
     sendLocalPush({
       category: "training",
       tag: `training-${w.id}-${today}`,
       dedupe: "day",
       title: "🚴 Entrenamiento de hoy",
-      body: `${w.name} · ${w.duration_minutes} min · ${w.training_type}`,
+      body: `${name} · ${w.duration_minutes} min · ${w.training_type}`,
       url: "/entrenamientos",
     });
   }, [trainingQ.data, prefsQ.data?.notify_training_push, today]);
+
 
   // Aviso pre-carrera (2-3 días antes)
   useEffect(() => {
