@@ -89,9 +89,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const themeInit = `(function(){try{var t=localStorage.getItem('sb-theme')||'system';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;if(d)r.classList.add('dark');r.style.colorScheme=d?'dark':'light';}catch(e){}})();`;
   return (
     <html lang="es">
-      <head><HeadContent /></head>
+      <head>
+        <HeadContent />
+        <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+      </head>
       <body>
         {children}
         <Scripts />
@@ -99,6 +103,7 @@ function RootShell({ children }: { children: ReactNode }) {
     </html>
   );
 }
+
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
