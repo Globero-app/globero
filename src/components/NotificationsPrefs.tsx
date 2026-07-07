@@ -3,8 +3,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
-import { Bell, Smartphone, CheckCircle2, AlertCircle, Wrench, Dumbbell, Droplets, Activity, Mail } from "lucide-react";
+import { Bell, Smartphone, CheckCircle2, AlertCircle, Wrench, Dumbbell, Droplets, Activity, Mail, Server, Send, PowerOff } from "lucide-react";
 import { pushPermission, requestPushPermission, sendLocalPush } from "@/lib/push";
+import { useServerFn } from "@tanstack/react-start";
+import { sendTestPush } from "@/lib/push-server.functions";
+import { enableServerPush, disableServerPush, getServerPushSubscription, serverPushSupported } from "@/lib/push-client";
 
 type PrefKey =
   | "notify_training_push"
@@ -32,8 +35,15 @@ export function NotificationsPrefs() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [perm, setPerm] = useState<NotificationPermission | "unsupported">("default");
+  const [serverSub, setServerSub] = useState<"unknown" | "subscribed" | "none" | "unsupported">("unknown");
+  const [busy, setBusy] = useState(false);
+  const testFn = useServerFn(sendTestPush);
 
-  useEffect(() => { setPerm(pushPermission()); }, []);
+  useEffect(() => {
+    setPerm(pushPermission());
+    if (!serverPushSupported()) { setServerSub("unsupported"); return; }
+    getServerPushSubscription().then((s) => setServerSub(s ? "subscribed" : "none")).catch(() => setServerSub("none"));
+  }, []);
 
   const prefsQ = useQuery({
     queryKey: ["notify_prefs", user?.id],
@@ -79,6 +89,32 @@ export function NotificationsPrefs() {
 
   const emailEnabled = !!prefsQ.data?.notify_maintenance_email;
 
+  const enableServer = async () => {
+    setBusy(true);
+    try {
+      const r = await enableServerPush();
+      if (r.ok) { setServerSub("subscribed"); setPerm("granted"); toast.success("Push del servidor activado"); }
+      else toast.error(r.reason);
+    } catch (e: any) { toast.error(e.message); }
+    finally { setBusy(false); }
+  };
+
+  const disableServer = async () => {
+    setBusy(true);
+    try { await disableServerPush(); setServerSub("none"); toast.success("Push del servidor desactivado"); }
+    catch (e: any) { toast.error(e.message); }
+    finally { setBusy(false); }
+  };
+
+  const testServer = async () => {
+    setBusy(true);
+    try {
+      const r = await testFn({}) as { sent: number };
+      toast.success(`Enviado a ${r.sent} dispositivo${r.sent === 1 ? "" : "s"}`);
+    } catch (e: any) { toast.error(e.message); }
+    finally { setBusy(false); }
+  };
+
   return (
     <div className="bg-muted/40 border rounded-xl p-4 space-y-4">
       <div className="flex items-start justify-between gap-2 flex-wrap">
@@ -92,6 +128,49 @@ export function NotificationsPrefs() {
         Elige qué avisos quieres recibir. Se muestran al abrir la app; para recibirlos
         también con la app cerrada, instala la PWA en tu móvil.
       </p>
+
+      {/* Push del servidor */}
+      <div className="border rounded-lg p-3 bg-background space-y-2">
+        <div className="flex items-start justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Server className="size-3.5 text-primary" />
+            <span className="text-sm font-semibold">Push del servidor</span>
+          </div>
+          <ServerStatusBadge status={serverSub} />
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          Recibe avisos con la app cerrada (recordatorios de entreno, sync Strava, mantenimiento…).
+          Requiere permitir notificaciones e instalar la PWA en iOS.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {serverSub !== "subscribed" ? (
+            <button
+              onClick={enableServer}
+              disabled={busy || serverSub === "unsupported"}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md bg-primary text-primary-foreground disabled:opacity-50"
+            >
+              <Smartphone className="size-3.5" /> Activar push del servidor
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={testServer}
+                disabled={busy}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md bg-primary text-primary-foreground disabled:opacity-50"
+              >
+                <Send className="size-3.5" /> Enviar prueba
+              </button>
+              <button
+                onClick={disableServer}
+                disabled={busy}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md bg-secondary disabled:opacity-50"
+              >
+                <PowerOff className="size-3.5" /> Desactivar
+              </button>
+            </>
+          )}
+        </div>
+      </div>
 
       {perm !== "granted" && perm !== "unsupported" && (
         <button
@@ -146,6 +225,13 @@ export function NotificationsPrefs() {
       </div>
     </div>
   );
+}
+
+function ServerStatusBadge({ status }: { status: "unknown" | "subscribed" | "none" | "unsupported" }) {
+  if (status === "subscribed") return <span className="text-[10px] uppercase font-bold text-emerald-600 flex items-center gap-1"><CheckCircle2 className="size-3" /> activo</span>;
+  if (status === "unsupported") return <span className="text-[10px] uppercase font-bold text-muted-foreground">no soportado</span>;
+  if (status === "unknown") return <span className="text-[10px] uppercase font-bold text-muted-foreground">…</span>;
+  return <span className="text-[10px] uppercase font-bold text-amber-600">inactivo</span>;
 }
 
 function PermissionBadge({ perm }: { perm: NotificationPermission | "unsupported" }) {
