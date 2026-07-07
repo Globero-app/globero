@@ -71,6 +71,20 @@ function PerfilPage() {
     if (!form.strava_client_id) { toast.error("Añade tu Client ID de Strava primero"); return; }
     const redirect = `${window.location.origin}/perfil`;
     const url = `https://www.strava.com/oauth/authorize?client_id=${form.strava_client_id}&response_type=code&redirect_uri=${encodeURIComponent(redirect)}&approval_prompt=auto&scope=read,activity:read_all,profile:read_all`;
+    // Strava bloquea el login dentro de iframes (cookies de terceros).
+    // Si estamos embebidos (p.ej. preview de Lovable), forzamos la ventana superior;
+    // si no es posible, abrimos en pestaña nueva.
+    const inIframe = typeof window !== "undefined" && window.self !== window.top;
+    if (inIframe) {
+      try {
+        window.top!.location.href = url;
+        return;
+      } catch {
+        window.open(url, "_blank", "noopener,noreferrer");
+        toast.info("Abre Strava en la pestaña nueva para completar la conexión.");
+        return;
+      }
+    }
     window.location.href = url;
   };
 
