@@ -5,8 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
-import { stravaExchange, stravaDisconnect } from "@/lib/strava.functions";
-import { Bike, CheckCircle2, Link as LinkIcon, Unlink, Wrench } from "lucide-react";
+import { stravaExchange, stravaDisconnect, stravaEstimateFtp } from "@/lib/strava.functions";
+import { Bike, CheckCircle2, Link as LinkIcon, Unlink, Wrench, Wand2 } from "lucide-react";
 import { BikesManager } from "@/components/BikesManager";
 import { NotificationsPrefs } from "@/components/NotificationsPrefs";
 import { MaintenanceAlertsBanner } from "@/components/MaintenanceAlertsBanner";
@@ -20,6 +20,7 @@ function PerfilPage() {
   const qc = useQueryClient();
   const exchange = useServerFn(stravaExchange);
   const disconnect = useServerFn(stravaDisconnect);
+  const estimateFtp = useServerFn(stravaEstimateFtp);
 
   const profileQ = useQuery({
     queryKey: ["profile", user?.id],
@@ -101,7 +102,31 @@ function PerfilPage() {
             <Field label="Peso (kg)"><input type="number" step="0.1" className="input" value={form.weight_kg ?? ""} onChange={(e) => setForm({...form, weight_kg: e.target.value})} /></Field>
             <Field label="Altura (cm)"><input type="number" className="input" value={form.height_cm ?? ""} onChange={(e) => setForm({...form, height_cm: e.target.value})} /></Field>
           </div>
-          <Field label="FTP (W)"><input type="number" className="input" value={form.ftp ?? ""} onChange={(e) => setForm({...form, ftp: e.target.value})} /></Field>
+          <Field label="FTP (W)">
+            <div className="flex gap-2">
+              <input type="number" className="input" value={form.ftp ?? ""} onChange={(e) => setForm({...form, ftp: e.target.value})} />
+              {!!profileQ.data?.strava_access_token && (
+                <button
+                  type="button"
+                  title="Estimar FTP automáticamente desde tus actividades de Strava"
+                  onClick={async () => {
+                    try {
+                      const r = await estimateFtp({ data: undefined });
+                      setForm((f: any) => ({ ...f, ftp: r.ftp }));
+                      toast.success(`FTP estimado: ${r.ftp} W`);
+                      qc.invalidateQueries({ queryKey: ["profile"] });
+                    } catch (e: any) { toast.error(e.message); }
+                  }}
+                  className="shrink-0 inline-flex items-center gap-1 px-3 rounded-lg border bg-surface text-xs font-semibold hover:bg-muted"
+                >
+                  <Wand2 className="size-3.5" /> Auto
+                </button>
+              )}
+            </div>
+            {!!profileQ.data?.strava_access_token && (
+              <p className="mt-1 text-[10px] text-muted-foreground">Se calcula desde tus actividades Strava con potencia. Puedes modificarlo manualmente.</p>
+            )}
+          </Field>
         </Section>
 
         <Section title="Plan nutricional">
