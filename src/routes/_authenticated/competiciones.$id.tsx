@@ -9,7 +9,9 @@ import { generateMenu, swapRecipe } from "@/lib/ai.functions";
 import { parseGpx, simplifyTrack, trackStats, buildGpxWithWaypoints, pointAtKm } from "@/lib/gpx";
 import { planRaceNutrition, dailyMacros } from "@/lib/carbs";
 import { GpxMap } from "@/components/GpxMap";
+import { RaceWeatherCard } from "@/components/RaceWeatherCard";
 import { Upload, Download, ChefHat, Sparkles, ArrowLeft, RefreshCcw, FileDown, X, Eye } from "lucide-react";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import jsPDF from "jspdf";
 import { format } from "date-fns";
@@ -222,7 +224,10 @@ function CompetitionDetail() {
         </div>
       </div>
 
+      <RaceWeatherCard competition={c} />
+
       <PostRaceSection competition={c} onSaved={() => qc.invalidateQueries({ queryKey: ["competition", id] })} />
+
 
       {viewRecipe && <RecipeModal recipe={viewRecipe} onClose={() => setViewRecipe(null)} />}
     </div>
