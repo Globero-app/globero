@@ -94,6 +94,14 @@ export const stravaSync = createServerFn({ method: "POST" })
     if (rows.length) {
       await supabase.from("strava_activities").upsert(rows, { onConflict: "id" });
     }
+    // Auto-FTP: si el usuario no tiene FTP definido, calcularlo tras el sync
+    try {
+      const { data: prof } = await supabase.from("profiles").select("ftp").eq("id", userId).maybeSingle();
+      if (!prof?.ftp) {
+        const est = await computeFtpFromActivities(supabase, userId);
+        if (est) await supabase.from("profiles").update({ ftp: est }).eq("id", userId);
+      }
+    } catch (e) { console.error("auto-ftp", e); }
     // Push del servidor si el usuario lo tiene habilitado
     if (rows.length) {
       try {
@@ -110,6 +118,40 @@ export const stravaSync = createServerFn({ method: "POST" })
       } catch (e) { console.error("push strava sync", e); }
     }
     return { count: rows.length };
+  });
+
+async function computeFtpFromActivities(supabase: any, userId: string): Promise<number | null> {
+  const { data: acts } = await supabase
+    .from("strava_activities")
+    .select("average_watts,moving_time,type")
+    .eq("user_id", userId);
+  if (!acts?.length) return null;
+  // Solo ciclismo con potencia
+  const cycling = acts.filter((a: any) =>
+    a.average_watts && a.average_watts > 0 &&
+    typeof a.type === "string" && /ride|bike|cycl/i.test(a.type),
+  );
+  if (!cycling.length) return null;
+  // Preferimos esfuerzos ≥ 20 min: FTP ≈ 0.95 × mejor potencia media 20'
+  const long = cycling.filter((a: any) => (a.moving_time ?? 0) >= 1200);
+  if (long.length) {
+    const best = Math.max(...long.map((a: any) => a.average_watts));
+    return Math.round(best * 0.95);
+  }
+  // Fallback: promedio de las 5 mejores medias, factor 0.90
+  const top = cycling.map((a: any) => a.average_watts).sort((a: number, b: number) => b - a).slice(0, 5);
+  const avg = top.reduce((s: number, v: number) => s + v, 0) / top.length;
+  return Math.round(avg * 0.9);
+}
+
+export const stravaEstimateFtp = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const ftp = await computeFtpFromActivities(supabase, userId);
+    if (!ftp) throw new Error("No hay actividades con potencia suficientes para estimar FTP. Sincroniza Strava.");
+    await supabase.from("profiles").update({ ftp }).eq("id", userId);
+    return { ftp };
   });
 
 export const stravaDisconnect = createServerFn({ method: "POST" })
