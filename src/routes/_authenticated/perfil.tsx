@@ -61,6 +61,8 @@ function PerfilPage() {
       dietary_preferences: form.dietary_preferences,
       strava_client_id: form.strava_client_id,
       strava_client_secret: form.strava_client_secret,
+      hrv_push_enabled: form.hrv_push_enabled ?? true,
+      hrv_push_hour: form.hrv_push_hour != null && form.hrv_push_hour !== "" ? Number(form.hrv_push_hour) : 7,
     }, { onConflict: "id" });
     if (error) toast.error(error.message);
     else { toast.success("Perfil guardado"); qc.invalidateQueries({ queryKey: ["profile"] }); }
@@ -196,6 +198,34 @@ function PerfilPage() {
           <MaintenanceAlertsBanner variant="inline" />
           <NotificationsPrefs />
           <BikesManager />
+        </Section>
+
+        <Section title="HRV matinal" className="lg:col-span-2">
+          <p className="text-sm text-muted-foreground">
+            Cada mañana recibirás un Push para registrar tu HRV (Variabilidad de la Frecuencia Cardíaca). La IA usa ese valor para modular la intensidad del entrenamiento del día.
+          </p>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.hrv_push_enabled ?? true}
+              onChange={(e) => setForm({ ...form, hrv_push_enabled: e.target.checked })}
+            />
+            <span>Recibir Push diario para registrar HRV</span>
+          </label>
+          <Field label="Hora del Push (Europa / España peninsular)">
+            <select
+              className="input"
+              value={form.hrv_push_hour ?? 7}
+              onChange={(e) => setForm({ ...form, hrv_push_hour: e.target.value })}
+            >
+              {Array.from({ length: 24 }, (_, h) => (
+                <option key={h} value={h}>{String(h).padStart(2, "0")}:00</option>
+              ))}
+            </select>
+          </Field>
+          <p className="text-[11px] text-muted-foreground">
+            Necesitas tener el Push del servidor activado (arriba, en Notificaciones). El aviso solo se envía si aún no has registrado el HRV del día.
+          </p>
         </Section>
 
         <div className="lg:col-span-2 flex justify-end">
