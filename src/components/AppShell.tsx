@@ -13,6 +13,7 @@ import { SponsorsFooter } from "@/components/SponsorsFooter";
 import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import { InstallAppButton } from "@/components/InstallAppButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { OnboardingTour } from "@/components/OnboardingTour";
 
 
 const NAV = [
@@ -184,6 +185,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Link>
         ))}
       </nav>
+
+      <OnboardingTour />
     </div>
   );
 }
