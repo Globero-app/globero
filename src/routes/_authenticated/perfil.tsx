@@ -8,7 +8,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { stravaExchange, stravaDisconnect, stravaEstimateFtp } from "@/lib/strava.functions";
 import { Bike, CheckCircle2, Link as LinkIcon, Unlink, Wrench, Wand2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { computePowerZones } from "@/lib/zones";
+import { computePowerZones, computeHrZones } from "@/lib/zones";
 import { BikesManager } from "@/components/BikesManager";
 import { NotificationsPrefs } from "@/components/NotificationsPrefs";
 import { MaintenanceAlertsBanner } from "@/components/MaintenanceAlertsBanner";
@@ -58,6 +58,9 @@ function PerfilPage() {
       weight_kg: form.weight_kg ? Number(form.weight_kg) : null,
       height_cm: form.height_cm ? Number(form.height_cm) : null,
       ftp: form.ftp ? Number(form.ftp) : null,
+      max_hr: form.max_hr ? Number(form.max_hr) : null,
+      lthr: form.lthr ? Number(form.lthr) : null,
+      zones_display_mode: form.zones_display_mode || "watts",
       pre_race_days: form.pre_race_days ? Number(form.pre_race_days) : 3,
       nutrition_focus: form.nutrition_focus || "carbohidratos",
       dietary_preferences: form.dietary_preferences,
@@ -151,8 +154,25 @@ function PerfilPage() {
                 ¿No conoces tu FTP? Hacer el test guiado de 20 min →
               </Link>
             </div>
-            <PowerZonesPreview ftp={form.ftp ? Number(form.ftp) : null} />
+            <ZonesPreview
+              ftp={form.ftp ? Number(form.ftp) : null}
+              lthr={form.lthr ? Number(form.lthr) : null}
+              maxHr={form.max_hr ? Number(form.max_hr) : null}
+              mode={form.zones_display_mode || "watts"}
+              onModeChange={(m) => setForm({ ...form, zones_display_mode: m })}
+            />
           </Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="FC máx (bpm)">
+              <input type="number" className="input" value={form.max_hr ?? ""} onChange={(e) => setForm({ ...form, max_hr: e.target.value })} />
+            </Field>
+            <Field label="Umbral FC / LTHR (bpm)">
+              <input type="number" className="input" placeholder="≈ 92% FCmáx" value={form.lthr ?? ""} onChange={(e) => setForm({ ...form, lthr: e.target.value })} />
+            </Field>
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            LTHR = FC media del último 20' del test FTP × 0,95. Si no lo indicas, se estima como 92 % de tu FC máx.
+          </p>
         </Section>
 
         <Section title="Plan nutricional">
@@ -260,25 +280,55 @@ function Field({ label, children }: any) {
   return <label className="block"><span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">{label}</span><div className="mt-1">{children}</div></label>;
 }
 
-function PowerZonesPreview({ ftp }: { ftp: number | null }) {
-  const zones = computePowerZones(ftp);
-  if (!zones) return null;
+function ZonesPreview({
+  ftp,
+  lthr,
+  maxHr,
+  mode,
+  onModeChange,
+}: {
+  ftp: number | null;
+  lthr: number | null;
+  maxHr: number | null;
+  mode: string;
+  onModeChange: (m: "watts" | "hr") => void;
+}) {
+  const powerZones = computePowerZones(ftp);
+  const hrZones = computeHrZones(lthr, maxHr);
+  const activeMode: "watts" | "hr" = mode === "hr" ? "hr" : "watts";
+  const zones = activeMode === "hr" ? hrZones : powerZones;
+  if (!powerZones && !hrZones) return null;
+  const unit = activeMode === "hr" ? "bpm" : "W";
+  const ref = activeMode === "hr" ? (lthr || (maxHr ? Math.round(maxHr * 0.92) : null)) : ftp;
   return (
     <div className="mt-3 rounded-lg border bg-muted/30 p-3 space-y-1.5">
-      <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
-        Zonas de potencia calculadas ({ftp} W)
-      </p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
+          {activeMode === "hr" ? "Zonas de FC (Friel)" : "Zonas de potencia (Coggan)"} · ref {ref ?? "—"} {unit}
+        </p>
+        <div className="inline-flex rounded-md border bg-surface p-0.5 text-[10px] font-semibold">
+          <button type="button" onClick={() => onModeChange("watts")} disabled={!powerZones} className={`px-2 py-0.5 rounded-sm disabled:opacity-40 ${activeMode === "watts" ? "bg-primary text-primary-foreground" : ""}`}>W</button>
+          <button type="button" onClick={() => onModeChange("hr")} disabled={!hrZones} className={`px-2 py-0.5 rounded-sm disabled:opacity-40 ${activeMode === "hr" ? "bg-primary text-primary-foreground" : ""}`}>FC</button>
+        </div>
+      </div>
+      {!zones && (
+        <p className="text-[11px] text-muted-foreground">
+          {activeMode === "hr" ? "Introduce tu FC máx o LTHR para ver las zonas por pulsaciones." : "Introduce tu FTP para ver las zonas de potencia."}
+        </p>
+      )}
+      {zones && (
       <div className="grid grid-cols-1 gap-1 text-xs">
         {zones.map((z) => (
           <div key={z.key} className="flex items-center gap-2">
             <span className="inline-block size-2.5 rounded-full shrink-0" style={{ background: z.color }} />
             <span className="font-semibold truncate">{z.label}</span>
             <span className="ml-auto font-mono tabular-nums">
-              {z.low}{z.high === Infinity ? "+" : `–${z.high}`} W
+              {z.low}{z.high === Infinity ? "+" : `–${z.high}`} {unit}
             </span>
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 }
