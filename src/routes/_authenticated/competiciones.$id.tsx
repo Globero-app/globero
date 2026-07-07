@@ -70,11 +70,31 @@ function CompetitionDetail() {
     const stats = trackStats(pts);
     const simplified = simplifyTrack(pts, 800);
 
-    // Plan de nutrición
+    // Fitness score: horas de Strava últimas 4 semanas → 0-100
+    let fitness_score: number | undefined;
+    if (user) {
+      const since = new Date(Date.now() - 28 * 86400_000).toISOString();
+      const { data: acts } = await supabase
+        .from("strava_activities")
+        .select("moving_time")
+        .eq("user_id", user.id)
+        .gte("start_date", since);
+      if (acts && acts.length) {
+        const hours = acts.reduce((s: number, a: any) => s + (a.moving_time ?? 0), 0) / 3600;
+        fitness_score = Math.min(100, Math.round(hours * 4)); // 25h/mes → 100
+      }
+    }
+
+    // Plan de nutrición adaptativo (perfil + Strava + perfil altimétrico)
     const plan = planRaceNutrition(
-      { weight_kg: profile.data?.weight_kg ?? 70, ftp: profile.data?.ftp ?? undefined },
+      {
+        weight_kg: profile.data?.weight_kg ?? 70,
+        ftp: profile.data?.ftp ?? undefined,
+        age: profile.data?.age ?? undefined,
+        fitness_score,
+      },
       { distance_km: stats.distance_km, elevation_m: stats.elevation_m, intensity: c.intensity as any, duration_hours: c.duration_hours ?? undefined },
-      { km_interval: 15, minute_interval: 30 }
+      { km_interval: 15, minute_interval: 30, track: simplified }
     );
 
     const waypointsWithCoords = plan.waypoints.map((w) => {
@@ -169,11 +189,17 @@ function CompetitionDetail() {
                   <Download className="size-3.5" /> Descargar GPX con waypoints
                 </button>
               </div>
-              <div className="max-h-48 overflow-y-auto space-y-1 text-xs">
+              <p className="text-[10px] text-muted-foreground mb-2">
+                Dosis ajustadas por perfil, forma (Strava últimas 4 semanas) y perfil altimétrico.
+              </p>
+              <div className="max-h-56 overflow-y-auto space-y-1 text-xs">
                 {wpts.map((w: any, i: number) => (
-                  <div key={i} className="flex justify-between py-1.5 border-b last:border-0">
-                    <span className="font-mono">KM {w.km} · min {w.minute}</span>
-                    <span className="text-primary font-semibold">{w.label}</span>
+                  <div key={i} className="flex justify-between items-center gap-2 py-1.5 border-b last:border-0">
+                    <span className="font-mono whitespace-nowrap">KM {w.km} · min {w.minute}</span>
+                    <span className="text-[10px] text-muted-foreground flex-1 truncate text-right">
+                      {w.note}{typeof w.grade_pct === "number" ? ` · ${w.grade_pct > 0 ? "+" : ""}${w.grade_pct}%` : ""}
+                    </span>
+                    <span className="text-primary font-semibold whitespace-nowrap">{w.carbs_g}g</span>
                   </div>
                 ))}
               </div>
