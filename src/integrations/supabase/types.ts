@@ -148,6 +148,7 @@ export type Database = {
           elevation_m: number
           gpx_data: string | null
           gpx_filename: string | null
+          hydration_plan: Json | null
           id: string
           intensity: string | null
           menu_plan: Json | null
@@ -160,6 +161,7 @@ export type Database = {
           updated_at: string
           user_id: string
           waypoints: Json | null
+          weather_forecast: Json | null
         }
         Insert: {
           created_at?: string
@@ -169,6 +171,7 @@ export type Database = {
           elevation_m?: number
           gpx_data?: string | null
           gpx_filename?: string | null
+          hydration_plan?: Json | null
           id?: string
           intensity?: string | null
           menu_plan?: Json | null
@@ -181,6 +184,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           waypoints?: Json | null
+          weather_forecast?: Json | null
         }
         Update: {
           created_at?: string
@@ -190,6 +194,7 @@ export type Database = {
           elevation_m?: number
           gpx_data?: string | null
           gpx_filename?: string | null
+          hydration_plan?: Json | null
           id?: string
           intensity?: string | null
           menu_plan?: Json | null
@@ -202,6 +207,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           waypoints?: Json | null
+          weather_forecast?: Json | null
         }
         Relationships: []
       }

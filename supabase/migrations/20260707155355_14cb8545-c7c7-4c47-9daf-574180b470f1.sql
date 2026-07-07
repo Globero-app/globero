@@ -1,0 +1,1 @@
+ALTER TABLE public.competitions ADD COLUMN IF NOT EXISTS weather_forecast jsonb, ADD COLUMN IF NOT EXISTS hydration_plan jsonb;
