@@ -38,7 +38,7 @@ const BIKE_TYPES = ["carretera", "gravel", "montana", "electrica"] as const;
 const GenInput = z.object({
   training_type: z.enum(TRAINING_TYPES),
   bike_type: z.enum(BIKE_TYPES),
-  count: z.number().int().min(1).max(10),
+  count: z.number().int().min(1).max(30),
   duration_minutes: z.number().int().min(20).max(360),
   competition_id: z.string().uuid().optional().nullable(),
 });
@@ -133,8 +133,8 @@ export const generateWorkouts = createServerFn({ method: "POST" })
       const daysUntil = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
       if (daysUntil <= 0) throw new Error("La competición ya ha pasado");
       const weeksUntil = Math.max(1, Math.ceil(daysUntil / 7));
-      // Máximo 3 por semana, máximo 10 por generación
-      effectiveCount = Math.min(10, Math.max(1, weeksUntil * 3));
+      // Hasta 3 por semana, hasta 30 por generación, respetando el máximo pedido por el usuario
+      effectiveCount = Math.min(data.count, 30, Math.max(1, weeksUntil * 3));
 
       competitionBlock = `
 
@@ -184,6 +184,9 @@ INSTRUCCIONES:
 8. Ajusta volumen/intensidad según feedback previo: si RPE medio >4 reduce intensidad, si <2 aumenta.
 9. TODO en ESPAÑOL.
 10. Los entrenamientos deben ser DISTINTOS y progresivos.
+11. LÓGICA DE MEJORA PROGRESIVA: ordena los ${effectiveCount} entrenamientos como un microciclo/mesociclo con progresión clara — arranque adaptativo, subida de carga, sesiones clave, y recuperación intercalada cada 3-4 días. La duración objetivo (${data.duration_minutes} min) es la referencia; puedes variar ±15% para respetar la progresión.
+12. TIPO DE BICI (${data.bike_type}): adapta el enfoque al material — carretera (rodaje eficiente, cadencia alta), gravel (mixto asfalto+tierra, transiciones), montana (fuerza específica, técnica en subida, ritmo variable), electrica (foco en cadencia y FC, la potencia queda ayudada por el motor así que trabaja FC y duración).
+13. FOCO SELECCIONADO (${competition ? "competición" : data.training_type}): construye el bloque respetando ese foco — resistencia = predominio Z2 con Z3 puntual, intervalos = Z4-Z5 con estructura clara de series/recuperación, fuerza = cadencia 50-60rpm con Z3-Z4, mixto = alterna los tres tipos entre sesiones.
 ${competition ? '11. Cada workout DEBE incluir "scheduled_date" (YYYY-MM-DD) y "focus" coherente con la fase de periodización.' : ""}`;
 
     const result = await callAI([{ role: "user", content: prompt }], PlanSchema);
