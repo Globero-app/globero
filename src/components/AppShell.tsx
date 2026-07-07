@@ -12,6 +12,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { SponsorsFooter } from "@/components/SponsorsFooter";
 import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import { InstallAppButton } from "@/components/InstallAppButton";
+import { ThemeToggle } from "@/components/ThemeToggle";
+
 
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -95,8 +97,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             <InstallAppButton />
           </div>
         </nav>
-        <div className="border-t p-4">
-          <div className="flex items-center gap-3 mb-3 px-2">
+        <div className="border-t p-4 space-y-3">
+          <ThemeToggle />
+          <div className="flex items-center gap-3 px-2">
             <div className="size-9 rounded-full bg-primary/10 text-primary grid place-items-center text-xs font-bold">
               {user?.email?.[0]?.toUpperCase() ?? "?"}
             </div>
@@ -109,6 +112,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <LogOut className="size-3.5" /> Cerrar sesión
           </button>
         </div>
+
       </aside>
 
       {/* Mobile top bar */}
@@ -117,10 +121,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           <span className="text-primary italic">{config?.team_name?.split(" ")[0] ?? "Sentmenat"}</span>
           <span className="ml-1.5">{config?.team_name?.split(" ").slice(1).join(" ") ?? "Bici"}</span>
         </Link>
-        <button onClick={() => setMobileOpen(true)} className="p-2 rounded-md hover:bg-secondary" aria-label="Menú">
-          <Menu className="size-5" />
-        </button>
+        <div className="flex items-center gap-1">
+          <ThemeToggle compact />
+          <button onClick={() => setMobileOpen(true)} className="p-2 rounded-md hover:bg-secondary" aria-label="Menú">
+            <Menu className="size-5" />
+          </button>
+        </div>
       </header>
+
 
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-50 bg-background/95 backdrop-blur flex flex-col">
