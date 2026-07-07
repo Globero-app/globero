@@ -8,7 +8,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { stravaExchange, stravaDisconnect } from "@/lib/strava.functions";
 import { Bike, CheckCircle2, Link as LinkIcon, Unlink, Wrench } from "lucide-react";
 import { BikesManager } from "@/components/BikesManager";
-import { MaintenanceNotifyPrefs } from "@/components/MaintenanceNotifyPrefs";
+import { NotificationsPrefs } from "@/components/NotificationsPrefs";
 import { MaintenanceAlertsBanner } from "@/components/MaintenanceAlertsBanner";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
@@ -153,7 +153,7 @@ function PerfilPage() {
 
         <Section title="Material y mantenimiento" className="lg:col-span-2">
           <MaintenanceAlertsBanner variant="inline" />
-          <MaintenanceNotifyPrefs />
+          <NotificationsPrefs />
           <BikesManager />
         </Section>
 
