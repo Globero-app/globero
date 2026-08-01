@@ -111,30 +111,29 @@ export const generateWorkouts = createServerFn({ method: "POST" })
       .order("date", { ascending: false })
       .limit(5);
 
-    // HRV reciente (14 días) — se usa para modular la intensidad de la sesión del día
-    const { data: hrvRows } = await supabase
-      .from("hrv_entries")
-      .select("entry_date,value,note")
+    // Readiness reciente (14 días) — se usa para modular la intensidad de la sesión del día
+    const { data: readinessRows } = await supabase
+      .from("readiness_entries")
+      .select("entry_date,score,note")
       .eq("user_id", userId)
       .order("entry_date", { ascending: false })
       .limit(14);
-    const hrvArr = (hrvRows ?? []) as Array<{ entry_date: string; value: number; note: string | null }>;
+    const readinessArr = (readinessRows ?? []) as Array<{ entry_date: string; score: number; note: string | null }>;
     const madridToday = new Intl.DateTimeFormat("en-CA", {
       timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit",
     }).format(new Date());
-    const todayHrv = hrvArr.find((h) => h.entry_date === madridToday) ?? null;
-    const baseline = hrvArr.length >= 3
-      ? Math.round(hrvArr.slice(0, 7).reduce((s, h) => s + h.value, 0) / Math.min(7, hrvArr.length))
-      : null;
-    let hrvStatus = "sin datos";
-    if (todayHrv && baseline) {
-      const delta = ((todayHrv.value - baseline) / baseline) * 100;
-      if (delta <= -10) hrvStatus = `BAJO (${todayHrv.value} ms, ${delta.toFixed(0)}% vs baseline ${baseline}) → REDUCE intensidad y volumen de la primera sesión (recuperación activa o Z2 corto)`;
-      else if (delta >= 10) hrvStatus = `ALTO (${todayHrv.value} ms, +${delta.toFixed(0)}% vs baseline ${baseline}) → puedes MANTENER o subir ligeramente la carga`;
-      else hrvStatus = `NORMAL (${todayHrv.value} ms vs baseline ${baseline}) → sesión planificada estándar`;
-    } else if (todayHrv) {
-      hrvStatus = `${todayHrv.value} ms (sin baseline aún)`;
-    }
+    const todayReadiness = readinessArr.find((h) => h.entry_date === madridToday) ?? null;
+    const READINESS_TEXT: Record<number, string> = {
+      1: "Nada preparado → NO planifiques sesión hoy: descanso total o movilidad suave",
+      2: "Preparado para un paseo relajado → rodaje Z1-Z2 corto, sin intervalos",
+      3: "Preparado para un entreno normal → sesión estándar planificada",
+      4: "Preparado para un entreno exigente → puedes subir la carga o añadir calidad",
+      5: "Preparado para dar lo máximo → sesión clave, máxima intensidad razonable",
+    };
+    const readinessStatus = todayReadiness
+      ? `${todayReadiness.score}/5 — ${READINESS_TEXT[todayReadiness.score]}${todayReadiness.note ? ` (nota: ${todayReadiness.note})` : ""}`
+      : "sin respuesta hoy";
+
 
     const ftp = profile.ftp ?? null;
     const weight = profile.weight_kg ?? 70;
