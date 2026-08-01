@@ -197,8 +197,8 @@ FEEDBACK PREVIO (RPE 1=fácil, 5=imposible): ${prevWorkouts && prevWorkouts.leng
 
 CARRERAS PASADAS (post-race feedback del usuario, úsalo para ajustar volumen, intensidad y enfoque en nutrición/ritmo): ${pastRaces && pastRaces.length ? JSON.stringify(pastRaces) : "sin carreras previas con feedback"}
 
-HRV MATINAL DE HOY (${madridToday}, España peninsular): ${hrvStatus}
-HISTÓRICO HRV 14 días: ${hrvArr.length ? JSON.stringify(hrvArr) : "sin registros"}
+READINESS DE HOY (${madridToday}, España peninsular): ${readinessStatus}
+HISTÓRICO READINESS 14 días: ${readinessArr.length ? JSON.stringify(readinessArr) : "sin registros"}
 
 INSTRUCCIONES:
 1. Cada entrenamiento DEBE durar aproximadamente ${data.duration_minutes} minutos (suma de duration_seconds de los steps).
