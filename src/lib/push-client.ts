@@ -3,7 +3,7 @@ import { saveSubscription, removeSubscription } from "./push-server.functions";
 
 // Clave pública VAPID (segura de publicar por diseño).
 export const VAPID_PUBLIC_KEY =
-  "BC8GygHCLqUI2E5CAGBrgTlyWEqQTDvjMsnY_3lbTCNz0SMYyQxumKRPyf4-JxbqJDDjajEFpOjQZTQcw5MxgnU";
+  "BF7hZmfLS2GJA3iQlq__xM7MrdIVhPfklMCtki5CWi8Uz1sw9Xla6LrPRDHy2imfDLKf0Uu8zYrgO_E9zFQPfFA";
 
 function urlBase64ToUint8Array(base64: string): Uint8Array {
   const padding = "=".repeat((4 - (base64.length % 4)) % 4);
