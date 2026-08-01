@@ -111,30 +111,29 @@ export const generateWorkouts = createServerFn({ method: "POST" })
       .order("date", { ascending: false })
       .limit(5);
 
-    // HRV reciente (14 días) — se usa para modular la intensidad de la sesión del día
-    const { data: hrvRows } = await supabase
-      .from("hrv_entries")
-      .select("entry_date,value,note")
+    // Readiness reciente (14 días) — se usa para modular la intensidad de la sesión del día
+    const { data: readinessRows } = await supabase
+      .from("readiness_entries")
+      .select("entry_date,score,note")
       .eq("user_id", userId)
       .order("entry_date", { ascending: false })
       .limit(14);
-    const hrvArr = (hrvRows ?? []) as Array<{ entry_date: string; value: number; note: string | null }>;
+    const readinessArr = (readinessRows ?? []) as Array<{ entry_date: string; score: number; note: string | null }>;
     const madridToday = new Intl.DateTimeFormat("en-CA", {
       timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit",
     }).format(new Date());
-    const todayHrv = hrvArr.find((h) => h.entry_date === madridToday) ?? null;
-    const baseline = hrvArr.length >= 3
-      ? Math.round(hrvArr.slice(0, 7).reduce((s, h) => s + h.value, 0) / Math.min(7, hrvArr.length))
-      : null;
-    let hrvStatus = "sin datos";
-    if (todayHrv && baseline) {
-      const delta = ((todayHrv.value - baseline) / baseline) * 100;
-      if (delta <= -10) hrvStatus = `BAJO (${todayHrv.value} ms, ${delta.toFixed(0)}% vs baseline ${baseline}) → REDUCE intensidad y volumen de la primera sesión (recuperación activa o Z2 corto)`;
-      else if (delta >= 10) hrvStatus = `ALTO (${todayHrv.value} ms, +${delta.toFixed(0)}% vs baseline ${baseline}) → puedes MANTENER o subir ligeramente la carga`;
-      else hrvStatus = `NORMAL (${todayHrv.value} ms vs baseline ${baseline}) → sesión planificada estándar`;
-    } else if (todayHrv) {
-      hrvStatus = `${todayHrv.value} ms (sin baseline aún)`;
-    }
+    const todayReadiness = readinessArr.find((h) => h.entry_date === madridToday) ?? null;
+    const READINESS_TEXT: Record<number, string> = {
+      1: "Nada preparado → NO planifiques sesión hoy: descanso total o movilidad suave",
+      2: "Preparado para un paseo relajado → rodaje Z1-Z2 corto, sin intervalos",
+      3: "Preparado para un entreno normal → sesión estándar planificada",
+      4: "Preparado para un entreno exigente → puedes subir la carga o añadir calidad",
+      5: "Preparado para dar lo máximo → sesión clave, máxima intensidad razonable",
+    };
+    const readinessStatus = todayReadiness
+      ? `${todayReadiness.score}/5 — ${READINESS_TEXT[todayReadiness.score]}${todayReadiness.note ? ` (nota: ${todayReadiness.note})` : ""}`
+      : "sin respuesta hoy";
+
 
     const ftp = profile.ftp ?? null;
     const weight = profile.weight_kg ?? 70;
@@ -198,8 +197,8 @@ FEEDBACK PREVIO (RPE 1=fácil, 5=imposible): ${prevWorkouts && prevWorkouts.leng
 
 CARRERAS PASADAS (post-race feedback del usuario, úsalo para ajustar volumen, intensidad y enfoque en nutrición/ritmo): ${pastRaces && pastRaces.length ? JSON.stringify(pastRaces) : "sin carreras previas con feedback"}
 
-HRV MATINAL DE HOY (${madridToday}, España peninsular): ${hrvStatus}
-HISTÓRICO HRV 14 días: ${hrvArr.length ? JSON.stringify(hrvArr) : "sin registros"}
+READINESS DE HOY (${madridToday}, España peninsular): ${readinessStatus}
+HISTÓRICO READINESS 14 días: ${readinessArr.length ? JSON.stringify(readinessArr) : "sin registros"}
 
 INSTRUCCIONES:
 1. Cada entrenamiento DEBE durar aproximadamente ${data.duration_minutes} minutos (suma de duration_seconds de los steps).
@@ -215,11 +214,12 @@ INSTRUCCIONES:
 11. LÓGICA DE MEJORA PROGRESIVA: ordena los ${effectiveCount} entrenamientos como un microciclo/mesociclo con progresión clara — arranque adaptativo, subida de carga, sesiones clave, y recuperación intercalada cada 3-4 días. La duración objetivo (${data.duration_minutes} min) es la referencia; puedes variar ±15% para respetar la progresión.
 12. TIPO DE BICI (${data.bike_type}): adapta el enfoque al material — carretera (rodaje eficiente, cadencia alta), gravel (mixto asfalto+tierra, transiciones), montana (fuerza específica, técnica en subida, ritmo variable), electrica (foco en cadencia y FC, la potencia queda ayudada por el motor así que trabaja FC y duración).
 13. FOCO SELECCIONADO (${competition ? "competición" : data.training_type}): construye el bloque respetando ese foco — resistencia = predominio Z2 con Z3 puntual, intervalos = Z4-Z5 con estructura clara de series/recuperación, fuerza = cadencia 50-60rpm con Z3-Z4, mixto = alterna los tres tipos entre sesiones.
-14. MODULACIÓN POR HRV: la PRIMERA sesión del plan (la más próxima en el tiempo) debe ajustarse al HRV matinal de HOY:
-   - HRV BAJO → sustituye por recuperación activa o Z2 suave, reduce duración un 20-30% y elimina intervalos duros. Menciónalo brevemente en "summary".
-   - HRV NORMAL → mantén el plan.
-   - HRV ALTO → puedes mantener o añadir un pequeño bloque de calidad si toca sesión clave.
-   Las sesiones posteriores se planifican con la lógica normal; el HRV del día influye SOLO en la primera.
+14. MODULACIÓN POR READINESS: la PRIMERA sesión del plan (la más próxima en el tiempo) debe ajustarse al Readiness de HOY:
+   - 1 (nada preparado) → propón descanso/movilidad muy suave y dilo en "summary".
+   - 2 → rodaje Z1-Z2 corto sin intervalos, reduce duración un 30-40%.
+   - 3 → mantén el plan estándar.
+   - 4 o 5 → puedes mantener o subir la carga (bloque de calidad si toca sesión clave).
+   Las sesiones posteriores se planifican con la lógica normal; el readiness del día influye SOLO en la primera.
 ${competition ? '11. Cada workout DEBE incluir "scheduled_date" (YYYY-MM-DD) y "focus" coherente con la fase de periodización.' : ""}`;
 
     const result = await callAI([{ role: "user", content: prompt }], PlanSchema);

@@ -12,7 +12,9 @@ export interface PushPayload {
   url?: string;
   icon?: string;
   requireInteraction?: boolean;
+  actions?: Array<{ action: string; title: string; icon?: string }>;
 }
+
 
 let configured = false;
 function ensureConfigured() {

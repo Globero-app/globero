@@ -1,13 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 /**
- * Cron horario. Envía push a los usuarios cuya hora de aviso HRV (en Europa/Madrid)
- * coincida con la hora actual de Madrid y que aún no hayan registrado el HRV de hoy.
+ * Cron horario. Envía push a los usuarios cuya hora de aviso de Readiness (Europa/Madrid)
+ * coincida con la hora actual y que aún no hayan respondido hoy.
  *
- * Auth: header `apikey` debe coincidir con SUPABASE_PUBLISHABLE_KEY (misma clave
- * pública que ya usa la app).
+ * Auth: header `apikey` debe coincidir con SUPABASE_PUBLISHABLE_KEY.
  */
-export const Route = createFileRoute("/api/public/hooks/hrv-push")({
+export const Route = createFileRoute("/api/public/hooks/readiness-push")({
   server: {
     handlers: {
       POST: async ({ request }) => {
@@ -17,7 +16,6 @@ export const Route = createFileRoute("/api/public/hooks/hrv-push")({
           return new Response("Unauthorized", { status: 401 });
         }
 
-        // Hora y fecha actuales en España peninsular
         const now = new Date();
         const madridHour = Number(
           new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", hour: "2-digit", hour12: false }).format(now),
@@ -28,12 +26,11 @@ export const Route = createFileRoute("/api/public/hooks/hrv-push")({
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        // Usuarios con aviso a esta hora
         const { data: users, error } = await supabaseAdmin
           .from("profiles")
           .select("id, full_name")
-          .eq("hrv_push_enabled", true)
-          .eq("hrv_push_hour", madridHour);
+          .eq("readiness_push_enabled", true)
+          .eq("readiness_push_hour", madridHour);
         if (error) {
           return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { "content-type": "application/json" } });
         }
@@ -41,10 +38,9 @@ export const Route = createFileRoute("/api/public/hooks/hrv-push")({
           return new Response(JSON.stringify({ ok: true, matched: 0, hour: madridHour }), { headers: { "content-type": "application/json" } });
         }
 
-        // Quita los que ya han registrado HRV hoy
         const ids = users.map((u) => u.id);
         const { data: already } = await supabaseAdmin
-          .from("hrv_entries")
+          .from("readiness_entries")
           .select("user_id")
           .eq("entry_date", madridDate)
           .in("user_id", ids);
@@ -55,11 +51,16 @@ export const Route = createFileRoute("/api/public/hooks/hrv-push")({
         let sent = 0;
         for (const u of targets) {
           const n = await notifyUser(u.id, {
-            title: "💓 Registra tu HRV de hoy",
-            body: "Buenos días. Mide tu HRV al despertar para que la IA ajuste tu sesión.",
-            tag: `hrv-${madridDate}`,
-            url: "/hrv",
-            requireInteraction: false,
+            title: "🚴 ¿Cómo te encuentras hoy?",
+            body: "1 Nada preparado · 2 Paseo relajado · 3 Entreno normal · 4 Entreno exigente · 5 Dar lo máximo",
+            tag: `readiness-${madridDate}`,
+            url: "/readiness",
+            requireInteraction: true,
+            actions: [
+              { action: "readiness-1", title: "1" },
+              { action: "readiness-3", title: "3" },
+              { action: "readiness-5", title: "5" },
+            ],
           });
           sent += n;
         }

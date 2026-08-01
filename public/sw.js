@@ -13,13 +13,17 @@ self.addEventListener("push", (event) => {
     tag: data.tag || "sb-push",
     data: { url: data.url || "/", ...data },
     requireInteraction: !!data.requireInteraction,
+    actions: Array.isArray(data.actions) ? data.actions.slice(0, 3) : undefined,
   };
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = (event.notification.data && event.notification.data.url) || "/";
+  let url = (event.notification.data && event.notification.data.url) || "/";
+  const action = event.action || "";
+  const m = /^readiness-(\d)$/.exec(action);
+  if (m) url = "/readiness?score=" + m[1];
   event.waitUntil((async () => {
     const all = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     for (const c of all) {
