@@ -214,11 +214,12 @@ INSTRUCCIONES:
 11. LÓGICA DE MEJORA PROGRESIVA: ordena los ${effectiveCount} entrenamientos como un microciclo/mesociclo con progresión clara — arranque adaptativo, subida de carga, sesiones clave, y recuperación intercalada cada 3-4 días. La duración objetivo (${data.duration_minutes} min) es la referencia; puedes variar ±15% para respetar la progresión.
 12. TIPO DE BICI (${data.bike_type}): adapta el enfoque al material — carretera (rodaje eficiente, cadencia alta), gravel (mixto asfalto+tierra, transiciones), montana (fuerza específica, técnica en subida, ritmo variable), electrica (foco en cadencia y FC, la potencia queda ayudada por el motor así que trabaja FC y duración).
 13. FOCO SELECCIONADO (${competition ? "competición" : data.training_type}): construye el bloque respetando ese foco — resistencia = predominio Z2 con Z3 puntual, intervalos = Z4-Z5 con estructura clara de series/recuperación, fuerza = cadencia 50-60rpm con Z3-Z4, mixto = alterna los tres tipos entre sesiones.
-14. MODULACIÓN POR HRV: la PRIMERA sesión del plan (la más próxima en el tiempo) debe ajustarse al HRV matinal de HOY:
-   - HRV BAJO → sustituye por recuperación activa o Z2 suave, reduce duración un 20-30% y elimina intervalos duros. Menciónalo brevemente en "summary".
-   - HRV NORMAL → mantén el plan.
-   - HRV ALTO → puedes mantener o añadir un pequeño bloque de calidad si toca sesión clave.
-   Las sesiones posteriores se planifican con la lógica normal; el HRV del día influye SOLO en la primera.
+14. MODULACIÓN POR READINESS: la PRIMERA sesión del plan (la más próxima en el tiempo) debe ajustarse al Readiness de HOY:
+   - 1 (nada preparado) → propón descanso/movilidad muy suave y dilo en "summary".
+   - 2 → rodaje Z1-Z2 corto sin intervalos, reduce duración un 30-40%.
+   - 3 → mantén el plan estándar.
+   - 4 o 5 → puedes mantener o subir la carga (bloque de calidad si toca sesión clave).
+   Las sesiones posteriores se planifican con la lógica normal; el readiness del día influye SOLO en la primera.
 ${competition ? '11. Cada workout DEBE incluir "scheduled_date" (YYYY-MM-DD) y "focus" coherente con la fase de periodización.' : ""}`;
 
     const result = await callAI([{ role: "user", content: prompt }], PlanSchema);
