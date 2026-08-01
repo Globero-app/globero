@@ -53,9 +53,9 @@ const STEPS: Step[] = [
   },
   {
     icon: HeartPulse,
-    title: "6 · Registra tu HRV cada mañana",
-    body: "Recibirás un Push a la hora que elijas (España peninsular). El HRV modula la intensidad de la sesión del día.",
-    cta: { label: "Configurar HRV", to: "/hrv" },
+    title: "6 · Responde tu Readiness cada mañana",
+    body: "Recibirás un Push a la hora que elijas (España peninsular). Indica del 1 al 5 cómo te encuentras y la IA adaptará el entreno del día.",
+    cta: { label: "Configurar Readiness", to: "/readiness" },
   },
 ];
 

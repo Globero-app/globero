@@ -66,8 +66,8 @@ function PerfilPage() {
       dietary_preferences: form.dietary_preferences,
       strava_client_id: form.strava_client_id,
       strava_client_secret: form.strava_client_secret,
-      hrv_push_enabled: form.hrv_push_enabled ?? true,
-      hrv_push_hour: form.hrv_push_hour != null && form.hrv_push_hour !== "" ? Number(form.hrv_push_hour) : 7,
+      readiness_push_enabled: form.readiness_push_enabled ?? true,
+      readiness_push_hour: form.readiness_push_hour != null && form.readiness_push_hour !== "" ? Number(form.readiness_push_hour) : 7,
     }, { onConflict: "id" });
     if (error) toast.error(error.message);
     else { toast.success("Perfil guardado"); qc.invalidateQueries({ queryKey: ["profile"] }); }
@@ -228,23 +228,23 @@ function PerfilPage() {
           <BikesManager />
         </Section>
 
-        <Section title="HRV matinal" className="lg:col-span-2">
+        <Section title="Readiness diario" className="lg:col-span-2">
           <p className="text-sm text-muted-foreground">
-            Cada mañana recibirás un Push para registrar tu HRV (Variabilidad de la Frecuencia Cardíaca). La IA usa ese valor para modular la intensidad del entrenamiento del día.
+            Cada día recibirás un Push preguntándote cómo te encuentras (1 Nada preparado · 2 Paseo relajado · 3 Entreno normal · 4 Entreno exigente · 5 Dar lo máximo). La IA adaptará el entrenamiento de ese día según tu respuesta; si respondes 1, te sugerirá eliminarlo.
           </p>
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
-              checked={form.hrv_push_enabled ?? true}
-              onChange={(e) => setForm({ ...form, hrv_push_enabled: e.target.checked })}
+              checked={form.readiness_push_enabled ?? true}
+              onChange={(e) => setForm({ ...form, readiness_push_enabled: e.target.checked })}
             />
-            <span>Recibir Push diario para registrar HRV</span>
+            <span>Recibir Push diario de Readiness</span>
           </label>
           <Field label="Hora del Push (Europa / España peninsular)">
             <select
               className="input"
-              value={form.hrv_push_hour ?? 7}
-              onChange={(e) => setForm({ ...form, hrv_push_hour: e.target.value })}
+              value={form.readiness_push_hour ?? 7}
+              onChange={(e) => setForm({ ...form, readiness_push_hour: e.target.value })}
             >
               {Array.from({ length: 24 }, (_, h) => (
                 <option key={h} value={h}>{String(h).padStart(2, "0")}:00</option>
@@ -252,7 +252,7 @@ function PerfilPage() {
             </select>
           </Field>
           <p className="text-[11px] text-muted-foreground">
-            Necesitas tener el Push del servidor activado (arriba, en Notificaciones). El aviso solo se envía si aún no has registrado el HRV del día.
+            Necesitas tener el Push del servidor activado (arriba, en Notificaciones). El aviso solo se envía si aún no has respondido el Readiness del día.
           </p>
         </Section>
 

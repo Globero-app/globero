@@ -16,7 +16,6 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedRecetasRouteImport } from './routes/_authenticated/recetas'
 import { Route as AuthenticatedReadinessRouteImport } from './routes/_authenticated/readiness'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
-import { Route as AuthenticatedHrvRouteImport } from './routes/_authenticated/hrv'
 import { Route as AuthenticatedFtpTestRouteImport } from './routes/_authenticated/ftp-test'
 import { Route as AuthenticatedEntrenamientosRouteImport } from './routes/_authenticated/entrenamientos'
 import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
@@ -27,7 +26,6 @@ import { Route as ApiPublicSetupAdminRouteImport } from './routes/api/public/set
 import { Route as AuthenticatedCompeticionesIdRouteImport } from './routes/_authenticated/competiciones.$id'
 import { Route as AuthenticatedActividadesIdRouteImport } from './routes/_authenticated/actividades.$id'
 import { Route as ApiPublicHooksReadinessPushRouteImport } from './routes/api/public/hooks/readiness-push'
-import { Route as ApiPublicHooksHrvPushRouteImport } from './routes/api/public/hooks/hrv-push'
 
 const OfflineRoute = OfflineRouteImport.update({
   id: '/offline',
@@ -61,11 +59,6 @@ const AuthenticatedReadinessRoute = AuthenticatedReadinessRouteImport.update({
 const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedHrvRoute = AuthenticatedHrvRouteImport.update({
-  id: '/hrv',
-  path: '/hrv',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedFtpTestRoute = AuthenticatedFtpTestRouteImport.update({
@@ -124,11 +117,6 @@ const ApiPublicHooksReadinessPushRoute =
     path: '/api/public/hooks/readiness-push',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicHooksHrvPushRoute = ApiPublicHooksHrvPushRouteImport.update({
-  id: '/api/public/hooks/hrv-push',
-  path: '/api/public/hooks/hrv-push',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -138,7 +126,6 @@ export interface FileRoutesByFullPath {
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/entrenamientos': typeof AuthenticatedEntrenamientosRoute
   '/ftp-test': typeof AuthenticatedFtpTestRoute
-  '/hrv': typeof AuthenticatedHrvRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/readiness': typeof AuthenticatedReadinessRoute
   '/recetas': typeof AuthenticatedRecetasRoute
@@ -147,7 +134,6 @@ export interface FileRoutesByFullPath {
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
   '/actividades/': typeof AuthenticatedActividadesIndexRoute
   '/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
-  '/api/public/hooks/hrv-push': typeof ApiPublicHooksHrvPushRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
 }
 export interface FileRoutesByTo {
@@ -157,7 +143,6 @@ export interface FileRoutesByTo {
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/entrenamientos': typeof AuthenticatedEntrenamientosRoute
   '/ftp-test': typeof AuthenticatedFtpTestRoute
-  '/hrv': typeof AuthenticatedHrvRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/readiness': typeof AuthenticatedReadinessRoute
   '/recetas': typeof AuthenticatedRecetasRoute
@@ -167,7 +152,6 @@ export interface FileRoutesByTo {
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
   '/actividades': typeof AuthenticatedActividadesIndexRoute
   '/competiciones': typeof AuthenticatedCompeticionesIndexRoute
-  '/api/public/hooks/hrv-push': typeof ApiPublicHooksHrvPushRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
 }
 export interface FileRoutesById {
@@ -179,7 +163,6 @@ export interface FileRoutesById {
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/entrenamientos': typeof AuthenticatedEntrenamientosRoute
   '/_authenticated/ftp-test': typeof AuthenticatedFtpTestRoute
-  '/_authenticated/hrv': typeof AuthenticatedHrvRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/readiness': typeof AuthenticatedReadinessRoute
   '/_authenticated/recetas': typeof AuthenticatedRecetasRoute
@@ -189,7 +172,6 @@ export interface FileRoutesById {
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
   '/_authenticated/actividades/': typeof AuthenticatedActividadesIndexRoute
   '/_authenticated/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
-  '/api/public/hooks/hrv-push': typeof ApiPublicHooksHrvPushRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
 }
 export interface FileRouteTypes {
@@ -202,7 +184,6 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/entrenamientos'
     | '/ftp-test'
-    | '/hrv'
     | '/perfil'
     | '/readiness'
     | '/recetas'
@@ -211,7 +192,6 @@ export interface FileRouteTypes {
     | '/api/public/setup-admin'
     | '/actividades/'
     | '/competiciones/'
-    | '/api/public/hooks/hrv-push'
     | '/api/public/hooks/readiness-push'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -221,7 +201,6 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/entrenamientos'
     | '/ftp-test'
-    | '/hrv'
     | '/perfil'
     | '/readiness'
     | '/recetas'
@@ -231,7 +210,6 @@ export interface FileRouteTypes {
     | '/api/public/setup-admin'
     | '/actividades'
     | '/competiciones'
-    | '/api/public/hooks/hrv-push'
     | '/api/public/hooks/readiness-push'
   id:
     | '__root__'
@@ -242,7 +220,6 @@ export interface FileRouteTypes {
     | '/_authenticated/calendario'
     | '/_authenticated/entrenamientos'
     | '/_authenticated/ftp-test'
-    | '/_authenticated/hrv'
     | '/_authenticated/perfil'
     | '/_authenticated/readiness'
     | '/_authenticated/recetas'
@@ -252,7 +229,6 @@ export interface FileRouteTypes {
     | '/api/public/setup-admin'
     | '/_authenticated/actividades/'
     | '/_authenticated/competiciones/'
-    | '/api/public/hooks/hrv-push'
     | '/api/public/hooks/readiness-push'
   fileRoutesById: FileRoutesById
 }
@@ -261,7 +237,6 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   OfflineRoute: typeof OfflineRoute
   ApiPublicSetupAdminRoute: typeof ApiPublicSetupAdminRoute
-  ApiPublicHooksHrvPushRoute: typeof ApiPublicHooksHrvPushRoute
   ApiPublicHooksReadinessPushRoute: typeof ApiPublicHooksReadinessPushRoute
 }
 
@@ -314,13 +289,6 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof AuthenticatedPerfilRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/hrv': {
-      id: '/_authenticated/hrv'
-      path: '/hrv'
-      fullPath: '/hrv'
-      preLoaderRoute: typeof AuthenticatedHrvRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/ftp-test': {
@@ -393,13 +361,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksReadinessPushRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/hrv-push': {
-      id: '/api/public/hooks/hrv-push'
-      path: '/api/public/hooks/hrv-push'
-      fullPath: '/api/public/hooks/hrv-push'
-      preLoaderRoute: typeof ApiPublicHooksHrvPushRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -408,7 +369,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedEntrenamientosRoute: typeof AuthenticatedEntrenamientosRoute
   AuthenticatedFtpTestRoute: typeof AuthenticatedFtpTestRoute
-  AuthenticatedHrvRoute: typeof AuthenticatedHrvRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedReadinessRoute: typeof AuthenticatedReadinessRoute
   AuthenticatedRecetasRoute: typeof AuthenticatedRecetasRoute
@@ -424,7 +384,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedEntrenamientosRoute: AuthenticatedEntrenamientosRoute,
   AuthenticatedFtpTestRoute: AuthenticatedFtpTestRoute,
-  AuthenticatedHrvRoute: AuthenticatedHrvRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedReadinessRoute: AuthenticatedReadinessRoute,
   AuthenticatedRecetasRoute: AuthenticatedRecetasRoute,
@@ -443,7 +402,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   OfflineRoute: OfflineRoute,
   ApiPublicSetupAdminRoute: ApiPublicSetupAdminRoute,
-  ApiPublicHooksHrvPushRoute: ApiPublicHooksHrvPushRoute,
   ApiPublicHooksReadinessPushRoute: ApiPublicHooksReadinessPushRoute,
 }
 export const routeTree = rootRouteImport
