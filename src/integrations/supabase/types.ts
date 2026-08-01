@@ -252,8 +252,6 @@ export type Database = {
           full_name: string | null
           gender: string | null
           height_cm: number | null
-          hrv_push_enabled: boolean
-          hrv_push_hour: number
           id: string
           lthr: number | null
           max_hr: number | null
@@ -265,6 +263,8 @@ export type Database = {
           nutrition_focus: string
           onboarding_completed_at: string | null
           pre_race_days: number
+          readiness_push_enabled: boolean
+          readiness_push_hour: number
           strava_access_token: string | null
           strava_athlete_id: number | null
           strava_client_id: string | null
@@ -285,8 +285,6 @@ export type Database = {
           full_name?: string | null
           gender?: string | null
           height_cm?: number | null
-          hrv_push_enabled?: boolean
-          hrv_push_hour?: number
           id: string
           lthr?: number | null
           max_hr?: number | null
@@ -298,6 +296,8 @@ export type Database = {
           nutrition_focus?: string
           onboarding_completed_at?: string | null
           pre_race_days?: number
+          readiness_push_enabled?: boolean
+          readiness_push_hour?: number
           strava_access_token?: string | null
           strava_athlete_id?: number | null
           strava_client_id?: string | null
@@ -318,8 +318,6 @@ export type Database = {
           full_name?: string | null
           gender?: string | null
           height_cm?: number | null
-          hrv_push_enabled?: boolean
-          hrv_push_hour?: number
           id?: string
           lthr?: number | null
           max_hr?: number | null
@@ -331,6 +329,8 @@ export type Database = {
           nutrition_focus?: string
           onboarding_completed_at?: string | null
           pre_race_days?: number
+          readiness_push_enabled?: boolean
+          readiness_push_hour?: number
           strava_access_token?: string | null
           strava_athlete_id?: number | null
           strava_client_id?: string | null
@@ -375,6 +375,53 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      readiness_entries: {
+        Row: {
+          ai_action: string | null
+          ai_message: string | null
+          created_at: string
+          entry_date: string
+          id: string
+          note: string | null
+          score: number
+          updated_at: string
+          user_id: string
+          workout_id: string | null
+        }
+        Insert: {
+          ai_action?: string | null
+          ai_message?: string | null
+          created_at?: string
+          entry_date: string
+          id?: string
+          note?: string | null
+          score: number
+          updated_at?: string
+          user_id: string
+          workout_id?: string | null
+        }
+        Update: {
+          ai_action?: string | null
+          ai_message?: string | null
+          created_at?: string
+          entry_date?: string
+          id?: string
+          note?: string | null
+          score?: number
+          updated_at?: string
+          user_id?: string
+          workout_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "readiness_entries_workout_id_fkey"
+            columns: ["workout_id"]
+            isOneToOne: false
+            referencedRelation: "workouts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sponsors: {
         Row: {
