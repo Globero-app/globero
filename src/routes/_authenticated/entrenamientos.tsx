@@ -156,6 +156,37 @@ function EntrenamientosPage() {
             <input type="range" min={20} max={240} step={5} value={duration} onChange={(e) => setDuration(Number(e.target.value))} className="w-full" />
           </Field>
         </div>
+
+        <Field label="Base de prescripción de la IA">
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setTargetBasis("power")}
+              className={`rounded-lg border-2 px-3 py-2.5 text-left transition ${effectiveBasis === "power" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+            >
+              <span className="block text-sm font-semibold">Potencia (FTP)</span>
+              <span className="block text-[11px] text-muted-foreground">
+                {profile.data?.ftp ? `FTP ${profile.data.ftp} W` : "Sin FTP en el perfil"}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setTargetBasis("hr")}
+              className={`rounded-lg border-2 px-3 py-2.5 text-left transition ${effectiveBasis === "hr" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+            >
+              <span className="block text-sm font-semibold">Frecuencia cardíaca</span>
+              <span className="block text-[11px] text-muted-foreground">
+                {maxHr || lthr ? `FC máx ${maxHr ?? "—"} · LTHR ${lthr ?? "—"}` : "Sin FC máx en el perfil"}
+              </span>
+            </button>
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1.5">
+            {effectiveBasis === "hr"
+              ? "La IA creará los entrenamientos con objetivos en pulsaciones (ppm) sobre tu LTHR / FC máx."
+              : "La IA creará los entrenamientos con objetivos en vatios sobre tu FTP."}
+          </p>
+        </Field>
+
         <button
           disabled={generateMut.isPending}
           onClick={() => generateMut.mutate()}
