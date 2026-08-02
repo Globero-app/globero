@@ -70,12 +70,18 @@ function EntrenamientosPage() {
   const profile = useQuery({
     queryKey: ["profile-ftp", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("ftp").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("ftp,max_hr,lthr,zones_display_mode").eq("id", user!.id).maybeSingle();
       return data;
     },
     enabled: !!user,
   });
   const ftp = profile.data?.ftp ?? 250;
+  const maxHr = profile.data?.max_hr ?? null;
+  const lthr = profile.data?.lthr ?? null;
+
+  const [targetBasis, setTargetBasis] = useState<"power" | "hr" | null>(null);
+  const effectiveBasis: "power" | "hr" =
+    targetBasis ?? (profile.data?.zones_display_mode === "hr" ? "hr" : "power");
 
   const hasCompetition = !!competitionId;
 
