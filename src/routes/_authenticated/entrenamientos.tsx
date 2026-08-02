@@ -99,7 +99,7 @@ function EntrenamientosPage() {
   });
 
   const generateMut = useMutation({
-    mutationFn: () => gen({ data: { training_type: trainingType, bike_type: bikeType, count, duration_minutes: duration, competition_id: competitionId || null } }),
+    mutationFn: () => gen({ data: { training_type: trainingType, bike_type: bikeType, count, duration_minutes: duration, competition_id: competitionId || null, target_basis: effectiveBasis } }),
     onSuccess: (inserted: any) => {
       const n = Array.isArray(inserted) ? inserted.length : count;
       toast.success(hasCompetition ? `Plan para tu competición creado: ${n} entrenamientos` : `${n} entrenamiento${n > 1 ? "s" : ""} generado${n > 1 ? "s" : ""}`);
