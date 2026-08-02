@@ -41,6 +41,7 @@ const GenInput = z.object({
   count: z.number().int().min(1).max(30),
   duration_minutes: z.number().int().min(20).max(360),
   competition_id: z.string().uuid().optional().nullable(),
+  target_basis: z.enum(["power", "hr"]).optional().default("power"),
 });
 
 const StepSchema = {
