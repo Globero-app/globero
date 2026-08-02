@@ -41,6 +41,7 @@ const GenInput = z.object({
   count: z.number().int().min(1).max(30),
   duration_minutes: z.number().int().min(20).max(360),
   competition_id: z.string().uuid().optional().nullable(),
+  target_basis: z.enum(["power", "hr"]).optional().default("power"),
 });
 
 const StepSchema = {
@@ -137,6 +138,21 @@ export const generateWorkouts = createServerFn({ method: "POST" })
 
     const ftp = profile.ftp ?? null;
     const weight = profile.weight_kg ?? 70;
+    const maxHr: number | null = (profile as any).max_hr ?? null;
+    const lthr: number | null = (profile as any).lthr ?? null;
+    // Si el usuario pide FC pero no hay datos de FC, caemos a potencia si hay FTP
+    const basis: "power" | "hr" = data.target_basis === "hr" && !maxHr && !lthr && ftp ? "power" : (data.target_basis ?? "power");
+    const basisBlock = basis === "hr"
+      ? `BASE DE PRESCRIPCIÓN: FRECUENCIA CARDÍACA (obligatorio)
+- FC máx: ${maxHr ?? "no especificada (estima 220-edad)"} ppm · LTHR (umbral): ${lthr ?? "no especificado (estima 92% de FC máx)"} ppm
+- TODOS los steps con esfuerzo deben usar target='hr' con target_low/target_high en PPM (bpm). No uses target='power' en ningún step.
+- Zonas sobre LTHR: Z1 <81%, Z2 81-89%, Z3 90-93%, Z4 94-99%, Z5 100-102%, Z5b >102%. Si solo hay FC máx, usa % de FC máx: Z1 <68%, Z2 69-83%, Z3 84-94%, Z4 95-105%.
+- Menciona en "summary" que la sesión está prescrita por frecuencia cardíaca.`
+      : `BASE DE PRESCRIPCIÓN: POTENCIA / FTP (obligatorio)
+- FTP: ${ftp ?? "no especificado"}W
+- TODOS los steps con esfuerzo deben usar target='power' con target_low/target_high en VATIOS calculados sobre el FTP (Z2 56-75%, Z3 76-90%, Z4 91-105%, Z5 106-120%, Z6 121-150%).
+- Solo si NO hay FTP disponible usa target='hr' o target='open'.
+- Menciona en "summary" que la sesión está prescrita por potencia.`;
 
     // Si hay competición, sobreescribimos cantidad y construimos plan periodizado
     let competition: any = null;
@@ -182,8 +198,10 @@ PERIODIZACIÓN OBLIGATORIA:
 
 PERFIL:
 - Edad: ${profile.age ?? "n/a"}, Sexo: ${profile.gender ?? "n/a"}, Peso: ${weight}kg
-- FTP: ${ftp ?? "no especificado (usa HR o RPE en ese caso)"}W
+- FTP: ${ftp ?? "no especificado"}W · FC máx: ${maxHr ?? "n/a"} ppm · LTHR: ${lthr ?? "n/a"} ppm
 - Tipo de bici: ${data.bike_type}
+
+${basisBlock}
 
 PETICIÓN:
 - Foco: ${competition ? "preparación específica para la competición indicada" : data.training_type} ${data.training_type === "mixto" && !competition ? "(combina resistencia, intervalos y fuerza)" : ""}
@@ -204,9 +222,9 @@ INSTRUCCIONES:
 1. Cada entrenamiento DEBE durar aproximadamente ${data.duration_minutes} minutos (suma de duration_seconds de los steps).
 2. Incluye SIEMPRE un calentamiento (warmup) y vuelta a la calma (cooldown).
 3. Define cada step con duration_type='time' y duration_seconds, salvo descansos abiertos (open).
-4. Si hay FTP, usa target='power' con target_low/high en VATIOS basados en zonas (Z2 56-75%, Z3 76-90%, Z4 91-105%, Z5 106-120%, Z6 121-150%).
-5. Si NO hay FTP, usa target='hr' con bpm aproximados (180-edad como FCmax base) o target='open'.
-6. Para entrenamientos de fuerza sobre la bici: usa cadencia baja (50-60rpm) con potencia Z3-Z4.
+4. Respeta ESTRICTAMENTE la BASE DE PRESCRIPCIÓN indicada arriba (${basis === "hr" ? "frecuencia cardíaca" : "potencia/FTP"}) en todos los steps.
+5. Los descansos totales pueden usar target='open'.
+6. Para entrenamientos de fuerza sobre la bici: usa cadencia baja (50-60rpm) con intensidad Z3-Z4 en la base de prescripción indicada.
 7. Nombre del entrenamiento (name) MÁXIMO 15 caracteres. Title puede ser largo.
 8. Ajusta volumen/intensidad según feedback previo: si RPE medio >4 reduce intensidad, si <2 aumenta.
 9. TODO en ESPAÑOL.
@@ -230,7 +248,7 @@ ${competition ? '11. Cada workout DEBE incluir "scheduled_date" (YYYY-MM-DD) y "
       training_type: competition ? (w.focus ?? data.training_type) : data.training_type,
       bike_type: data.bike_type,
       duration_minutes: data.duration_minutes,
-      plan: { ...w, competition_id: data.competition_id ?? null, competition_name: competition?.name ?? null, scheduled_date: w.scheduled_date ?? null },
+      plan: { ...w, target_basis: basis, competition_id: data.competition_id ?? null, competition_name: competition?.name ?? null, scheduled_date: w.scheduled_date ?? null },
       status: "pending",
     }));
     const { data: inserted, error } = await supabase.from("workouts").insert(rows).select();

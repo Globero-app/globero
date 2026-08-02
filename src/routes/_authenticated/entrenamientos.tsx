@@ -70,12 +70,18 @@ function EntrenamientosPage() {
   const profile = useQuery({
     queryKey: ["profile-ftp", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("ftp").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("ftp,max_hr,lthr,zones_display_mode").eq("id", user!.id).maybeSingle();
       return data;
     },
     enabled: !!user,
   });
   const ftp = profile.data?.ftp ?? 250;
+  const maxHr = profile.data?.max_hr ?? null;
+  const lthr = profile.data?.lthr ?? null;
+
+  const [targetBasis, setTargetBasis] = useState<"power" | "hr" | null>(null);
+  const effectiveBasis: "power" | "hr" =
+    targetBasis ?? (profile.data?.zones_display_mode === "hr" ? "hr" : "power");
 
   const hasCompetition = !!competitionId;
 
@@ -93,7 +99,7 @@ function EntrenamientosPage() {
   });
 
   const generateMut = useMutation({
-    mutationFn: () => gen({ data: { training_type: trainingType, bike_type: bikeType, count, duration_minutes: duration, competition_id: competitionId || null } }),
+    mutationFn: () => gen({ data: { training_type: trainingType, bike_type: bikeType, count, duration_minutes: duration, competition_id: competitionId || null, target_basis: effectiveBasis } }),
     onSuccess: (inserted: any) => {
       const n = Array.isArray(inserted) ? inserted.length : count;
       toast.success(hasCompetition ? `Plan para tu competición creado: ${n} entrenamientos` : `${n} entrenamiento${n > 1 ? "s" : ""} generado${n > 1 ? "s" : ""}`);
@@ -150,6 +156,37 @@ function EntrenamientosPage() {
             <input type="range" min={20} max={240} step={5} value={duration} onChange={(e) => setDuration(Number(e.target.value))} className="w-full" />
           </Field>
         </div>
+
+        <Field label="Base de prescripción de la IA">
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setTargetBasis("power")}
+              className={`rounded-lg border-2 px-3 py-2.5 text-left transition ${effectiveBasis === "power" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+            >
+              <span className="block text-sm font-semibold">Potencia (FTP)</span>
+              <span className="block text-[11px] text-muted-foreground">
+                {profile.data?.ftp ? `FTP ${profile.data.ftp} W` : "Sin FTP en el perfil"}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setTargetBasis("hr")}
+              className={`rounded-lg border-2 px-3 py-2.5 text-left transition ${effectiveBasis === "hr" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+            >
+              <span className="block text-sm font-semibold">Frecuencia cardíaca</span>
+              <span className="block text-[11px] text-muted-foreground">
+                {maxHr || lthr ? `FC máx ${maxHr ?? "—"} · LTHR ${lthr ?? "—"}` : "Sin FC máx en el perfil"}
+              </span>
+            </button>
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1.5">
+            {effectiveBasis === "hr"
+              ? "La IA creará los entrenamientos con objetivos en pulsaciones (ppm) sobre tu LTHR / FC máx."
+              : "La IA creará los entrenamientos con objetivos en vatios sobre tu FTP."}
+          </p>
+        </Field>
+
         <button
           disabled={generateMut.isPending}
           onClick={() => generateMut.mutate()}
