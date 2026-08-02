@@ -199,9 +199,9 @@ export const stravaEstimateHr = createServerFn({ method: "POST" })
         "No hay actividades con frecuencia cardíaca suficientes. Sincroniza Strava con un pulsómetro.",
       );
     }
-    const update: Record<string, number> = {};
-    if (max_hr) update['max_hr'] = max_hr;
-    if (lthr) update['lthr'] = lthr;
+    const update: { max_hr?: number; lthr?: number } = {};
+    if (max_hr) update.max_hr = max_hr;
+    if (lthr) update.lthr = lthr;
     await supabase.from("profiles").update(update).eq("id", userId);
     return { max_hr, lthr };
   });
