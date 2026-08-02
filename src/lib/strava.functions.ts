@@ -102,6 +102,17 @@ export const stravaSync = createServerFn({ method: "POST" })
         if (est) await supabase.from("profiles").update({ ftp: est }).eq("id", userId);
       }
     } catch (e) { console.error("auto-ftp", e); }
+    // Auto-FC: estima FC máx y LTHR si faltan
+    try {
+      const { data: prof } = await supabase.from("profiles").select("max_hr,lthr").eq("id", userId).maybeSingle();
+      if (!prof?.max_hr || !prof?.lthr) {
+        const { max_hr, lthr } = await computeHrFromActivities(supabase, userId);
+        const update: { max_hr?: number; lthr?: number } = {};
+        if (!prof?.max_hr && max_hr) update.max_hr = max_hr;
+        if (!prof?.lthr && lthr) update.lthr = lthr;
+        if (Object.keys(update).length) await supabase.from("profiles").update(update).eq("id", userId);
+      }
+    } catch (e) { console.error("auto-hr", e); }
     // Push del servidor si el usuario lo tiene habilitado
     if (rows.length) {
       try {
