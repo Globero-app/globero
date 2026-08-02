@@ -23,6 +23,7 @@ function PerfilPage() {
   const exchange = useServerFn(stravaExchange);
   const disconnect = useServerFn(stravaDisconnect);
   const estimateFtp = useServerFn(stravaEstimateFtp);
+  const estimateHr = useServerFn(stravaEstimateHr);
 
   const profileQ = useQuery({
     queryKey: ["profile", user?.id],
