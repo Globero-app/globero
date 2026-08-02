@@ -198,8 +198,10 @@ PERIODIZACIÓN OBLIGATORIA:
 
 PERFIL:
 - Edad: ${profile.age ?? "n/a"}, Sexo: ${profile.gender ?? "n/a"}, Peso: ${weight}kg
-- FTP: ${ftp ?? "no especificado (usa HR o RPE en ese caso)"}W
+- FTP: ${ftp ?? "no especificado"}W · FC máx: ${maxHr ?? "n/a"} ppm · LTHR: ${lthr ?? "n/a"} ppm
 - Tipo de bici: ${data.bike_type}
+
+${basisBlock}
 
 PETICIÓN:
 - Foco: ${competition ? "preparación específica para la competición indicada" : data.training_type} ${data.training_type === "mixto" && !competition ? "(combina resistencia, intervalos y fuerza)" : ""}
