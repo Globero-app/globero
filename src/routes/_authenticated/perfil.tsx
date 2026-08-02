@@ -164,14 +164,35 @@ function PerfilPage() {
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="FC máx (bpm)">
-              <input type="number" className="input" value={form.max_hr ?? ""} onChange={(e) => setForm({ ...form, max_hr: e.target.value })} />
+              <div className="flex gap-2">
+                <input type="number" className="input" value={form.max_hr ?? ""} onChange={(e) => setForm({ ...form, max_hr: e.target.value })} />
+                {!!profileQ.data?.strava_access_token && (
+                  <button
+                    type="button"
+                    title="Estimar FC máx y LTHR desde tus actividades de Strava"
+                    onClick={async () => {
+                      try {
+                        const r = await estimateHr({ data: undefined });
+                        setForm((f: any) => ({ ...f, max_hr: r.max_hr ?? f.max_hr, lthr: r.lthr ?? f.lthr }));
+                        toast.success(`FC máx: ${r.max_hr ?? "—"} bpm · LTHR: ${r.lthr ?? "—"} bpm`);
+                        qc.invalidateQueries({ queryKey: ["profile"] });
+                      } catch (e: any) { toast.error(e.message); }
+                    }}
+                    className="shrink-0 inline-flex items-center gap-1 px-3 rounded-lg border bg-surface text-xs font-semibold hover:bg-muted"
+                  >
+                    <Wand2 className="size-3.5" /> Auto
+                  </button>
+                )}
+              </div>
             </Field>
             <Field label="Umbral FC / LTHR (bpm)">
               <input type="number" className="input" placeholder="≈ 92% FCmáx" value={form.lthr ?? ""} onChange={(e) => setForm({ ...form, lthr: e.target.value })} />
             </Field>
           </div>
           <p className="text-[11px] text-muted-foreground">
-            LTHR = FC media del último 20' del test FTP × 0,95. Si no lo indicas, se estima como 92 % de tu FC máx.
+            {profileQ.data?.strava_access_token
+              ? "Se calculan automáticamente desde tus actividades Strava con pulsómetro (FC máx registrada y LTHR = mejor FC media de 20' × 0,95). Puedes modificarlos manualmente."
+              : "LTHR = FC media del último 20' del test FTP × 0,95. Si no lo indicas, se estima como 92 % de tu FC máx."}
           </p>
         </Section>
 
