@@ -222,9 +222,9 @@ INSTRUCCIONES:
 1. Cada entrenamiento DEBE durar aproximadamente ${data.duration_minutes} minutos (suma de duration_seconds de los steps).
 2. Incluye SIEMPRE un calentamiento (warmup) y vuelta a la calma (cooldown).
 3. Define cada step con duration_type='time' y duration_seconds, salvo descansos abiertos (open).
-4. Si hay FTP, usa target='power' con target_low/high en VATIOS basados en zonas (Z2 56-75%, Z3 76-90%, Z4 91-105%, Z5 106-120%, Z6 121-150%).
-5. Si NO hay FTP, usa target='hr' con bpm aproximados (180-edad como FCmax base) o target='open'.
-6. Para entrenamientos de fuerza sobre la bici: usa cadencia baja (50-60rpm) con potencia Z3-Z4.
+4. Respeta ESTRICTAMENTE la BASE DE PRESCRIPCIÓN indicada arriba (${basis === "hr" ? "frecuencia cardíaca" : "potencia/FTP"}) en todos los steps.
+5. Los descansos totales pueden usar target='open'.
+6. Para entrenamientos de fuerza sobre la bici: usa cadencia baja (50-60rpm) con intensidad Z3-Z4 en la base de prescripción indicada.
 7. Nombre del entrenamiento (name) MÁXIMO 15 caracteres. Title puede ser largo.
 8. Ajusta volumen/intensidad según feedback previo: si RPE medio >4 reduce intensidad, si <2 aumenta.
 9. TODO en ESPAÑOL.
