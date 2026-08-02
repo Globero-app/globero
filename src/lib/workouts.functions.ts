@@ -138,6 +138,21 @@ export const generateWorkouts = createServerFn({ method: "POST" })
 
     const ftp = profile.ftp ?? null;
     const weight = profile.weight_kg ?? 70;
+    const maxHr: number | null = (profile as any).max_hr ?? null;
+    const lthr: number | null = (profile as any).lthr ?? null;
+    // Si el usuario pide FC pero no hay datos de FC, caemos a potencia si hay FTP
+    const basis: "power" | "hr" = data.target_basis === "hr" && !maxHr && !lthr && ftp ? "power" : (data.target_basis ?? "power");
+    const basisBlock = basis === "hr"
+      ? `BASE DE PRESCRIPCIÓN: FRECUENCIA CARDÍACA (obligatorio)
+- FC máx: ${maxHr ?? "no especificada (estima 220-edad)"} ppm · LTHR (umbral): ${lthr ?? "no especificado (estima 92% de FC máx)"} ppm
+- TODOS los steps con esfuerzo deben usar target='hr' con target_low/target_high en PPM (bpm). No uses target='power' en ningún step.
+- Zonas sobre LTHR: Z1 <81%, Z2 81-89%, Z3 90-93%, Z4 94-99%, Z5 100-102%, Z5b >102%. Si solo hay FC máx, usa % de FC máx: Z1 <68%, Z2 69-83%, Z3 84-94%, Z4 95-105%.
+- Menciona en "summary" que la sesión está prescrita por frecuencia cardíaca.`
+      : `BASE DE PRESCRIPCIÓN: POTENCIA / FTP (obligatorio)
+- FTP: ${ftp ?? "no especificado"}W
+- TODOS los steps con esfuerzo deben usar target='power' con target_low/target_high en VATIOS calculados sobre el FTP (Z2 56-75%, Z3 76-90%, Z4 91-105%, Z5 106-120%, Z6 121-150%).
+- Solo si NO hay FTP disponible usa target='hr' o target='open'.
+- Menciona en "summary" que la sesión está prescrita por potencia.`;
 
     // Si hay competición, sobreescribimos cantidad y construimos plan periodizado
     let competition: any = null;
