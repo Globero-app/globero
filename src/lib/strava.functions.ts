@@ -154,6 +154,58 @@ export const stravaEstimateFtp = createServerFn({ method: "POST" })
     return { ftp };
   });
 
+async function computeHrFromActivities(
+  supabase: any,
+  userId: string,
+): Promise<{ max_hr: number | null; lthr: number | null }> {
+  const { data: acts } = await supabase
+    .from("strava_activities")
+    .select("average_heartrate,moving_time,type,raw")
+    .eq("user_id", userId);
+  if (!acts?.length) return { max_hr: null, lthr: null };
+  const rides = acts.filter(
+    (a: any) => typeof a.type === "string" && /ride|bike|cycl/i.test(a.type),
+  );
+  const pool = rides.length ? rides : acts;
+
+  // FC máx: mayor max_heartrate registrado en las actividades
+  const maxima = pool
+    .map((a: any) => Number(a.raw?.max_heartrate ?? 0))
+    .filter((v: number) => v > 100 && v < 230);
+  const max_hr = maxima.length ? Math.round(Math.max(...maxima)) : null;
+
+  // LTHR: mejor FC media en esfuerzos ≥ 20 min × 0,95 (Friel)
+  const long = pool.filter(
+    (a: any) => (a.moving_time ?? 0) >= 1200 && a.average_heartrate > 0,
+  );
+  let lthr: number | null = null;
+  if (long.length) {
+    const best = Math.max(...long.map((a: any) => Number(a.average_heartrate)));
+    lthr = Math.round(best * 0.95);
+  } else if (max_hr) {
+    lthr = Math.round(max_hr * 0.92);
+  }
+  if (lthr && max_hr && lthr > max_hr) lthr = Math.round(max_hr * 0.92);
+  return { max_hr, lthr };
+}
+
+export const stravaEstimateHr = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { max_hr, lthr } = await computeHrFromActivities(supabase, userId);
+    if (!max_hr && !lthr) {
+      throw new Error(
+        "No hay actividades con frecuencia cardíaca suficientes. Sincroniza Strava con un pulsómetro.",
+      );
+    }
+    const update: Record<string, number> = {};
+    if (max_hr) update['max_hr'] = max_hr;
+    if (lthr) update['lthr'] = lthr;
+    await supabase.from("profiles").update(update).eq("id", userId);
+    return { max_hr, lthr };
+  });
+
 export const stravaDisconnect = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
