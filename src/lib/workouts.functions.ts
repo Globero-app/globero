@@ -248,7 +248,7 @@ ${competition ? '11. Cada workout DEBE incluir "scheduled_date" (YYYY-MM-DD) y "
       training_type: competition ? (w.focus ?? data.training_type) : data.training_type,
       bike_type: data.bike_type,
       duration_minutes: data.duration_minutes,
-      plan: { ...w, competition_id: data.competition_id ?? null, competition_name: competition?.name ?? null, scheduled_date: w.scheduled_date ?? null },
+      plan: { ...w, target_basis: basis, competition_id: data.competition_id ?? null, competition_name: competition?.name ?? null, scheduled_date: w.scheduled_date ?? null },
       status: "pending",
     }));
     const { data: inserted, error } = await supabase.from("workouts").insert(rows).select();
