@@ -102,6 +102,17 @@ export const stravaSync = createServerFn({ method: "POST" })
         if (est) await supabase.from("profiles").update({ ftp: est }).eq("id", userId);
       }
     } catch (e) { console.error("auto-ftp", e); }
+    // Auto-FC: estima FC máx y LTHR si faltan
+    try {
+      const { data: prof } = await supabase.from("profiles").select("max_hr,lthr").eq("id", userId).maybeSingle();
+      if (!prof?.max_hr || !prof?.lthr) {
+        const { max_hr, lthr } = await computeHrFromActivities(supabase, userId);
+        const update: { max_hr?: number; lthr?: number } = {};
+        if (!prof?.max_hr && max_hr) update.max_hr = max_hr;
+        if (!prof?.lthr && lthr) update.lthr = lthr;
+        if (Object.keys(update).length) await supabase.from("profiles").update(update).eq("id", userId);
+      }
+    } catch (e) { console.error("auto-hr", e); }
     // Push del servidor si el usuario lo tiene habilitado
     if (rows.length) {
       try {
@@ -152,6 +163,58 @@ export const stravaEstimateFtp = createServerFn({ method: "POST" })
     if (!ftp) throw new Error("No hay actividades con potencia suficientes para estimar FTP. Sincroniza Strava.");
     await supabase.from("profiles").update({ ftp }).eq("id", userId);
     return { ftp };
+  });
+
+async function computeHrFromActivities(
+  supabase: any,
+  userId: string,
+): Promise<{ max_hr: number | null; lthr: number | null }> {
+  const { data: acts } = await supabase
+    .from("strava_activities")
+    .select("average_heartrate,moving_time,type,raw")
+    .eq("user_id", userId);
+  if (!acts?.length) return { max_hr: null, lthr: null };
+  const rides = acts.filter(
+    (a: any) => typeof a.type === "string" && /ride|bike|cycl/i.test(a.type),
+  );
+  const pool = rides.length ? rides : acts;
+
+  // FC máx: mayor max_heartrate registrado en las actividades
+  const maxima = pool
+    .map((a: any) => Number(a.raw?.max_heartrate ?? 0))
+    .filter((v: number) => v > 100 && v < 230);
+  const max_hr = maxima.length ? Math.round(Math.max(...maxima)) : null;
+
+  // LTHR: mejor FC media en esfuerzos ≥ 20 min × 0,95 (Friel)
+  const long = pool.filter(
+    (a: any) => (a.moving_time ?? 0) >= 1200 && a.average_heartrate > 0,
+  );
+  let lthr: number | null = null;
+  if (long.length) {
+    const best = Math.max(...long.map((a: any) => Number(a.average_heartrate)));
+    lthr = Math.round(best * 0.95);
+  } else if (max_hr) {
+    lthr = Math.round(max_hr * 0.92);
+  }
+  if (lthr && max_hr && lthr > max_hr) lthr = Math.round(max_hr * 0.92);
+  return { max_hr, lthr };
+}
+
+export const stravaEstimateHr = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { max_hr, lthr } = await computeHrFromActivities(supabase, userId);
+    if (!max_hr && !lthr) {
+      throw new Error(
+        "No hay actividades con frecuencia cardíaca suficientes. Sincroniza Strava con un pulsómetro.",
+      );
+    }
+    const update: { max_hr?: number; lthr?: number } = {};
+    if (max_hr) update.max_hr = max_hr;
+    if (lthr) update.lthr = lthr;
+    await supabase.from("profiles").update(update).eq("id", userId);
+    return { max_hr, lthr };
   });
 
 export const stravaDisconnect = createServerFn({ method: "POST" })
