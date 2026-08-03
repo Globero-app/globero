@@ -38,11 +38,31 @@ const BIKE_TYPES = ["carretera", "gravel", "montana", "electrica"] as const;
 const GenInput = z.object({
   training_type: z.enum(TRAINING_TYPES),
   bike_type: z.enum(BIKE_TYPES),
-  count: z.number().int().min(1).max(30),
+  count: z.number().int().min(1).max(90),
   duration_minutes: z.number().int().min(20).max(360),
   competition_id: z.string().uuid().optional().nullable(),
   target_basis: z.enum(["power", "hr"]).optional().default("power"),
+  // 0 = domingo … 6 = sábado (getDay)
+  training_days: z.array(z.number().int().min(0).max(6)).min(1).max(7).optional(),
+  long_ride_day: z.number().int().min(0).max(6).optional().nullable(),
 });
+
+const DAY_NAMES = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+
+/** Genera las próximas `count` fechas (YYYY-MM-DD) que caen en los días permitidos, empezando mañana. */
+function buildSchedule(days: number[], count: number, maxDate?: string): { date: string; dow: number }[] {
+  const allowed = new Set(days);
+  const out: { date: string; dow: number }[] = [];
+  const cursor = new Date();
+  cursor.setUTCHours(12, 0, 0, 0);
+  for (let i = 0; i < 730 && out.length < count; i++) {
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+    const iso = cursor.toISOString().slice(0, 10);
+    if (maxDate && iso > maxDate) break;
+    if (allowed.has(cursor.getUTCDay())) out.push({ date: iso, dow: cursor.getUTCDay() });
+  }
+  return out;
+}
 
 const StepSchema = {
   type: "object",
@@ -173,8 +193,10 @@ export const generateWorkouts = createServerFn({ method: "POST" })
       const daysUntil = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
       if (daysUntil <= 0) throw new Error("La competición ya ha pasado");
       const weeksUntil = Math.max(1, Math.ceil(daysUntil / 7));
-      // Hasta 3 por semana, hasta 30 por generación, respetando el máximo pedido por el usuario
-      effectiveCount = Math.min(data.count, 30, Math.max(1, weeksUntil * 3));
+      // Si el usuario ha marcado días, mandan esos días; si no, hasta 3 por semana
+      effectiveCount = data.training_days?.length
+        ? Math.min(data.count, 90)
+        : Math.min(data.count, 30, Math.max(1, weeksUntil * 3));
 
       competitionBlock = `
 
@@ -187,12 +209,29 @@ COMPETICIÓN OBJETIVO:
 - Notas: ${comp.notes ?? "—"}
 
 PERIODIZACIÓN OBLIGATORIA:
-- Genera exactamente ${effectiveCount} entrenamientos (máximo 3 por semana durante ${weeksUntil} semanas hasta el día del evento).
-- Distribuye los entrenamientos cronológicamente con campo "scheduled_date" (formato YYYY-MM-DD) entre HOY (${today.toISOString().slice(0, 10)}) y la fecha del evento, sin exceder 3 por semana.
+- Genera exactamente ${effectiveCount} entrenamientos hasta el día del evento.
 - Combina resistencia, intervalos y fuerza según las demandas de la competición (más resistencia si es larga, más intervalos si es corta/intensa, fuerza si tiene mucho desnivel).
 - Aplica progresión clásica: base → construcción → pico → tapering en la última semana antes del evento (volumen e intensidad bajos los últimos 5-7 días).
 - El último entrenamiento debe ser corto y de activación 1-2 días antes del evento.`;
     }
+
+    // Calendario de días de entreno elegidos por el usuario
+    const chosenDays = (data.training_days ?? []).slice().sort((a, b) => a - b);
+    const schedule = chosenDays.length
+      ? buildSchedule(chosenDays, effectiveCount, competition?.date ?? undefined)
+      : [];
+    if (schedule.length) effectiveCount = schedule.length;
+    const longDay = data.long_ride_day ?? null;
+    const scheduleBlock = schedule.length
+      ? `
+
+CALENDARIO OBLIGATORIO (días elegidos por el ciclista: ${chosenDays.map((d) => DAY_NAMES[d]).join(", ")}):
+${schedule.map((s, i) => `- Sesión ${i + 1}: ${s.date} (${DAY_NAMES[s.dow]})${longDay !== null && s.dow === longDay ? " → TIRADA LARGA" : ""}`).join("\n")}
+- Devuelve EXACTAMENTE ${effectiveCount} entrenamientos, EN ESTE MISMO ORDEN, y pon en cada uno "scheduled_date" con la fecha indicada.
+${longDay !== null ? `- Las sesiones marcadas como TIRADA LARGA (${DAY_NAMES[longDay]}) deben ser rodajes largos de resistencia: duración claramente superior al resto (1.5-2.5x la duración objetivo), predominio Z2 y sin series intensas. Indícalo en el título y en el summary.` : ""}
+- Reparte carga y recuperación entre sesiones consecutivas teniendo en cuenta los días reales del calendario (días seguidos = menos intensidad acumulada).`
+      : "";
+
 
     const prompt = `Eres un entrenador profesional de ciclismo. Diseña ${effectiveCount} entrenamiento(s) personalizados para este ciclista.
 
@@ -208,6 +247,7 @@ PETICIÓN:
 - Duración objetivo de CADA entrenamiento: ${data.duration_minutes} minutos
 - Cantidad: ${effectiveCount} entrenamiento(s) distintos
 ${competitionBlock}
+${scheduleBlock}
 
 ACTIVIDADES RECIENTES (Strava): ${recent && recent.length ? JSON.stringify(recent) : "ninguna"}
 
@@ -243,14 +283,27 @@ ${competition ? '11. Cada workout DEBE incluir "scheduled_date" (YYYY-MM-DD) y "
     const result = await callAI([{ role: "user", content: prompt }], PlanSchema);
 
     // Guarda cada entrenamiento individualmente
-    const rows = (result.workouts as any[]).map((w) => ({
-      user_id: userId,
-      training_type: competition ? (w.focus ?? data.training_type) : data.training_type,
-      bike_type: data.bike_type,
-      duration_minutes: data.duration_minutes,
-      plan: { ...w, target_basis: basis, competition_id: data.competition_id ?? null, competition_name: competition?.name ?? null, scheduled_date: w.scheduled_date ?? null },
-      status: "pending",
-    }));
+    const rows = (result.workouts as any[]).map((w, i) => {
+      const slot = schedule[i];
+      const isLong = !!slot && longDay !== null && slot.dow === longDay;
+      const totalSec = (w.steps ?? []).reduce((acc: number, s: any) => acc + (Number(s.duration_seconds) || 0), 0);
+      const mins = totalSec > 0 ? Math.round(totalSec / 60) : data.duration_minutes;
+      return {
+        user_id: userId,
+        training_type: competition ? (w.focus ?? data.training_type) : data.training_type,
+        bike_type: data.bike_type,
+        duration_minutes: mins,
+        plan: {
+          ...w,
+          target_basis: basis,
+          competition_id: data.competition_id ?? null,
+          competition_name: competition?.name ?? null,
+          scheduled_date: slot?.date ?? w.scheduled_date ?? null,
+          long_ride: isLong,
+        },
+        status: "pending",
+      };
+    });
     const { data: inserted, error } = await supabase.from("workouts").insert(rows).select();
     if (error) throw new Error(error.message);
     return inserted;
