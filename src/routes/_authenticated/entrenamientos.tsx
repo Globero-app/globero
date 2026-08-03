@@ -113,10 +113,23 @@ function EntrenamientosPage() {
 
   const generateMut = useMutation({
     mutationFn: () => gen({ data: { training_type: trainingType, bike_type: bikeType, count, duration_minutes: duration, competition_id: competitionId || null, target_basis: effectiveBasis, training_days: trainingDays, long_ride_day: longRideDay } }),
-    onSuccess: (inserted: any) => {
+    onSuccess: async (inserted: any) => {
       const n = Array.isArray(inserted) ? inserted.length : count;
       toast.success(hasCompetition ? `Plan para tu competición creado: ${n} entrenamientos` : `${n} entrenamiento${n > 1 ? "s" : ""} generado${n > 1 ? "s" : ""}`);
       qc.invalidateQueries({ queryKey: ["workouts"] });
+      const ids = Array.isArray(inserted) ? inserted.map((w: any) => w.id) : [];
+      if (intervalsConnected && ids.length > 0) {
+        const yes = window.confirm(`¿Quieres subir los ${ids.length} entrenamientos a Intervals.icu en los días seleccionados?`);
+        if (yes) {
+          try {
+            const r: any = await uploadIcu({ data: { workout_ids: ids } });
+            toast.success(`${r.uploaded} entrenamiento(s) subidos a Intervals.icu`);
+            qc.invalidateQueries({ queryKey: ["workouts"] });
+          } catch (e: any) {
+            toast.error(e.message ?? "Error subiendo a Intervals.icu");
+          }
+        }
+      }
     },
     onError: (e: any) => toast.error(e.message ?? "Error generando entrenamientos"),
   });
