@@ -163,12 +163,71 @@ function EntrenamientosPage() {
             </select>
           </Field>
           <Field label={`Cantidad: ${count} entrenamiento${count > 1 ? "s" : ""}${hasCompetition ? " (tope, la IA ajusta)" : ""}`}>
-            <input type="range" min={1} max={30} value={count} onChange={(e) => setCount(Number(e.target.value))} className="w-full" />
+            <input type="range" min={1} max={90} value={count} onChange={(e) => setCount(Number(e.target.value))} className="w-full" />
           </Field>
           <Field label={`Duración por entrenamiento: ${duration} min`}>
             <input type="range" min={20} max={240} step={5} value={duration} onChange={(e) => setDuration(Number(e.target.value))} className="w-full" />
           </Field>
         </div>
+
+        <Field label="Días que puedes entrenar">
+          <div className="grid grid-cols-7 gap-1.5">
+            {WEEK_DAYS.map((d) => {
+              const active = trainingDays.includes(d.value);
+              return (
+                <button
+                  key={d.value}
+                  type="button"
+                  aria-pressed={active}
+                  title={d.label}
+                  onClick={() =>
+                    setTrainingDays((prev) => {
+                      const next = active ? prev.filter((v) => v !== d.value) : [...prev, d.value];
+                      if (!next.includes(longRideDay ?? -1)) setLongRideDay(null);
+                      return next;
+                    })
+                  }
+                  className={`rounded-lg border-2 py-2 text-sm font-bold transition ${active ? "border-primary bg-primary/10" : "border-border hover:border-primary/50 text-muted-foreground"}`}
+                >
+                  {d.short}
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1.5">
+            {trainingDays.length === 0
+              ? "Marca al menos un día para planificar el calendario."
+              : `La IA repartirá los ${count} entrenamientos en: ${WEEK_DAYS.filter((d) => trainingDays.includes(d.value)).map((d) => d.label).join(", ")}.`}
+          </p>
+        </Field>
+
+        <Field label="Día de la tirada larga">
+          <div className="grid grid-cols-7 gap-1.5">
+            {WEEK_DAYS.map((d) => {
+              const enabled = trainingDays.includes(d.value);
+              const active = longRideDay === d.value;
+              return (
+                <button
+                  key={d.value}
+                  type="button"
+                  disabled={!enabled}
+                  aria-pressed={active}
+                  title={d.label}
+                  onClick={() => setLongRideDay(active ? null : d.value)}
+                  className={`rounded-lg border-2 py-2 text-sm font-bold transition disabled:opacity-30 disabled:cursor-not-allowed ${active ? "border-primary bg-primary/10" : "border-border hover:border-primary/50 text-muted-foreground"}`}
+                >
+                  {d.short}
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1.5">
+            {longRideDay === null
+              ? "Sin tirada larga. Selecciona un día (debe estar marcado arriba como día de entreno)."
+              : `Tirada larga los ${WEEK_DAYS.find((d) => d.value === longRideDay)!.label.toLowerCase()}: rodaje largo en Z2, más duración que el resto.`}
+          </p>
+        </Field>
+
 
         <Field label="Base de prescripción de la IA">
           <div className="grid grid-cols-2 gap-2">
