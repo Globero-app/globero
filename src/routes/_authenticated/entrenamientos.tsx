@@ -92,6 +92,9 @@ function EntrenamientosPage() {
   const maxHr = profile.data?.max_hr ?? null;
   const lthr = profile.data?.lthr ?? null;
 
+  const intervalsConnected = !!profile.data?.intervals_athlete_id;
+  const uploadIcu = useServerFn(uploadWorkoutsToIntervals);
+
   const [targetBasis, setTargetBasis] = useState<"power" | "hr" | null>(null);
   const effectiveBasis: "power" | "hr" =
     targetBasis ?? (profile.data?.zones_display_mode === "hr" ? "hr" : "power");
