@@ -283,14 +283,27 @@ ${competition ? '11. Cada workout DEBE incluir "scheduled_date" (YYYY-MM-DD) y "
     const result = await callAI([{ role: "user", content: prompt }], PlanSchema);
 
     // Guarda cada entrenamiento individualmente
-    const rows = (result.workouts as any[]).map((w) => ({
-      user_id: userId,
-      training_type: competition ? (w.focus ?? data.training_type) : data.training_type,
-      bike_type: data.bike_type,
-      duration_minutes: data.duration_minutes,
-      plan: { ...w, target_basis: basis, competition_id: data.competition_id ?? null, competition_name: competition?.name ?? null, scheduled_date: w.scheduled_date ?? null },
-      status: "pending",
-    }));
+    const rows = (result.workouts as any[]).map((w, i) => {
+      const slot = schedule[i];
+      const isLong = !!slot && longDay !== null && slot.dow === longDay;
+      const totalSec = (w.steps ?? []).reduce((acc: number, s: any) => acc + (Number(s.duration_seconds) || 0), 0);
+      const mins = totalSec > 0 ? Math.round(totalSec / 60) : data.duration_minutes;
+      return {
+        user_id: userId,
+        training_type: competition ? (w.focus ?? data.training_type) : data.training_type,
+        bike_type: data.bike_type,
+        duration_minutes: mins,
+        plan: {
+          ...w,
+          target_basis: basis,
+          competition_id: data.competition_id ?? null,
+          competition_name: competition?.name ?? null,
+          scheduled_date: slot?.date ?? w.scheduled_date ?? null,
+          long_ride: isLong,
+        },
+        status: "pending",
+      };
+    });
     const { data: inserted, error } = await supabase.from("workouts").insert(rows).select();
     if (error) throw new Error(error.message);
     return inserted;
