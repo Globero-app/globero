@@ -77,6 +77,8 @@ export const saveReadiness = createServerFn({ method: "POST" })
         .eq("id", workout.id)
         .eq("user_id", userId);
       if (upErr) throw new Error(upErr.message);
+      const { syncWorkoutEvent } = await import("./intervals.server");
+      await syncWorkoutEvent(supabase, userId, { ...workout, plan: newPlan });
       action = "adapted";
       message = adapted.message;
     }
