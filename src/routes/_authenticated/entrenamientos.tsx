@@ -51,6 +51,8 @@ function EntrenamientosPage() {
   const [count, setCount] = useState(3);
   const [duration, setDuration] = useState(60);
   const [competitionId, setCompetitionId] = useState<string>("");
+  const [trainingDays, setTrainingDays] = useState<number[]>([2, 4, 6]);
+  const [longRideDay, setLongRideDay] = useState<number | null>(6);
 
   const competitions = useQuery({
     queryKey: ["competitions-future", user?.id],
