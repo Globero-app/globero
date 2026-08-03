@@ -39,6 +39,17 @@ const BIKE_OPTIONS = [
   { value: "electrica", label: "Eléctrica" },
 ] as const;
 
+// value = getDay() (0 domingo)
+const WEEK_DAYS = [
+  { value: 1, label: "Lunes", short: "L" },
+  { value: 2, label: "Martes", short: "M" },
+  { value: 3, label: "Miércoles", short: "X" },
+  { value: 4, label: "Jueves", short: "J" },
+  { value: 5, label: "Viernes", short: "V" },
+  { value: 6, label: "Sábado", short: "S" },
+  { value: 0, label: "Domingo", short: "D" },
+] as const;
+
 function EntrenamientosPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
