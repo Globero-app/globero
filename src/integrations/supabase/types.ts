@@ -253,6 +253,8 @@ export type Database = {
           gender: string | null
           height_cm: number | null
           id: string
+          intervals_api_key: string | null
+          intervals_athlete_id: string | null
           lthr: number | null
           max_hr: number | null
           notify_maintenance_email: boolean
@@ -286,6 +288,8 @@ export type Database = {
           gender?: string | null
           height_cm?: number | null
           id: string
+          intervals_api_key?: string | null
+          intervals_athlete_id?: string | null
           lthr?: number | null
           max_hr?: number | null
           notify_maintenance_email?: boolean
@@ -319,6 +323,8 @@ export type Database = {
           gender?: string | null
           height_cm?: number | null
           id?: string
+          intervals_api_key?: string | null
+          intervals_athlete_id?: string | null
           lthr?: number | null
           max_hr?: number | null
           notify_maintenance_email?: boolean
