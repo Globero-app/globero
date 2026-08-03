@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { stravaExchange, stravaDisconnect, stravaEstimateFtp, stravaEstimateHr } from "@/lib/strava.functions";
+import { connectIntervals, disconnectIntervals } from "@/lib/intervals.functions";
 import { Bike, CheckCircle2, Link as LinkIcon, Unlink, Wrench, Wand2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { computePowerZones, computeHrZones } from "@/lib/zones";
@@ -24,6 +25,10 @@ function PerfilPage() {
   const disconnect = useServerFn(stravaDisconnect);
   const estimateFtp = useServerFn(stravaEstimateFtp);
   const estimateHr = useServerFn(stravaEstimateHr);
+  const connectIcu = useServerFn(connectIntervals);
+  const disconnectIcu = useServerFn(disconnectIntervals);
+  const [icu, setIcu] = useState({ athlete_id: "", api_key: "" });
+  const [icuBusy, setIcuBusy] = useState(false);
 
   const profileQ = useQuery({
     queryKey: ["profile", user?.id],
@@ -239,6 +244,69 @@ function PerfilPage() {
               </div>
               <button type="button" onClick={connectStrava} className="inline-flex items-center gap-2 bg-[#fc4c02] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90">
                 <Bike className="size-4" /> Conectar con Strava
+              </button>
+            </div>
+          )}
+        </Section>
+
+        <Section title="Conexión Intervals.icu" className="lg:col-span-2">
+          {profileQ.data?.intervals_api_key ? (
+            <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="size-5 text-emerald-600" />
+                <div>
+                  <p className="font-semibold text-emerald-800">Intervals.icu conectado</p>
+                  <p className="text-xs text-emerald-700">Atleta: {profileQ.data?.intervals_athlete_id}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  await disconnectIcu({ data: undefined });
+                  toast.success("Intervals.icu desconectado");
+                  qc.invalidateQueries({ queryKey: ["profile"] });
+                }}
+                className="text-xs font-semibold text-destructive hover:underline flex items-center gap-1"
+              >
+                <Unlink className="size-3" /> Desconectar
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Encuentra tu ID de atleta y tu clave API en{" "}
+                <a className="underline text-primary" href="https://intervals.icu/settings" target="_blank" rel="noopener">
+                  intervals.icu/settings
+                </a>{" "}
+                (sección Developer). Al subir entrenamientos, se crearán en tu calendario en los días indicados.
+              </p>
+              <div className="grid md:grid-cols-2 gap-3">
+                <Field label="ID de Atleta">
+                  <input className="input" placeholder="i123456" value={icu.athlete_id} onChange={(e) => setIcu({ ...icu, athlete_id: e.target.value })} />
+                </Field>
+                <Field label="Clave API">
+                  <input type="password" className="input" value={icu.api_key} onChange={(e) => setIcu({ ...icu, api_key: e.target.value })} />
+                </Field>
+              </div>
+              <button
+                type="button"
+                disabled={icuBusy}
+                onClick={async () => {
+                  setIcuBusy(true);
+                  try {
+                    await connectIcu({ data: { athlete_id: icu.athlete_id.trim(), api_key: icu.api_key.trim() } });
+                    toast.success("Intervals.icu conectado");
+                    setIcu({ athlete_id: "", api_key: "" });
+                    qc.invalidateQueries({ queryKey: ["profile"] });
+                  } catch (e: any) {
+                    toast.error(e.message ?? "No se pudo conectar");
+                  } finally {
+                    setIcuBusy(false);
+                  }
+                }}
+                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50"
+              >
+                <LinkIcon className="size-4" /> {icuBusy ? "Conectando…" : "Conectar con Intervals.icu"}
               </button>
             </div>
           )}

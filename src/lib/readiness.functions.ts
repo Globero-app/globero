@@ -77,6 +77,8 @@ export const saveReadiness = createServerFn({ method: "POST" })
         .eq("id", workout.id)
         .eq("user_id", userId);
       if (upErr) throw new Error(upErr.message);
+      const { syncWorkoutEvent } = await import("./intervals.server");
+      await syncWorkoutEvent(supabase, userId, { ...workout, plan: newPlan });
       action = "adapted";
       message = adapted.message;
     }
@@ -116,6 +118,16 @@ export const discardTodayWorkout = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ workout_id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const { data: workout } = await supabase
+      .from("workouts")
+      .select("*")
+      .eq("id", data.workout_id)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (workout) {
+      const { removeWorkoutEvent } = await import("./intervals.server");
+      await removeWorkoutEvent(supabase, userId, workout);
+    }
     const { error } = await supabase.from("workouts").delete().eq("id", data.workout_id).eq("user_id", userId);
     if (error) throw new Error(error.message);
     return { ok: true };

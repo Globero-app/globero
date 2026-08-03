@@ -340,6 +340,16 @@ export const deleteWorkout = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => DeleteInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const { data: workout } = await supabase
+      .from("workouts")
+      .select("*")
+      .eq("id", data.workout_id)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (workout) {
+      const { removeWorkoutEvent } = await import("./intervals.server");
+      await removeWorkoutEvent(supabase, userId, workout);
+    }
     const { error } = await supabase.from("workouts").delete().eq("id", data.workout_id).eq("user_id", userId);
     if (error) throw new Error(error.message);
     return { ok: true };

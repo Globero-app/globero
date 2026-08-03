@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { generateWorkouts, completeWorkout, deleteWorkout } from "@/lib/workouts.functions";
+import { uploadWorkoutsToIntervals } from "@/lib/intervals.functions";
 import { downloadFit, type FitWorkout, type FitWorkoutStep } from "@/lib/fit-writer";
 import { downloadZwo, type ZwoWorkout, type ZwoStep } from "@/lib/zwo-writer";
 import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown } from "lucide-react";
@@ -83,7 +84,7 @@ function EntrenamientosPage() {
   const profile = useQuery({
     queryKey: ["profile-ftp", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("ftp,max_hr,lthr,zones_display_mode").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("ftp,max_hr,lthr,zones_display_mode,intervals_athlete_id").eq("id", user!.id).maybeSingle();
       return data;
     },
     enabled: !!user,
@@ -91,6 +92,9 @@ function EntrenamientosPage() {
   const ftp = profile.data?.ftp ?? 250;
   const maxHr = profile.data?.max_hr ?? null;
   const lthr = profile.data?.lthr ?? null;
+
+  const intervalsConnected = !!profile.data?.intervals_athlete_id;
+  const uploadIcu = useServerFn(uploadWorkoutsToIntervals);
 
   const [targetBasis, setTargetBasis] = useState<"power" | "hr" | null>(null);
   const effectiveBasis: "power" | "hr" =
@@ -113,10 +117,23 @@ function EntrenamientosPage() {
 
   const generateMut = useMutation({
     mutationFn: () => gen({ data: { training_type: trainingType, bike_type: bikeType, count, duration_minutes: duration, competition_id: competitionId || null, target_basis: effectiveBasis, training_days: trainingDays, long_ride_day: longRideDay } }),
-    onSuccess: (inserted: any) => {
+    onSuccess: async (inserted: any) => {
       const n = Array.isArray(inserted) ? inserted.length : count;
       toast.success(hasCompetition ? `Plan para tu competición creado: ${n} entrenamientos` : `${n} entrenamiento${n > 1 ? "s" : ""} generado${n > 1 ? "s" : ""}`);
       qc.invalidateQueries({ queryKey: ["workouts"] });
+      const ids = Array.isArray(inserted) ? inserted.map((w: any) => w.id) : [];
+      if (intervalsConnected && ids.length > 0) {
+        const yes = window.confirm(`¿Quieres subir los ${ids.length} entrenamientos a Intervals.icu en los días seleccionados?`);
+        if (yes) {
+          try {
+            const r: any = await uploadIcu({ data: { workout_ids: ids } });
+            toast.success(`${r.uploaded} entrenamiento(s) subidos a Intervals.icu`);
+            qc.invalidateQueries({ queryKey: ["workouts"] });
+          } catch (e: any) {
+            toast.error(e.message ?? "Error subiendo a Intervals.icu");
+          }
+        }
+      }
     },
     onError: (e: any) => toast.error(e.message ?? "Error generando entrenamientos"),
   });
