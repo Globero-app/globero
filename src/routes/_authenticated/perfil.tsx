@@ -25,6 +25,10 @@ function PerfilPage() {
   const disconnect = useServerFn(stravaDisconnect);
   const estimateFtp = useServerFn(stravaEstimateFtp);
   const estimateHr = useServerFn(stravaEstimateHr);
+  const connectIcu = useServerFn(connectIntervals);
+  const disconnectIcu = useServerFn(disconnectIntervals);
+  const [icu, setIcu] = useState({ athlete_id: "", api_key: "" });
+  const [icuBusy, setIcuBusy] = useState(false);
 
   const profileQ = useQuery({
     queryKey: ["profile", user?.id],
