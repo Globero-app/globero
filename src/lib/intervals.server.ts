@@ -115,3 +115,53 @@ export function credsFromProfile(profile: any): IntervalsCreds | null {
   if (!profile?.intervals_athlete_id || !profile?.intervals_api_key) return null;
   return { athleteId: String(profile.intervals_athlete_id), apiKey: String(profile.intervals_api_key) };
 }
+
+/** Crea o actualiza el evento de un entrenamiento en Intervals.icu. Devuelve el event id o null. */
+export async function syncWorkoutEvent(supabase: any, userId: string, workout: any): Promise<string | null> {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("intervals_athlete_id,intervals_api_key,ftp")
+    .eq("id", userId)
+    .maybeSingle();
+  const creds = credsFromProfile(profile);
+  if (!creds) return null;
+  const date = workout?.plan?.scheduled_date;
+  if (!date) return null;
+  const existing = workout?.plan?.intervals_event_id ? String(workout.plan.intervals_event_id) : null;
+  try {
+    if (existing) {
+      await intervalsUpdateEvent(creds, existing, workout, date, profile?.ftp ?? null);
+      return existing;
+    }
+    const id = await intervalsCreateEvent(creds, workout, date, profile?.ftp ?? null);
+    if (id) {
+      await supabase
+        .from("workouts")
+        .update({ plan: { ...(workout.plan ?? {}), intervals_event_id: id } })
+        .eq("id", workout.id)
+        .eq("user_id", userId);
+    }
+    return id || null;
+  } catch (e) {
+    console.error("intervals sync error", e);
+    return null;
+  }
+}
+
+/** Elimina el evento asociado a un entrenamiento en Intervals.icu (si existe). */
+export async function removeWorkoutEvent(supabase: any, userId: string, workout: any): Promise<void> {
+  const eventId = workout?.plan?.intervals_event_id;
+  if (!eventId) return;
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("intervals_athlete_id,intervals_api_key")
+    .eq("id", userId)
+    .maybeSingle();
+  const creds = credsFromProfile(profile);
+  if (!creds) return;
+  try {
+    await intervalsDeleteEvent(creds, String(eventId));
+  } catch (e) {
+    console.error("intervals delete error", e);
+  }
+}
