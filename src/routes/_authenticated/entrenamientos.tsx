@@ -260,7 +260,7 @@ function EntrenamientosPage() {
         </Field>
 
         <button
-          disabled={generateMut.isPending}
+          disabled={generateMut.isPending || trainingDays.length === 0}
           onClick={() => generateMut.mutate()}
           className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50"
         >
