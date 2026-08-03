@@ -247,6 +247,7 @@ PETICIÓN:
 - Duración objetivo de CADA entrenamiento: ${data.duration_minutes} minutos
 - Cantidad: ${effectiveCount} entrenamiento(s) distintos
 ${competitionBlock}
+${scheduleBlock}
 
 ACTIVIDADES RECIENTES (Strava): ${recent && recent.length ? JSON.stringify(recent) : "ninguna"}
 
