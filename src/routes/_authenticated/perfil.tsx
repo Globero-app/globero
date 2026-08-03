@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { stravaExchange, stravaDisconnect, stravaEstimateFtp, stravaEstimateHr } from "@/lib/strava.functions";
+import { connectIntervals, disconnectIntervals } from "@/lib/intervals.functions";
 import { Bike, CheckCircle2, Link as LinkIcon, Unlink, Wrench, Wand2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { computePowerZones, computeHrZones } from "@/lib/zones";
