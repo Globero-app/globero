@@ -193,8 +193,10 @@ export const generateWorkouts = createServerFn({ method: "POST" })
       const daysUntil = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
       if (daysUntil <= 0) throw new Error("La competición ya ha pasado");
       const weeksUntil = Math.max(1, Math.ceil(daysUntil / 7));
-      // Hasta 3 por semana, hasta 30 por generación, respetando el máximo pedido por el usuario
-      effectiveCount = Math.min(data.count, 30, Math.max(1, weeksUntil * 3));
+      // Si el usuario ha marcado días, mandan esos días; si no, hasta 3 por semana
+      effectiveCount = data.training_days?.length
+        ? Math.min(data.count, 90)
+        : Math.min(data.count, 30, Math.max(1, weeksUntil * 3));
 
       competitionBlock = `
 
@@ -207,12 +209,29 @@ COMPETICIÓN OBJETIVO:
 - Notas: ${comp.notes ?? "—"}
 
 PERIODIZACIÓN OBLIGATORIA:
-- Genera exactamente ${effectiveCount} entrenamientos (máximo 3 por semana durante ${weeksUntil} semanas hasta el día del evento).
-- Distribuye los entrenamientos cronológicamente con campo "scheduled_date" (formato YYYY-MM-DD) entre HOY (${today.toISOString().slice(0, 10)}) y la fecha del evento, sin exceder 3 por semana.
+- Genera exactamente ${effectiveCount} entrenamientos hasta el día del evento.
 - Combina resistencia, intervalos y fuerza según las demandas de la competición (más resistencia si es larga, más intervalos si es corta/intensa, fuerza si tiene mucho desnivel).
 - Aplica progresión clásica: base → construcción → pico → tapering en la última semana antes del evento (volumen e intensidad bajos los últimos 5-7 días).
 - El último entrenamiento debe ser corto y de activación 1-2 días antes del evento.`;
     }
+
+    // Calendario de días de entreno elegidos por el usuario
+    const chosenDays = (data.training_days ?? []).slice().sort((a, b) => a - b);
+    const schedule = chosenDays.length
+      ? buildSchedule(chosenDays, effectiveCount, competition?.date ?? undefined)
+      : [];
+    if (schedule.length) effectiveCount = schedule.length;
+    const longDay = data.long_ride_day ?? null;
+    const scheduleBlock = schedule.length
+      ? `
+
+CALENDARIO OBLIGATORIO (días elegidos por el ciclista: ${chosenDays.map((d) => DAY_NAMES[d]).join(", ")}):
+${schedule.map((s, i) => `- Sesión ${i + 1}: ${s.date} (${DAY_NAMES[s.dow]})${longDay !== null && s.dow === longDay ? " → TIRADA LARGA" : ""}`).join("\n")}
+- Devuelve EXACTAMENTE ${effectiveCount} entrenamientos, EN ESTE MISMO ORDEN, y pon en cada uno "scheduled_date" con la fecha indicada.
+${longDay !== null ? `- Las sesiones marcadas como TIRADA LARGA (${DAY_NAMES[longDay]}) deben ser rodajes largos de resistencia: duración claramente superior al resto (1.5-2.5x la duración objetivo), predominio Z2 y sin series intensas. Indícalo en el título y en el summary.` : ""}
+- Reparte carga y recuperación entre sesiones consecutivas teniendo en cuenta los días reales del calendario (días seguidos = menos intensidad acumulada).`
+      : "";
+
 
     const prompt = `Eres un entrenador profesional de ciclismo. Diseña ${effectiveCount} entrenamiento(s) personalizados para este ciclista.
 
