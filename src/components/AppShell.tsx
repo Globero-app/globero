@@ -1,3 +1,4 @@
+import { StravaMatchPrompt } from "@/components/StravaMatchPrompt";
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -169,6 +170,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
         <SponsorsFooter />
       </main>
+
+      <StravaMatchPrompt />
+
 
       {/* Mobile bottom nav */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-surface border-t flex items-center justify-around px-2 py-2">
