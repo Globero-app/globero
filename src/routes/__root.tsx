@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "sonner";
+import { SplashScreen } from "@/components/SplashScreen";
 
 function NotFoundComponent() {
   return (
@@ -67,10 +68,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "Sentmenat Bici — Gestión del ciclista" },
       { property: "og:description", content: "Plataforma de gestión de ciclistas de Sentmenat Bici: competiciones, nutrición y entrenamiento." },
       { name: "twitter:description", content: "Plataforma de gestión de ciclistas de Sentmenat Bici: competiciones, nutrición y entrenamiento." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e64deb72-0684-4356-85e9-7deb4880f355/id-preview-4c5e9100--d6db3856-0e36-486c-9667-e1de8abac5fa.lovable.app-1781080923833.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e64deb72-0684-4356-85e9-7deb4880f355/id-preview-4c5e9100--d6db3856-0e36-486c-9667-e1de8abac5fa.lovable.app-1781080923833.png" },
+      { property: "og:image", content: "https://sentmenatbici.lovable.app/og-image.jpg" },
+      { name: "twitter:image", content: "https://sentmenatbici.lovable.app/og-image.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Sentmenat Bici" },
+      { property: "og:url", content: "https://sentmenatbici.lovable.app/" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Logo de Sentmenat Bici" },
+      { name: "twitter:image:alt", content: "Logo de Sentmenat Bici" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -122,6 +129,7 @@ function RootComponent() {
   }, [router, queryClient]);
   return (
     <QueryClientProvider client={queryClient}>
+      <SplashScreen />
       <Outlet />
       <Toaster position="top-right" richColors />
     </QueryClientProvider>
