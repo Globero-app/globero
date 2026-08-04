@@ -138,11 +138,11 @@ export const linkStravaActivity = createServerFn({ method: "POST" })
         .maybeSingle();
       if (e1) throw new Error(e1.message);
       if (!w) throw new Error("Entrenamiento no encontrado");
-      const plan = { ...(((w.plan as any) ?? {}) as Record<string, unknown>) };
+      const plan: any = { ...(((w.plan as any) ?? {}) as Record<string, unknown>) };
       if (data.accept) plan.strava_activity_id = data.activity_id;
       else plan.strava_link_dismissed = true;
 
-      const update: Record<string, unknown> = { plan, updated_at: new Date().toISOString() };
+      const update: any = { plan, updated_at: new Date().toISOString() };
       if (data.accept) {
         update.status = "completed";
         update.completed_at = new Date().toISOString();
@@ -164,7 +164,7 @@ export const linkStravaActivity = createServerFn({ method: "POST" })
       .maybeSingle();
     if (e2) throw new Error(e2.message);
     if (!c) throw new Error("Competición no encontrada");
-    const fb = { ...(((c.race_feedback as any) ?? {}) as Record<string, unknown>) };
+    const fb: any = { ...(((c.race_feedback as any) ?? {}) as Record<string, unknown>) };
     if (data.accept) fb.strava_activity_id = data.activity_id;
     else fb.strava_link_dismissed = true;
     const { error } = await supabase
