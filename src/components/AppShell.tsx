@@ -170,6 +170,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         <SponsorsFooter />
       </main>
 
+      <StravaMatchPrompt />
+
+
       {/* Mobile bottom nav */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-surface border-t flex items-center justify-around px-2 py-2">
         {NAV.slice(0, 5).map(({ to, label, icon: Icon }) => (
