@@ -37,12 +37,76 @@ export async function intervalsTestConnection(creds: IntervalsCreds) {
 
 export type ZoneRefs = { ftp: number | null; lthr: number | null; maxHr: number | null };
 
+/** Zonas de FC (Friel) en % de LTHR, para steps definidos por zona. */
+const HR_ZONE_PCT: Record<string, [number, number]> = {
+  z1: [65, 81],
+  z2: [82, 88],
+  z3: [89, 93],
+  z4: [94, 99],
+  z5: [100, 106],
+  z5a: [100, 102],
+  z5b: [103, 106],
+  z5c: [107, 115],
+  z6: [107, 115],
+  z7: [116, 125],
+};
+
+function zoneKeyFrom(s: any): string | null {
+  const raw = String(s?.zone ?? s?.hr_zone ?? s?.target_zone ?? s?.name ?? "").toLowerCase();
+  const m = raw.match(/\bz\s*([1-7])\s*([abc])?\b/);
+  if (!m) return null;
+  const key = `z${m[1]}${m[2] ?? ""}`;
+  return HR_ZONE_PCT[key] ? key : HR_ZONE_PCT[`z${m[1]}`] ? `z${m[1]}` : null;
+}
+
+/**
+ * Devuelve el rango de FC en % de LTHR, sea cual sea la definición del step:
+ * bpm absolutos, % de FC máx, % de LTHR o zona (Z1-Z7).
+ */
+export function hrRangeToLthrPct(
+  s: any,
+  refs: ZoneRefs,
+): { low: number; high: number } | null {
+  const hrRef = refs.lthr && refs.lthr > 0 ? refs.lthr : refs.maxHr && refs.maxHr > 0 ? Math.round(refs.maxHr * 0.92) : null;
+  if (!hrRef) return null;
+
+  const unit = String(s?.target_unit ?? s?.unit ?? "").toLowerCase().replace(/\s|_/g, "");
+  let low = Number(s?.target_low) || 0;
+  let high = Number(s?.target_high) || low;
+  if (high < low) [low, high] = [high, low];
+
+  // 1) Definido por zona y sin valores numéricos utilizables
+  if (!low) {
+    const zk = zoneKeyFrom(s);
+    if (zk) return { low: HR_ZONE_PCT[zk][0], high: HR_ZONE_PCT[zk][1] };
+    return null;
+  }
+
+  const isPctMax = unit.includes("maxhr") || unit.includes("%max") || unit.includes("hrmax") || unit.includes("fcmax");
+  const isPctLthr = unit.includes("lthr") || unit.includes("threshold") || unit.includes("umbral");
+  const isBpm = unit.includes("bpm") || unit.includes("ppm");
+
+  // Heurística: valores pequeños (<=100) sin unidad clara son porcentajes
+  const looksPct = !isBpm && high <= 100;
+
+  if (isPctMax || (looksPct && refs.maxHr && refs.maxHr > 0 && !isPctLthr && unit === "")) {
+    // % de FC máx -> bpm -> % LTHR
+    const maxHr = refs.maxHr && refs.maxHr > 0 ? refs.maxHr : Math.round(hrRef / 0.92);
+    const bpmLow = (low / 100) * maxHr;
+    const bpmHigh = (high / 100) * maxHr;
+    return { low: Math.round((bpmLow / hrRef) * 100), high: Math.round((bpmHigh / hrRef) * 100) };
+  }
+
+  if (isPctLthr || looksPct) return { low: Math.round(low), high: Math.round(high) };
+
+  // bpm absolutos
+  return { low: Math.round((low / hrRef) * 100), high: Math.round((high / hrRef) * 100) };
+}
+
 /** Convierte los steps del plan en el "workout doc" de Intervals.icu */
 export function buildWorkoutDoc(plan: any, basis: "power" | "hr", refs: ZoneRefs): string {
   const steps = Array.isArray(plan?.steps) ? plan.steps : [];
   const ftp = refs.ftp;
-  // Referencia de FC para porcentajes en Intervals.icu (% del umbral de FC)
-  const hrRef = refs.lthr && refs.lthr > 0 ? refs.lthr : refs.maxHr && refs.maxHr > 0 ? Math.round(refs.maxHr * 0.92) : null;
   const lines: string[] = [];
   for (const s of steps) {
     const secs = Number(s.duration_seconds) || 0;
@@ -51,19 +115,27 @@ export function buildWorkoutDoc(plan: any, basis: "power" | "hr", refs: ZoneRefs
     const low = Number(s.target_low) || 0;
     const high = Number(s.target_high) || 0;
 
-    if (s.target === "hr" && low > 0) {
-      // Formato que Intervals.icu interpreta como bloque: "Nombre 5m 76-81% LTHR"
+    const isHrStep =
+      s.target === "hr" ||
+      s.target === "heart_rate" ||
+      s.target === "hr_zone" ||
+      (basis === "hr" && s.target !== "power" && s.target !== "cadence");
+
+    if (isHrStep) {
+      const pct = hrRangeToLthrPct(s, refs);
       let target: string;
-      if (hrRef) {
-        const pl = Math.round((low / hrRef) * 100);
-        const ph = Math.round(((high || low) / hrRef) * 100);
-        target = pl === ph ? `${pl}% LTHR` : `${pl}-${ph}% LTHR`;
-      } else {
+      if (pct) {
+        target = pct.low === pct.high ? `${pct.low}% LTHR` : `${pct.low}-${pct.high}% LTHR`;
+      } else if (low > 0) {
         target = high && high !== low ? `${low}-${high}bpm` : `${low}bpm`;
+      } else {
+        target = "";
       }
+      if (!target && !name) continue;
       lines.push(`- ${[name, dur, target].filter(Boolean).join(" ")}`);
       continue;
     }
+
 
     let target = "";
     if (s.target === "power" && low > 0) {
