@@ -52,12 +52,12 @@ export function buildWorkoutDoc(plan: any, basis: "power" | "hr", refs: ZoneRefs
     const high = Number(s.target_high) || 0;
 
     if (s.target === "hr" && low > 0) {
-      // Formato que Intervals.icu interpreta como bloque: "Nombre 5m 76-81% HR"
+      // Formato que Intervals.icu interpreta como bloque: "Nombre 5m 76-81% LTHR"
       let target: string;
       if (hrRef) {
         const pl = Math.round((low / hrRef) * 100);
         const ph = Math.round(((high || low) / hrRef) * 100);
-        target = pl === ph ? `${pl}% HR` : `${pl}-${ph}% HR`;
+        target = pl === ph ? `${pl}% LTHR` : `${pl}-${ph}% LTHR`;
       } else {
         target = high && high !== low ? `${low}-${high}bpm` : `${low}bpm`;
       }
