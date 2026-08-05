@@ -35,16 +35,37 @@ export async function intervalsTestConnection(creds: IntervalsCreds) {
   return { ok: true, name: profile?.athlete?.name ?? null };
 }
 
+export type ZoneRefs = { ftp: number | null; lthr: number | null; maxHr: number | null };
+
 /** Convierte los steps del plan en el "workout doc" de Intervals.icu */
-export function buildWorkoutDoc(plan: any, basis: "power" | "hr", ftp: number | null): string {
+export function buildWorkoutDoc(plan: any, basis: "power" | "hr", refs: ZoneRefs): string {
   const steps = Array.isArray(plan?.steps) ? plan.steps : [];
+  const ftp = refs.ftp;
+  // Referencia de FC para porcentajes en Intervals.icu (% del umbral de FC)
+  const hrRef = refs.lthr && refs.lthr > 0 ? refs.lthr : refs.maxHr && refs.maxHr > 0 ? Math.round(refs.maxHr * 0.92) : null;
   const lines: string[] = [];
   for (const s of steps) {
     const secs = Number(s.duration_seconds) || 0;
     const dur = s.duration_type === "open" || !secs ? "5m" : secs % 60 === 0 ? `${secs / 60}m` : `${secs}s`;
-    let target = "";
+    const name = String(s.name ?? "").slice(0, 40);
     const low = Number(s.target_low) || 0;
     const high = Number(s.target_high) || 0;
+
+    if (s.target === "hr" && low > 0) {
+      // Formato que Intervals.icu interpreta como bloque: "Nombre 5m 76-81% HR"
+      let target: string;
+      if (hrRef) {
+        const pl = Math.round((low / hrRef) * 100);
+        const ph = Math.round(((high || low) / hrRef) * 100);
+        target = pl === ph ? `${pl}% HR` : `${pl}-${ph}% HR`;
+      } else {
+        target = high && high !== low ? `${low}-${high}bpm` : `${low}bpm`;
+      }
+      lines.push(`- ${[name, dur, target].filter(Boolean).join(" ")}`);
+      continue;
+    }
+
+    let target = "";
     if (s.target === "power" && low > 0) {
       if (ftp && ftp > 0) {
         const pl = Math.round((low / ftp) * 100);
@@ -53,12 +74,9 @@ export function buildWorkoutDoc(plan: any, basis: "power" | "hr", ftp: number | 
       } else {
         target = high && high !== low ? `${low}-${high}w` : `${low}w`;
       }
-    } else if (s.target === "hr" && low > 0) {
-      target = high && high !== low ? `${low}-${high}bpm` : `${low}bpm`;
     } else if (s.target === "cadence" && low > 0) {
       target = `${low}rpm`;
     }
-    const name = String(s.name ?? "").slice(0, 40);
     lines.push(`- ${dur} ${target}${name ? ` ${name}` : ""}`.trim());
   }
   const header = [plan?.summary, basis === "hr" ? "Base: frecuencia cardíaca" : "Base: potencia (FTP)"]
@@ -66,6 +84,7 @@ export function buildWorkoutDoc(plan: any, basis: "power" | "hr", ftp: number | 
     .join("\n");
   return [header, "", ...lines].join("\n").trim();
 }
+
 
 function eventBody(workout: any, doc: string, date: string) {
   return {
