@@ -101,9 +101,9 @@ export async function intervalsCreateEvent(
   creds: IntervalsCreds,
   workout: any,
   date: string,
-  ftp: number | null,
+  refs: ZoneRefs,
 ): Promise<string> {
-  const doc = buildWorkoutDoc(workout.plan, workout.plan?.target_basis === "hr" ? "hr" : "power", ftp);
+  const doc = buildWorkoutDoc(workout.plan, workout.plan?.target_basis === "hr" ? "hr" : "power", refs);
   const created = await call(creds, "/events", {
     method: "POST",
     body: JSON.stringify(eventBody(workout, doc, date)),
@@ -116,9 +116,9 @@ export async function intervalsUpdateEvent(
   eventId: string,
   workout: any,
   date: string,
-  ftp: number | null,
+  refs: ZoneRefs,
 ) {
-  const doc = buildWorkoutDoc(workout.plan, workout.plan?.target_basis === "hr" ? "hr" : "power", ftp);
+  const doc = buildWorkoutDoc(workout.plan, workout.plan?.target_basis === "hr" ? "hr" : "power", refs);
   await call(creds, `/events/${eventId}`, {
     method: "PUT",
     body: JSON.stringify(eventBody(workout, doc, date)),
@@ -139,7 +139,7 @@ export function credsFromProfile(profile: any): IntervalsCreds | null {
 export async function syncWorkoutEvent(supabase: any, userId: string, workout: any): Promise<string | null> {
   const { data: profile } = await supabase
     .from("profiles")
-    .select("intervals_athlete_id,intervals_api_key,ftp")
+    .select("intervals_athlete_id,intervals_api_key,ftp,lthr,max_hr")
     .eq("id", userId)
     .maybeSingle();
   const creds = credsFromProfile(profile);
@@ -147,12 +147,17 @@ export async function syncWorkoutEvent(supabase: any, userId: string, workout: a
   const date = workout?.plan?.scheduled_date;
   if (!date) return null;
   const existing = workout?.plan?.intervals_event_id ? String(workout.plan.intervals_event_id) : null;
+  const refs: ZoneRefs = {
+    ftp: profile?.ftp ?? null,
+    lthr: profile?.lthr ?? null,
+    maxHr: profile?.max_hr ?? null,
+  };
   try {
     if (existing) {
-      await intervalsUpdateEvent(creds, existing, workout, date, profile?.ftp ?? null);
+      await intervalsUpdateEvent(creds, existing, workout, date, refs);
       return existing;
     }
-    const id = await intervalsCreateEvent(creds, workout, date, profile?.ftp ?? null);
+    const id = await intervalsCreateEvent(creds, workout, date, refs);
     if (id) {
       await supabase
         .from("workouts")
