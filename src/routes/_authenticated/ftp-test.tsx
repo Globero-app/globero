@@ -98,6 +98,8 @@ function FtpTestPage() {
   const qc = useQueryClient();
   const importFromStrava = useServerFn(stravaImportFtpTest);
   const markCompleted = useServerFn(markFtpTestCompleted);
+  const scheduleTest = useServerFn(scheduleFtpTest);
+
 
   const profileQ = useQuery({
     queryKey: ["profile", user?.id],
