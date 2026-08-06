@@ -352,11 +352,13 @@ function WorkoutCard({
   ftp,
   onComplete,
   onDelete,
+  onTrainer,
 }: {
   w: any;
   ftp: number;
   onComplete: (rpe: number, notes?: string) => Promise<void>;
   onDelete: () => void;
+  onTrainer: () => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [showRpe, setShowRpe] = useState(false);
@@ -364,6 +366,8 @@ function WorkoutCard({
   const [rpe, setRpe] = useState(3);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [converting, setConverting] = useState(false);
+
 
   const plan = w.plan ?? {};
   const completed = w.status === "completed";
