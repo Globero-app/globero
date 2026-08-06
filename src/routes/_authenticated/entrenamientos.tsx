@@ -318,7 +318,18 @@ function EntrenamientosPage() {
               await del({ data: { workout_id: w.id } });
               qc.invalidateQueries({ queryKey: ["workouts"] });
             }}
+            onTrainer={async () => {
+              const r: any = await toTrainer({ data: { workout_id: w.id } });
+              toast.success(
+                r.intervals_synced
+                  ? "Entrenamiento adaptado a rodillo y actualizado en Intervals.icu"
+                  : "Entrenamiento adaptado a rodillo",
+              );
+              qc.invalidateQueries({ queryKey: ["workouts"] });
+              qc.invalidateQueries({ queryKey: ["calendar"] });
+            }}
           />
+
         ))}
       </div>
 
