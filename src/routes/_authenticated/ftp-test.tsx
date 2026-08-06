@@ -3,13 +3,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/lib/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Play, Pause, RotateCcw, Gauge, CheckCircle2, ChevronRight, Download, Bike, FileDown, CheckCheck } from "lucide-react";
+import { Play, Pause, RotateCcw, Gauge, CheckCircle2, ChevronRight, Download, Bike, FileDown, CheckCheck, CalendarPlus } from "lucide-react";
 import { computePowerZones, computeHrZones, ftpFrom20Min, lthrFrom20Min } from "@/lib/zones";
 import { downloadFit, type FitWorkoutStep } from "@/lib/fit-writer";
 import { downloadZwo, type ZwoStep } from "@/lib/zwo-writer";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { stravaImportFtpTest, markFtpTestCompleted } from "@/lib/strava.functions";
+import { scheduleFtpTest } from "@/lib/workouts.functions";
+
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
