@@ -58,6 +58,8 @@ function EntrenamientosPage() {
   const gen = useServerFn(generateWorkouts);
   const complete = useServerFn(completeWorkout);
   const del = useServerFn(deleteWorkout);
+  const toTrainer = useServerFn(convertWorkoutToTrainer);
+
 
   const [trainingType, setTrainingType] = useState<typeof TRAINING_OPTIONS[number]["value"]>("resistencia");
   const [bikeType, setBikeType] = useState<typeof BIKE_OPTIONS[number]["value"]>("carretera");
