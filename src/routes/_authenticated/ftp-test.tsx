@@ -137,7 +137,11 @@ function FtpTestPage() {
   const [finished, setFinished] = useState(false);
   const [saved, setSaved] = useState<number | null>(null);
   const [importingId, setImportingId] = useState<string | null>(null);
+  const [testDate, setTestDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
+  const [testBasis, setTestBasis] = useState<"power" | "hr">("power");
+  const [scheduling, setScheduling] = useState(false);
   const intervalRef = useRef<number | null>(null);
+
 
   const phase = PHASES[phaseIdx];
   const totalSecs = phase.seconds;
