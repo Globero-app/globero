@@ -252,6 +252,24 @@ function FtpTestPage() {
     } catch (e: any) { toast.error(e.message); }
   };
 
+  const handleScheduleTest = async () => {
+    if (!testDate) return;
+    setScheduling(true);
+    try {
+      const r: any = await scheduleTest({ data: { date: testDate, basis: testBasis } });
+      toast.success(
+        r.intervals_synced
+          ? `Test añadido al calendario el ${format(new Date(testDate + "T00:00:00"), "d MMM yyyy", { locale: es })} y subido a Intervals.icu`
+          : `Test añadido al calendario el ${format(new Date(testDate + "T00:00:00"), "d MMM yyyy", { locale: es })}`,
+      );
+      qc.invalidateQueries({ queryKey: ["calendar"] });
+      qc.invalidateQueries({ queryKey: ["workouts"] });
+    } catch (e: any) { toast.error(e.message ?? "Error añadiendo el test"); }
+    finally { setScheduling(false); }
+  };
+
+
+
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
