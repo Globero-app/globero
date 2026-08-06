@@ -4,11 +4,12 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
-import { generateWorkouts, completeWorkout, deleteWorkout } from "@/lib/workouts.functions";
+import { generateWorkouts, completeWorkout, deleteWorkout, convertWorkoutToTrainer } from "@/lib/workouts.functions";
 import { uploadWorkoutsToIntervals } from "@/lib/intervals.functions";
 import { downloadFit, type FitWorkout, type FitWorkoutStep } from "@/lib/fit-writer";
 import { downloadZwo, type ZwoWorkout, type ZwoStep } from "@/lib/zwo-writer";
-import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown } from "lucide-react";
+import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown, Home } from "lucide-react";
+
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -57,6 +58,8 @@ function EntrenamientosPage() {
   const gen = useServerFn(generateWorkouts);
   const complete = useServerFn(completeWorkout);
   const del = useServerFn(deleteWorkout);
+  const toTrainer = useServerFn(convertWorkoutToTrainer);
+
 
   const [trainingType, setTrainingType] = useState<typeof TRAINING_OPTIONS[number]["value"]>("resistencia");
   const [bikeType, setBikeType] = useState<typeof BIKE_OPTIONS[number]["value"]>("carretera");
@@ -315,7 +318,18 @@ function EntrenamientosPage() {
               await del({ data: { workout_id: w.id } });
               qc.invalidateQueries({ queryKey: ["workouts"] });
             }}
+            onTrainer={async () => {
+              const r: any = await toTrainer({ data: { workout_id: w.id } });
+              toast.success(
+                r.intervals_synced
+                  ? "Entrenamiento adaptado a rodillo y actualizado en Intervals.icu"
+                  : "Entrenamiento adaptado a rodillo",
+              );
+              qc.invalidateQueries({ queryKey: ["workouts"] });
+              qc.invalidateQueries({ queryKey: ["calendar"] });
+            }}
           />
+
         ))}
       </div>
 
@@ -338,11 +352,13 @@ function WorkoutCard({
   ftp,
   onComplete,
   onDelete,
+  onTrainer,
 }: {
   w: any;
   ftp: number;
   onComplete: (rpe: number, notes?: string) => Promise<void>;
   onDelete: () => void;
+  onTrainer: () => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [showRpe, setShowRpe] = useState(false);
@@ -350,6 +366,8 @@ function WorkoutCard({
   const [rpe, setRpe] = useState(3);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [converting, setConverting] = useState(false);
+
 
   const plan = w.plan ?? {};
   const completed = w.status === "completed";
@@ -420,10 +438,28 @@ function WorkoutCard({
               <Eye className="size-4" />
             </button>
             {!completed && (
+              <button
+                onClick={async () => {
+                  if (converting) return;
+                  if (!confirm("¿Adaptar este entrenamiento para hacerlo en rodillo (60-90 min)?")) return;
+                  setConverting(true);
+                  try { await onTrainer(); }
+                  catch (e: any) { toast.error(e?.message ?? "Error adaptando a rodillo"); }
+                  finally { setConverting(false); }
+                }}
+                title="Cambiar a rodillo"
+                className="p-2 rounded-md hover:bg-secondary text-sky-600 disabled:opacity-50"
+                disabled={converting}
+              >
+                {converting ? <Loader2 className="size-4 animate-spin" /> : <Home className="size-4" />}
+              </button>
+            )}
+            {!completed && (
               <button onClick={() => setShowRpe((s) => !s)} title="Marcar completado" className="p-2 rounded-md hover:bg-secondary text-emerald-600">
                 <CheckCircle2 className="size-4" />
               </button>
             )}
+
             <button onClick={onDelete} title="Eliminar" className="p-2 rounded-md hover:bg-secondary text-destructive">
               <Trash2 className="size-4" />
             </button>

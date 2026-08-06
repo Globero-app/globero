@@ -3,13 +3,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/lib/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Play, Pause, RotateCcw, Gauge, CheckCircle2, ChevronRight, Download, Bike, FileDown, CheckCheck } from "lucide-react";
+import { Play, Pause, RotateCcw, Gauge, CheckCircle2, ChevronRight, Download, Bike, FileDown, CheckCheck, CalendarPlus } from "lucide-react";
 import { computePowerZones, computeHrZones, ftpFrom20Min, lthrFrom20Min } from "@/lib/zones";
 import { downloadFit, type FitWorkoutStep } from "@/lib/fit-writer";
 import { downloadZwo, type ZwoStep } from "@/lib/zwo-writer";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { stravaImportFtpTest, markFtpTestCompleted } from "@/lib/strava.functions";
+import { scheduleFtpTest } from "@/lib/workouts.functions";
+
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -96,6 +98,8 @@ function FtpTestPage() {
   const qc = useQueryClient();
   const importFromStrava = useServerFn(stravaImportFtpTest);
   const markCompleted = useServerFn(markFtpTestCompleted);
+  const scheduleTest = useServerFn(scheduleFtpTest);
+
 
   const profileQ = useQuery({
     queryKey: ["profile", user?.id],
@@ -133,7 +137,11 @@ function FtpTestPage() {
   const [finished, setFinished] = useState(false);
   const [saved, setSaved] = useState<number | null>(null);
   const [importingId, setImportingId] = useState<string | null>(null);
+  const [testDate, setTestDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
+  const [testBasis, setTestBasis] = useState<"power" | "hr">("power");
+  const [scheduling, setScheduling] = useState(false);
   const intervalRef = useRef<number | null>(null);
+
 
   const phase = PHASES[phaseIdx];
   const totalSecs = phase.seconds;
@@ -248,6 +256,24 @@ function FtpTestPage() {
     } catch (e: any) { toast.error(e.message); }
   };
 
+  const handleScheduleTest = async () => {
+    if (!testDate) return;
+    setScheduling(true);
+    try {
+      const r: any = await scheduleTest({ data: { date: testDate, basis: testBasis } });
+      toast.success(
+        r.intervals_synced
+          ? `Test añadido al calendario el ${format(new Date(testDate + "T00:00:00"), "d MMM yyyy", { locale: es })} y subido a Intervals.icu`
+          : `Test añadido al calendario el ${format(new Date(testDate + "T00:00:00"), "d MMM yyyy", { locale: es })}`,
+      );
+      qc.invalidateQueries({ queryKey: ["calendar"] });
+      qc.invalidateQueries({ queryKey: ["workouts"] });
+    } catch (e: any) { toast.error(e.message ?? "Error añadiendo el test"); }
+    finally { setScheduling(false); }
+  };
+
+
+
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
@@ -283,6 +309,64 @@ function FtpTestPage() {
           </button>
         </div>
       </div>
+
+      {/* Programar el test en el calendario */}
+      <div className="bg-surface border rounded-xl p-5 space-y-3">
+        <h2 className="font-display text-lg font-bold uppercase tracking-tight flex items-center gap-2">
+          <CalendarPlus className="size-5" /> Añadir el test al calendario
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Elige el día en el que quieres hacer el test y en qué base quieres realizarlo. Se creará en tu calendario y,
+          si tienes Intervals.icu conectado, se subirá automáticamente a ese día.
+        </p>
+
+        <div className="grid sm:grid-cols-2 gap-3">
+          <label className="block">
+            <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Día del test</span>
+            <input
+              type="date"
+              value={testDate}
+              min={format(new Date(), "yyyy-MM-dd")}
+              onChange={(e) => setTestDate(e.target.value)}
+              className="mt-1.5 w-full px-3 py-2 rounded-lg border bg-background text-sm"
+            />
+          </label>
+          <div>
+            <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Base del test</span>
+            <div className="mt-1.5 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setTestBasis("power")}
+                className={`rounded-lg border-2 px-3 py-2 text-left transition ${testBasis === "power" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+              >
+                <span className="block text-sm font-semibold">FTP (W)</span>
+                <span className="block text-[11px] text-muted-foreground">{profileQ.data?.ftp ? `FTP ${profileQ.data.ftp} W` : "Referencia 200 W"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setTestBasis("hr")}
+                className={`rounded-lg border-2 px-3 py-2 text-left transition ${testBasis === "hr" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+              >
+                <span className="block text-sm font-semibold">FC (bpm)</span>
+                <span className="block text-[11px] text-muted-foreground">
+                  {profileQ.data?.lthr ? `LTHR ${profileQ.data.lthr}` : profileQ.data?.max_hr ? `FC máx ${profileQ.data.max_hr}` : "Sin FC en el perfil"}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={handleScheduleTest}
+          disabled={scheduling || !testDate}
+          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50"
+        >
+          <CalendarPlus className="size-4" />
+          {scheduling ? "Añadiendo…" : "Añadir test al calendario"}
+        </button>
+      </div>
+
+
 
       {/* Marcar como realizado + importar desde Strava */}
       <div className="bg-surface border rounded-xl p-5 space-y-3">
