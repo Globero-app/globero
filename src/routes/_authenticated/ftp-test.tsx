@@ -284,6 +284,64 @@ function FtpTestPage() {
         </div>
       </div>
 
+      {/* Programar el test en el calendario */}
+      <div className="bg-surface border rounded-xl p-5 space-y-3">
+        <h2 className="font-display text-lg font-bold uppercase tracking-tight flex items-center gap-2">
+          <CalendarPlus className="size-5" /> Añadir el test al calendario
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Elige el día en el que quieres hacer el test y en qué base quieres realizarlo. Se creará en tu calendario y,
+          si tienes Intervals.icu conectado, se subirá automáticamente a ese día.
+        </p>
+
+        <div className="grid sm:grid-cols-2 gap-3">
+          <label className="block">
+            <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Día del test</span>
+            <input
+              type="date"
+              value={testDate}
+              min={format(new Date(), "yyyy-MM-dd")}
+              onChange={(e) => setTestDate(e.target.value)}
+              className="mt-1.5 w-full px-3 py-2 rounded-lg border bg-background text-sm"
+            />
+          </label>
+          <div>
+            <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Base del test</span>
+            <div className="mt-1.5 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setTestBasis("power")}
+                className={`rounded-lg border-2 px-3 py-2 text-left transition ${testBasis === "power" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+              >
+                <span className="block text-sm font-semibold">FTP (W)</span>
+                <span className="block text-[11px] text-muted-foreground">{profileQ.data?.ftp ? `FTP ${profileQ.data.ftp} W` : "Referencia 200 W"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setTestBasis("hr")}
+                className={`rounded-lg border-2 px-3 py-2 text-left transition ${testBasis === "hr" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+              >
+                <span className="block text-sm font-semibold">FC (bpm)</span>
+                <span className="block text-[11px] text-muted-foreground">
+                  {profileQ.data?.lthr ? `LTHR ${profileQ.data.lthr}` : profileQ.data?.max_hr ? `FC máx ${profileQ.data.max_hr}` : "Sin FC en el perfil"}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={handleScheduleTest}
+          disabled={scheduling || !testDate}
+          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50"
+        >
+          <CalendarPlus className="size-4" />
+          {scheduling ? "Añadiendo…" : "Añadir test al calendario"}
+        </button>
+      </div>
+
+
+
       {/* Marcar como realizado + importar desde Strava */}
       <div className="bg-surface border rounded-xl p-5 space-y-3">
         <h2 className="font-display text-lg font-bold uppercase tracking-tight flex items-center gap-2">
