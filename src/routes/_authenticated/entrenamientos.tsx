@@ -4,11 +4,12 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
-import { generateWorkouts, completeWorkout, deleteWorkout } from "@/lib/workouts.functions";
+import { generateWorkouts, completeWorkout, deleteWorkout, convertWorkoutToTrainer } from "@/lib/workouts.functions";
 import { uploadWorkoutsToIntervals } from "@/lib/intervals.functions";
 import { downloadFit, type FitWorkout, type FitWorkoutStep } from "@/lib/fit-writer";
 import { downloadZwo, type ZwoWorkout, type ZwoStep } from "@/lib/zwo-writer";
-import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown } from "lucide-react";
+import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown, Home } from "lucide-react";
+
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
