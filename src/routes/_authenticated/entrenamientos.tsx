@@ -438,10 +438,28 @@ function WorkoutCard({
               <Eye className="size-4" />
             </button>
             {!completed && (
+              <button
+                onClick={async () => {
+                  if (converting) return;
+                  if (!confirm("¿Adaptar este entrenamiento para hacerlo en rodillo (60-90 min)?")) return;
+                  setConverting(true);
+                  try { await onTrainer(); }
+                  catch (e: any) { toast.error(e?.message ?? "Error adaptando a rodillo"); }
+                  finally { setConverting(false); }
+                }}
+                title="Cambiar a rodillo"
+                className="p-2 rounded-md hover:bg-secondary text-sky-600 disabled:opacity-50"
+                disabled={converting}
+              >
+                {converting ? <Loader2 className="size-4 animate-spin" /> : <Home className="size-4" />}
+              </button>
+            )}
+            {!completed && (
               <button onClick={() => setShowRpe((s) => !s)} title="Marcar completado" className="p-2 rounded-md hover:bg-secondary text-emerald-600">
                 <CheckCircle2 className="size-4" />
               </button>
             )}
+
             <button onClick={onDelete} title="Eliminar" className="p-2 rounded-md hover:bg-secondary text-destructive">
               <Trash2 className="size-4" />
             </button>
