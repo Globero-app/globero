@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { actSubtitle } from "./strava-match.helpers";
 
 export type StravaMatch = {
   activity_id: string;
@@ -12,17 +13,6 @@ export type StravaMatch = {
   target_title: string;
   target_subtitle: string;
 };
-
-function actSubtitle(a: any) {
-  return [
-    a.type,
-    a.distance ? `${(Number(a.distance) / 1000).toFixed(1)} km` : null,
-    a.moving_time ? `${Math.round(Number(a.moving_time) / 60)} min` : null,
-    a.total_elevation_gain ? `${Math.round(Number(a.total_elevation_gain))} m+` : null,
-  ]
-    .filter(Boolean)
-    .join(" · ");
-}
 
 /** Actividades de Strava recientes que coinciden en fecha con un entreno o competición pendiente */
 export const getStravaMatches = createServerFn({ method: "GET" })
