@@ -46,6 +46,12 @@ const WEEK_DAYS = [
   { value: 0, label: "Domingo", short: "D" },
 ] as const;
 
+const NUTRITION_GOAL_OPTIONS = [
+  { value: "perdida_peso", label: "Pérdida de peso" },
+  { value: "mantenimiento", label: "Mantenimiento" },
+  { value: "masa_muscular", label: "Ganar masa muscular" },
+] as const;
+
 function EntrenamientosPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -61,6 +67,8 @@ function EntrenamientosPage() {
   const [competitionId, setCompetitionId] = useState<string>("");
   const [trainingDays, setTrainingDays] = useState<number[]>([2, 4, 6]);
   const [longRideDay, setLongRideDay] = useState<number | null>(6);
+  const [nutritionEnabled, setNutritionEnabled] = useState(false);
+  const [nutritionGoal, setNutritionGoal] = useState<"perdida_peso" | "mantenimiento" | "masa_muscular">("mantenimiento");
 
   const competitions = useQuery({
     queryKey: ["competitions-future", user?.id],
@@ -121,7 +129,7 @@ function EntrenamientosPage() {
   });
 
   const generateMut = useMutation({
-    mutationFn: () => gen({ data: { bike_type: bikeType, duration_minutes: duration, competition_id: competitionId || null, target_basis: effectiveBasis, training_days: trainingDays, long_ride_day: longRideDay, ...(competitionId ? { max_count: 90 } : {}) } }),
+    mutationFn: () => gen({ data: { bike_type: bikeType, duration_minutes: duration, competition_id: competitionId || null, target_basis: effectiveBasis, training_days: trainingDays, long_ride_day: longRideDay, nutrition_enabled: nutritionEnabled, nutrition_goal: nutritionEnabled ? nutritionGoal : null, ...(competitionId ? { max_count: 90 } : {}) } }),
     onSuccess: async (inserted: any) => {
       const n = Array.isArray(inserted) ? inserted.length : trainingDays.length;
       toast.success(hasCompetition ? `Plan para tu competición creado: ${n} entrenamientos` : `${n} entrenamiento${n > 1 ? "s" : ""} generado${n > 1 ? "s" : ""}`);
@@ -247,6 +255,31 @@ function EntrenamientosPage() {
           </p>
         </Field>
 
+        <Field label="Plan nutricional">
+          <label className="flex items-start gap-3 p-3 bg-background border rounded-lg cursor-pointer hover:border-primary/40 transition-colors">
+            <input type="checkbox" className="mt-0.5 size-4 accent-primary" checked={nutritionEnabled} onChange={(e) => setNutritionEnabled(e.target.checked)} />
+            <div className="flex-1 min-w-0">
+              <span className="text-sm font-semibold">Quiero un plan nutricional</span>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                La IA adaptará los entrenamientos a tu objetivo y creará los menús de la semana en la pantalla <strong>Menús</strong>. Se actualiza cada domingo.
+              </p>
+            </div>
+          </label>
+          {nutritionEnabled && (
+            <div className="grid sm:grid-cols-3 gap-2 mt-2">
+              {NUTRITION_GOAL_OPTIONS.map((g) => (
+                <button
+                  key={g.value}
+                  type="button"
+                  onClick={() => setNutritionGoal(g.value)}
+                  className={`rounded-lg border-2 px-3 py-2.5 text-sm font-semibold transition ${nutritionGoal === g.value ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+                >
+                  {g.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </Field>
 
         <Field label="Base de prescripción de la IA">
           <div className="grid grid-cols-2 gap-2">

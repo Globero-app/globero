@@ -44,6 +44,9 @@ const GenInput = z.object({
   long_ride_day: z.number().int().min(0).max(6).optional().nullable(),
   /** Nº máximo de sesiones (por defecto tantas como días marcados). */
   max_count: z.number().int().min(1).max(90).optional(),
+  /** Plan nutricional asociado. */
+  nutrition_enabled: z.boolean().optional().default(false),
+  nutrition_goal: z.enum(["perdida_peso", "mantenimiento", "masa_muscular"]).optional().nullable(),
 });
 
 
@@ -92,10 +95,12 @@ export const generateWorkouts = createServerFn({ method: "POST" })
         weekly_bike_type: data.bike_type,
         weekly_duration_minutes: data.duration_minutes,
         weekly_target_basis: data.target_basis ?? "power",
+        nutrition_plan_enabled: !!data.nutrition_enabled,
+        ...(data.nutrition_enabled && data.nutrition_goal ? { nutrition_goal: data.nutrition_goal } : {}),
       })
       .eq("id", userId);
 
-    return generateWorkoutsCore(supabase, userId, {
+    const inserted = await generateWorkoutsCore(supabase, userId, {
       bike_type: data.bike_type,
       duration_minutes: data.duration_minutes,
       competition_id: data.competition_id ?? null,
@@ -103,7 +108,26 @@ export const generateWorkouts = createServerFn({ method: "POST" })
       training_days: data.training_days,
       long_ride_day: data.long_ride_day ?? null,
       max_count: data.max_count,
+      nutrition_goal: data.nutrition_enabled ? (data.nutrition_goal ?? "mantenimiento") : null,
     });
+
+    if (data.nutrition_enabled) {
+      try {
+        const { generateWeeklyNutritionCore, weekStartISO } = await import("./nutrition-gen.server");
+        const firstDate = (inserted ?? [])
+          .map((w: any) => w.plan?.scheduled_date)
+          .filter(Boolean)
+          .sort()[0];
+        await generateWeeklyNutritionCore(supabase, userId, {
+          goal: data.nutrition_goal ?? "mantenimiento",
+          week_start: weekStartISO(firstDate ? new Date(`${firstDate}T12:00:00Z`) : new Date()),
+        });
+      } catch (e) {
+        console.error("nutrition-plan", e);
+      }
+    }
+
+    return inserted;
   });
 
 

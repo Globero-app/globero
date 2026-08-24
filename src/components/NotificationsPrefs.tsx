@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
-import { Bell, Smartphone, CheckCircle2, AlertCircle, Wrench, Dumbbell, Droplets, Activity, Mail, Server, Send, PowerOff } from "lucide-react";
+import { Bell, Smartphone, CheckCircle2, AlertCircle, Wrench, Dumbbell, Droplets, Activity, Server, Send, PowerOff } from "lucide-react";
 import { pushPermission, requestPushPermission, sendLocalPush } from "@/lib/push";
 import { useServerFn } from "@tanstack/react-start";
 import { sendTestPush } from "@/lib/push-server.functions";
@@ -87,7 +87,6 @@ export function NotificationsPrefs() {
     if (ok) toast.success(value ? "Activado" : "Desactivado");
   };
 
-  const emailEnabled = !!prefsQ.data?.notify_maintenance_email;
 
   const enableServer = async () => {
     setBusy(true);
@@ -204,24 +203,6 @@ export function NotificationsPrefs() {
           );
         })}
 
-        {/* Email de mantenimiento (existente) */}
-        <label className="flex items-start gap-3 p-3 bg-background border rounded-md cursor-pointer hover:border-primary/40 transition-colors">
-          <input
-            type="checkbox"
-            checked={emailEnabled}
-            onChange={(e) => savePref("notify_maintenance_email", e.target.checked).then((ok) => ok && toast.success(e.target.checked ? "Email activado" : "Email desactivado"))}
-            className="mt-0.5 size-4 accent-primary"
-          />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <Mail className="size-3.5 text-muted-foreground" />
-              <span className="text-sm font-semibold">Resumen semanal por email</span>
-            </div>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
-              Piezas próximas al límite enviadas a <strong>{user?.email}</strong>. Requiere activar Emails en el backend.
-            </p>
-          </div>
-        </label>
       </div>
     </div>
   );

@@ -33,7 +33,7 @@ export const Route = createFileRoute("/api/public/hooks/weekly-workouts")({
 
         const { data: users, error } = await supabaseAdmin
           .from("profiles")
-          .select("id, weekly_training_days, weekly_long_ride_day, weekly_bike_type, weekly_duration_minutes, weekly_target_basis, weekly_last_generated_at")
+          .select("id, weekly_training_days, weekly_long_ride_day, weekly_bike_type, weekly_duration_minutes, weekly_target_basis, weekly_last_generated_at, nutrition_plan_enabled, nutrition_goal")
           .eq("weekly_auto_enabled", true);
         if (error) {
           return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { "content-type": "application/json" } });
@@ -61,7 +61,19 @@ export const Route = createFileRoute("/api/public/hooks/weekly-workouts")({
               training_days: days,
               long_ride_day: (u as any).weekly_long_ride_day ?? null,
               max_count: days.length,
+              nutrition_goal: (u as any).nutrition_plan_enabled ? ((u as any).nutrition_goal ?? "mantenimiento") : null,
             });
+
+            // Plan nutricional de la semana siguiente
+            if ((u as any).nutrition_plan_enabled) {
+              try {
+                const { generateWeeklyNutritionCore, weekStartISO } = await import("@/lib/nutrition-gen.server");
+                await generateWeeklyNutritionCore(supabaseAdmin, u.id, {
+                  goal: (u as any).nutrition_goal ?? "mantenimiento",
+                  week_start: weekStartISO(new Date(), true),
+                });
+              } catch (e) { console.error("weekly-nutrition", e); }
+            }
 
             // Subida automática a Intervals.icu si está conectado
             let synced = 0;

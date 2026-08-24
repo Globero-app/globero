@@ -68,7 +68,7 @@ function PerfilPage() {
       lthr: form.lthr ? Number(form.lthr) : null,
       zones_display_mode: form.zones_display_mode || "watts",
       pre_race_days: form.pre_race_days ? Number(form.pre_race_days) : 3,
-      nutrition_focus: form.nutrition_focus || "carbohidratos",
+
       dietary_preferences: form.dietary_preferences,
       strava_client_id: form.strava_client_id,
       strava_client_secret: form.strava_client_secret,
@@ -205,13 +205,6 @@ function PerfilPage() {
         <Section title="Plan nutricional">
           <Field label="Días previos para Menú Pre-Carrera (1-5)">
             <input type="number" min={1} max={5} className="input" value={form.pre_race_days ?? 3} onChange={(e) => setForm({...form, pre_race_days: e.target.value})} />
-          </Field>
-          <Field label="Enfoque">
-            <select className="input" value={form.nutrition_focus ?? "carbohidratos"} onChange={(e) => setForm({...form, nutrition_focus: e.target.value})}>
-              <option value="carbohidratos">Carbohidratos</option>
-              <option value="calorias">Calorías totales</option>
-              <option value="macros">Macronutrientes</option>
-            </select>
           </Field>
           <Field label="Preferencias / intolerancias">
             <textarea className="input min-h-[80px]" placeholder="Vegano, intolerancia lactosa, sin gluten…" value={form.dietary_preferences ?? ""} onChange={(e) => setForm({...form, dietary_preferences: e.target.value})} />

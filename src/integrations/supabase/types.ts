@@ -302,6 +302,8 @@ export type Database = {
           notify_strava_push: boolean
           notify_training_push: boolean
           nutrition_focus: string
+          nutrition_goal: string
+          nutrition_plan_enabled: boolean
           onboarding_completed_at: string | null
           pre_race_days: number
           readiness_push_enabled: boolean
@@ -344,6 +346,8 @@ export type Database = {
           notify_strava_push?: boolean
           notify_training_push?: boolean
           nutrition_focus?: string
+          nutrition_goal?: string
+          nutrition_plan_enabled?: boolean
           onboarding_completed_at?: string | null
           pre_race_days?: number
           readiness_push_enabled?: boolean
@@ -386,6 +390,8 @@ export type Database = {
           notify_strava_push?: boolean
           notify_training_push?: boolean
           nutrition_focus?: string
+          nutrition_goal?: string
+          nutrition_plan_enabled?: boolean
           onboarding_completed_at?: string | null
           pre_race_days?: number
           readiness_push_enabled?: boolean
@@ -591,6 +597,36 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      weekly_nutrition_plans: {
+        Row: {
+          created_at: string
+          goal: string
+          id: string
+          plan: Json
+          updated_at: string
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          created_at?: string
+          goal?: string
+          id?: string
+          plan: Json
+          updated_at?: string
+          user_id: string
+          week_start: string
+        }
+        Update: {
+          created_at?: string
+          goal?: string
+          id?: string
+          plan?: Json
+          updated_at?: string
+          user_id?: string
+          week_start?: string
         }
         Relationships: []
       }
