@@ -305,6 +305,12 @@ export async function intervalsPushZones(supabase: any, userId: string): Promise
   const settingsId = ride?.id;
   if (!settingsId) throw new Error("No se encontraron ajustes de Ride en Intervals.icu");
 
+  console.info("Intervals Ride zone shape", {
+    powerZones: ride?.power_zones,
+    powerZoneNames: ride?.power_zone_names,
+    hrZones: ride?.hr_zones,
+    hrZoneNames: ride?.hr_zone_names,
+  });
   await call(creds, `/sport-settings/${settingsId}?recalcHrZones=true`, {
     method: "PUT",
     body: JSON.stringify({ ...ride, ...body }),
