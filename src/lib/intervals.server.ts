@@ -287,22 +287,13 @@ export async function intervalsPushZones(supabase: any, userId: string): Promise
   const creds = credsFromProfile(profile);
   if (!creds) return false;
 
-  const { computePowerZones, computeHrZones } = await import("./zones");
   const ftp = profile?.ftp ?? null;
   const lthr = profile?.lthr ?? null;
   const maxHr = profile?.max_hr ?? null;
-
-  const pz = computePowerZones(ftp);
-  const hz = computeHrZones(lthr, maxHr);
-  // Intervals.icu espera las zonas como % del umbral (última zona alta = 999)
-  const pct = (v: number) => (Number.isFinite(v) && v < 999 ? Math.round(v) : 999);
-
   const body: Record<string, unknown> = {};
   if (ftp) body.ftp = ftp;
   if (lthr) body.lthr = lthr;
   if (maxHr) body.max_hr = maxHr;
-  if (pz && ftp) body.power_zones = pz.map((z) => pct(z.pctHigh));
-  if (hz && (lthr || maxHr)) body.hr_zones = hz.map((z) => pct(z.pctHigh));
   if (!Object.keys(body).length) return false;
 
   // El PUT necesita el id numérico de los ajustes del deporte, no el nombre "Ride"
@@ -314,6 +305,20 @@ export async function intervalsPushZones(supabase: any, userId: string): Promise
   const settingsId = ride?.id;
   if (!settingsId) throw new Error("No se encontraron ajustes de Ride en Intervals.icu");
 
-  await call(creds, `/sport-settings/${settingsId}`, { method: "PUT", body: JSON.stringify(body) });
+  const powerZones = [55, 75, 90, 105, 120, 150, 999];
+  const powerZoneNames = ["Recuperación", "Resistencia", "Tempo", "Umbral", "VO₂ máx", "Anaeróbico", "Neuromuscular"];
+  const hrRef = lthr || (maxHr ? Math.round(maxHr * 0.92) : null);
+  const hrZones = hrRef ? [...[81, 88, 93, 99, 102, 106].map((pct) => Math.round((pct / 100) * hrRef)), maxHr || 220] : ride?.hr_zones;
+  const hrZoneNames = ["Recuperación", "Resistencia", "Tempo", "Umbral", "VO₂ bajo", "VO₂ alto", "Máxima"];
+  await call(creds, `/sport-settings/${settingsId}?recalcHrZones=false`, {
+    method: "PUT",
+    body: JSON.stringify({
+      ...ride,
+      ...body,
+      power_zones: powerZones,
+      power_zone_names: powerZoneNames,
+      ...(hrZones ? { hr_zones: hrZones, hr_zone_names: hrZoneNames } : {}),
+    }),
+  });
   return true;
 }
