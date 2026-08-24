@@ -69,3 +69,59 @@ export function computeHrZones(lthr: number | null | undefined, maxHr?: number |
 export function lthrFrom20Min(avgHr: number): number {
   return Math.round(avgHr * 0.95);
 }
+
+/** Referencias del ciclista para traducir objetivos a zonas. */
+export interface ZoneRefsClient { ftp?: number | null; lthr?: number | null; maxHr?: number | null }
+
+export interface StepZoneInfo {
+  zone: PowerZone;
+  pctLow: number;
+  pctHigh: number;
+  refLabel: string;
+  refValue: number;
+  explanation: string;
+}
+
+/**
+ * Traduce el objetivo de un bloque (vatios o ppm) a su zona y explica
+ * qué se entrena en ella y por qué está en la sesión.
+ */
+export function describeStepZone(step: any, refs: ZoneRefsClient): StepZoneInfo | null {
+  const low = Number(step?.target_low) || 0;
+  const high = Number(step?.target_high) || low;
+  if (!low) return null;
+  const mid = (low + high) / 2;
+
+  if (step?.target === "power") {
+    const ftp = refs.ftp && refs.ftp > 0 ? refs.ftp : null;
+    if (!ftp) return null;
+    const zones = computePowerZones(ftp)!;
+    const pct = (mid / ftp) * 100;
+    const zone = zones.find((z) => pct >= z.pctLow && pct <= z.pctHigh) ?? zones[zones.length - 1]!;
+    return {
+      zone,
+      pctLow: Math.round((low / ftp) * 100),
+      pctHigh: Math.round((high / ftp) * 100),
+      refLabel: "FTP",
+      refValue: ftp,
+      explanation: `${zone.label}: ${zone.focus}. ${Math.round((low / ftp) * 100)}-${Math.round((high / ftp) * 100)}% de tu FTP (${ftp} W).`,
+    };
+  }
+
+  if (step?.target === "hr") {
+    const ref = refs.lthr && refs.lthr > 0 ? refs.lthr : refs.maxHr && refs.maxHr > 0 ? Math.round(refs.maxHr * 0.92) : null;
+    if (!ref) return null;
+    const zones = computeHrZones(ref)!;
+    const pct = (mid / ref) * 100;
+    const zone = zones.find((z) => pct >= z.pctLow && pct <= z.pctHigh) ?? zones[zones.length - 1]!;
+    return {
+      zone,
+      pctLow: Math.round((low / ref) * 100),
+      pctHigh: Math.round((high / ref) * 100),
+      refLabel: "LTHR",
+      refValue: ref,
+      explanation: `${zone.label}: ${zone.focus}. ${Math.round((low / ref) * 100)}-${Math.round((high / ref) * 100)}% de tu LTHR (${ref} ppm).`,
+    };
+  }
+  return null;
+}
