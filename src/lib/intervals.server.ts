@@ -31,8 +31,8 @@ async function call(creds: IntervalsCreds, path: string, init: RequestInit = {})
 }
 
 export async function intervalsTestConnection(creds: IntervalsCreds) {
-  const profile = await call(creds, "/profile");
-  return { ok: true, name: profile?.athlete?.name ?? null };
+  const athlete = await call(creds, "");
+  return { ok: true, name: athlete?.name ?? athlete?.athlete?.name ?? null };
 }
 
 export type ZoneRefs = { ftp: number | null; lthr: number | null; maxHr: number | null };
