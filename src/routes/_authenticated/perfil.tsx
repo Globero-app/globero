@@ -13,6 +13,8 @@ import { computePowerZones, computeHrZones } from "@/lib/zones";
 import { BikesManager } from "@/components/BikesManager";
 import { NotificationsPrefs } from "@/components/NotificationsPrefs";
 import { MaintenanceAlertsBanner } from "@/components/MaintenanceAlertsBanner";
+import { TelegramSection } from "@/components/TelegramSection";
+
 
 export const Route = createFileRoute("/_authenticated/perfil")({
   component: PerfilPage,
@@ -347,11 +349,16 @@ function PerfilPage() {
           )}
         </Section>
 
+        <Section title="Conectar Telegram" className="lg:col-span-2">
+          <TelegramSection />
+        </Section>
+
         <Section title="Material y mantenimiento" className="lg:col-span-2">
           <MaintenanceAlertsBanner variant="inline" />
           <NotificationsPrefs />
           <BikesManager />
         </Section>
+
 
         <Section title="Readiness diario" className="lg:col-span-2">
           <p className="text-sm text-muted-foreground">

@@ -1,0 +1,269 @@
+/** Helpers de servidor para el Bot de Telegram (no importar desde el cliente). */
+import { createHash, timingSafeEqual } from "crypto";
+
+const GATEWAY_URL = "https://connector-gateway.lovable.dev/telegram";
+
+function creds() {
+  const lovable = process.env.LOVABLE_API_KEY;
+  const telegram = process.env.TELEGRAM_API_KEY;
+  if (!lovable) throw new Error("LOVABLE_API_KEY no configurada");
+  if (!telegram) throw new Error("TELEGRAM_API_KEY no configurada");
+  return { lovable, telegram };
+}
+
+export async function telegramCall(method: string, body: Record<string, unknown> = {}) {
+  const { lovable, telegram } = creds();
+  const res = await fetch(`${GATEWAY_URL}/${method}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${lovable}`,
+      "X-Connection-Api-Key": telegram,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Telegram ${res.status}: ${text.slice(0, 300)}`);
+  }
+  const json: any = await res.json();
+  if (json?.ok === false) throw new Error(`Telegram: ${json.description ?? "error"}`);
+  return json.result;
+}
+
+export async function telegramSend(chatId: string | number, text: string) {
+  const chunks = String(text).match(/[\s\S]{1,3800}/g) ?? ["…"];
+  for (const chunk of chunks) {
+    await telegramCall("sendMessage", { chat_id: chatId, text: chunk });
+  }
+}
+
+export async function telegramBotUsername(): Promise<string | null> {
+  try {
+    const me: any = await telegramCall("getMe");
+    return me?.username ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export function telegramWebhookSecret(): string {
+  const { telegram } = creds();
+  return createHash("sha256").update(`telegram-webhook:${telegram}`).digest("base64url");
+}
+
+export function safeEqual(a: string, b: string): boolean {
+  const left = Buffer.from(a);
+  const right = Buffer.from(b);
+  return left.length === right.length && timingSafeEqual(left, right);
+}
+
+const IntentSchema = {
+  type: "object",
+  properties: {
+    intent: {
+      type: "string",
+      enum: ["chat", "set_readiness", "modify_workout"],
+      description: "set_readiness si el ciclista indica cómo se encuentra hoy; modify_workout si pide cambiar el entreno de hoy; chat en el resto",
+    },
+    readiness_score: { type: "number", description: "1-5 solo si intent=set_readiness" },
+    change_request: { type: "string", description: "Qué cambio pide en el entreno, solo si intent=modify_workout" },
+    reply: { type: "string", description: "Respuesta breve en español para el chat (se usa si intent=chat)" },
+  },
+  required: ["intent", "reply"],
+};
+
+/** Procesa un update de Telegram. Devuelve true si se ha respondido. */
+export async function handleTelegramUpdate(update: any): Promise<void> {
+  const message = update?.message ?? update?.edited_message;
+  const chatId = message?.chat?.id;
+  const text: string = (message?.text ?? "").trim();
+  if (!chatId || !text) return;
+
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { madridToday, callAI, AdaptSchema, pickTodayWorkout, buildAdaptPrompt, READINESS_LABELS } = await import(
+    "./readiness.server"
+  );
+  const today = madridToday();
+
+  // /start CODIGO -> vinculación
+  const startMatch = text.match(/^\/start(?:\s+(\S+))?/i);
+  if (startMatch) {
+    const code = startMatch[1];
+    if (!code) {
+      await telegramSend(chatId, "Hola 👋 Para vincular tu cuenta, entra en la app → Perfil → Conectar Telegram y pulsa el botón.");
+      return;
+    }
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("id, full_name")
+      .eq("linking_code", code)
+      .maybeSingle();
+    if (!profile) {
+      await telegramSend(chatId, "❌ Código no válido o caducado. Genera uno nuevo en la app (Perfil → Conectar Telegram).");
+      return;
+    }
+    await supabaseAdmin
+      .from("profiles")
+      .update({ telegram_chat_id: String(chatId), linking_code: null })
+      .eq("id", (profile as any).id);
+    await telegramSend(
+      chatId,
+      `✅ Cuenta vinculada, ${(profile as any).full_name ?? "ciclista"}.\n\nYa puedes escribirme:\n· "hoy me encuentro a 4" para registrar tu readiness\n· "pásame el entreno de hoy a rodillo 1h" para adaptarlo\n· o preguntarme cualquier duda sobre tu entrenamiento.`,
+    );
+    return;
+  }
+
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("*")
+    .eq("telegram_chat_id", String(chatId))
+    .maybeSingle();
+
+  if (!profile) {
+    await telegramSend(chatId, "No reconozco este chat. Vincula tu cuenta desde la app: Perfil → Conectar Telegram.");
+    return;
+  }
+  const userId = (profile as any).id as string;
+
+  const { data: pending } = await supabaseAdmin
+    .from("workouts")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("status", "pending")
+    .order("created_at", { ascending: true });
+
+  const workout = pickTodayWorkout((pending ?? []) as any[], today);
+
+  const { data: readinessToday } = await supabaseAdmin
+    .from("readiness_entries")
+    .select("score,note,ai_message")
+    .eq("user_id", userId)
+    .eq("entry_date", today)
+    .maybeSingle();
+
+  const context = `FECHA: ${today}
+PERFIL: ${(profile as any).full_name ?? "—"} · edad ${(profile as any).age ?? "n/a"} · peso ${(profile as any).weight_kg ?? "n/a"}kg · FTP ${(profile as any).ftp ?? "n/a"}W · FCmáx ${(profile as any).max_hr ?? "n/a"} · LTHR ${(profile as any).lthr ?? "n/a"}
+READINESS DE HOY: ${readinessToday ? `${(readinessToday as any).score}/5 — ${READINESS_LABELS[(readinessToday as any).score]}` : "sin registrar"}
+ENTRENO DE HOY: ${workout ? JSON.stringify({ title: workout.plan?.title, summary: workout.plan?.summary, duration_minutes: workout.duration_minutes, bike_type: workout.bike_type, steps: workout.plan?.steps }) : "no hay entreno pendiente"}`;
+
+  const analysis = await callAI(
+    [
+      {
+        role: "system",
+        content: `Eres el entrenador de ciclismo del usuario dentro de un bot de Telegram. Respondes SIEMPRE en español, en texto plano, breve y claro (sin markdown).
+Escala de readiness: 1 Nada preparado, 2 Paseo relajado, 3 Entreno normal, 4 Entreno exigente, 5 Dar lo máximo.
+Contexto actual:
+${context}`,
+      },
+      { role: "user", content: text },
+    ],
+    IntentSchema,
+  );
+
+  if (analysis.intent === "set_readiness" && analysis.readiness_score >= 1 && analysis.readiness_score <= 5) {
+    const score = Math.round(analysis.readiness_score);
+    let action: "none" | "suggest_delete" | "adapted" = "none";
+    let msg = "";
+
+    if (!workout) {
+      msg = `Registrado: ${score}/5 — ${READINESS_LABELS[score]}. Hoy no tienes entreno pendiente.`;
+    } else if (score === 1) {
+      action = "suggest_delete";
+      msg = `Registrado 1/5. Hoy mejor descansa: te sugiero eliminar la sesión "${workout.plan?.title ?? "de hoy"}" y priorizar sueño e hidratación.`;
+    } else {
+      const { data: hist } = await supabaseAdmin
+        .from("readiness_entries")
+        .select("entry_date,score")
+        .eq("user_id", userId)
+        .order("entry_date", { ascending: false })
+        .limit(14);
+      const adapted = await callAI(
+        [{ role: "user", content: buildAdaptPrompt({ score, note: text, profile, workout, history: (hist ?? []) as any[] }) }],
+        AdaptSchema,
+      );
+      const newPlan = {
+        ...(workout.plan as any),
+        name: adapted.name,
+        title: adapted.title,
+        summary: adapted.summary,
+        steps: adapted.steps,
+        readiness_adapted: { score, date: today, message: adapted.message },
+      };
+      await supabaseAdmin
+        .from("workouts")
+        .update({ plan: newPlan, duration_minutes: Math.max(15, Math.round(adapted.duration_minutes || workout.duration_minutes)) })
+        .eq("id", workout.id)
+        .eq("user_id", userId);
+      const { syncWorkoutEvent } = await import("./intervals.server");
+      await syncWorkoutEvent(supabaseAdmin, userId, { ...workout, plan: newPlan });
+      action = "adapted";
+      msg = `Registrado ${score}/5. ${adapted.message}\n\nNuevo entreno: ${adapted.title} (${Math.round(adapted.duration_minutes)} min). Actualizado también en Intervals.icu.`;
+    }
+
+    await supabaseAdmin.from("readiness_entries").upsert(
+      {
+        user_id: userId,
+        entry_date: today,
+        score,
+        note: text.slice(0, 500),
+        ai_action: action,
+        ai_message: msg,
+        workout_id: workout?.id ?? null,
+      },
+      { onConflict: "user_id,entry_date" },
+    );
+    await telegramSend(chatId, msg);
+    return;
+  }
+
+  if (analysis.intent === "modify_workout") {
+    if (!workout) {
+      await telegramSend(chatId, "Hoy no tienes ningún entrenamiento pendiente que modificar.");
+      return;
+    }
+    const adapted = await callAI(
+      [
+        {
+          role: "user",
+          content: `Eres un entrenador profesional de ciclismo. Modifica el entrenamiento de hoy según la petición del ciclista.
+
+PETICIÓN: "${analysis.change_request || text}"
+
+${context}
+
+ENTRENAMIENTO ORIGINAL (JSON): ${JSON.stringify({ ...(workout.plan as any), competition_id: undefined })}
+Duración original: ${workout.duration_minutes} min · Bici: ${workout.bike_type}
+
+INSTRUCCIONES:
+1. Devuelve el entrenamiento COMPLETO con todos sus steps (calentamiento y vuelta a la calma incluidos).
+2. Si hay FTP usa target='power' en vatios; si no target='hr' en bpm u 'open'.
+3. name ≤ 15 caracteres. TODO en ESPAÑOL.
+4. "message": explica en 1-2 frases qué has cambiado.`,
+        },
+      ],
+      AdaptSchema,
+    );
+    const newPlan = {
+      ...(workout.plan as any),
+      name: adapted.name,
+      title: adapted.title,
+      summary: adapted.summary,
+      steps: adapted.steps,
+    };
+    await supabaseAdmin
+      .from("workouts")
+      .update({ plan: newPlan, duration_minutes: Math.max(15, Math.round(adapted.duration_minutes || workout.duration_minutes)) })
+      .eq("id", workout.id)
+      .eq("user_id", userId);
+    const { syncWorkoutEvent } = await import("./intervals.server");
+    await syncWorkoutEvent(supabaseAdmin, userId, { ...workout, plan: newPlan });
+    await telegramSend(
+      chatId,
+      `✅ ${adapted.message}\n\n${adapted.title} · ${Math.round(adapted.duration_minutes)} min\n${adapted.summary}\n\nSincronizado con Intervals.icu.`,
+    );
+    return;
+  }
+
+  await telegramSend(chatId, analysis.reply || "No te he entendido, ¿puedes reformularlo?");
+}
