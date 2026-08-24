@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedReadinessRouteImport } from './routes/_authenticated/readiness'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
+import { Route as AuthenticatedMenusRouteImport } from './routes/_authenticated/menus'
 import { Route as AuthenticatedFtpTestRouteImport } from './routes/_authenticated/ftp-test'
 import { Route as AuthenticatedEntrenamientosRouteImport } from './routes/_authenticated/entrenamientos'
 import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
@@ -55,6 +56,11 @@ const AuthenticatedReadinessRoute = AuthenticatedReadinessRouteImport.update({
 const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMenusRoute = AuthenticatedMenusRouteImport.update({
+  id: '/menus',
+  path: '/menus',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedFtpTestRoute = AuthenticatedFtpTestRouteImport.update({
@@ -134,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/entrenamientos': typeof AuthenticatedEntrenamientosRoute
   '/ftp-test': typeof AuthenticatedFtpTestRoute
+  '/menus': typeof AuthenticatedMenusRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/readiness': typeof AuthenticatedReadinessRoute
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
@@ -152,6 +159,7 @@ export interface FileRoutesByTo {
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/entrenamientos': typeof AuthenticatedEntrenamientosRoute
   '/ftp-test': typeof AuthenticatedFtpTestRoute
+  '/menus': typeof AuthenticatedMenusRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/readiness': typeof AuthenticatedReadinessRoute
   '/': typeof AuthenticatedIndexRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/entrenamientos': typeof AuthenticatedEntrenamientosRoute
   '/_authenticated/ftp-test': typeof AuthenticatedFtpTestRoute
+  '/_authenticated/menus': typeof AuthenticatedMenusRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/readiness': typeof AuthenticatedReadinessRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
@@ -195,6 +204,7 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/entrenamientos'
     | '/ftp-test'
+    | '/menus'
     | '/perfil'
     | '/readiness'
     | '/actividades/$id'
@@ -213,6 +223,7 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/entrenamientos'
     | '/ftp-test'
+    | '/menus'
     | '/perfil'
     | '/readiness'
     | '/'
@@ -233,6 +244,7 @@ export interface FileRouteTypes {
     | '/_authenticated/calendario'
     | '/_authenticated/entrenamientos'
     | '/_authenticated/ftp-test'
+    | '/_authenticated/menus'
     | '/_authenticated/perfil'
     | '/_authenticated/readiness'
     | '/_authenticated/'
@@ -298,6 +310,13 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof AuthenticatedPerfilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/menus': {
+      id: '/_authenticated/menus'
+      path: '/menus'
+      fullPath: '/menus'
+      preLoaderRoute: typeof AuthenticatedMenusRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/ftp-test': {
@@ -392,6 +411,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedEntrenamientosRoute: typeof AuthenticatedEntrenamientosRoute
   AuthenticatedFtpTestRoute: typeof AuthenticatedFtpTestRoute
+  AuthenticatedMenusRoute: typeof AuthenticatedMenusRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedReadinessRoute: typeof AuthenticatedReadinessRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
@@ -406,6 +426,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedEntrenamientosRoute: AuthenticatedEntrenamientosRoute,
   AuthenticatedFtpTestRoute: AuthenticatedFtpTestRoute,
+  AuthenticatedMenusRoute: AuthenticatedMenusRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedReadinessRoute: AuthenticatedReadinessRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
