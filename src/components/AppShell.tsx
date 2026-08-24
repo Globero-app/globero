@@ -1,4 +1,5 @@
 import { StravaMatchPrompt } from "@/components/StravaMatchPrompt";
+import { ActivityFeedbackPrompt } from "@/components/ActivityFeedbackPrompt";
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/use-auth";
 import { supabase } from "@/integrations/supabase/client";
