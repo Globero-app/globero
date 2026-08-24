@@ -211,6 +211,45 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_activities: {
+        Row: {
+          activity_id: string
+          created_at: string
+          date: string
+          feedback_completed: boolean
+          feel: number | null
+          id: string
+          notification_sent: boolean
+          rpe: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_id: string
+          created_at?: string
+          date?: string
+          feedback_completed?: boolean
+          feel?: number | null
+          id?: string
+          notification_sent?: boolean
+          rpe?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_id?: string
+          created_at?: string
+          date?: string
+          feedback_completed?: boolean
+          feel?: number | null
+          id?: string
+          notification_sent?: boolean
+          rpe?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       hrv_entries: {
         Row: {
           created_at: string
