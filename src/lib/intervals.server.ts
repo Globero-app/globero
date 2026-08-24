@@ -311,9 +311,13 @@ export async function intervalsPushZones(supabase: any, userId: string): Promise
     hrZones: ride?.hr_zones,
     hrZoneNames: ride?.hr_zone_names,
   });
-  await call(creds, `/sport-settings/${settingsId}?recalcHrZones=true`, {
-    method: "PUT",
-    body: JSON.stringify({ ...ride, ...body }),
-  });
+  try {
+    await call(creds, `/sport-settings/${settingsId}?recalcHrZones=true`, {
+      method: "PUT",
+      body: JSON.stringify({ ...ride, ...body }),
+    });
+  } catch (error) {
+    throw new Error(`${error instanceof Error ? error.message : "Intervals.icu"} ${JSON.stringify({ power_zones: ride?.power_zones, power_zone_names: ride?.power_zone_names, hr_zones: ride?.hr_zones, hr_zone_names: ride?.hr_zone_names })}`);
+  }
   return true;
 }
