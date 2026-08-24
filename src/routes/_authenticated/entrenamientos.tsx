@@ -143,14 +143,21 @@ function EntrenamientosPage() {
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
       const cutoff = Date.now() - 15 * 24 * 60 * 60 * 1000;
-      return (data ?? []).filter((w: any) => {
-        const ref =
-          w.completed_at ??
-          (w.plan as any)?.scheduled_date ??
-          w.created_at;
-        const t = new Date(ref).getTime();
-        return isNaN(t) ? true : t >= cutoff;
-      });
+      const sorted = (data ?? [])
+        .filter((w: any) => {
+          const ref =
+            w.completed_at ??
+            (w.plan as any)?.scheduled_date ??
+            w.created_at;
+          const t = new Date(ref).getTime();
+          return isNaN(t) ? true : t >= cutoff;
+        })
+        .sort((a: any, b: any) => {
+          const da = new Date((a.plan as any)?.scheduled_date ?? a.created_at).getTime();
+          const db = new Date((b.plan as any)?.scheduled_date ?? b.created_at).getTime();
+          return da - db;
+        });
+      return sorted;
     },
 
     enabled: !!user,
