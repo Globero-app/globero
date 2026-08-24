@@ -294,6 +294,7 @@ export type Database = {
           id: string
           intervals_api_key: string | null
           intervals_athlete_id: string | null
+          linking_code: string | null
           lthr: number | null
           max_hr: number | null
           notify_maintenance_email: boolean
@@ -314,6 +315,7 @@ export type Database = {
           strava_client_secret: string | null
           strava_expires_at: number | null
           strava_refresh_token: string | null
+          telegram_chat_id: string | null
           updated_at: string
           weekly_auto_enabled: boolean
           weekly_bike_type: string
@@ -338,6 +340,7 @@ export type Database = {
           id: string
           intervals_api_key?: string | null
           intervals_athlete_id?: string | null
+          linking_code?: string | null
           lthr?: number | null
           max_hr?: number | null
           notify_maintenance_email?: boolean
@@ -358,6 +361,7 @@ export type Database = {
           strava_client_secret?: string | null
           strava_expires_at?: number | null
           strava_refresh_token?: string | null
+          telegram_chat_id?: string | null
           updated_at?: string
           weekly_auto_enabled?: boolean
           weekly_bike_type?: string
@@ -382,6 +386,7 @@ export type Database = {
           id?: string
           intervals_api_key?: string | null
           intervals_athlete_id?: string | null
+          linking_code?: string | null
           lthr?: number | null
           max_hr?: number | null
           notify_maintenance_email?: boolean
@@ -402,6 +407,7 @@ export type Database = {
           strava_client_secret?: string | null
           strava_expires_at?: number | null
           strava_refresh_token?: string | null
+          telegram_chat_id?: string | null
           updated_at?: string
           weekly_auto_enabled?: boolean
           weekly_bike_type?: string
