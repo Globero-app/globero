@@ -122,7 +122,7 @@ export async function generateWorkoutsCore(supabase: any, userId: string, input:
 
   const { data: prevWorkouts } = await supabase
     .from("workouts")
-    .select("training_type,duration_minutes,rpe,feedback_notes,plan,completed_at")
+    .select("training_type,duration_minutes,rpe,feedback_notes,plan,completed_at,planned_tss,actual_tss,compliance")
     .eq("user_id", userId)
     .eq("status", "completed")
     .order("completed_at", { ascending: false })
