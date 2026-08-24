@@ -347,7 +347,7 @@ function EntrenamientosPage() {
                 <button
                   key={g.value}
                   type="button"
-                  onClick={() => setNutritionGoal(g.value)}
+                  onClick={() => { setNutritionGoal(g.value); void persistPrefs({ nutrition_goal: g.value }); }}
                   className={`rounded-lg border-2 px-3 py-2.5 text-sm font-semibold transition ${nutritionGoal === g.value ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
                 >
                   {g.label}
