@@ -347,11 +347,16 @@ function PerfilPage() {
           )}
         </Section>
 
+        <Section title="Conectar Telegram" className="lg:col-span-2">
+          <TelegramSection />
+        </Section>
+
         <Section title="Material y mantenimiento" className="lg:col-span-2">
           <MaintenanceAlertsBanner variant="inline" />
           <NotificationsPrefs />
           <BikesManager />
         </Section>
+
 
         <Section title="Readiness diario" className="lg:col-span-2">
           <p className="text-sm text-muted-foreground">
