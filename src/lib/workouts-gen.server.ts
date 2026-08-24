@@ -285,6 +285,8 @@ PETICIÓN:
 - Cantidad: ${effectiveCount} entrenamiento(s) distintos
 ${input.nutrition_goal && NUTRITION_TRAINING_RULES[input.nutrition_goal] ? `\nPLAN NUTRICIONAL DEL CICLISTA: ${NUTRITION_TRAINING_RULES[input.nutrition_goal]}\nAdapta la estructura de las sesiones para favorecer ese objetivo y menciónalo en el summary.\n` : ""}
 ${competitionBlock}
+${blockBlock}
+${loadBlock}
 ${scheduleBlock}
 
 ACTIVIDADES RECIENTES (Strava): ${recent && recent.length ? JSON.stringify(recent) : "ninguna"}
