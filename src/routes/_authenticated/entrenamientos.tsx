@@ -88,24 +88,35 @@ function EntrenamientosPage() {
   const profile = useQuery({
     queryKey: ["profile-ftp", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("ftp,max_hr,lthr,zones_display_mode,intervals_athlete_id,weekly_training_days,weekly_long_ride_day").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("ftp,max_hr,lthr,zones_display_mode,intervals_athlete_id,weekly_training_days,weekly_long_ride_day,weekly_target_basis,nutrition_plan_enabled,nutrition_goal").eq("id", user!.id).maybeSingle();
       return data;
     },
     enabled: !!user,
   });
 
+  const [targetBasis, setTargetBasis] = useState<"power" | "hr" | null>(null);
+
   const [prefsLoaded, setPrefsLoaded] = useState(false);
-  const [savedDays, setSavedDays] = useState<{ days: number[]; long: number | null } | null>(null);
+  type SavedPrefs = { days: number[]; long: number | null; nutrition: boolean; goal: string; basis: "power" | "hr" };
+  const [savedDays, setSavedDays] = useState<SavedPrefs | null>(null);
   useEffect(() => {
     if (prefsLoaded || !profile.data) return;
-    const days = ((profile.data as any).weekly_training_days ?? []).map((d: any) => Number(d));
-    const long = (profile.data as any).weekly_long_ride_day;
+    const p: any = profile.data;
+    const days = (p.weekly_training_days ?? []).map((d: any) => Number(d));
+    const long = p.weekly_long_ride_day;
+    const nextLong = long === null || long === undefined ? null : Number(long);
+    const basis: "power" | "hr" = p.weekly_target_basis === "hr" ? "hr" : "power";
+    const nutrition = !!p.nutrition_plan_enabled;
+    const goal = p.nutrition_goal ?? "mantenimiento";
+    setTargetBasis(basis);
+    setNutritionEnabled(nutrition);
+    setNutritionGoal(goal);
     if (days.length) {
       setTrainingDays(days);
-      setLongRideDay(long === null || long === undefined ? null : Number(long));
-      setSavedDays({ days, long: long === null || long === undefined ? null : Number(long) });
+      setLongRideDay(nextLong);
+      setSavedDays({ days, long: nextLong, nutrition, goal, basis });
     } else {
-      setSavedDays({ days: trainingDays, long: longRideDay });
+      setSavedDays({ days: trainingDays, long: longRideDay, nutrition, goal, basis });
     }
     setPrefsLoaded(true);
   }, [profile.data, prefsLoaded]);
@@ -115,11 +126,10 @@ function EntrenamientosPage() {
     await supabase.from("profiles").update({ weekly_training_days: days, weekly_long_ride_day: long }).eq("id", user.id);
   };
 
-  const daysChanged =
-    !!savedDays &&
-    (savedDays.long !== longRideDay ||
-      savedDays.days.length !== trainingDays.length ||
-      [...savedDays.days].sort().join() !== [...trainingDays].sort().join());
+  const persistPrefs = async (patch: Record<string, any>) => {
+    if (!user) return;
+    await supabase.from("profiles").update(patch).eq("id", user.id);
+  };
 
   const ftp = profile.data?.ftp ?? 250;
   const maxHr = profile.data?.max_hr ?? null;
@@ -128,9 +138,18 @@ function EntrenamientosPage() {
   const intervalsConnected = !!profile.data?.intervals_athlete_id;
   const uploadIcu = useServerFn(uploadWorkoutsToIntervals);
 
-  const [targetBasis, setTargetBasis] = useState<"power" | "hr" | null>(null);
   const effectiveBasis: "power" | "hr" =
     targetBasis ?? (profile.data?.zones_display_mode === "hr" ? "hr" : "power");
+
+  const daysChanged =
+    !!savedDays &&
+    (savedDays.long !== longRideDay ||
+      savedDays.days.length !== trainingDays.length ||
+      [...savedDays.days].sort().join() !== [...trainingDays].sort().join() ||
+      savedDays.nutrition !== nutritionEnabled ||
+      (nutritionEnabled && savedDays.goal !== nutritionGoal) ||
+      savedDays.basis !== effectiveBasis);
+
 
   const hasCompetition = !!competitionId;
 
