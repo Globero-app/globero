@@ -333,7 +333,7 @@ function EntrenamientosPage() {
 
         <Field label="Plan nutricional">
           <label className="flex items-start gap-3 p-3 bg-background border rounded-lg cursor-pointer hover:border-primary/40 transition-colors">
-            <input type="checkbox" className="mt-0.5 size-4 accent-primary" checked={nutritionEnabled} onChange={(e) => setNutritionEnabled(e.target.checked)} />
+            <input type="checkbox" className="mt-0.5 size-4 accent-primary" checked={nutritionEnabled} onChange={(e) => { const v = e.target.checked; setNutritionEnabled(v); void persistPrefs({ nutrition_plan_enabled: v, ...(v ? { nutrition_goal: nutritionGoal } : {}) }); }} />
             <div className="flex-1 min-w-0">
               <span className="text-sm font-semibold">Quiero un plan nutricional</span>
               <p className="text-[11px] text-muted-foreground mt-0.5">
