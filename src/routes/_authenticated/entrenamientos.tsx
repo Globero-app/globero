@@ -46,6 +46,12 @@ const WEEK_DAYS = [
   { value: 0, label: "Domingo", short: "D" },
 ] as const;
 
+const NUTRITION_GOAL_OPTIONS = [
+  { value: "perdida_peso", label: "Pérdida de peso" },
+  { value: "mantenimiento", label: "Mantenimiento" },
+  { value: "masa_muscular", label: "Ganar masa muscular" },
+] as const;
+
 function EntrenamientosPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -123,7 +129,7 @@ function EntrenamientosPage() {
   });
 
   const generateMut = useMutation({
-    mutationFn: () => gen({ data: { bike_type: bikeType, duration_minutes: duration, competition_id: competitionId || null, target_basis: effectiveBasis, training_days: trainingDays, long_ride_day: longRideDay, ...(competitionId ? { max_count: 90 } : {}) } }),
+    mutationFn: () => gen({ data: { bike_type: bikeType, duration_minutes: duration, competition_id: competitionId || null, target_basis: effectiveBasis, training_days: trainingDays, long_ride_day: longRideDay, nutrition_enabled: nutritionEnabled, nutrition_goal: nutritionEnabled ? nutritionGoal : null, ...(competitionId ? { max_count: 90 } : {}) } }),
     onSuccess: async (inserted: any) => {
       const n = Array.isArray(inserted) ? inserted.length : trainingDays.length;
       toast.success(hasCompetition ? `Plan para tu competición creado: ${n} entrenamientos` : `${n} entrenamiento${n > 1 ? "s" : ""} generado${n > 1 ? "s" : ""}`);
