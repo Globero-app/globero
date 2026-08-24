@@ -7,7 +7,7 @@ import {
   isoDate,
   madridTodayISO,
   weekStart,
-} from "./training-load";
+} from "./training-load.server";
 
 const DAY = 86400000;
 
