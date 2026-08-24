@@ -32,37 +32,20 @@ async function callAI(messages: any[], schema?: any): Promise<any> {
   return msg?.content ?? "";
 }
 
-const TRAINING_TYPES = ["resistencia", "intervalos", "fuerza", "mixto"] as const;
 const BIKE_TYPES = ["carretera", "gravel", "montana", "electrica"] as const;
 
 const GenInput = z.object({
-  training_type: z.enum(TRAINING_TYPES),
   bike_type: z.enum(BIKE_TYPES),
-  count: z.number().int().min(1).max(90),
   duration_minutes: z.number().int().min(20).max(360),
   competition_id: z.string().uuid().optional().nullable(),
   target_basis: z.enum(["power", "hr"]).optional().default("power"),
   // 0 = domingo … 6 = sábado (getDay)
-  training_days: z.array(z.number().int().min(0).max(6)).min(1).max(7).optional(),
+  training_days: z.array(z.number().int().min(0).max(6)).min(1).max(7),
   long_ride_day: z.number().int().min(0).max(6).optional().nullable(),
+  /** Nº máximo de sesiones (por defecto tantas como días marcados). */
+  max_count: z.number().int().min(1).max(90).optional(),
 });
 
-const DAY_NAMES = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
-
-/** Genera las próximas `count` fechas (YYYY-MM-DD) que caen en los días permitidos, empezando mañana. */
-function buildSchedule(days: number[], count: number, maxDate?: string): { date: string; dow: number }[] {
-  const allowed = new Set(days);
-  const out: { date: string; dow: number }[] = [];
-  const cursor = new Date();
-  cursor.setUTCHours(12, 0, 0, 0);
-  for (let i = 0; i < 730 && out.length < count; i++) {
-    cursor.setUTCDate(cursor.getUTCDate() + 1);
-    const iso = cursor.toISOString().slice(0, 10);
-    if (maxDate && iso > maxDate) break;
-    if (allowed.has(cursor.getUTCDay())) out.push({ date: iso, dow: cursor.getUTCDay() });
-  }
-  return out;
-}
 
 const StepSchema = {
   type: "object",
