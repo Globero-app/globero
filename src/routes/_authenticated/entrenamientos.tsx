@@ -237,13 +237,14 @@ function EntrenamientosPage() {
                   type="button"
                   aria-pressed={active}
                   title={d.label}
-                  onClick={() =>
-                    setTrainingDays((prev) => {
-                      const next = active ? prev.filter((v) => v !== d.value) : [...prev, d.value];
-                      if (!next.includes(longRideDay ?? -1)) setLongRideDay(null);
-                      return next;
-                    })
-                  }
+                  onClick={() => {
+                    const next = active ? trainingDays.filter((v) => v !== d.value) : [...trainingDays, d.value];
+                    const nextLong = next.includes(longRideDay ?? -1) ? longRideDay : null;
+                    setTrainingDays(next);
+                    setLongRideDay(nextLong);
+                    void persistDays(next, nextLong);
+                  }}
+
                   className={`rounded-lg border-2 py-2 text-sm font-bold transition ${active ? "border-primary bg-primary/10" : "border-border hover:border-primary/50 text-muted-foreground"}`}
                 >
                   {d.short}
