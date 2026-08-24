@@ -30,17 +30,22 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
+function ErrorComponent({ error, reset }: { error?: unknown; reset: () => void }) {
+  const err = error instanceof Error ? error : new Error(
+    typeof error === "string" ? error : "Error desconocido en la aplicación",
+  );
+  console.error(err);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
+    reportLovableError(err, { boundary: "tanstack_root_error_component" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [err.message]);
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold">Algo ha fallado</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+        <p className="mt-2 text-sm text-muted-foreground">{err.message}</p>
+
         <div className="mt-6 flex gap-2 justify-center">
           <button
             onClick={() => { router.invalidate(); reset(); }}
