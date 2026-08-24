@@ -588,6 +588,53 @@ export type Database = {
         }
         Relationships: []
       }
+      training_blocks: {
+        Row: {
+          competition_id: string | null
+          created_at: string
+          focus: string
+          id: string
+          notes: string | null
+          start_date: string
+          target_tss: number | null
+          updated_at: string
+          user_id: string
+          week_index: number
+        }
+        Insert: {
+          competition_id?: string | null
+          created_at?: string
+          focus?: string
+          id?: string
+          notes?: string | null
+          start_date: string
+          target_tss?: number | null
+          updated_at?: string
+          user_id: string
+          week_index?: number
+        }
+        Update: {
+          competition_id?: string | null
+          created_at?: string
+          focus?: string
+          id?: string
+          notes?: string | null
+          start_date?: string
+          target_tss?: number | null
+          updated_at?: string
+          user_id?: string
+          week_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_blocks_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "competitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -641,13 +688,17 @@ export type Database = {
       }
       workouts: {
         Row: {
+          actual_if: number | null
+          actual_tss: number | null
           bike_type: string
           completed_at: string | null
+          compliance: number | null
           created_at: string
           duration_minutes: number
           feedback_notes: string | null
           id: string
           plan: Json
+          planned_tss: number | null
           rpe: number | null
           status: string
           training_type: string
@@ -655,13 +706,17 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          actual_if?: number | null
+          actual_tss?: number | null
           bike_type: string
           completed_at?: string | null
+          compliance?: number | null
           created_at?: string
           duration_minutes: number
           feedback_notes?: string | null
           id?: string
           plan: Json
+          planned_tss?: number | null
           rpe?: number | null
           status?: string
           training_type: string
@@ -669,13 +724,17 @@ export type Database = {
           user_id: string
         }
         Update: {
+          actual_if?: number | null
+          actual_tss?: number | null
           bike_type?: string
           completed_at?: string | null
+          compliance?: number | null
           created_at?: string
           duration_minutes?: number
           feedback_notes?: string | null
           id?: string
           plan?: Json
+          planned_tss?: number | null
           rpe?: number | null
           status?: string
           training_type?: string
