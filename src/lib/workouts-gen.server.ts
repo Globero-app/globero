@@ -230,6 +230,7 @@ PETICIÓN:
 - Foco: ${competition ? "preparación específica para la competición indicada, siempre con bloque MIXTO" : "MIXTO obligatorio: combina resistencia, intervalos y fuerza a lo largo del bloque"}
 - Duración objetivo de CADA entrenamiento: ${input.duration_minutes} minutos (la tirada larga puede ser mayor)
 - Cantidad: ${effectiveCount} entrenamiento(s) distintos
+${input.nutrition_goal && NUTRITION_TRAINING_RULES[input.nutrition_goal] ? `\nPLAN NUTRICIONAL DEL CICLISTA: ${NUTRITION_TRAINING_RULES[input.nutrition_goal]}\nAdapta la estructura de las sesiones para favorecer ese objetivo y menciónalo en el summary.\n` : ""}
 ${competitionBlock}
 ${scheduleBlock}
 
