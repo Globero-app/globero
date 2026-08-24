@@ -363,7 +363,7 @@ function EntrenamientosPage() {
 
         <button
           disabled={generateMut.isPending || trainingDays.length === 0}
-          onClick={() => generateMut.mutate()}
+          onClick={() => generateMut.mutate(undefined)}
           className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50"
         >
           {generateMut.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
