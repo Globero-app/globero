@@ -215,6 +215,9 @@ function EntrenamientosPage() {
         <h1 className="font-display text-4xl font-bold uppercase tracking-tight">Entrenamientos</h1>
       </div>
 
+      <TrainingLoadCard />
+
+
       {/* Generador */}
       <div className="bg-surface border rounded-xl p-5 space-y-4">
         <h2 className="font-display text-lg font-bold uppercase">Generar nuevos entrenamientos</h2>
