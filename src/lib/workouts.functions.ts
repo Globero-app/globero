@@ -137,7 +137,7 @@ export const generateWorkouts = createServerFn({ method: "POST" })
 
     // Plan nutricional: se regenera para todas las semanas afectadas por los nuevos días
     let nutritionOn = data.nutrition_enabled;
-    let nutritionGoal = data.nutrition_goal ?? "mantenimiento";
+    let nutritionGoal: string = data.nutrition_goal ?? "mantenimiento";
     if (!nutritionOn) {
       const { data: prof } = await supabase
         .from("profiles")
