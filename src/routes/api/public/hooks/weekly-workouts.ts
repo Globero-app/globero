@@ -89,7 +89,14 @@ export const Route = createFileRoute("/api/public/hooks/weekly-workouts")({
               .update({ weekly_last_generated_at: new Date().toISOString() })
               .eq("id", u.id);
 
-            results.push({ user: u.id, created: inserted?.length ?? 0, intervals_synced: synced });
+            // Resumen semanal: cumplimiento + objetivos de la semana siguiente
+            let summary = false;
+            try {
+              const { sendWeeklySummary } = await import("@/lib/weekly-summary.server");
+              summary = await sendWeeklySummary(supabaseAdmin, u.id);
+            } catch (e) { console.error("weekly-summary", e); }
+
+            results.push({ user: u.id, created: inserted?.length ?? 0, intervals_synced: synced, summary });
           } catch (e: any) {
             results.push({ user: u.id, error: e?.message ?? "error" });
           }
