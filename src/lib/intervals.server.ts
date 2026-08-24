@@ -276,3 +276,45 @@ export async function removeWorkoutEvent(supabase: any, userId: string, workout:
     console.error("intervals delete error", e);
   }
 }
+
+/** Sincroniza umbrales y zonas (Ride) con Intervals.icu */
+export async function intervalsPushZones(supabase: any, userId: string): Promise<boolean> {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("intervals_athlete_id,intervals_api_key,ftp,lthr,max_hr")
+    .eq("id", userId)
+    .maybeSingle();
+  const creds = credsFromProfile(profile);
+  if (!creds) return false;
+
+  const { computePowerZones, computeHrZones } = await import("./zones");
+  const ftp = profile?.ftp ?? null;
+  const lthr = profile?.lthr ?? null;
+  const maxHr = profile?.max_hr ?? null;
+
+  const pz = computePowerZones(ftp);
+  const hz = computeHrZones(lthr, maxHr);
+  const cap = (v: number, ref: number) => (Number.isFinite(v) ? v : Math.round(ref * 2));
+
+  const body: Record<string, unknown> = {};
+  if (ftp) body.ftp = ftp;
+  if (lthr) body.lthr = lthr;
+  if (maxHr) body.max_hr = maxHr;
+  if (pz && ftp) body.power_zones = pz.map((z) => cap(z.high, ftp));
+  if (hz) {
+    const ref = lthr || (maxHr ? Math.round(maxHr * 0.92) : 0);
+    if (ref) body.hr_zones = hz.map((z) => cap(z.high, ref));
+  }
+  if (!Object.keys(body).length) return false;
+
+  const res = await fetch(`${BASE}/athlete/${athletePath(creds.athleteId)}/sport-settings/Ride`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Authorization: authHeader(creds.apiKey) },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const t = await res.text();
+    throw new Error(`Intervals.icu ${res.status}: ${t.slice(0, 200)}`);
+  }
+  return true;
+}

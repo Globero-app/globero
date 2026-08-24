@@ -143,6 +143,13 @@ export const linkStravaActivity = createServerFn({ method: "POST" })
         .eq("id", data.target_id)
         .eq("user_id", userId);
       if (error) throw new Error(error.message);
+      if (data.accept) {
+        const title = String(plan.title ?? plan.name ?? "").trim();
+        if (title) {
+          const { renameStravaActivity } = await import("./strava.server");
+          void renameStravaActivity(supabase, userId, data.activity_id, title);
+        }
+      }
       return { ok: true, completed: data.accept };
     }
 
