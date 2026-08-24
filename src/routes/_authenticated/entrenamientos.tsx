@@ -19,6 +19,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { describeStepZone } from "@/lib/zones";
+import { ThresholdCard } from "@/components/ThresholdCard";
+import { getThresholdStatus } from "@/lib/progress.functions";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -216,6 +219,7 @@ function EntrenamientosPage() {
       </div>
 
       <TrainingLoadCard />
+      <ThresholdsSection />
 
 
       {/* Generador */}
@@ -419,6 +423,7 @@ function EntrenamientosPage() {
             key={w.id}
             w={w}
             ftp={ftp}
+            refs={{ ftp, lthr, maxHr }}
             onComplete={async (rpe, notes) => {
               await complete({ data: { workout_id: w.id, rpe, notes } });
               toast.success("Entrenamiento marcado como completado");
@@ -504,15 +509,24 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+function ThresholdsSection() {
+  const getTh = useServerFn(getThresholdStatus);
+  const q = useQuery({ queryKey: ["threshold-status"], queryFn: () => getTh({ data: {} } as any), staleTime: 10 * 60_000 });
+  if (!q.data || !(q.data as any).stale) return null;
+  return <ThresholdCard status={q.data as any} compact />;
+}
+
 function WorkoutCard({
   w,
   ftp,
+  refs,
   onComplete,
   onDelete,
   onTrainer,
 }: {
   w: any;
   ftp: number;
+  refs: { ftp: number | null; lthr: number | null; maxHr: number | null };
   onComplete: (rpe: number, notes?: string) => Promise<void>;
   onDelete: () => void;
   onTrainer: () => Promise<void>;
@@ -671,22 +685,35 @@ function WorkoutCard({
         {open && (
           <div className="border-t bg-background/50 p-4 space-y-2">
             <h4 className="text-xs font-mono uppercase text-muted-foreground tracking-wider mb-2">Estructura del entrenamiento</h4>
-            {(plan.steps ?? []).map((s: any, i: number) => (
-              <div key={i} className="flex items-start gap-3 py-2 border-b last:border-0">
-                <div className="w-6 text-center text-xs font-mono text-muted-foreground">{i + 1}</div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm">
-                    {s.name}
-                    <span className="ml-2 text-[10px] font-mono uppercase text-muted-foreground">{s.intensity}</span>
-                  </p>
-                  <p className="text-xs text-muted-foreground">{s.description}</p>
-                  <p className="text-xs mt-0.5">
-                    {s.duration_type === "time" ? formatDuration(s.duration_seconds) : "Hasta lap"}
-                    {s.target !== "open" && ` · ${targetLabel(s)}`}
-                  </p>
+            {(plan.steps ?? []).map((s: any, i: number) => {
+              const z = describeStepZone(s, refs);
+              return (
+                <div key={i} className="flex items-start gap-3 py-2 border-b last:border-0">
+                  <div className="w-6 text-center text-xs font-mono text-muted-foreground">{i + 1}</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm flex items-center gap-2 flex-wrap">
+                      {s.name}
+                      <span className="text-[10px] font-mono uppercase text-muted-foreground">{s.intensity}</span>
+                      {z && (
+                        <span
+                          className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded text-white"
+                          style={{ backgroundColor: z.zone.color }}
+                        >
+                          {z.zone.label.split(" · ")[0]} · {z.pctLow}-{z.pctHigh}% {z.refLabel}
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{s.description}</p>
+                    <p className="text-xs mt-0.5">
+                      {s.duration_type === "time" ? formatDuration(s.duration_seconds) : "Hasta lap"}
+                      {s.target !== "open" && ` · ${targetLabel(s)}`}
+                    </p>
+                    {z && <p className="text-[11px] text-muted-foreground mt-0.5">🎯 {z.explanation}</p>}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
+            <PrescribedVsExecuted w={w} />
           </div>
         )}
       </div>
@@ -716,6 +743,10 @@ function WorkoutCard({
                       <span className="text-[10px] font-mono uppercase bg-secondary px-1.5 py-0.5 rounded">{s.intensity}</span>
                     </div>
                     {s.description && <p className="text-xs text-muted-foreground mt-0.5">{s.description}</p>}
+                    {(() => {
+                      const z = describeStepZone(s, refs);
+                      return z ? <p className="text-[11px] text-muted-foreground mt-0.5">🎯 {z.explanation}</p> : null;
+                    })()}
                     <div className="flex gap-3 mt-1.5 text-xs">
                       <span className="font-mono">
                         {s.duration_type === "time" ? formatDuration(s.duration_seconds) : "Hasta lap"}
@@ -774,4 +805,43 @@ function targetLabel(s: any) {
   if (s.target_low && s.target_high) return `${s.target_low}–${s.target_high} ${u}`;
   if (s.target_low) return `${s.target_low} ${u}`;
   return "—";
+}
+
+/** Comparativa entre lo prescrito y lo ejecutado (desde Strava/Intervals). */
+function PrescribedVsExecuted({ w }: { w: any }) {
+  const planned = Number(w.planned_tss) || null;
+  const actual = Number(w.actual_tss) || null;
+  const iff = Number(w.actual_if) || null;
+  const compliance = Number(w.compliance) || null;
+  if (!planned && !actual) return null;
+  const diff = planned && actual ? Math.round(((actual - planned) / planned) * 100) : null;
+  return (
+    <div className="mt-3 rounded-lg border bg-secondary/30 p-3">
+      <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Prescrito vs ejecutado</p>
+      <div className="grid grid-cols-3 gap-3 mt-2 text-center">
+        <div>
+          <p className="text-[10px] uppercase text-muted-foreground">TSS previsto</p>
+          <p className="font-display text-lg font-bold">{planned ? Math.round(planned) : "—"}</p>
+        </div>
+        <div>
+          <p className="text-[10px] uppercase text-muted-foreground">TSS real</p>
+          <p className="font-display text-lg font-bold">{actual ? Math.round(actual) : "—"}</p>
+        </div>
+        <div>
+          <p className="text-[10px] uppercase text-muted-foreground">Cumplimiento</p>
+          <p className="font-display text-lg font-bold">{compliance ? `${Math.round(compliance)}%` : "—"}</p>
+        </div>
+      </div>
+      <p className="text-[11px] text-muted-foreground mt-2">
+        {iff ? `Intensidad real (IF) ${iff.toFixed(2)} sobre tus umbrales actuales. ` : ""}
+        {diff !== null
+          ? diff > 10
+            ? "Fuiste por encima de lo prescrito: la IA subirá ligeramente la carga de las próximas sesiones."
+            : diff < -10
+              ? "Te quedaste por debajo de lo prescrito: la IA ajustará a la baja para asegurar el cumplimiento."
+              : "Sesión ejecutada dentro del rango previsto: la progresión continúa según el bloque."
+          : "Cuando enlaces la actividad de Strava se calculará el TSS real y el cumplimiento."}
+      </p>
+    </div>
+  );
 }

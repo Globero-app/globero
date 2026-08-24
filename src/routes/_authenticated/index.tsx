@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MaintenanceAlertsBanner } from "@/components/MaintenanceAlertsBanner";
+import { AdjustTodayCard } from "@/components/AdjustTodayCard";
 import { useEffect, useRef } from "react";
 import { useTodayPushTriggers, notifyStravaSync } from "@/lib/push-triggers";
 
@@ -107,6 +108,8 @@ function Dashboard() {
       </div>
 
       <MaintenanceAlertsBanner />
+
+      <AdjustTodayCard />
 
       {/* Countdown + Form */}
       {(next || (acts.data?.length ?? 0) > 0) && (

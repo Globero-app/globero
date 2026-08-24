@@ -89,11 +89,28 @@ export const Route = createFileRoute("/api/public/hooks/weekly-workouts")({
               .update({ weekly_last_generated_at: new Date().toISOString() })
               .eq("id", u.id);
 
-            results.push({ user: u.id, created: inserted?.length ?? 0, intervals_synced: synced });
+            // Resumen semanal: cumplimiento + objetivos de la semana siguiente
+            let summary = false;
+            try {
+              const { sendWeeklySummary } = await import("@/lib/weekly-summary.server");
+              summary = await sendWeeklySummary(supabaseAdmin, u.id);
+            } catch (e) { console.error("weekly-summary", e); }
+
+            results.push({ user: u.id, created: inserted?.length ?? 0, intervals_synced: synced, summary });
           } catch (e: any) {
             results.push({ user: u.id, error: e?.message ?? "error" });
           }
         }
+
+        // Resumen semanal también para quienes no tienen generación automática
+        try {
+          const { sendWeeklySummary } = await import("@/lib/weekly-summary.server");
+          const { data: rest } = await supabaseAdmin
+            .from("profiles")
+            .select("id")
+            .eq("weekly_auto_enabled", false);
+          for (const p of rest ?? []) await sendWeeklySummary(supabaseAdmin, (p as any).id);
+        } catch (e) { console.error("weekly-summary-rest", e); }
 
         return new Response(JSON.stringify({ ok: true, date: madrid, users: results.length, results }), {
           headers: { "content-type": "application/json" },
