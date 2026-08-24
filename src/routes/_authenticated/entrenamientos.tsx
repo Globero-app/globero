@@ -271,7 +271,7 @@ function EntrenamientosPage() {
                   disabled={!enabled}
                   aria-pressed={active}
                   title={d.label}
-                  onClick={() => setLongRideDay(active ? null : d.value)}
+                  onClick={() => { const nl = active ? null : d.value; setLongRideDay(nl); void persistDays(trainingDays, nl); }}
                   className={`rounded-lg border-2 py-2 text-sm font-bold transition disabled:opacity-30 disabled:cursor-not-allowed ${active ? "border-primary bg-primary/10" : "border-border hover:border-primary/50 text-muted-foreground"}`}
                 >
                   {d.short}
