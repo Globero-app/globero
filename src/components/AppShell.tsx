@@ -172,6 +172,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </main>
 
       <StravaMatchPrompt />
+      <ActivityFeedbackPrompt />
 
 
       {/* Mobile bottom nav */}
