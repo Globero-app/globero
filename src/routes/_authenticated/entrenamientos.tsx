@@ -589,6 +589,7 @@ function WorkoutCard({
             </p>
             {plan.competition_name && <p className="text-[11px] font-mono uppercase text-primary mt-0.5">🏁 {plan.competition_name}</p>}
             {plan.summary && <p className="text-sm mt-2">{plan.summary}</p>}
+            {plan.rationale && <p className="text-[11px] text-muted-foreground mt-1.5">🧠 {plan.rationale}</p>}
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <button onClick={() => setShowPreview(true)} title="Ver y descargar .FIT" className="p-2 rounded-md hover:bg-secondary text-primary">
