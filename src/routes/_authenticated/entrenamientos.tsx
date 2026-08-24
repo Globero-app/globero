@@ -627,7 +627,7 @@ function WorkoutCard({
               <button
                 onClick={async () => {
                   if (converting) return;
-                  if (!confirm("¿Volver a la versión de exterior de este entrenamiento?")) return;
+                  if (!confirm("¿Volver a la versión de EXTERIOR?\n\nSe restaurará el entrenamiento original, se recalculará el TSS previsto y se actualizará el evento en Intervals.icu.")) return;
                   setConverting(true);
                   try { await onOutdoor(); }
                   catch (e: any) { toast.error(e?.message ?? "Error volviendo a exterior"); }
@@ -644,7 +644,7 @@ function WorkoutCard({
               <button
                 onClick={async () => {
                   if (converting) return;
-                  if (!confirm("¿Adaptar este entrenamiento para hacerlo en rodillo (60-90 min)?")) return;
+                  if (!confirm("¿Adaptar este entrenamiento a RODILLO (60-90 min)?\n\nSe recalculará el TSS previsto y se actualizará el evento en Intervals.icu. Podrás volver a exterior cuando quieras.")) return;
                   setConverting(true);
                   try { await onTrainer(); }
                   catch (e: any) { toast.error(e?.message ?? "Error adaptando a rodillo"); }

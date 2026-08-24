@@ -292,7 +292,7 @@ REGLAS OBLIGATORIAS:
 
     const { data: updated, error } = await supabase
       .from("workouts")
-      .update({ plan: newPlan, duration_minutes: mins, bike_type: "rodillo", planned_tss: tss })
+      .update({ plan: newPlan, duration_minutes: mins, bike_type: "rodillo", planned_tss: tss, actual_tss: null, actual_if: null, compliance: null })
       .eq("id", workout.id)
       .eq("user_id", userId)
       .select()
