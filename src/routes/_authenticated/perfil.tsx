@@ -262,6 +262,7 @@ function PerfilPage() {
 
         <Section title="Conexión Intervals.icu" className="lg:col-span-2">
           {profileQ.data?.intervals_api_key ? (
+            <div className="space-y-3">
             <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-lg p-4">
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="size-5 text-emerald-600" />
