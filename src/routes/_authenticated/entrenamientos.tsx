@@ -55,9 +55,8 @@ function EntrenamientosPage() {
   const toTrainer = useServerFn(convertWorkoutToTrainer);
 
 
-  const [trainingType, setTrainingType] = useState<typeof TRAINING_OPTIONS[number]["value"]>("resistencia");
   const [bikeType, setBikeType] = useState<typeof BIKE_OPTIONS[number]["value"]>("carretera");
-  const [count, setCount] = useState(3);
+
   const [duration, setDuration] = useState(60);
   const [competitionId, setCompetitionId] = useState<string>("");
   const [trainingDays, setTrainingDays] = useState<number[]>([2, 4, 6]);
