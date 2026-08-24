@@ -47,7 +47,10 @@ const GenInput = z.object({
   /** Plan nutricional asociado. */
   nutrition_enabled: z.boolean().optional().default(false),
   nutrition_goal: z.enum(["perdida_peso", "mantenimiento", "masa_muscular"]).optional().nullable(),
+  /** Elimina los entrenamientos pendientes futuros antes de generar. */
+  replace_pending: z.boolean().optional().default(false),
 });
+
 
 
 const StepSchema = {
