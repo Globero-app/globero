@@ -47,7 +47,10 @@ const GenInput = z.object({
   /** Plan nutricional asociado. */
   nutrition_enabled: z.boolean().optional().default(false),
   nutrition_goal: z.enum(["perdida_peso", "mantenimiento", "masa_muscular"]).optional().nullable(),
+  /** Elimina los entrenamientos pendientes futuros antes de generar. */
+  replace_pending: z.boolean().optional().default(false),
 });
+
 
 
 const StepSchema = {
@@ -100,7 +103,28 @@ export const generateWorkouts = createServerFn({ method: "POST" })
       })
       .eq("id", userId);
 
+    if (data.replace_pending) {
+      const today = new Date().toISOString().slice(0, 10);
+      const { data: pending } = await supabase
+        .from("workouts")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("status", "pending");
+      const toDelete = (pending ?? []).filter((w: any) => {
+        const d = (w.plan as any)?.scheduled_date;
+        return !d || d >= today;
+      });
+      if (toDelete.length) {
+        const { removeWorkoutEvent } = await import("./intervals.server");
+        for (const w of toDelete) {
+          try { await removeWorkoutEvent(supabase, userId, w); } catch { /* noop */ }
+        }
+        await supabase.from("workouts").delete().in("id", toDelete.map((w: any) => w.id));
+      }
+    }
+
     const inserted = await generateWorkoutsCore(supabase, userId, {
+
       bike_type: data.bike_type,
       duration_minutes: data.duration_minutes,
       competition_id: data.competition_id ?? null,

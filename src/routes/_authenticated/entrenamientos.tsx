@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -88,11 +88,39 @@ function EntrenamientosPage() {
   const profile = useQuery({
     queryKey: ["profile-ftp", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("ftp,max_hr,lthr,zones_display_mode,intervals_athlete_id").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("ftp,max_hr,lthr,zones_display_mode,intervals_athlete_id,weekly_training_days,weekly_long_ride_day").eq("id", user!.id).maybeSingle();
       return data;
     },
     enabled: !!user,
   });
+
+  const [prefsLoaded, setPrefsLoaded] = useState(false);
+  const [savedDays, setSavedDays] = useState<{ days: number[]; long: number | null } | null>(null);
+  useEffect(() => {
+    if (prefsLoaded || !profile.data) return;
+    const days = ((profile.data as any).weekly_training_days ?? []).map((d: any) => Number(d));
+    const long = (profile.data as any).weekly_long_ride_day;
+    if (days.length) {
+      setTrainingDays(days);
+      setLongRideDay(long === null || long === undefined ? null : Number(long));
+      setSavedDays({ days, long: long === null || long === undefined ? null : Number(long) });
+    } else {
+      setSavedDays({ days: trainingDays, long: longRideDay });
+    }
+    setPrefsLoaded(true);
+  }, [profile.data, prefsLoaded]);
+
+  const persistDays = async (days: number[], long: number | null) => {
+    if (!user) return;
+    await supabase.from("profiles").update({ weekly_training_days: days, weekly_long_ride_day: long }).eq("id", user.id);
+  };
+
+  const daysChanged =
+    !!savedDays &&
+    (savedDays.long !== longRideDay ||
+      savedDays.days.length !== trainingDays.length ||
+      [...savedDays.days].sort().join() !== [...trainingDays].sort().join());
+
   const ftp = profile.data?.ftp ?? 250;
   const maxHr = profile.data?.max_hr ?? null;
   const lthr = profile.data?.lthr ?? null;
@@ -129,9 +157,11 @@ function EntrenamientosPage() {
   });
 
   const generateMut = useMutation({
-    mutationFn: () => gen({ data: { bike_type: bikeType, duration_minutes: duration, competition_id: competitionId || null, target_basis: effectiveBasis, training_days: trainingDays, long_ride_day: longRideDay, nutrition_enabled: nutritionEnabled, nutrition_goal: nutritionEnabled ? nutritionGoal : null, ...(competitionId ? { max_count: 90 } : {}) } }),
+    mutationFn: (opts?: { replace_pending?: boolean }) => gen({ data: { bike_type: bikeType, duration_minutes: duration, competition_id: competitionId || null, target_basis: effectiveBasis, training_days: trainingDays, long_ride_day: longRideDay, nutrition_enabled: nutritionEnabled, nutrition_goal: nutritionEnabled ? nutritionGoal : null, replace_pending: !!opts?.replace_pending, ...(competitionId ? { max_count: 90 } : {}) } }),
     onSuccess: async (inserted: any) => {
+      setSavedDays({ days: trainingDays, long: longRideDay });
       const n = Array.isArray(inserted) ? inserted.length : trainingDays.length;
+
       toast.success(hasCompetition ? `Plan para tu competición creado: ${n} entrenamientos` : `${n} entrenamiento${n > 1 ? "s" : ""} generado${n > 1 ? "s" : ""}`);
       qc.invalidateQueries({ queryKey: ["workouts"] });
       const ids = Array.isArray(inserted) ? inserted.map((w: any) => w.id) : [];
@@ -207,13 +237,14 @@ function EntrenamientosPage() {
                   type="button"
                   aria-pressed={active}
                   title={d.label}
-                  onClick={() =>
-                    setTrainingDays((prev) => {
-                      const next = active ? prev.filter((v) => v !== d.value) : [...prev, d.value];
-                      if (!next.includes(longRideDay ?? -1)) setLongRideDay(null);
-                      return next;
-                    })
-                  }
+                  onClick={() => {
+                    const next = active ? trainingDays.filter((v) => v !== d.value) : [...trainingDays, d.value];
+                    const nextLong = next.includes(longRideDay ?? -1) ? longRideDay : null;
+                    setTrainingDays(next);
+                    setLongRideDay(nextLong);
+                    void persistDays(next, nextLong);
+                  }}
+
                   className={`rounded-lg border-2 py-2 text-sm font-bold transition ${active ? "border-primary bg-primary/10" : "border-border hover:border-primary/50 text-muted-foreground"}`}
                 >
                   {d.short}
@@ -240,7 +271,7 @@ function EntrenamientosPage() {
                   disabled={!enabled}
                   aria-pressed={active}
                   title={d.label}
-                  onClick={() => setLongRideDay(active ? null : d.value)}
+                  onClick={() => { const nl = active ? null : d.value; setLongRideDay(nl); void persistDays(trainingDays, nl); }}
                   className={`rounded-lg border-2 py-2 text-sm font-bold transition disabled:opacity-30 disabled:cursor-not-allowed ${active ? "border-primary bg-primary/10" : "border-border hover:border-primary/50 text-muted-foreground"}`}
                 >
                   {d.short}
@@ -254,6 +285,25 @@ function EntrenamientosPage() {
               : `Tirada larga los ${WEEK_DAYS.find((d) => d.value === longRideDay)!.label.toLowerCase()}: rodaje largo en Z2, más duración que el resto.`}
           </p>
         </Field>
+
+        {daysChanged && trainingDays.length > 0 && (
+          <div className="rounded-lg border-2 border-primary/40 bg-primary/5 p-3 space-y-2">
+            <p className="text-[12px]">
+              Has cambiado tus días de entreno. Se han guardado para las próximas semanas. ¿Quieres regenerar los entrenamientos pendientes con los nuevos días?
+            </p>
+            <button
+              type="button"
+              disabled={generateMut.isPending}
+              onClick={() => generateMut.mutate({ replace_pending: true })}
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground disabled:opacity-50"
+            >
+              {generateMut.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+              Regenerar con los nuevos días
+            </button>
+          </div>
+        )}
+
+
 
         <Field label="Plan nutricional">
           <label className="flex items-start gap-3 p-3 bg-background border rounded-lg cursor-pointer hover:border-primary/40 transition-colors">
@@ -313,7 +363,7 @@ function EntrenamientosPage() {
 
         <button
           disabled={generateMut.isPending || trainingDays.length === 0}
-          onClick={() => generateMut.mutate()}
+          onClick={() => generateMut.mutate(undefined)}
           className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50"
         >
           {generateMut.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
