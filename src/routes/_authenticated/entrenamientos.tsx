@@ -315,7 +315,7 @@ function EntrenamientosPage() {
         {daysChanged && trainingDays.length > 0 && (
           <div className="rounded-lg border-2 border-primary/40 bg-primary/5 p-3 space-y-2">
             <p className="text-[12px]">
-              Has cambiado tus días de entreno. Se han guardado para las próximas semanas. ¿Quieres regenerar los entrenamientos pendientes con los nuevos días?
+              Has cambiado tu configuración de entrenamiento (días, plan nutricional o base de prescripción). Se ha guardado para las próximas semanas. ¿Quieres regenerar los entrenamientos pendientes con la nueva configuración?
             </p>
             <button
               type="button"
