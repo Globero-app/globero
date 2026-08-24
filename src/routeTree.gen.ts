@@ -13,7 +13,6 @@ import { Route as OfflineRouteImport } from './routes/offline'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as AuthenticatedRecetasRouteImport } from './routes/_authenticated/recetas'
 import { Route as AuthenticatedReadinessRouteImport } from './routes/_authenticated/readiness'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedFtpTestRouteImport } from './routes/_authenticated/ftp-test'
@@ -46,11 +45,6 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedRecetasRoute = AuthenticatedRecetasRouteImport.update({
-  id: '/recetas',
-  path: '/recetas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedReadinessRoute = AuthenticatedReadinessRouteImport.update({
@@ -142,7 +136,6 @@ export interface FileRoutesByFullPath {
   '/ftp-test': typeof AuthenticatedFtpTestRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/readiness': typeof AuthenticatedReadinessRoute
-  '/recetas': typeof AuthenticatedRecetasRoute
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
@@ -161,7 +154,6 @@ export interface FileRoutesByTo {
   '/ftp-test': typeof AuthenticatedFtpTestRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/readiness': typeof AuthenticatedReadinessRoute
-  '/recetas': typeof AuthenticatedRecetasRoute
   '/': typeof AuthenticatedIndexRoute
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
@@ -183,7 +175,6 @@ export interface FileRoutesById {
   '/_authenticated/ftp-test': typeof AuthenticatedFtpTestRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/readiness': typeof AuthenticatedReadinessRoute
-  '/_authenticated/recetas': typeof AuthenticatedRecetasRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/_authenticated/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
@@ -206,7 +197,6 @@ export interface FileRouteTypes {
     | '/ftp-test'
     | '/perfil'
     | '/readiness'
-    | '/recetas'
     | '/actividades/$id'
     | '/competiciones/$id'
     | '/api/public/setup-admin'
@@ -225,7 +215,6 @@ export interface FileRouteTypes {
     | '/ftp-test'
     | '/perfil'
     | '/readiness'
-    | '/recetas'
     | '/'
     | '/actividades/$id'
     | '/competiciones/$id'
@@ -246,7 +235,6 @@ export interface FileRouteTypes {
     | '/_authenticated/ftp-test'
     | '/_authenticated/perfil'
     | '/_authenticated/readiness'
-    | '/_authenticated/recetas'
     | '/_authenticated/'
     | '/_authenticated/actividades/$id'
     | '/_authenticated/competiciones/$id'
@@ -296,13 +284,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/recetas': {
-      id: '/_authenticated/recetas'
-      path: '/recetas'
-      fullPath: '/recetas'
-      preLoaderRoute: typeof AuthenticatedRecetasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/readiness': {
@@ -413,7 +394,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFtpTestRoute: typeof AuthenticatedFtpTestRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedReadinessRoute: typeof AuthenticatedReadinessRoute
-  AuthenticatedRecetasRoute: typeof AuthenticatedRecetasRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedActividadesIdRoute: typeof AuthenticatedActividadesIdRoute
   AuthenticatedCompeticionesIdRoute: typeof AuthenticatedCompeticionesIdRoute
@@ -428,7 +408,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFtpTestRoute: AuthenticatedFtpTestRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedReadinessRoute: AuthenticatedReadinessRoute,
-  AuthenticatedRecetasRoute: AuthenticatedRecetasRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedActividadesIdRoute: AuthenticatedActividadesIdRoute,
   AuthenticatedCompeticionesIdRoute: AuthenticatedCompeticionesIdRoute,
