@@ -27,14 +27,8 @@ export const Route = createFileRoute("/_authenticated/entrenamientos")({
   component: EntrenamientosPage,
 });
 
-const TRAINING_OPTIONS = [
-  { value: "resistencia", label: "Resistencia (base aeróbica)" },
-  { value: "intervalos", label: "Intervalos (potencia y velocidad)" },
-  { value: "fuerza", label: "Fuerza (sobre la bici)" },
-  { value: "mixto", label: "Mixto (IA combina los 3)" },
-] as const;
-
 const BIKE_OPTIONS = [
+
   { value: "carretera", label: "Carretera" },
   { value: "gravel", label: "Gravel" },
   { value: "montana", label: "Montaña" },
