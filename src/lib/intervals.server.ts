@@ -305,19 +305,20 @@ export async function intervalsPushZones(supabase: any, userId: string): Promise
   const settingsId = ride?.id;
   if (!settingsId) throw new Error("No se encontraron ajustes de Ride en Intervals.icu");
 
-  console.info("Intervals Ride zone shape", {
-    powerZones: ride?.power_zones,
-    powerZoneNames: ride?.power_zone_names,
-    hrZones: ride?.hr_zones,
-    hrZoneNames: ride?.hr_zone_names,
+  const powerZones = [55, 75, 90, 105, 120, 150];
+  const powerZoneNames = ["Recuperación", "Resistencia", "Tempo", "Umbral", "VO₂ máx", "Anaeróbico", "Neuromuscular"];
+  const hrRef = lthr || (maxHr ? Math.round(maxHr * 0.92) : null);
+  const hrZones = hrRef ? [81, 88, 93, 99, 102, 106].map((pct) => Math.round((pct / 100) * hrRef)) : ride?.hr_zones;
+  const hrZoneNames = ["Recuperación", "Resistencia", "Tempo", "Umbral", "VO₂ bajo", "VO₂ alto", "Máxima"];
+  await call(creds, `/sport-settings/${settingsId}?recalcHrZones=false`, {
+    method: "PUT",
+    body: JSON.stringify({
+      ...ride,
+      ...body,
+      power_zones: powerZones,
+      power_zone_names: powerZoneNames,
+      ...(hrZones ? { hr_zones: hrZones, hr_zone_names: hrZoneNames } : {}),
+    }),
   });
-  try {
-    await call(creds, `/sport-settings/${settingsId}?recalcHrZones=true`, {
-      method: "PUT",
-      body: JSON.stringify({ ...ride, ...body }),
-    });
-  } catch (error) {
-    throw new Error(`${error instanceof Error ? error.message : "Intervals.icu"} ${JSON.stringify({ power_zones: ride?.power_zones, power_zone_names: ride?.power_zone_names, hr_zones: ride?.hr_zones, hr_zone_names: ride?.hr_zone_names })}`);
-  }
   return true;
 }
