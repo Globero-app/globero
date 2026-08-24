@@ -122,7 +122,7 @@ export const linkStravaActivity = createServerFn({ method: "POST" })
     if (data.target_kind === "workout") {
       const { data: w, error: e1 } = await supabase
         .from("workouts")
-        .select("plan")
+        .select("plan, planned_tss, duration_minutes")
         .eq("id", data.target_id)
         .eq("user_id", userId)
         .maybeSingle();
@@ -136,6 +136,31 @@ export const linkStravaActivity = createServerFn({ method: "POST" })
       if (data.accept) {
         update.status = "completed";
         update.completed_at = new Date().toISOString();
+
+        // Ejecución real: TSS / IF / cumplimiento vs. lo prescrito
+        try {
+          const [{ data: profile }, { data: act }] = await Promise.all([
+            supabase.from("profiles").select("ftp,lthr,max_hr").eq("id", userId).maybeSingle(),
+            supabase
+              .from("strava_activities")
+              .select("moving_time,average_watts,average_heartrate,suffer_score")
+              .eq("id", Number(data.activity_id))
+              .eq("user_id", userId)
+              .maybeSingle(),
+          ]);
+          if (act) {
+            const { estimateActivityTss, estimatePlanTss } = await import("./training-load.server");
+            const ftp = profile?.ftp ?? null;
+            const lthr = profile?.lthr ?? null;
+            const maxHr = profile?.max_hr ?? null;
+            const actualTss = estimateActivityTss(act as any, ftp, lthr, maxHr);
+            const planned = Number(w.planned_tss) || estimatePlanTss(plan, ftp, lthr, maxHr, w.duration_minutes ?? 60);
+            update.actual_tss = actualTss;
+            if (!w.planned_tss && planned) update.planned_tss = planned;
+            if (ftp && act.average_watts) update.actual_if = Math.round((Number(act.average_watts) / ftp) * 100) / 100;
+            if (planned > 0) update.compliance = Math.round((actualTss / planned) * 100);
+          }
+        } catch { /* métricas opcionales */ }
       }
       const { error } = await supabase
         .from("workouts")
@@ -143,6 +168,7 @@ export const linkStravaActivity = createServerFn({ method: "POST" })
         .eq("id", data.target_id)
         .eq("user_id", userId);
       if (error) throw new Error(error.message);
+
       if (data.accept) {
         const title = String(plan.title ?? plan.name ?? "").trim();
         if (title) {

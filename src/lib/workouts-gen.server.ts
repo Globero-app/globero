@@ -106,8 +106,12 @@ const NUTRITION_TRAINING_RULES: Record<string, string> = {
 
 /** Núcleo de generación de entrenamientos (siempre plan MIXTO). Reutilizable por el cron semanal. */
 export async function generateWorkoutsCore(supabase: any, userId: string, input: GenCoreInput) {
+  const { buildTrainingLoad, prescribeWeek, loadPromptBlock, weekStart } = await import("./training-load.server");
+  const { validateWorkout, enforceWeeklyTss, avoidBackToBackHard } = await import("./workout-validator.server");
+
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
   if (!profile) throw new Error("Perfil no encontrado");
+
 
   const { data: recent } = await supabase
     .from("strava_activities")
@@ -118,7 +122,7 @@ export async function generateWorkoutsCore(supabase: any, userId: string, input:
 
   const { data: prevWorkouts } = await supabase
     .from("workouts")
-    .select("training_type,duration_minutes,rpe,feedback_notes,plan,completed_at")
+    .select("training_type,duration_minutes,rpe,feedback_notes,plan,completed_at,planned_tss,actual_tss,compliance")
     .eq("user_id", userId)
     .eq("status", "completed")
     .order("completed_at", { ascending: false })
@@ -209,6 +213,54 @@ PERIODIZACIÓN OBLIGATORIA:
   const effectiveCount = schedule.length;
   const longDay = input.long_ride_day ?? null;
 
+  // ---- Bloque de 4 semanas (periodización) ----
+  const planWeekStart = weekStart(schedule[0].date);
+  const { data: lastBlock } = await supabase
+    .from("training_blocks")
+    .select("*")
+    .eq("user_id", userId)
+    .order("start_date", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const FOCUS_ORDER = ["base", "construccion", "pico", "descarga"];
+  let blockRow: any = lastBlock ?? null;
+  let weekIndex = 1;
+  if (blockRow && blockRow.start_date) {
+    const diffWeeks = Math.round(
+      (new Date(`${planWeekStart}T12:00:00Z`).getTime() - new Date(`${weekStart(blockRow.start_date)}T12:00:00Z`).getTime()) / (7 * 86400000),
+    );
+    weekIndex = diffWeeks >= 0 && diffWeeks <= 3 ? diffWeeks + 1 : 1;
+    if (diffWeeks < 0 || diffWeeks > 3) blockRow = null;
+  }
+
+  // Foco del bloque: anclado a la competición si existe
+  let blockFocus = blockRow?.focus ?? "base";
+  if (competition) {
+    const weeksToRace = Math.max(
+      0,
+      Math.round((new Date(`${competition.date}T12:00:00Z`).getTime() - new Date(`${planWeekStart}T12:00:00Z`).getTime()) / (7 * 86400000)),
+    );
+    blockFocus = weeksToRace <= 1 ? "tapering" : weeksToRace <= 3 ? "pico" : weeksToRace <= 8 ? "construccion" : "base";
+  } else if (!blockRow) {
+    const prevIdx = FOCUS_ORDER.indexOf(lastBlock?.focus ?? "base");
+    blockFocus = FOCUS_ORDER[(prevIdx + 1) % 3]; // rota base → construcción → pico
+  }
+
+  // ---- Métricas de carga y prescripción de la semana ----
+  const load = await buildTrainingLoad(supabase, userId, profile);
+  const week = prescribeWeek(load, {
+    sessions: effectiveCount,
+    duration_minutes: input.duration_minutes,
+    block_week_index: weekIndex,
+    deload: blockFocus === "tapering",
+  });
+  const loadBlock = loadPromptBlock(load, week);
+  const blockBlock = `
+BLOQUE DE ENTRENAMIENTO: foco "${blockFocus}", semana ${weekIndex} de 4${weekIndex === 4 ? " (SEMANA DE DESCARGA)" : ""}.
+- base: volumen aeróbico y fuerza específica · construccion: umbral y tempo · pico: VO₂ e intensidad específica de competición · tapering: volumen bajo, intensidad breve.`;
+
+
   const scheduleBlock = `
 
 CALENDARIO OBLIGATORIO (días elegidos por el ciclista: ${chosenDays.map((d) => DAY_NAMES[d]).join(", ")}):
@@ -232,11 +284,14 @@ PETICIÓN:
 - Cantidad: ${effectiveCount} entrenamiento(s) distintos
 ${input.nutrition_goal && NUTRITION_TRAINING_RULES[input.nutrition_goal] ? `\nPLAN NUTRICIONAL DEL CICLISTA: ${NUTRITION_TRAINING_RULES[input.nutrition_goal]}\nAdapta la estructura de las sesiones para favorecer ese objetivo y menciónalo en el summary.\n` : ""}
 ${competitionBlock}
+${blockBlock}
+${loadBlock}
 ${scheduleBlock}
 
 ACTIVIDADES RECIENTES (Strava): ${recent && recent.length ? JSON.stringify(recent) : "ninguna"}
 
-ENTRENAMIENTOS YA REALIZADOS (RPE 1=fácil, 5=imposible): ${prevWorkouts && prevWorkouts.length ? JSON.stringify(prevWorkouts.map((w: any) => ({ tipo: w.training_type, min: w.duration_minutes, rpe: w.rpe, notas: w.feedback_notes, fecha: w.completed_at }))) : "sin histórico"}
+ENTRENAMIENTOS YA REALIZADOS (prescrito vs ejecutado; RPE 1=fácil, 5=imposible): ${prevWorkouts && prevWorkouts.length ? JSON.stringify(prevWorkouts.map((w: any) => ({ tipo: w.training_type, min: w.duration_minutes, rpe: w.rpe, notas: w.feedback_notes, fecha: w.completed_at, tss_prescrito: w.planned_tss, tss_real: w.actual_tss, cumplimiento_pct: w.compliance }))) : "sin histórico"}
+- Si el cumplimiento medio es <85% de forma repetida, BAJA los targets prescritos; si es >115%, súbelos.
 
 CARRERAS PASADAS: ${pastRaces && pastRaces.length ? JSON.stringify(pastRaces) : "sin carreras previas con feedback"}
 
@@ -257,29 +312,80 @@ INSTRUCCIONES:
 
   const result = await callAI([{ role: "user", content: prompt }], PlanSchema);
 
-  const rows = (result.workouts as any[]).slice(0, effectiveCount).map((w, i) => {
+  // ---- Validación y corrección determinista ----
+  const items = (result.workouts as any[]).slice(0, effectiveCount).map((w, i) => {
     const slot = schedule[i];
     const isLong = !!slot && longDay !== null && slot.dow === longDay;
-    const totalSec = (w.steps ?? []).reduce((acc: number, s: any) => acc + (Number(s.duration_seconds) || 0), 0);
-    const mins = totalSec > 0 ? Math.round(totalSec / 60) : input.duration_minutes;
+    const ctx = {
+      ftp,
+      lthr,
+      maxHr,
+      basis,
+      duration_minutes: input.duration_minutes,
+      long_ride: isLong,
+    };
+    const v = validateWorkout(w, ctx);
     return {
-      user_id: userId,
-      training_type: w.focus ?? "mixto",
-      bike_type: input.bike_type,
-      duration_minutes: mins,
-      plan: {
-        ...w,
-        target_basis: basis,
-        competition_id: input.competition_id ?? null,
-        competition_name: competition?.name ?? null,
-        scheduled_date: slot?.date ?? w.scheduled_date ?? null,
-        long_ride: isLong,
-      },
-      status: "pending",
+      focus: w.focus ?? "mixto",
+      plan: v.plan,
+      tss: v.tss,
+      minutes: v.minutes,
+      ctx,
+      date: slot?.date ?? w.scheduled_date ?? null,
+      isLong,
     };
   });
 
+  enforceWeeklyTss(items, week.target_tss);
+  avoidBackToBackHard(items);
+
+  const rationaleBase = `Carga actual CTL ${load.ctl} / TSB ${load.tsb}${load.readiness_7d !== null ? ` · readiness 7d ${load.readiness_7d}/5` : ""} · semana ${week.mode} (${week.reason}) · bloque ${blockFocus} s${weekIndex}/4`;
+
+  const rows = items.map((it) => ({
+    user_id: userId,
+    training_type: it.focus,
+    bike_type: input.bike_type,
+    duration_minutes: it.minutes,
+    planned_tss: it.tss,
+    plan: {
+      ...it.plan,
+      target_basis: basis,
+      competition_id: input.competition_id ?? null,
+      competition_name: competition?.name ?? null,
+      scheduled_date: it.date,
+      long_ride: it.isLong,
+      block_focus: blockFocus,
+      block_week: weekIndex,
+      week_mode: week.mode,
+      week_target_tss: week.target_tss,
+      rationale: `${rationaleBase} · TSS previsto ${it.tss}`,
+    },
+    status: "pending",
+  }));
+
   const { data: inserted, error } = await supabase.from("workouts").insert(rows).select();
   if (error) throw new Error(error.message);
+
+  // Persiste / avanza el bloque de entrenamiento
+  const totalTss = items.reduce((a, i) => a + i.tss, 0);
+  if (blockRow?.id) {
+    await supabase
+      .from("training_blocks")
+      .update({ focus: blockFocus, week_index: weekIndex, target_tss: totalTss, competition_id: input.competition_id ?? null })
+      .eq("id", blockRow.id)
+      .eq("user_id", userId);
+  } else {
+    await supabase.from("training_blocks").insert({
+      user_id: userId,
+      start_date: planWeekStart,
+      focus: blockFocus,
+      week_index: weekIndex,
+      target_tss: totalTss,
+      competition_id: input.competition_id ?? null,
+      notes: week.reason,
+    });
+  }
+
   return inserted;
 }
+
