@@ -88,11 +88,39 @@ function EntrenamientosPage() {
   const profile = useQuery({
     queryKey: ["profile-ftp", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("ftp,max_hr,lthr,zones_display_mode,intervals_athlete_id").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("ftp,max_hr,lthr,zones_display_mode,intervals_athlete_id,weekly_training_days,weekly_long_ride_day").eq("id", user!.id).maybeSingle();
       return data;
     },
     enabled: !!user,
   });
+
+  const [prefsLoaded, setPrefsLoaded] = useState(false);
+  const [savedDays, setSavedDays] = useState<{ days: number[]; long: number | null } | null>(null);
+  useEffect(() => {
+    if (prefsLoaded || !profile.data) return;
+    const days = ((profile.data as any).weekly_training_days ?? []).map((d: any) => Number(d));
+    const long = (profile.data as any).weekly_long_ride_day;
+    if (days.length) {
+      setTrainingDays(days);
+      setLongRideDay(long === null || long === undefined ? null : Number(long));
+      setSavedDays({ days, long: long === null || long === undefined ? null : Number(long) });
+    } else {
+      setSavedDays({ days: trainingDays, long: longRideDay });
+    }
+    setPrefsLoaded(true);
+  }, [profile.data, prefsLoaded]);
+
+  const persistDays = async (days: number[], long: number | null) => {
+    if (!user) return;
+    await supabase.from("profiles").update({ weekly_training_days: days, weekly_long_ride_day: long }).eq("id", user.id);
+  };
+
+  const daysChanged =
+    !!savedDays &&
+    (savedDays.long !== longRideDay ||
+      savedDays.days.length !== trainingDays.length ||
+      [...savedDays.days].sort().join() !== [...trainingDays].sort().join());
+
   const ftp = profile.data?.ftp ?? 250;
   const maxHr = profile.data?.max_hr ?? null;
   const lthr = profile.data?.lthr ?? null;
