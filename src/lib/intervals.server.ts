@@ -294,15 +294,14 @@ export async function intervalsPushZones(supabase: any, userId: string): Promise
 
   const pz = computePowerZones(ftp);
   const hz = computeHrZones(lthr, maxHr);
-  // Intervals.icu espera las zonas como % del umbral (última zona alta = 999)
-  const pct = (v: number) => (Number.isFinite(v) && v < 999 ? Math.round(v) : 999);
-
   const body: Record<string, unknown> = {};
   if (ftp) body.ftp = ftp;
   if (lthr) body.lthr = lthr;
   if (maxHr) body.max_hr = maxHr;
-  if (pz && ftp) body.power_zones = pz.map((z) => pct(z.pctHigh));
-  if (hz && (lthr || maxHr)) body.hr_zones = hz.map((z) => pct(z.pctHigh));
+  // La API espera solo los límites entre zonas: potencia en % FTP y FC en bpm.
+  // La última zona no tiene límite superior y no debe enviarse como 999.
+  if (pz && ftp) body.power_zones = pz.slice(0, -1).map((z) => Math.round(z.pctHigh));
+  if (hz && (lthr || maxHr)) body.hr_zones = hz.slice(0, -1).map((z) => Math.round(z.high));
   if (!Object.keys(body).length) return false;
 
   // El PUT necesita el id numérico de los ajustes del deporte, no el nombre "Ride"
