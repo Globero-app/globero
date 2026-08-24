@@ -23,7 +23,7 @@ const AVAILABLE_OFFLINE = [
   { icon: Activity, label: "Actividades", to: "/actividades", note: "Gráfico y lista cacheados" },
   { icon: Dumbbell, label: "Entrenamientos", to: "/entrenamientos", note: "Últimos vistos + descargas .fit/.zwo" },
   { icon: Trophy, label: "Competiciones", to: "/competiciones", note: "Listado y detalles ya cargados" },
-  { icon: UtensilsCrossed, label: "Recetas", to: "/recetas", note: "Recetas visitadas" },
+  { icon: UtensilsCrossed, label: "Menús", to: "/menus", note: "Menús visitados" },
   { icon: MapPin, label: "Mapas GPX", to: "/competiciones", note: "Tiles y trazas ya vistas" },
 ] as const;
 
