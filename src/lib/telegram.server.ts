@@ -419,7 +419,7 @@ INSTRUCCIONES:
     if (updates.readiness_push_hour !== undefined) {
       updates.readiness_push_hour = Math.min(23, Math.max(0, updates.readiness_push_hour));
     }
-    const { error } = await supabaseAdmin.from("profiles").update(updates).eq("id", userId);
+    const { error } = await supabaseAdmin.from("profiles").update(updates as any).eq("id", userId);
     if (error) throw new Error(error.message);
 
     // Si cambian FTP/LTHR/FCmáx, actualiza zonas en Intervals.icu
