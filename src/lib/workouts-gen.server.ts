@@ -312,29 +312,81 @@ INSTRUCCIONES:
 
   const result = await callAI([{ role: "user", content: prompt }], PlanSchema);
 
-  const rows = (result.workouts as any[]).slice(0, effectiveCount).map((w, i) => {
+  // ---- Validación y corrección determinista ----
+  const items = (result.workouts as any[]).slice(0, effectiveCount).map((w, i) => {
     const slot = schedule[i];
     const isLong = !!slot && longDay !== null && slot.dow === longDay;
-    const totalSec = (w.steps ?? []).reduce((acc: number, s: any) => acc + (Number(s.duration_seconds) || 0), 0);
-    const mins = totalSec > 0 ? Math.round(totalSec / 60) : input.duration_minutes;
+    const ctx = {
+      ftp,
+      lthr,
+      maxHr,
+      basis,
+      duration_minutes: input.duration_minutes,
+      long_ride: isLong,
+    };
+    const v = validateWorkout(w, ctx);
     return {
-      user_id: userId,
-      training_type: w.focus ?? "mixto",
-      bike_type: input.bike_type,
-      duration_minutes: mins,
-      plan: {
-        ...w,
-        target_basis: basis,
-        competition_id: input.competition_id ?? null,
-        competition_name: competition?.name ?? null,
-        scheduled_date: slot?.date ?? w.scheduled_date ?? null,
-        long_ride: isLong,
-      },
-      status: "pending",
+      focus: w.focus ?? "mixto",
+      plan: v.plan,
+      tss: v.tss,
+      minutes: v.minutes,
+      ctx,
+      date: slot?.date ?? w.scheduled_date ?? null,
+      isLong,
     };
   });
 
+  enforceWeeklyTss(items, week.target_tss);
+  avoidBackToBackHard(items);
+
+  const rationaleBase = `Carga actual CTL ${load.ctl} / TSB ${load.tsb}${load.readiness_7d !== null ? ` · readiness 7d ${load.readiness_7d}/5` : ""} · semana ${week.mode} (${week.reason}) · bloque ${blockFocus} s${weekIndex}/4`;
+
+  const rows = items.map((it) => ({
+    user_id: userId,
+    training_type: it.focus,
+    bike_type: input.bike_type,
+    duration_minutes: it.minutes,
+    planned_tss: it.tss,
+    plan: {
+      ...it.plan,
+      target_basis: basis,
+      competition_id: input.competition_id ?? null,
+      competition_name: competition?.name ?? null,
+      scheduled_date: it.date,
+      long_ride: it.isLong,
+      block_focus: blockFocus,
+      block_week: weekIndex,
+      week_mode: week.mode,
+      week_target_tss: week.target_tss,
+      rationale: `${rationaleBase} · TSS previsto ${it.tss}`,
+    },
+    status: "pending",
+  }));
+
   const { data: inserted, error } = await supabase.from("workouts").insert(rows).select();
   if (error) throw new Error(error.message);
+
+  // Persiste / avanza el bloque de entrenamiento
+  const totalTss = items.reduce((a, i) => a + i.tss, 0);
+  if (blockRow?.id) {
+    await supabase
+      .from("training_blocks")
+      .update({ focus: blockFocus, week_index: weekIndex, target_tss: totalTss, competition_id: input.competition_id ?? null })
+      .eq("id", blockRow.id)
+      .eq("user_id", userId);
+  } else {
+    await supabase.from("training_blocks").insert({
+      user_id: userId,
+      start_date: planWeekStart,
+      focus: blockFocus,
+      week_index: weekIndex,
+      target_tss: totalTss,
+      competition_id: input.competition_id ?? null,
+      notes: week.reason,
+    });
+  }
+
+  void todayISO;
   return inserted;
 }
+
