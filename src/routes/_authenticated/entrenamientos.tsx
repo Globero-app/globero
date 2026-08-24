@@ -286,6 +286,25 @@ function EntrenamientosPage() {
           </p>
         </Field>
 
+        {daysChanged && trainingDays.length > 0 && (
+          <div className="rounded-lg border-2 border-primary/40 bg-primary/5 p-3 space-y-2">
+            <p className="text-[12px]">
+              Has cambiado tus días de entreno. Se han guardado para las próximas semanas. ¿Quieres regenerar los entrenamientos pendientes con los nuevos días?
+            </p>
+            <button
+              type="button"
+              disabled={generateMut.isPending}
+              onClick={() => generateMut.mutate({ replace_pending: true })}
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground disabled:opacity-50"
+            >
+              {generateMut.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+              Regenerar con los nuevos días
+            </button>
+          </div>
+        )}
+
+
+
         <Field label="Plan nutricional">
           <label className="flex items-start gap-3 p-3 bg-background border rounded-lg cursor-pointer hover:border-primary/40 transition-colors">
             <input type="checkbox" className="mt-0.5 size-4 accent-primary" checked={nutritionEnabled} onChange={(e) => setNutritionEnabled(e.target.checked)} />
