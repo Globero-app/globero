@@ -113,8 +113,17 @@ function EntrenamientosPage() {
         .select("*")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
-      return data ?? [];
+      const cutoff = Date.now() - 15 * 24 * 60 * 60 * 1000;
+      return (data ?? []).filter((w: any) => {
+        const ref =
+          w.completed_at ??
+          (w.plan as any)?.scheduled_date ??
+          w.created_at;
+        const t = new Date(ref).getTime();
+        return isNaN(t) ? true : t >= cutoff;
+      });
     },
+
     enabled: !!user,
   });
 
