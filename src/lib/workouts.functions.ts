@@ -44,6 +44,9 @@ const GenInput = z.object({
   long_ride_day: z.number().int().min(0).max(6).optional().nullable(),
   /** Nº máximo de sesiones (por defecto tantas como días marcados). */
   max_count: z.number().int().min(1).max(90).optional(),
+  /** Plan nutricional asociado. */
+  nutrition_enabled: z.boolean().optional().default(false),
+  nutrition_goal: z.enum(["perdida_peso", "mantenimiento", "masa_muscular"]).optional().nullable(),
 });
 
 
