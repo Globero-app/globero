@@ -174,23 +174,20 @@ function EntrenamientosPage() {
         )}
 
         <div className="grid md:grid-cols-2 gap-4">
-          <Field label="Tipo de entrenamiento">
-            <select disabled={hasCompetition} className="input disabled:opacity-50 disabled:cursor-not-allowed" value={trainingType} onChange={(e) => setTrainingType(e.target.value as any)}>
-              {TRAINING_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
-          </Field>
           <Field label="Tipo de bicicleta">
             <select className="input" value={bikeType} onChange={(e) => setBikeType(e.target.value as any)}>
               {BIKE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </Field>
-          <Field label={`Cantidad: ${count} entrenamiento${count > 1 ? "s" : ""}${hasCompetition ? " (tope, la IA ajusta)" : ""}`}>
-            <input type="range" min={1} max={90} value={count} onChange={(e) => setCount(Number(e.target.value))} className="w-full" />
-          </Field>
           <Field label={`Duración por entrenamiento: ${duration} min`}>
             <input type="range" min={20} max={240} step={5} value={duration} onChange={(e) => setDuration(Number(e.target.value))} className="w-full" />
           </Field>
         </div>
+        <p className="text-[11px] text-muted-foreground">
+          Los entrenamientos son siempre <strong>mixtos</strong> (resistencia, intervalos y fuerza) y se crea uno por cada día marcado.
+          Cada domingo a las 21:00 la IA generará automáticamente los entrenamientos de la semana siguiente según estos días y tu progreso.
+        </p>
+
 
         <Field label="Días que puedes entrenar">
           <div className="grid grid-cols-7 gap-1.5">
