@@ -283,6 +283,7 @@ function PerfilPage() {
               </button>
             </div>
           ) : (
+
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
                 Encuentra tu ID de atleta y tu clave API en{" "}
