@@ -319,11 +319,17 @@ function PerfilPage() {
               </div>
               <button
                 type="button"
-                disabled={icuBusy}
+                disabled={icuBusy || icu.athlete_id.trim().length < 1 || icu.api_key.trim().length < 8}
                 onClick={async () => {
+                  const athleteId = icu.athlete_id.trim();
+                  const apiKey = icu.api_key.trim();
+                  if (!athleteId || apiKey.length < 8) {
+                    toast.error("Introduce el ID de atleta y la clave API");
+                    return;
+                  }
                   setIcuBusy(true);
                   try {
-                    await connectIcu({ data: { athlete_id: icu.athlete_id.trim(), api_key: icu.api_key.trim() } });
+                    await connectIcu({ data: { athlete_id: athleteId, api_key: apiKey } });
                     toast.success("Intervals.icu conectado");
                     setIcu({ athlete_id: "", api_key: "" });
                     qc.invalidateQueries({ queryKey: ["profile"] });
