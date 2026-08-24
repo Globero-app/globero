@@ -247,6 +247,31 @@ function EntrenamientosPage() {
           </p>
         </Field>
 
+        <Field label="Plan nutricional">
+          <label className="flex items-start gap-3 p-3 bg-background border rounded-lg cursor-pointer hover:border-primary/40 transition-colors">
+            <input type="checkbox" className="mt-0.5 size-4 accent-primary" checked={nutritionEnabled} onChange={(e) => setNutritionEnabled(e.target.checked)} />
+            <div className="flex-1 min-w-0">
+              <span className="text-sm font-semibold">Quiero un plan nutricional</span>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                La IA adaptará los entrenamientos a tu objetivo y creará los menús de la semana en la pantalla <strong>Menús</strong>. Se actualiza cada domingo.
+              </p>
+            </div>
+          </label>
+          {nutritionEnabled && (
+            <div className="grid sm:grid-cols-3 gap-2 mt-2">
+              {NUTRITION_GOAL_OPTIONS.map((g) => (
+                <button
+                  key={g.value}
+                  type="button"
+                  onClick={() => setNutritionGoal(g.value)}
+                  className={`rounded-lg border-2 px-3 py-2.5 text-sm font-semibold transition ${nutritionGoal === g.value ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
+                >
+                  {g.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </Field>
 
         <Field label="Base de prescripción de la IA">
           <div className="grid grid-cols-2 gap-2">
