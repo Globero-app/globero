@@ -290,7 +290,8 @@ ${scheduleBlock}
 
 ACTIVIDADES RECIENTES (Strava): ${recent && recent.length ? JSON.stringify(recent) : "ninguna"}
 
-ENTRENAMIENTOS YA REALIZADOS (RPE 1=fácil, 5=imposible): ${prevWorkouts && prevWorkouts.length ? JSON.stringify(prevWorkouts.map((w: any) => ({ tipo: w.training_type, min: w.duration_minutes, rpe: w.rpe, notas: w.feedback_notes, fecha: w.completed_at }))) : "sin histórico"}
+ENTRENAMIENTOS YA REALIZADOS (prescrito vs ejecutado; RPE 1=fácil, 5=imposible): ${prevWorkouts && prevWorkouts.length ? JSON.stringify(prevWorkouts.map((w: any) => ({ tipo: w.training_type, min: w.duration_minutes, rpe: w.rpe, notas: w.feedback_notes, fecha: w.completed_at, tss_prescrito: w.planned_tss, tss_real: w.actual_tss, cumplimiento_pct: w.compliance }))) : "sin histórico"}
+- Si el cumplimiento medio es <85% de forma repetida, BAJA los targets prescritos; si es >115%, súbelos.
 
 CARRERAS PASADAS: ${pastRaces && pastRaces.length ? JSON.stringify(pastRaces) : "sin carreras previas con feedback"}
 
