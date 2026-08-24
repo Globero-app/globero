@@ -31,8 +31,8 @@ async function call(creds: IntervalsCreds, path: string, init: RequestInit = {})
 }
 
 export async function intervalsTestConnection(creds: IntervalsCreds) {
-  const profile = await call(creds, "/profile");
-  return { ok: true, name: profile?.athlete?.name ?? null };
+  const athlete = await call(creds, "");
+  return { ok: true, name: athlete?.name ?? athlete?.athlete?.name ?? null };
 }
 
 export type ZoneRefs = { ftp: number | null; lthr: number | null; maxHr: number | null };
@@ -294,27 +294,26 @@ export async function intervalsPushZones(supabase: any, userId: string): Promise
 
   const pz = computePowerZones(ftp);
   const hz = computeHrZones(lthr, maxHr);
-  const cap = (v: number, ref: number) => (Number.isFinite(v) ? v : Math.round(ref * 2));
+  // Intervals.icu espera las zonas como % del umbral (última zona alta = 999)
+  const pct = (v: number) => (Number.isFinite(v) && v < 999 ? Math.round(v) : 999);
 
   const body: Record<string, unknown> = {};
   if (ftp) body.ftp = ftp;
   if (lthr) body.lthr = lthr;
   if (maxHr) body.max_hr = maxHr;
-  if (pz && ftp) body.power_zones = pz.map((z) => cap(z.high, ftp));
-  if (hz) {
-    const ref = lthr || (maxHr ? Math.round(maxHr * 0.92) : 0);
-    if (ref) body.hr_zones = hz.map((z) => cap(z.high, ref));
-  }
+  if (pz && ftp) body.power_zones = pz.map((z) => pct(z.pctHigh));
+  if (hz && (lthr || maxHr)) body.hr_zones = hz.map((z) => pct(z.pctHigh));
   if (!Object.keys(body).length) return false;
 
-  const res = await fetch(`${BASE}/athlete/${athletePath(creds.athleteId)}/sport-settings/Ride`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json", Authorization: authHeader(creds.apiKey) },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const t = await res.text();
-    throw new Error(`Intervals.icu ${res.status}: ${t.slice(0, 200)}`);
-  }
+  // El PUT necesita el id numérico de los ajustes del deporte, no el nombre "Ride"
+  const settings = await call(creds, "/sport-settings");
+  const ride =
+    (Array.isArray(settings) ? settings : []).find((s: any) =>
+      (s?.types ?? []).some((t: string) => String(t).toLowerCase() === "ride"),
+    ) ?? (Array.isArray(settings) ? settings[0] : null);
+  const settingsId = ride?.id;
+  if (!settingsId) throw new Error("No se encontraron ajustes de Ride en Intervals.icu");
+
+  await call(creds, `/sport-settings/${settingsId}`, { method: "PUT", body: JSON.stringify(body) });
   return true;
 }
