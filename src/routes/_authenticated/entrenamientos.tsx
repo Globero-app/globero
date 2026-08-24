@@ -121,9 +121,9 @@ function EntrenamientosPage() {
   });
 
   const generateMut = useMutation({
-    mutationFn: () => gen({ data: { training_type: trainingType, bike_type: bikeType, count, duration_minutes: duration, competition_id: competitionId || null, target_basis: effectiveBasis, training_days: trainingDays, long_ride_day: longRideDay } }),
+    mutationFn: () => gen({ data: { bike_type: bikeType, duration_minutes: duration, competition_id: competitionId || null, target_basis: effectiveBasis, training_days: trainingDays, long_ride_day: longRideDay, ...(competitionId ? { max_count: 90 } : {}) } }),
     onSuccess: async (inserted: any) => {
-      const n = Array.isArray(inserted) ? inserted.length : count;
+      const n = Array.isArray(inserted) ? inserted.length : trainingDays.length;
       toast.success(hasCompetition ? `Plan para tu competición creado: ${n} entrenamientos` : `${n} entrenamiento${n > 1 ? "s" : ""} generado${n > 1 ? "s" : ""}`);
       qc.invalidateQueries({ queryKey: ["workouts"] });
       const ids = Array.isArray(inserted) ? inserted.map((w: any) => w.id) : [];
@@ -167,7 +167,7 @@ function EntrenamientosPage() {
             </select>
             {hasCompetition && (
               <p className="text-[11px] text-muted-foreground mt-1.5">
-                La IA generará un plan periodizado (máx. 3/semana) hasta el día del evento. Tipo y cantidad se calculan automáticamente.
+                La IA generará un plan periodizado y mixto hasta el día del evento, en los días que marques abajo.
               </p>
             )}
           </Field>
@@ -216,7 +216,7 @@ function EntrenamientosPage() {
           <p className="text-[11px] text-muted-foreground mt-1.5">
             {trainingDays.length === 0
               ? "Marca al menos un día para planificar el calendario."
-              : `La IA repartirá los ${count} entrenamientos en: ${WEEK_DAYS.filter((d) => trainingDays.includes(d.value)).map((d) => d.label).join(", ")}.`}
+              : `La IA creará ${trainingDays.length} entrenamiento(s) en: ${WEEK_DAYS.filter((d) => trainingDays.includes(d.value)).map((d) => d.label).join(", ")}.`}
           </p>
         </Field>
 
