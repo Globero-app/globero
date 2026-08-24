@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedReadinessRouteImport } from './routes/_authenticated/readiness'
+import { Route as AuthenticatedProgresoRouteImport } from './routes/_authenticated/progreso'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedMenusRouteImport } from './routes/_authenticated/menus'
 import { Route as AuthenticatedFtpTestRouteImport } from './routes/_authenticated/ftp-test'
@@ -52,6 +53,11 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
 const AuthenticatedReadinessRoute = AuthenticatedReadinessRouteImport.update({
   id: '/readiness',
   path: '/readiness',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProgresoRoute = AuthenticatedProgresoRouteImport.update({
+  id: '/progreso',
+  path: '/progreso',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/ftp-test': typeof AuthenticatedFtpTestRoute
   '/menus': typeof AuthenticatedMenusRoute
   '/perfil': typeof AuthenticatedPerfilRoute
+  '/progreso': typeof AuthenticatedProgresoRoute
   '/readiness': typeof AuthenticatedReadinessRoute
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
@@ -169,6 +176,7 @@ export interface FileRoutesByTo {
   '/ftp-test': typeof AuthenticatedFtpTestRoute
   '/menus': typeof AuthenticatedMenusRoute
   '/perfil': typeof AuthenticatedPerfilRoute
+  '/progreso': typeof AuthenticatedProgresoRoute
   '/readiness': typeof AuthenticatedReadinessRoute
   '/': typeof AuthenticatedIndexRoute
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
@@ -192,6 +200,7 @@ export interface FileRoutesById {
   '/_authenticated/ftp-test': typeof AuthenticatedFtpTestRoute
   '/_authenticated/menus': typeof AuthenticatedMenusRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
+  '/_authenticated/progreso': typeof AuthenticatedProgresoRoute
   '/_authenticated/readiness': typeof AuthenticatedReadinessRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/actividades/$id': typeof AuthenticatedActividadesIdRoute
@@ -216,6 +225,7 @@ export interface FileRouteTypes {
     | '/ftp-test'
     | '/menus'
     | '/perfil'
+    | '/progreso'
     | '/readiness'
     | '/actividades/$id'
     | '/competiciones/$id'
@@ -236,6 +246,7 @@ export interface FileRouteTypes {
     | '/ftp-test'
     | '/menus'
     | '/perfil'
+    | '/progreso'
     | '/readiness'
     | '/'
     | '/actividades/$id'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ftp-test'
     | '/_authenticated/menus'
     | '/_authenticated/perfil'
+    | '/_authenticated/progreso'
     | '/_authenticated/readiness'
     | '/_authenticated/'
     | '/_authenticated/actividades/$id'
@@ -317,6 +329,13 @@ declare module '@tanstack/react-router' {
       path: '/readiness'
       fullPath: '/readiness'
       preLoaderRoute: typeof AuthenticatedReadinessRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/progreso': {
+      id: '/_authenticated/progreso'
+      path: '/progreso'
+      fullPath: '/progreso'
+      preLoaderRoute: typeof AuthenticatedProgresoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/perfil': {
@@ -434,6 +453,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFtpTestRoute: typeof AuthenticatedFtpTestRoute
   AuthenticatedMenusRoute: typeof AuthenticatedMenusRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
+  AuthenticatedProgresoRoute: typeof AuthenticatedProgresoRoute
   AuthenticatedReadinessRoute: typeof AuthenticatedReadinessRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedActividadesIdRoute: typeof AuthenticatedActividadesIdRoute
@@ -449,6 +469,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFtpTestRoute: AuthenticatedFtpTestRoute,
   AuthenticatedMenusRoute: AuthenticatedMenusRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
+  AuthenticatedProgresoRoute: AuthenticatedProgresoRoute,
   AuthenticatedReadinessRoute: AuthenticatedReadinessRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedActividadesIdRoute: AuthenticatedActividadesIdRoute,
