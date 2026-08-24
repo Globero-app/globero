@@ -25,6 +25,7 @@ import { Route as AuthenticatedActividadesIndexRouteImport } from './routes/_aut
 import { Route as ApiPublicSetupAdminRouteImport } from './routes/api/public/setup-admin'
 import { Route as AuthenticatedCompeticionesIdRouteImport } from './routes/_authenticated/competiciones.$id'
 import { Route as AuthenticatedActividadesIdRouteImport } from './routes/_authenticated/actividades.$id'
+import { Route as ApiPublicHooksWeeklyWorkoutsRouteImport } from './routes/api/public/hooks/weekly-workouts'
 import { Route as ApiPublicHooksReadinessPushRouteImport } from './routes/api/public/hooks/readiness-push'
 
 const OfflineRoute = OfflineRouteImport.update({
@@ -111,6 +112,12 @@ const AuthenticatedActividadesIdRoute =
     path: '/actividades/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicHooksWeeklyWorkoutsRoute =
+  ApiPublicHooksWeeklyWorkoutsRouteImport.update({
+    id: '/api/public/hooks/weekly-workouts',
+    path: '/api/public/hooks/weekly-workouts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksReadinessPushRoute =
   ApiPublicHooksReadinessPushRouteImport.update({
     id: '/api/public/hooks/readiness-push',
@@ -135,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/actividades/': typeof AuthenticatedActividadesIndexRoute
   '/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
+  '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -153,6 +161,7 @@ export interface FileRoutesByTo {
   '/actividades': typeof AuthenticatedActividadesIndexRoute
   '/competiciones': typeof AuthenticatedCompeticionesIndexRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
+  '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -173,6 +182,7 @@ export interface FileRoutesById {
   '/_authenticated/actividades/': typeof AuthenticatedActividadesIndexRoute
   '/_authenticated/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
+  '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/actividades/'
     | '/competiciones/'
     | '/api/public/hooks/readiness-push'
+    | '/api/public/hooks/weekly-workouts'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/actividades'
     | '/competiciones'
     | '/api/public/hooks/readiness-push'
+    | '/api/public/hooks/weekly-workouts'
   id:
     | '__root__'
     | '/_authenticated'
@@ -230,6 +242,7 @@ export interface FileRouteTypes {
     | '/_authenticated/actividades/'
     | '/_authenticated/competiciones/'
     | '/api/public/hooks/readiness-push'
+    | '/api/public/hooks/weekly-workouts'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -238,6 +251,7 @@ export interface RootRouteChildren {
   OfflineRoute: typeof OfflineRoute
   ApiPublicSetupAdminRoute: typeof ApiPublicSetupAdminRoute
   ApiPublicHooksReadinessPushRoute: typeof ApiPublicHooksReadinessPushRoute
+  ApiPublicHooksWeeklyWorkoutsRoute: typeof ApiPublicHooksWeeklyWorkoutsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -354,6 +368,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedActividadesIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/hooks/weekly-workouts': {
+      id: '/api/public/hooks/weekly-workouts'
+      path: '/api/public/hooks/weekly-workouts'
+      fullPath: '/api/public/hooks/weekly-workouts'
+      preLoaderRoute: typeof ApiPublicHooksWeeklyWorkoutsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/readiness-push': {
       id: '/api/public/hooks/readiness-push'
       path: '/api/public/hooks/readiness-push'
@@ -403,6 +424,7 @@ const rootRouteChildren: RootRouteChildren = {
   OfflineRoute: OfflineRoute,
   ApiPublicSetupAdminRoute: ApiPublicSetupAdminRoute,
   ApiPublicHooksReadinessPushRoute: ApiPublicHooksReadinessPushRoute,
+  ApiPublicHooksWeeklyWorkoutsRoute: ApiPublicHooksWeeklyWorkoutsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

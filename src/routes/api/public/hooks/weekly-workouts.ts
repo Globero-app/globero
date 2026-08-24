@@ -20,6 +20,14 @@ export const Route = createFileRoute("/api/public/hooks/weekly-workouts")({
           timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit",
         }).format(now);
 
+        const madridHour = Number(
+          new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", hour: "2-digit", hour12: false }).format(now),
+        );
+        const url = new URL(request.url);
+        if (url.searchParams.get("force") !== "1" && madridHour !== 21) {
+          return new Response(JSON.stringify({ ok: true, skipped: true, hour: madridHour }), { headers: { "content-type": "application/json" } });
+        }
+
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { generateWorkoutsCore } = await import("@/lib/workouts-gen.server");
 
