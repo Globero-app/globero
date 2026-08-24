@@ -274,6 +274,13 @@ export type Database = {
           strava_expires_at: number | null
           strava_refresh_token: string | null
           updated_at: string
+          weekly_auto_enabled: boolean
+          weekly_bike_type: string
+          weekly_duration_minutes: number
+          weekly_last_generated_at: string | null
+          weekly_long_ride_day: number | null
+          weekly_target_basis: string
+          weekly_training_days: number[]
           weight_kg: number | null
           zones_display_mode: string
         }
@@ -309,6 +316,13 @@ export type Database = {
           strava_expires_at?: number | null
           strava_refresh_token?: string | null
           updated_at?: string
+          weekly_auto_enabled?: boolean
+          weekly_bike_type?: string
+          weekly_duration_minutes?: number
+          weekly_last_generated_at?: string | null
+          weekly_long_ride_day?: number | null
+          weekly_target_basis?: string
+          weekly_training_days?: number[]
           weight_kg?: number | null
           zones_display_mode?: string
         }
@@ -344,6 +358,13 @@ export type Database = {
           strava_expires_at?: number | null
           strava_refresh_token?: string | null
           updated_at?: string
+          weekly_auto_enabled?: boolean
+          weekly_bike_type?: string
+          weekly_duration_minutes?: number
+          weekly_last_generated_at?: string | null
+          weekly_long_ride_day?: number | null
+          weekly_target_basis?: string
+          weekly_training_days?: number[]
           weight_kg?: number | null
           zones_display_mode?: string
         }
