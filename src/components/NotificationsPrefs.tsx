@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
-import { Bell, Smartphone, CheckCircle2, AlertCircle, Wrench, Dumbbell, Droplets, Activity, Mail, Server, Send, PowerOff } from "lucide-react";
+import { Bell, Smartphone, CheckCircle2, AlertCircle, Wrench, Dumbbell, Droplets, Activity, Server, Send, PowerOff } from "lucide-react";
 import { pushPermission, requestPushPermission, sendLocalPush } from "@/lib/push";
 import { useServerFn } from "@tanstack/react-start";
 import { sendTestPush } from "@/lib/push-server.functions";
@@ -87,7 +87,6 @@ export function NotificationsPrefs() {
     if (ok) toast.success(value ? "Activado" : "Desactivado");
   };
 
-  const emailEnabled = !!prefsQ.data?.notify_maintenance_email;
 
   const enableServer = async () => {
     setBusy(true);
