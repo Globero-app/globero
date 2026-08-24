@@ -287,21 +287,13 @@ export async function intervalsPushZones(supabase: any, userId: string): Promise
   const creds = credsFromProfile(profile);
   if (!creds) return false;
 
-  const { computePowerZones, computeHrZones } = await import("./zones");
   const ftp = profile?.ftp ?? null;
   const lthr = profile?.lthr ?? null;
   const maxHr = profile?.max_hr ?? null;
-
-  const pz = computePowerZones(ftp);
-  const hz = computeHrZones(lthr, maxHr);
   const body: Record<string, unknown> = {};
   if (ftp) body.ftp = ftp;
   if (lthr) body.lthr = lthr;
   if (maxHr) body.max_hr = maxHr;
-  // La API espera solo los límites entre zonas: potencia en % FTP y FC en bpm.
-  // La última zona no tiene límite superior y no debe enviarse como 999.
-  if (pz && ftp) body.power_zones = pz.slice(0, -1).map((z) => Math.round(z.pctHigh));
-  if (hz && (lthr || maxHr)) body.hr_zones = hz.slice(0, -1).map((z) => Math.round(z.high));
   if (!Object.keys(body).length) return false;
 
   // El PUT necesita el id numérico de los ajustes del deporte, no el nombre "Ride"
@@ -313,6 +305,6 @@ export async function intervalsPushZones(supabase: any, userId: string): Promise
   const settingsId = ride?.id;
   if (!settingsId) throw new Error("No se encontraron ajustes de Ride en Intervals.icu");
 
-  await call(creds, `/sport-settings/${settingsId}`, { method: "PUT", body: JSON.stringify(body) });
+  await call(creds, `/sport-settings/${settingsId}?recalcHrZones=true`, { method: "PUT", body: JSON.stringify(body) });
   return true;
 }
