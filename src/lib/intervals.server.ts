@@ -201,6 +201,21 @@ export async function intervalsDeleteEvent(creds: IntervalsCreds, eventId: strin
   await call(creds, `/events/${eventId}`, { method: "DELETE" });
 }
 
+/** Lista actividades desde una fecha (YYYY-MM-DD) */
+export async function intervalsListActivities(creds: IntervalsCreds, oldest: string): Promise<any[]> {
+  const res = await call(creds, `/activities?oldest=${oldest}`);
+  return Array.isArray(res) ? res : [];
+}
+
+/** Actualiza campos de una actividad (RPE / Feel) */
+export async function intervalsUpdateActivity(
+  creds: IntervalsCreds,
+  activityId: string,
+  fields: { rpe?: number; feel?: number },
+) {
+  await call(creds, `/activities/${activityId}`, { method: "PUT", body: JSON.stringify(fields) });
+}
+
 /** Lee credenciales del perfil; null si no está conectado */
 export function credsFromProfile(profile: any): IntervalsCreds | null {
   if (!profile?.intervals_athlete_id || !profile?.intervals_api_key) return null;
