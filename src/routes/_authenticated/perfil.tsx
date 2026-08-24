@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { stravaExchange, stravaDisconnect, stravaEstimateFtp, stravaEstimateHr } from "@/lib/strava.functions";
-import { connectIntervals, disconnectIntervals } from "@/lib/intervals.functions";
+import { connectIntervals, disconnectIntervals, syncIntervalsZones } from "@/lib/intervals.functions";
 import { Bike, CheckCircle2, Link as LinkIcon, Unlink, Wrench, Wand2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { computePowerZones, computeHrZones } from "@/lib/zones";
@@ -27,6 +27,8 @@ function PerfilPage() {
   const estimateHr = useServerFn(stravaEstimateHr);
   const connectIcu = useServerFn(connectIntervals);
   const disconnectIcu = useServerFn(disconnectIntervals);
+  const syncZonesIcu = useServerFn(syncIntervalsZones);
+  const [syncZones, setSyncZones] = useState(true);
   const [icu, setIcu] = useState({ athlete_id: "", api_key: "" });
   const [icuBusy, setIcuBusy] = useState(false);
 
@@ -76,14 +78,23 @@ function PerfilPage() {
       readiness_push_hour: form.readiness_push_hour != null && form.readiness_push_hour !== "" ? Number(form.readiness_push_hour) : 7,
     }, { onConflict: "id" });
     if (error) toast.error(error.message);
-    else { toast.success("Perfil guardado"); qc.invalidateQueries({ queryKey: ["profile"] }); }
+    else {
+      toast.success("Perfil guardado");
+      qc.invalidateQueries({ queryKey: ["profile"] });
+      if (syncZones && profileQ.data?.intervals_athlete_id && profileQ.data?.intervals_api_key) {
+        try {
+          const r = await syncZonesIcu({ data: undefined });
+          if (r.ok) toast.success("Zonas sincronizadas con Intervals.icu");
+        } catch (err: any) { toast.error(`Intervals.icu: ${err.message}`); }
+      }
+    }
   };
 
   const connectStrava = async () => {
     await save(new Event("submit") as any);
     if (!form.strava_client_id) { toast.error("Añade tu Client ID de Strava primero"); return; }
     const redirect = `${window.location.origin}/perfil`;
-    const url = `https://www.strava.com/oauth/authorize?client_id=${form.strava_client_id}&response_type=code&redirect_uri=${encodeURIComponent(redirect)}&approval_prompt=auto&scope=read,activity:read_all,profile:read_all`;
+    const url = `https://www.strava.com/oauth/authorize?client_id=${form.strava_client_id}&response_type=code&redirect_uri=${encodeURIComponent(redirect)}&approval_prompt=auto&scope=read,activity:read_all,activity:write,profile:read_all`;
     // Strava bloquea el login dentro de iframes (cookies de terceros).
     // Si estamos embebidos (p.ej. preview de Lovable), forzamos la ventana superior;
     // si no es posible, abrimos en pestaña nueva.
@@ -171,7 +182,14 @@ function PerfilPage() {
           <div className="grid grid-cols-2 gap-3">
             <Field label="FC máx (bpm)">
               <div className="flex gap-2">
-                <input type="number" className="input" value={form.max_hr ?? ""} onChange={(e) => setForm({ ...form, max_hr: e.target.value })} />
+                <input type="number" className="input" value={form.max_hr ?? ""} onChange={(e) => {
+                  const v = e.target.value;
+                  setForm((f: any) => {
+                    const n = Number(v);
+                    const auto = v && n > 0 ? String(Math.round(n * 0.92)) : f.lthr;
+                    return { ...f, max_hr: v, lthr: auto };
+                  });
+                }} />
                 {!!profileQ.data?.strava_access_token && (
                   <button
                     type="button"
