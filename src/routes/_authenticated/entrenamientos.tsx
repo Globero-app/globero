@@ -61,6 +61,8 @@ function EntrenamientosPage() {
   const [competitionId, setCompetitionId] = useState<string>("");
   const [trainingDays, setTrainingDays] = useState<number[]>([2, 4, 6]);
   const [longRideDay, setLongRideDay] = useState<number | null>(6);
+  const [nutritionEnabled, setNutritionEnabled] = useState(false);
+  const [nutritionGoal, setNutritionGoal] = useState<"perdida_peso" | "mantenimiento" | "masa_muscular">("mantenimiento");
 
   const competitions = useQuery({
     queryKey: ["competitions-future", user?.id],
