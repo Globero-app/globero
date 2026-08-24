@@ -137,8 +137,18 @@ export const Route = createFileRoute("/api/public/hooks/readiness-push")({
               supabaseAdmin.from("bikes").select("id, name, current_km").eq("user_id", u.id),
               supabaseAdmin.from("bike_components").select("id, bike_id, component_type, name, install_km, lifespan_km, active").eq("user_id", u.id),
             ]);
-            const { computeAlerts } = await import("@/lib/maintenance-alerts");
-            const alerts = computeAlerts((bikes ?? []) as any, (comps ?? []) as any);
+            const byBike = new Map((bikes ?? []).map((b: any) => [b.id, b]));
+            const alerts = ((comps ?? []) as any[])
+              .filter((c) => c.active && byBike.has(c.bike_id))
+              .map((c) => {
+                const bike: any = byBike.get(c.bike_id);
+                const used = Math.max(0, Number(bike.current_km) - Number(c.install_km));
+                const remaining = Number(c.lifespan_km) - used;
+                const pct = Number(c.lifespan_km) > 0 ? (used / Number(c.lifespan_km)) * 100 : 0;
+                return { bikeName: bike.name, componentLabel: c.name ?? c.component_type, remaining, pct };
+              })
+              .filter((a) => a.pct >= 85)
+              .sort((a, b) => a.remaining - b.remaining);
             if (!alerts.length) continue;
             const top = alerts[0]!;
             sent += await notifyUser(u.id, {
