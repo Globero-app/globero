@@ -460,9 +460,12 @@ function WorkoutCard({
               </button>
             )}
 
-            <button onClick={onDelete} title="Eliminar" className="p-2 rounded-md hover:bg-secondary text-destructive">
-              <Trash2 className="size-4" />
-            </button>
+            {!completed && (
+              <button onClick={onDelete} title="Eliminar" className="p-2 rounded-md hover:bg-secondary text-destructive">
+                <Trash2 className="size-4" />
+              </button>
+            )}
+
             <button onClick={() => setOpen((o) => !o)} className="p-2 rounded-md hover:bg-secondary">
               <ChevronDown className={`size-4 transition-transform ${open ? "rotate-180" : ""}`} />
             </button>
