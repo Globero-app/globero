@@ -135,21 +135,39 @@ export const generateWorkouts = createServerFn({ method: "POST" })
       nutrition_goal: data.nutrition_enabled ? (data.nutrition_goal ?? "mantenimiento") : null,
     });
 
-    if (data.nutrition_enabled) {
+    // Plan nutricional: se regenera para todas las semanas afectadas por los nuevos días
+    let nutritionOn = data.nutrition_enabled;
+    let nutritionGoal: string = data.nutrition_goal ?? "mantenimiento";
+    if (!nutritionOn) {
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("nutrition_plan_enabled,nutrition_goal")
+        .eq("id", userId)
+        .maybeSingle();
+      if (prof?.nutrition_plan_enabled) {
+        nutritionOn = true;
+        nutritionGoal = prof.nutrition_goal ?? "mantenimiento";
+      }
+    }
+
+    if (nutritionOn) {
       try {
         const { generateWeeklyNutritionCore, weekStartISO } = await import("./nutrition-gen.server");
-        const firstDate = (inserted ?? [])
+        const dates = (inserted ?? [])
           .map((w: any) => w.plan?.scheduled_date)
-          .filter(Boolean)
-          .sort()[0];
-        await generateWeeklyNutritionCore(supabase, userId, {
-          goal: data.nutrition_goal ?? "mantenimiento",
-          week_start: weekStartISO(firstDate ? new Date(`${firstDate}T12:00:00Z`) : new Date()),
-        });
+          .filter(Boolean) as string[];
+        const weeks = Array.from(
+          new Set(dates.map((d) => weekStartISO(new Date(`${d}T12:00:00Z`)))),
+        ).sort();
+        if (!weeks.length) weeks.push(weekStartISO(new Date()));
+        for (const week_start of weeks.slice(0, 4)) {
+          await generateWeeklyNutritionCore(supabase, userId, { goal: nutritionGoal, week_start });
+        }
       } catch (e) {
         console.error("nutrition-plan", e);
       }
     }
+
 
     return inserted;
   });
