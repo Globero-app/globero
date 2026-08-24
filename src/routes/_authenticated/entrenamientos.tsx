@@ -113,8 +113,17 @@ function EntrenamientosPage() {
         .select("*")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
-      return data ?? [];
+      const cutoff = Date.now() - 15 * 24 * 60 * 60 * 1000;
+      return (data ?? []).filter((w: any) => {
+        const ref =
+          w.completed_at ??
+          (w.plan as any)?.scheduled_date ??
+          w.created_at;
+        const t = new Date(ref).getTime();
+        return isNaN(t) ? true : t >= cutoff;
+      });
     },
+
     enabled: !!user,
   });
 
@@ -460,9 +469,12 @@ function WorkoutCard({
               </button>
             )}
 
-            <button onClick={onDelete} title="Eliminar" className="p-2 rounded-md hover:bg-secondary text-destructive">
-              <Trash2 className="size-4" />
-            </button>
+            {!completed && (
+              <button onClick={onDelete} title="Eliminar" className="p-2 rounded-md hover:bg-secondary text-destructive">
+                <Trash2 className="size-4" />
+              </button>
+            )}
+
             <button onClick={() => setOpen((o) => !o)} className="p-2 rounded-md hover:bg-secondary">
               <ChevronDown className={`size-4 transition-transform ${open ? "rotate-180" : ""}`} />
             </button>
