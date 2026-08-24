@@ -54,3 +54,13 @@ export const uploadWorkoutsToIntervals = createServerFn({ method: "POST" })
     }
     return { ok: true, uploaded, total: (workouts ?? []).length };
   });
+
+/** Envía FTP, LTHR, FC máx y zonas al perfil de Intervals.icu */
+export const syncIntervalsZones = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { intervalsPushZones } = await import("./intervals.server");
+    const ok = await intervalsPushZones(supabase, userId);
+    return { ok };
+  });
