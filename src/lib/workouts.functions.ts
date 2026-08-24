@@ -385,3 +385,21 @@ export const scheduleFtpTest = createServerFn({ method: "POST" })
     }
     return { ok: true, workout: inserted, intervals_synced: synced };
   });
+
+/** Métricas de carga de entrenamiento (CTL/ATL/TSB) y prescripción semanal */
+export const getTrainingLoad = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { buildTrainingLoad } = await import("./training-load.server");
+    const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
+    const load = await buildTrainingLoad(supabase, userId, profile);
+    const { data: block } = await supabase
+      .from("training_blocks")
+      .select("focus,week_index,start_date,target_tss")
+      .eq("user_id", userId)
+      .order("start_date", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    return { load, block: block ?? null };
+  });
