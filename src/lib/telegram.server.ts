@@ -399,5 +399,89 @@ INSTRUCCIONES:
     return;
   }
 
+  if (analysis.intent === "update_profile" && analysis.profile_updates && Object.keys(analysis.profile_updates).length) {
+    const allowed = Object.keys(PROFILE_LABELS);
+    const updates: Record<string, any> = {};
+    for (const [k, v] of Object.entries(analysis.profile_updates as Record<string, any>)) {
+      if (!allowed.includes(k) || v === null || v === undefined) continue;
+      if (["weight_kg", "height_cm", "age", "ftp", "max_hr", "lthr", "weekly_duration_minutes", "readiness_push_hour"].includes(k)) {
+        const n = Number(v);
+        if (!Number.isFinite(n) || n <= 0) continue;
+        updates[k] = ["weight_kg", "height_cm"].includes(k) ? n : Math.round(n);
+      } else {
+        updates[k] = v;
+      }
+    }
+    if (!Object.keys(updates).length) {
+      await telegramSend(chatId, "No he podido identificar qué dato de tu perfil quieres cambiar. Dime por ejemplo: \"mi peso es 72 kg\".");
+      return;
+    }
+    if (updates.readiness_push_hour !== undefined) {
+      updates.readiness_push_hour = Math.min(23, Math.max(0, updates.readiness_push_hour));
+    }
+    const { error } = await supabaseAdmin.from("profiles").update(updates).eq("id", userId);
+    if (error) throw new Error(error.message);
+
+    // Si cambian FTP/LTHR/FCmáx, actualiza zonas en Intervals.icu
+    let extra = "";
+    if (["ftp", "lthr", "max_hr"].some((k) => k in updates)) {
+      try {
+        const { intervalsPushZones } = await import("./intervals.server");
+        await intervalsPushZones(supabaseAdmin, userId);
+        extra = "\nZonas sincronizadas con Intervals.icu.";
+      } catch {
+        extra = "\n(No se han podido sincronizar las zonas con Intervals.icu)";
+      }
+    }
+    const list = Object.entries(updates)
+      .map(([k, v]) => `· ${PROFILE_LABELS[k] ?? k}: ${v}`)
+      .join("\n");
+    await telegramSend(chatId, `✅ Perfil actualizado:\n${list}${extra}`);
+    return;
+  }
+
+  if (analysis.intent === "swap_meal") {
+    if (!todayMenu || !nutriRow) {
+      await telegramSend(chatId, "No tienes plan nutricional para hoy. Puedes generarlo desde la app en Menús.");
+      return;
+    }
+    const key = (analysis.meal_key as string) || "comida";
+    const original = (todayMenu as any)[key];
+    if (!original) {
+      await telegramSend(chatId, "No encuentro esa comida en el menú de hoy.");
+      return;
+    }
+    const newMeal = await callAI(
+      [
+        {
+          role: "user",
+          content: `Eres nutricionista deportivo de ciclismo. Sustituye esta comida (${key}) del menú de hoy por OTRA DISTINTA con macros similares (±10%).
+Petición del ciclista: "${analysis.meal_request || text}"
+Perfil: peso ${p.weight_kg ?? 70}kg · objetivo ${p.nutrition_goal} · preferencias: ${p.dietary_preferences || "ninguna"}
+Entreno de hoy: ${todayMenu.entrenamiento ?? "n/a"}
+Comida original (JSON): ${JSON.stringify(original)}
+Incluye cantidades en gramos en cada ingrediente. TODO en ESPAÑOL.`,
+        },
+      ],
+      MealSchema,
+    );
+    const newPlan = {
+      ...nutriPlan,
+      dias: nutriPlan.dias.map((d: any) => (d.fecha === today ? { ...d, [key]: newMeal } : d)),
+    };
+    const { error } = await supabaseAdmin
+      .from("weekly_nutrition_plans")
+      .update({ plan: newPlan })
+      .eq("user_id", userId)
+      .eq("week_start", weekStart);
+    if (error) throw new Error(error.message);
+    const m = newMeal.macros ?? {};
+    await telegramSend(
+      chatId,
+      `✅ ${key} actualizada: ${newMeal.nombre}\n\nIngredientes:\n${(newMeal.ingredientes ?? []).map((i: string) => `· ${i}`).join("\n")}\n\n${newMeal.preparacion}\n\n${Math.round(m.calorias_kcal ?? 0)} kcal · HC ${Math.round(m.carbohidratos_g ?? 0)}g · P ${Math.round(m.proteinas_g ?? 0)}g · G ${Math.round(m.grasas_g ?? 0)}g`,
+    );
+    return;
+  }
+
   await telegramSend(chatId, analysis.reply || "No te he entendido, ¿puedes reformularlo?");
 }
