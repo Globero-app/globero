@@ -324,7 +324,7 @@ function EntrenamientosPage() {
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground disabled:opacity-50"
             >
               {generateMut.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
-              Regenerar con los nuevos días
+              Regenerar con la nueva configuración
             </button>
           </div>
         )}
