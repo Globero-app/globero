@@ -213,6 +213,55 @@ PERIODIZACIÓN OBLIGATORIA:
   const effectiveCount = schedule.length;
   const longDay = input.long_ride_day ?? null;
 
+  // ---- Bloque de 4 semanas (periodización) ----
+  const todayISO = madridTodayISO();
+  const planWeekStart = weekStart(schedule[0].date);
+  const { data: lastBlock } = await supabase
+    .from("training_blocks")
+    .select("*")
+    .eq("user_id", userId)
+    .order("start_date", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const FOCUS_ORDER = ["base", "construccion", "pico", "descarga"];
+  let blockRow: any = lastBlock ?? null;
+  let weekIndex = 1;
+  if (blockRow && blockRow.start_date) {
+    const diffWeeks = Math.round(
+      (new Date(`${planWeekStart}T12:00:00Z`).getTime() - new Date(`${weekStart(blockRow.start_date)}T12:00:00Z`).getTime()) / (7 * 86400000),
+    );
+    weekIndex = diffWeeks >= 0 && diffWeeks <= 3 ? diffWeeks + 1 : 1;
+    if (diffWeeks < 0 || diffWeeks > 3) blockRow = null;
+  }
+
+  // Foco del bloque: anclado a la competición si existe
+  let blockFocus = blockRow?.focus ?? "base";
+  if (competition) {
+    const weeksToRace = Math.max(
+      0,
+      Math.round((new Date(`${competition.date}T12:00:00Z`).getTime() - new Date(`${planWeekStart}T12:00:00Z`).getTime()) / (7 * 86400000)),
+    );
+    blockFocus = weeksToRace <= 1 ? "tapering" : weeksToRace <= 3 ? "pico" : weeksToRace <= 8 ? "construccion" : "base";
+  } else if (!blockRow) {
+    const prevIdx = FOCUS_ORDER.indexOf(lastBlock?.focus ?? "base");
+    blockFocus = FOCUS_ORDER[(prevIdx + 1) % 3]; // rota base → construcción → pico
+  }
+
+  // ---- Métricas de carga y prescripción de la semana ----
+  const load = await buildTrainingLoad(supabase, userId, profile);
+  const week = prescribeWeek(load, {
+    sessions: effectiveCount,
+    duration_minutes: input.duration_minutes,
+    block_week_index: weekIndex,
+    deload: blockFocus === "tapering",
+  });
+  const loadBlock = loadPromptBlock(load, week);
+  const blockBlock = `
+BLOQUE DE ENTRENAMIENTO: foco "${blockFocus}", semana ${weekIndex} de 4${weekIndex === 4 ? " (SEMANA DE DESCARGA)" : ""}.
+- base: volumen aeróbico y fuerza específica · construccion: umbral y tempo · pico: VO₂ e intensidad específica de competición · tapering: volumen bajo, intensidad breve.`;
+
+
   const scheduleBlock = `
 
 CALENDARIO OBLIGATORIO (días elegidos por el ciclista: ${chosenDays.map((d) => DAY_NAMES[d]).join(", ")}):
