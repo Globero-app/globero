@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS notify_channel text NOT NULL DEFAULT 'push' CHECK (notify_channel IN ('push','telegram','both'));

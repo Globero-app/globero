@@ -297,6 +297,7 @@ export type Database = {
           linking_code: string | null
           lthr: number | null
           max_hr: number | null
+          notify_channel: string
           notify_maintenance_email: boolean
           notify_maintenance_push: boolean
           notify_prerace_push: boolean
@@ -343,6 +344,7 @@ export type Database = {
           linking_code?: string | null
           lthr?: number | null
           max_hr?: number | null
+          notify_channel?: string
           notify_maintenance_email?: boolean
           notify_maintenance_push?: boolean
           notify_prerace_push?: boolean
@@ -389,6 +391,7 @@ export type Database = {
           linking_code?: string | null
           lthr?: number | null
           max_hr?: number | null
+          notify_channel?: string
           notify_maintenance_email?: boolean
           notify_maintenance_push?: boolean
           notify_prerace_push?: boolean

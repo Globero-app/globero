@@ -54,6 +54,13 @@ export function NotificationsPrefs() {
     enabled: !!user,
   });
 
+  const saveChannel = async (value: string) => {
+    const { error } = await supabase.from("profiles").update({ notify_channel: value } as never).eq("id", user!.id);
+    if (error) { toast.error(error.message); return; }
+    qc.invalidateQueries({ queryKey: ["notify_prefs"] });
+    toast.success("Canal actualizado");
+  };
+
   const savePref = async (field: PrefKey, value: boolean) => {
     const { error } = await supabase.from("profiles").update({ [field]: value } as never).eq("id", user!.id);
     if (error) { toast.error(error.message); return false; }
@@ -170,6 +177,36 @@ export function NotificationsPrefs() {
           )}
         </div>
       </div>
+
+      {/* Canal de entrega */}
+      {prefsQ.data?.telegram_chat_id && (
+        <div className="border rounded-lg p-3 bg-background space-y-2">
+          <div className="flex items-center gap-2">
+            <Send className="size-3.5 text-primary" />
+            <span className="text-sm font-semibold">¿Dónde quieres recibirlas?</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {([
+              { v: "push", l: "App móvil" },
+              { v: "telegram", l: "Telegram" },
+              { v: "both", l: "Ambos" },
+            ] as const).map((o) => {
+              const active = (prefsQ.data?.notify_channel ?? "push") === o.v;
+              return (
+                <button
+                  key={o.v}
+                  type="button"
+                  onClick={() => saveChannel(o.v)}
+                  className={`text-xs font-semibold px-2 py-1.5 rounded-md border transition-colors ${active ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:border-primary/40"}`}
+                >
+                  {o.l}
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-[11px] text-muted-foreground">Se aplica a las notificaciones marcadas abajo.</p>
+        </div>
+      )}
 
       {perm !== "granted" && perm !== "unsupported" && (
         <button
