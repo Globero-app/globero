@@ -301,6 +301,52 @@ REGLAS OBLIGATORIAS:
     return { ok: true, workout: updated, intervals_synced: !!eventId };
   });
 
+/** Revertir un entrenamiento de rodillo a su versión original de exterior */
+export const revertWorkoutToOutdoor = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => TrainerInput.parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: workout } = await supabase
+      .from("workouts")
+      .select("*")
+      .eq("id", data.workout_id)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (!workout) throw new Error("Entrenamiento no encontrado");
+
+    const plan: any = workout.plan ?? {};
+    const backup = plan.outdoor_backup;
+    if (!backup?.plan) throw new Error("Este entrenamiento no tiene versión de exterior guardada");
+
+    const restored = {
+      ...backup.plan,
+      indoor: false,
+      converted_from_outdoor: false,
+      outdoor_backup: null,
+      scheduled_date: plan.scheduled_date ?? backup.plan.scheduled_date ?? null,
+      intervals_event_id: plan.intervals_event_id ?? null,
+    };
+
+    const { data: updated, error } = await supabase
+      .from("workouts")
+      .update({
+        plan: restored,
+        duration_minutes: backup.duration_minutes ?? workout.duration_minutes,
+        bike_type: backup.bike_type ?? "carretera",
+      })
+      .eq("id", workout.id)
+      .eq("user_id", userId)
+      .select()
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+
+    const { syncWorkoutEvent } = await import("./intervals.server");
+    const eventId = await syncWorkoutEvent(supabase, userId, updated);
+
+    return { ok: true, workout: updated, intervals_synced: !!eventId };
+  });
+
 /* ============================================================
    Programar el Test de FTP en el calendario (+ Intervals.icu)
    ============================================================ */
