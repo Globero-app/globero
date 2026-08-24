@@ -44,9 +44,25 @@ export async function sendWebPush(sub: PushSub, payload: PushPayload): Promise<b
 /** Envía push a todas las suscripciones de un usuario. Limpia caducadas. */
 export async function notifyUser(userId: string, payload: PushPayload): Promise<number> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+  const { data: prof } = await supabaseAdmin
+    .from("profiles").select("notify_channel, telegram_chat_id").eq("id", userId).maybeSingle();
+  const channel = ((prof as any)?.notify_channel as string) || "push";
+  const chatId = (prof as any)?.telegram_chat_id as string | null;
+
+  let tgSent = 0;
+  if ((channel === "telegram" || channel === "both") && chatId) {
+    try {
+      const { telegramSend } = await import("./telegram.server");
+      await telegramSend(chatId, `*${payload.title}*\n${payload.body}`.replace(/\*/g, ""));
+      tgSent = 1;
+    } catch (e) { console.error("[notifyUser] telegram", e); }
+  }
+  if (channel === "telegram" && chatId) return tgSent;
+
   const { data: subs } = await supabaseAdmin
     .from("push_subscriptions").select("*").eq("user_id", userId);
-  if (!subs || !subs.length) return 0;
+  if (!subs || !subs.length) return tgSent;
   let sent = 0;
   for (const s of subs as any[]) {
     const ok = await sendWebPush(
@@ -56,5 +72,5 @@ export async function notifyUser(userId: string, payload: PushPayload): Promise<
     if (ok) sent++;
     else await supabaseAdmin.from("push_subscriptions").delete().eq("endpoint", s.endpoint);
   }
-  return sent;
+  return sent + tgSent;
 }
