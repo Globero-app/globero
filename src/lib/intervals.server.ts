@@ -305,6 +305,9 @@ export async function intervalsPushZones(supabase: any, userId: string): Promise
   const settingsId = ride?.id;
   if (!settingsId) throw new Error("No se encontraron ajustes de Ride en Intervals.icu");
 
-  await call(creds, `/sport-settings/${settingsId}?recalcHrZones=true`, { method: "PUT", body: JSON.stringify(body) });
+  await call(creds, `/sport-settings/${settingsId}?recalcHrZones=true`, {
+    method: "PUT",
+    body: JSON.stringify({ ...ride, ...body }),
+  });
   return true;
 }
