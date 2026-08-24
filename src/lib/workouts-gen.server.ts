@@ -106,7 +106,7 @@ const NUTRITION_TRAINING_RULES: Record<string, string> = {
 
 /** Núcleo de generación de entrenamientos (siempre plan MIXTO). Reutilizable por el cron semanal. */
 export async function generateWorkoutsCore(supabase: any, userId: string, input: GenCoreInput) {
-  const { buildTrainingLoad, prescribeWeek, loadPromptBlock, madridTodayISO, weekStart } = await import("./training-load.server");
+  const { buildTrainingLoad, prescribeWeek, loadPromptBlock, weekStart } = await import("./training-load.server");
   const { validateWorkout, enforceWeeklyTss, avoidBackToBackHard } = await import("./workout-validator.server");
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
@@ -214,7 +214,6 @@ PERIODIZACIÓN OBLIGATORIA:
   const longDay = input.long_ride_day ?? null;
 
   // ---- Bloque de 4 semanas (periodización) ----
-  const todayISO = madridTodayISO();
   const planWeekStart = weekStart(schedule[0].date);
   const { data: lastBlock } = await supabase
     .from("training_blocks")
@@ -386,7 +385,6 @@ INSTRUCCIONES:
     });
   }
 
-  void todayISO;
   return inserted;
 }
 
