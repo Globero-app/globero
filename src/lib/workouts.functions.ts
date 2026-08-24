@@ -271,6 +271,11 @@ REGLAS OBLIGATORIAS:
     const newPlan = {
       ...plan,
       ...result,
+      outdoor_backup: plan.outdoor_backup ?? {
+        plan: { ...plan },
+        duration_minutes: workout.duration_minutes,
+        bike_type: workout.bike_type,
+      },
       name: (result.name ?? plan.name ?? "Rodillo").slice(0, 15),
       title: result.title ?? plan.title,
       steps,
