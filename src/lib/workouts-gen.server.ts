@@ -91,6 +91,17 @@ export type GenCoreInput = {
   from?: Date;
   /** Tope de sesiones (por defecto, tantas como días de entreno). */
   max_count?: number;
+  /** Objetivo del plan nutricional para adaptar los entrenamientos. */
+  nutrition_goal?: string | null;
+};
+
+const NUTRITION_TRAINING_RULES: Record<string, string> = {
+  perdida_peso:
+    "OBJETIVO PÉRDIDA DE PESO: prioriza volumen aeróbico Z2 y sesiones algo más largas a intensidad moderada para maximizar oxidación de grasas; incluye 1 sesión de calidad por semana (no más) y bloques de fuerza a baja cadencia; evita acumular sesiones muy intensas seguidas.",
+  mantenimiento:
+    "OBJETIVO MANTENIMIENTO: equilibrio clásico 80/20 entre volumen aeróbico e intensidad, manteniendo la carga estable respecto a semanas anteriores.",
+  masa_muscular:
+    "OBJETIVO GANAR MASA MUSCULAR: enfatiza fuerza específica sobre la bici (cadencia 50-60 rpm, Z3-Z4, series de 5-10 min), sprints y esfuerzos neuromusculares cortos; reduce el volumen puramente aeróbico y deja recuperación suficiente entre sesiones de fuerza.",
 };
 
 /** Núcleo de generación de entrenamientos (siempre plan MIXTO). Reutilizable por el cron semanal. */
