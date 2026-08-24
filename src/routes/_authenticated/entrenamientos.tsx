@@ -27,14 +27,8 @@ export const Route = createFileRoute("/_authenticated/entrenamientos")({
   component: EntrenamientosPage,
 });
 
-const TRAINING_OPTIONS = [
-  { value: "resistencia", label: "Resistencia (base aeróbica)" },
-  { value: "intervalos", label: "Intervalos (potencia y velocidad)" },
-  { value: "fuerza", label: "Fuerza (sobre la bici)" },
-  { value: "mixto", label: "Mixto (IA combina los 3)" },
-] as const;
-
 const BIKE_OPTIONS = [
+
   { value: "carretera", label: "Carretera" },
   { value: "gravel", label: "Gravel" },
   { value: "montana", label: "Montaña" },
@@ -61,9 +55,8 @@ function EntrenamientosPage() {
   const toTrainer = useServerFn(convertWorkoutToTrainer);
 
 
-  const [trainingType, setTrainingType] = useState<typeof TRAINING_OPTIONS[number]["value"]>("resistencia");
   const [bikeType, setBikeType] = useState<typeof BIKE_OPTIONS[number]["value"]>("carretera");
-  const [count, setCount] = useState(3);
+
   const [duration, setDuration] = useState(60);
   const [competitionId, setCompetitionId] = useState<string>("");
   const [trainingDays, setTrainingDays] = useState<number[]>([2, 4, 6]);
@@ -128,9 +121,9 @@ function EntrenamientosPage() {
   });
 
   const generateMut = useMutation({
-    mutationFn: () => gen({ data: { training_type: trainingType, bike_type: bikeType, count, duration_minutes: duration, competition_id: competitionId || null, target_basis: effectiveBasis, training_days: trainingDays, long_ride_day: longRideDay } }),
+    mutationFn: () => gen({ data: { bike_type: bikeType, duration_minutes: duration, competition_id: competitionId || null, target_basis: effectiveBasis, training_days: trainingDays, long_ride_day: longRideDay, ...(competitionId ? { max_count: 90 } : {}) } }),
     onSuccess: async (inserted: any) => {
-      const n = Array.isArray(inserted) ? inserted.length : count;
+      const n = Array.isArray(inserted) ? inserted.length : trainingDays.length;
       toast.success(hasCompetition ? `Plan para tu competición creado: ${n} entrenamientos` : `${n} entrenamiento${n > 1 ? "s" : ""} generado${n > 1 ? "s" : ""}`);
       qc.invalidateQueries({ queryKey: ["workouts"] });
       const ids = Array.isArray(inserted) ? inserted.map((w: any) => w.id) : [];
@@ -174,30 +167,27 @@ function EntrenamientosPage() {
             </select>
             {hasCompetition && (
               <p className="text-[11px] text-muted-foreground mt-1.5">
-                La IA generará un plan periodizado (máx. 3/semana) hasta el día del evento. Tipo y cantidad se calculan automáticamente.
+                La IA generará un plan periodizado y mixto hasta el día del evento, en los días que marques abajo.
               </p>
             )}
           </Field>
         )}
 
         <div className="grid md:grid-cols-2 gap-4">
-          <Field label="Tipo de entrenamiento">
-            <select disabled={hasCompetition} className="input disabled:opacity-50 disabled:cursor-not-allowed" value={trainingType} onChange={(e) => setTrainingType(e.target.value as any)}>
-              {TRAINING_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
-          </Field>
           <Field label="Tipo de bicicleta">
             <select className="input" value={bikeType} onChange={(e) => setBikeType(e.target.value as any)}>
               {BIKE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </Field>
-          <Field label={`Cantidad: ${count} entrenamiento${count > 1 ? "s" : ""}${hasCompetition ? " (tope, la IA ajusta)" : ""}`}>
-            <input type="range" min={1} max={90} value={count} onChange={(e) => setCount(Number(e.target.value))} className="w-full" />
-          </Field>
           <Field label={`Duración por entrenamiento: ${duration} min`}>
             <input type="range" min={20} max={240} step={5} value={duration} onChange={(e) => setDuration(Number(e.target.value))} className="w-full" />
           </Field>
         </div>
+        <p className="text-[11px] text-muted-foreground">
+          Los entrenamientos son siempre <strong>mixtos</strong> (resistencia, intervalos y fuerza) y se crea uno por cada día marcado.
+          Cada domingo a las 21:00 la IA generará automáticamente los entrenamientos de la semana siguiente según estos días y tu progreso.
+        </p>
+
 
         <Field label="Días que puedes entrenar">
           <div className="grid grid-cols-7 gap-1.5">
@@ -226,7 +216,7 @@ function EntrenamientosPage() {
           <p className="text-[11px] text-muted-foreground mt-1.5">
             {trainingDays.length === 0
               ? "Marca al menos un día para planificar el calendario."
-              : `La IA repartirá los ${count} entrenamientos en: ${WEEK_DAYS.filter((d) => trainingDays.includes(d.value)).map((d) => d.label).join(", ")}.`}
+              : `La IA creará ${trainingDays.length} entrenamiento(s) en: ${WEEK_DAYS.filter((d) => trainingDays.includes(d.value)).map((d) => d.label).join(", ")}.`}
           </p>
         </Field>
 
