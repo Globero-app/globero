@@ -371,7 +371,7 @@ function EntrenamientosPage() {
             </button>
             <button
               type="button"
-              onClick={() => setTargetBasis("hr")}
+              onClick={() => { setTargetBasis("hr"); void persistPrefs({ weekly_target_basis: "hr" }); }}
               className={`rounded-lg border-2 px-3 py-2.5 text-left transition ${effectiveBasis === "hr" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
             >
               <span className="block text-sm font-semibold">Frecuencia cardíaca</span>
