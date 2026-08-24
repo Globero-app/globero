@@ -173,7 +173,9 @@ export const linkStravaActivity = createServerFn({ method: "POST" })
         const title = String(plan.title ?? plan.name ?? "").trim();
         if (title) {
           const { renameStravaActivity } = await import("./strava.server");
-          void renameStravaActivity(supabase, userId, data.activity_id, title);
+          void renameStravaActivity(supabase, userId, data.activity_id, title, {
+            indoor: !!plan.indoor,
+          });
         }
       }
       return { ok: true, completed: data.accept };

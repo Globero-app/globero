@@ -162,7 +162,7 @@ function eventBody(workout: any, doc: string, date: string) {
   return {
     start_date_local: `${date}T00:00:00`,
     category: "WORKOUT",
-    type: "Ride",
+    type: workout?.plan?.indoor || workout?.bike_type === "rodillo" ? "VirtualRide" : "Ride",
     name: workout.plan?.title ?? workout.plan?.name ?? "Entrenamiento",
     description: doc,
     moving_time: Math.max(60, Math.round((workout.duration_minutes ?? 60) * 60)),
@@ -241,8 +241,13 @@ export async function syncWorkoutEvent(supabase: any, userId: string, workout: a
   };
   try {
     if (existing) {
-      await intervalsUpdateEvent(creds, existing, workout, date, refs);
-      return existing;
+      try {
+        await intervalsUpdateEvent(creds, existing, workout, date, refs);
+        return existing;
+      } catch (e) {
+        // El evento ya no existe en Intervals: se recrea en lugar de duplicar/fallar
+        console.error("intervals update fallback", e);
+      }
     }
     const id = await intervalsCreateEvent(creds, workout, date, refs);
     if (id) {

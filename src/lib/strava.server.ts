@@ -44,6 +44,7 @@ export async function renameStravaActivity(
   userId: string,
   activityId: string,
   name: string,
+  opts?: { indoor?: boolean },
 ): Promise<boolean> {
   try {
     if (!name?.trim()) return false;
@@ -52,7 +53,12 @@ export async function renameStravaActivity(
     const res = await fetch(`${STRAVA_API}/activities/${activityId}`, {
       method: "PUT",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name.trim().slice(0, 120) }),
+      body: JSON.stringify({
+        name: name.trim().slice(0, 120),
+        ...(opts?.indoor === undefined
+          ? {}
+          : { trainer: opts.indoor, sport_type: opts.indoor ? "VirtualRide" : "Ride" }),
+      }),
     });
     if (!res.ok) {
       console.error("strava rename", res.status, (await res.text()).slice(0, 200));

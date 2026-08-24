@@ -286,9 +286,13 @@ REGLAS OBLIGATORIAS:
       converted_from_outdoor: true,
     };
 
+    const { estimatePlanTss } = await import("./training-load.server");
+    const tss = estimatePlanTss(newPlan, profile?.ftp ?? null, (profile as any)?.lthr ?? null, (profile as any)?.max_hr ?? null, mins);
+    newPlan.estimated_tss = tss;
+
     const { data: updated, error } = await supabase
       .from("workouts")
-      .update({ plan: newPlan, duration_minutes: mins, bike_type: "rodillo" })
+      .update({ plan: newPlan, duration_minutes: mins, bike_type: "rodillo", planned_tss: tss, actual_tss: null, actual_if: null, compliance: null })
       .eq("id", workout.id)
       .eq("user_id", userId)
       .select()
@@ -328,12 +332,26 @@ export const revertWorkoutToOutdoor = createServerFn({ method: "POST" })
       intervals_event_id: plan.intervals_event_id ?? null,
     };
 
+    const mins = backup.duration_minutes ?? workout.duration_minutes ?? 60;
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("ftp,max_hr,lthr")
+      .eq("id", userId)
+      .maybeSingle();
+    const { estimatePlanTss } = await import("./training-load.server");
+    const tss = estimatePlanTss(restored, profile?.ftp ?? null, (profile as any)?.lthr ?? null, (profile as any)?.max_hr ?? null, mins);
+    restored.estimated_tss = tss;
+
     const { data: updated, error } = await supabase
       .from("workouts")
       .update({
         plan: restored,
-        duration_minutes: backup.duration_minutes ?? workout.duration_minutes,
+        duration_minutes: mins,
         bike_type: backup.bike_type ?? "carretera",
+        planned_tss: tss,
+        actual_tss: null,
+        actual_if: null,
+        compliance: null,
       })
       .eq("id", workout.id)
       .eq("user_id", userId)
