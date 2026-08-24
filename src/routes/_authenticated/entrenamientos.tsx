@@ -88,24 +88,35 @@ function EntrenamientosPage() {
   const profile = useQuery({
     queryKey: ["profile-ftp", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("ftp,max_hr,lthr,zones_display_mode,intervals_athlete_id,weekly_training_days,weekly_long_ride_day").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("ftp,max_hr,lthr,zones_display_mode,intervals_athlete_id,weekly_training_days,weekly_long_ride_day,weekly_target_basis,nutrition_plan_enabled,nutrition_goal").eq("id", user!.id).maybeSingle();
       return data;
     },
     enabled: !!user,
   });
 
+  const [targetBasis, setTargetBasis] = useState<"power" | "hr" | null>(null);
+
   const [prefsLoaded, setPrefsLoaded] = useState(false);
-  const [savedDays, setSavedDays] = useState<{ days: number[]; long: number | null } | null>(null);
+  type SavedPrefs = { days: number[]; long: number | null; nutrition: boolean; goal: string; basis: "power" | "hr" };
+  const [savedDays, setSavedDays] = useState<SavedPrefs | null>(null);
   useEffect(() => {
     if (prefsLoaded || !profile.data) return;
-    const days = ((profile.data as any).weekly_training_days ?? []).map((d: any) => Number(d));
-    const long = (profile.data as any).weekly_long_ride_day;
+    const p: any = profile.data;
+    const days = (p.weekly_training_days ?? []).map((d: any) => Number(d));
+    const long = p.weekly_long_ride_day;
+    const nextLong = long === null || long === undefined ? null : Number(long);
+    const basis: "power" | "hr" = p.weekly_target_basis === "hr" ? "hr" : "power";
+    const nutrition = !!p.nutrition_plan_enabled;
+    const goal = p.nutrition_goal ?? "mantenimiento";
+    setTargetBasis(basis);
+    setNutritionEnabled(nutrition);
+    setNutritionGoal(goal);
     if (days.length) {
       setTrainingDays(days);
-      setLongRideDay(long === null || long === undefined ? null : Number(long));
-      setSavedDays({ days, long: long === null || long === undefined ? null : Number(long) });
+      setLongRideDay(nextLong);
+      setSavedDays({ days, long: nextLong, nutrition, goal, basis });
     } else {
-      setSavedDays({ days: trainingDays, long: longRideDay });
+      setSavedDays({ days: trainingDays, long: longRideDay, nutrition, goal, basis });
     }
     setPrefsLoaded(true);
   }, [profile.data, prefsLoaded]);
@@ -115,11 +126,10 @@ function EntrenamientosPage() {
     await supabase.from("profiles").update({ weekly_training_days: days, weekly_long_ride_day: long }).eq("id", user.id);
   };
 
-  const daysChanged =
-    !!savedDays &&
-    (savedDays.long !== longRideDay ||
-      savedDays.days.length !== trainingDays.length ||
-      [...savedDays.days].sort().join() !== [...trainingDays].sort().join());
+  const persistPrefs = async (patch: Record<string, any>) => {
+    if (!user) return;
+    await (supabase.from("profiles") as any).update(patch).eq("id", user.id);
+  };
 
   const ftp = profile.data?.ftp ?? 250;
   const maxHr = profile.data?.max_hr ?? null;
@@ -128,9 +138,18 @@ function EntrenamientosPage() {
   const intervalsConnected = !!profile.data?.intervals_athlete_id;
   const uploadIcu = useServerFn(uploadWorkoutsToIntervals);
 
-  const [targetBasis, setTargetBasis] = useState<"power" | "hr" | null>(null);
   const effectiveBasis: "power" | "hr" =
     targetBasis ?? (profile.data?.zones_display_mode === "hr" ? "hr" : "power");
+
+  const daysChanged =
+    !!savedDays &&
+    (savedDays.long !== longRideDay ||
+      savedDays.days.length !== trainingDays.length ||
+      [...savedDays.days].sort().join() !== [...trainingDays].sort().join() ||
+      savedDays.nutrition !== nutritionEnabled ||
+      (nutritionEnabled && savedDays.goal !== nutritionGoal) ||
+      savedDays.basis !== effectiveBasis);
+
 
   const hasCompetition = !!competitionId;
 
@@ -166,7 +185,7 @@ function EntrenamientosPage() {
   const generateMut = useMutation({
     mutationFn: (opts?: { replace_pending?: boolean }) => gen({ data: { bike_type: bikeType, duration_minutes: duration, competition_id: competitionId || null, target_basis: effectiveBasis, training_days: trainingDays, long_ride_day: longRideDay, nutrition_enabled: nutritionEnabled, nutrition_goal: nutritionEnabled ? nutritionGoal : null, replace_pending: !!opts?.replace_pending, ...(competitionId ? { max_count: 90 } : {}) } }),
     onSuccess: async (inserted: any) => {
-      setSavedDays({ days: trainingDays, long: longRideDay });
+      setSavedDays({ days: trainingDays, long: longRideDay, nutrition: nutritionEnabled, goal: nutritionGoal, basis: effectiveBasis });
       const n = Array.isArray(inserted) ? inserted.length : trainingDays.length;
 
       toast.success(hasCompetition ? `Plan para tu competición creado: ${n} entrenamientos` : `${n} entrenamiento${n > 1 ? "s" : ""} generado${n > 1 ? "s" : ""}`);
@@ -296,7 +315,7 @@ function EntrenamientosPage() {
         {daysChanged && trainingDays.length > 0 && (
           <div className="rounded-lg border-2 border-primary/40 bg-primary/5 p-3 space-y-2">
             <p className="text-[12px]">
-              Has cambiado tus días de entreno. Se han guardado para las próximas semanas. ¿Quieres regenerar los entrenamientos pendientes con los nuevos días?
+              Has cambiado tu configuración de entrenamiento (días, plan nutricional o base de prescripción). Se ha guardado para las próximas semanas. ¿Quieres regenerar los entrenamientos pendientes con la nueva configuración?
             </p>
             <button
               type="button"
@@ -305,7 +324,7 @@ function EntrenamientosPage() {
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground disabled:opacity-50"
             >
               {generateMut.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
-              Regenerar con los nuevos días
+              Regenerar con la nueva configuración
             </button>
           </div>
         )}
@@ -314,7 +333,7 @@ function EntrenamientosPage() {
 
         <Field label="Plan nutricional">
           <label className="flex items-start gap-3 p-3 bg-background border rounded-lg cursor-pointer hover:border-primary/40 transition-colors">
-            <input type="checkbox" className="mt-0.5 size-4 accent-primary" checked={nutritionEnabled} onChange={(e) => setNutritionEnabled(e.target.checked)} />
+            <input type="checkbox" className="mt-0.5 size-4 accent-primary" checked={nutritionEnabled} onChange={(e) => { const v = e.target.checked; setNutritionEnabled(v); void persistPrefs({ nutrition_plan_enabled: v, ...(v ? { nutrition_goal: nutritionGoal } : {}) }); }} />
             <div className="flex-1 min-w-0">
               <span className="text-sm font-semibold">Quiero un plan nutricional</span>
               <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -328,7 +347,7 @@ function EntrenamientosPage() {
                 <button
                   key={g.value}
                   type="button"
-                  onClick={() => setNutritionGoal(g.value)}
+                  onClick={() => { setNutritionGoal(g.value); void persistPrefs({ nutrition_goal: g.value }); }}
                   className={`rounded-lg border-2 px-3 py-2.5 text-sm font-semibold transition ${nutritionGoal === g.value ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
                 >
                   {g.label}
@@ -342,7 +361,7 @@ function EntrenamientosPage() {
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={() => setTargetBasis("power")}
+              onClick={() => { setTargetBasis("power"); void persistPrefs({ weekly_target_basis: "power" }); }}
               className={`rounded-lg border-2 px-3 py-2.5 text-left transition ${effectiveBasis === "power" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
             >
               <span className="block text-sm font-semibold">Potencia (FTP)</span>
@@ -352,7 +371,7 @@ function EntrenamientosPage() {
             </button>
             <button
               type="button"
-              onClick={() => setTargetBasis("hr")}
+              onClick={() => { setTargetBasis("hr"); void persistPrefs({ weekly_target_basis: "hr" }); }}
               className={`rounded-lg border-2 px-3 py-2.5 text-left transition ${effectiveBasis === "hr" ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}`}
             >
               <span className="block text-sm font-semibold">Frecuencia cardíaca</span>
