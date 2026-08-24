@@ -4,11 +4,11 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
-import { generateWorkouts, completeWorkout, deleteWorkout, convertWorkoutToTrainer, getTrainingLoad } from "@/lib/workouts.functions";
+import { generateWorkouts, completeWorkout, deleteWorkout, convertWorkoutToTrainer, revertWorkoutToOutdoor, getTrainingLoad } from "@/lib/workouts.functions";
 import { uploadWorkoutsToIntervals } from "@/lib/intervals.functions";
 import { downloadFit, type FitWorkout, type FitWorkoutStep } from "@/lib/fit-writer";
 import { downloadZwo, type ZwoWorkout, type ZwoStep } from "@/lib/zwo-writer";
-import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown, Home } from "lucide-react";
+import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown, Home, Bike } from "lucide-react";
 
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -62,6 +62,7 @@ function EntrenamientosPage() {
   const complete = useServerFn(completeWorkout);
   const del = useServerFn(deleteWorkout);
   const toTrainer = useServerFn(convertWorkoutToTrainer);
+  const toOutdoor = useServerFn(revertWorkoutToOutdoor);
 
 
   const [bikeType, setBikeType] = useState<typeof BIKE_OPTIONS[number]["value"]>("carretera");
@@ -444,6 +445,16 @@ function EntrenamientosPage() {
               qc.invalidateQueries({ queryKey: ["workouts"] });
               qc.invalidateQueries({ queryKey: ["calendar"] });
             }}
+            onOutdoor={async () => {
+              const r: any = await toOutdoor({ data: { workout_id: w.id } });
+              toast.success(
+                r.intervals_synced
+                  ? "Entrenamiento devuelto a exterior y actualizado en Intervals.icu"
+                  : "Entrenamiento devuelto a exterior",
+              );
+              qc.invalidateQueries({ queryKey: ["workouts"] });
+              qc.invalidateQueries({ queryKey: ["calendar"] });
+            }}
           />
 
         ))}
@@ -523,6 +534,7 @@ function WorkoutCard({
   onComplete,
   onDelete,
   onTrainer,
+  onOutdoor,
 }: {
   w: any;
   ftp: number;
@@ -530,6 +542,7 @@ function WorkoutCard({
   onComplete: (rpe: number, notes?: string) => Promise<void>;
   onDelete: () => void;
   onTrainer: () => Promise<void>;
+  onOutdoor: () => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [showRpe, setShowRpe] = useState(false);
@@ -538,6 +551,7 @@ function WorkoutCard({
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [converting, setConverting] = useState(false);
+  const isIndoor = w.bike_type === "rodillo" || !!(w.plan as any)?.indoor;
 
 
   const plan = w.plan ?? {};
@@ -609,7 +623,24 @@ function WorkoutCard({
             <button onClick={() => setShowPreview(true)} title="Ver y descargar .FIT" className="p-2 rounded-md hover:bg-secondary text-primary">
               <Eye className="size-4" />
             </button>
-            {!completed && (
+            {!completed && isIndoor && (
+              <button
+                onClick={async () => {
+                  if (converting) return;
+                  if (!confirm("¿Volver a la versión de exterior de este entrenamiento?")) return;
+                  setConverting(true);
+                  try { await onOutdoor(); }
+                  catch (e: any) { toast.error(e?.message ?? "Error volviendo a exterior"); }
+                  finally { setConverting(false); }
+                }}
+                title="Volver a exterior"
+                className="p-2 rounded-md hover:bg-secondary text-amber-600 disabled:opacity-50"
+                disabled={converting}
+              >
+                {converting ? <Loader2 className="size-4 animate-spin" /> : <Bike className="size-4" />}
+              </button>
+            )}
+            {!completed && !isIndoor && (
               <button
                 onClick={async () => {
                   if (converting) return;
