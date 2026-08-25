@@ -30,6 +30,7 @@ import { Route as AuthenticatedActividadesIdRouteImport } from './routes/_authen
 import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
 import { Route as ApiPublicHooksWeeklyWorkoutsRouteImport } from './routes/api/public/hooks/weekly-workouts'
 import { Route as ApiPublicHooksReadinessPushRouteImport } from './routes/api/public/hooks/readiness-push'
+import { Route as ApiPublicHooksIntervalsSyncRouteImport } from './routes/api/public/hooks/intervals-sync'
 import { Route as ApiPublicHooksIntervalsDetectRouteImport } from './routes/api/public/hooks/intervals-detect'
 import { Route as ApiPublicHooksActivityDetectRouteImport } from './routes/api/public/hooks/activity-detect'
 
@@ -145,6 +146,12 @@ const ApiPublicHooksReadinessPushRoute =
     path: '/api/public/hooks/readiness-push',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksIntervalsSyncRoute =
+  ApiPublicHooksIntervalsSyncRouteImport.update({
+    id: '/api/public/hooks/intervals-sync',
+    path: '/api/public/hooks/intervals-sync',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksIntervalsDetectRoute =
   ApiPublicHooksIntervalsDetectRouteImport.update({
     id: '/api/public/hooks/intervals-detect',
@@ -178,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
+  '/api/public/hooks/intervals-sync': typeof ApiPublicHooksIntervalsSyncRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
@@ -202,6 +210,7 @@ export interface FileRoutesByTo {
   '/competiciones': typeof AuthenticatedCompeticionesIndexRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
+  '/api/public/hooks/intervals-sync': typeof ApiPublicHooksIntervalsSyncRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
@@ -228,6 +237,7 @@ export interface FileRoutesById {
   '/_authenticated/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
+  '/api/public/hooks/intervals-sync': typeof ApiPublicHooksIntervalsSyncRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
@@ -254,6 +264,7 @@ export interface FileRouteTypes {
     | '/competiciones/'
     | '/api/public/hooks/activity-detect'
     | '/api/public/hooks/intervals-detect'
+    | '/api/public/hooks/intervals-sync'
     | '/api/public/hooks/readiness-push'
     | '/api/public/hooks/weekly-workouts'
     | '/api/public/telegram/webhook'
@@ -278,6 +289,7 @@ export interface FileRouteTypes {
     | '/competiciones'
     | '/api/public/hooks/activity-detect'
     | '/api/public/hooks/intervals-detect'
+    | '/api/public/hooks/intervals-sync'
     | '/api/public/hooks/readiness-push'
     | '/api/public/hooks/weekly-workouts'
     | '/api/public/telegram/webhook'
@@ -303,6 +315,7 @@ export interface FileRouteTypes {
     | '/_authenticated/competiciones/'
     | '/api/public/hooks/activity-detect'
     | '/api/public/hooks/intervals-detect'
+    | '/api/public/hooks/intervals-sync'
     | '/api/public/hooks/readiness-push'
     | '/api/public/hooks/weekly-workouts'
     | '/api/public/telegram/webhook'
@@ -315,6 +328,7 @@ export interface RootRouteChildren {
   ApiPublicSetupAdminRoute: typeof ApiPublicSetupAdminRoute
   ApiPublicHooksActivityDetectRoute: typeof ApiPublicHooksActivityDetectRoute
   ApiPublicHooksIntervalsDetectRoute: typeof ApiPublicHooksIntervalsDetectRoute
+  ApiPublicHooksIntervalsSyncRoute: typeof ApiPublicHooksIntervalsSyncRoute
   ApiPublicHooksReadinessPushRoute: typeof ApiPublicHooksReadinessPushRoute
   ApiPublicHooksWeeklyWorkoutsRoute: typeof ApiPublicHooksWeeklyWorkoutsRoute
   ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
@@ -469,6 +483,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksReadinessPushRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/intervals-sync': {
+      id: '/api/public/hooks/intervals-sync'
+      path: '/api/public/hooks/intervals-sync'
+      fullPath: '/api/public/hooks/intervals-sync'
+      preLoaderRoute: typeof ApiPublicHooksIntervalsSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/intervals-detect': {
       id: '/api/public/hooks/intervals-detect'
       path: '/api/public/hooks/intervals-detect'
@@ -530,6 +551,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicSetupAdminRoute: ApiPublicSetupAdminRoute,
   ApiPublicHooksActivityDetectRoute: ApiPublicHooksActivityDetectRoute,
   ApiPublicHooksIntervalsDetectRoute: ApiPublicHooksIntervalsDetectRoute,
+  ApiPublicHooksIntervalsSyncRoute: ApiPublicHooksIntervalsSyncRoute,
   ApiPublicHooksReadinessPushRoute: ApiPublicHooksReadinessPushRoute,
   ApiPublicHooksWeeklyWorkoutsRoute: ApiPublicHooksWeeklyWorkoutsRoute,
   ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
