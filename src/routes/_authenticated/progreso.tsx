@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { getProgress, getThresholdStatus } from "@/lib/progress.functions";
+import { getProgress, getThresholdStatus, getPowerCurve } from "@/lib/progress.functions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingUp, Zap, Mountain, Route as RouteIcon } from "lucide-react";
 import { format } from "date-fns";
@@ -16,10 +16,10 @@ export const Route = createFileRoute("/_authenticated/progreso")({
   component: ProgresoPage,
   head: () => ({
     meta: [
-      { title: "Progreso · CTL, TSB y PRs de potencia" },
-      { name: "description", content: "Evolución de tu forma: fitness (CTL), fatiga (ATL), frescura (TSB), carga semanal y récords de potencia del último año." },
-      { property: "og:title", content: "Progreso del ciclista · CTL, TSB y PRs" },
-      { property: "og:description", content: "Sigue la evolución de tu entrenamiento con curvas de carga y tus mejores potencias." },
+      { title: "Progreso · CTL, TSB y curva de potencia" },
+      { name: "description", content: "Evolución de tu forma: fitness (CTL), fatiga (ATL), frescura (TSB), carga semanal y curva mean-max de potencia del último año." },
+      { property: "og:title", content: "Progreso del ciclista · CTL, TSB y potencia" },
+      { property: "og:description", content: "Sigue la evolución de tu entrenamiento con curvas de carga y tu curva de potencia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -29,9 +29,11 @@ export const Route = createFileRoute("/_authenticated/progreso")({
 function ProgresoPage() {
   const getProg = useServerFn(getProgress);
   const getTh = useServerFn(getThresholdStatus);
+  const getCurve = useServerFn(getPowerCurve);
 
   const q = useQuery({ queryKey: ["progress"], queryFn: () => getProg({ data: {} } as any), staleTime: 5 * 60_000 });
   const th = useQuery({ queryKey: ["threshold-status"], queryFn: () => getTh({ data: {} } as any), staleTime: 10 * 60_000 });
+  const curve = useQuery({ queryKey: ["power-curve"], queryFn: () => getCurve({ data: {} } as any), staleTime: 10 * 60_000 });
 
   const d: any = q.data;
 
