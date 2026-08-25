@@ -219,6 +219,7 @@ export type Database = {
           feedback_completed: boolean
           feel: number | null
           id: string
+          match_notified_at: string | null
           notification_sent: boolean
           rpe: number | null
           updated_at: string
@@ -231,6 +232,7 @@ export type Database = {
           feedback_completed?: boolean
           feel?: number | null
           id?: string
+          match_notified_at?: string | null
           notification_sent?: boolean
           rpe?: number | null
           updated_at?: string
@@ -243,6 +245,7 @@ export type Database = {
           feedback_completed?: boolean
           feel?: number | null
           id?: string
+          match_notified_at?: string | null
           notification_sent?: boolean
           rpe?: number | null
           updated_at?: string
@@ -277,6 +280,36 @@ export type Database = {
           updated_at?: string
           user_id?: string
           value?: number
+        }
+        Relationships: []
+      }
+      job_runs: {
+        Row: {
+          created_at: string
+          details: Json | null
+          job_name: string
+          last_run_at: string | null
+          locked_until: string
+          paused_until: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          job_name: string
+          last_run_at?: string | null
+          locked_until?: string
+          paused_until?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          job_name?: string
+          last_run_at?: string | null
+          locked_until?: string
+          paused_until?: string | null
+          updated_at?: string
         }
         Relationships: []
       }

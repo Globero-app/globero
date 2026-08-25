@@ -45,6 +45,17 @@ function ProgresoPage() {
     label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: es }),
   }));
 
+  const adherenceData = (d?.adherence ?? []).map((w: any) => ({
+    ...w,
+    label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: es }),
+  }));
+
+  const readinessData = (d?.readiness_weekly ?? []).map((w: any) => ({
+    ...w,
+    label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: es }),
+  }));
+
+
   const ctlDelta = d?.ctl_30d_ago != null ? Math.round((d.current.ctl - d.ctl_30d_ago) * 10) / 10 : null;
 
   return (
@@ -104,6 +115,61 @@ function ProgresoPage() {
               </ResponsiveContainer>
             </div>
           </section>
+
+          <section className="bg-surface border rounded-xl p-5">
+            <h2 className="font-display text-lg font-bold uppercase">Prescrito vs ejecutado</h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              TSS planificado frente al realmente ejecutado y % de sesiones completadas por semana.
+            </p>
+            <div className="h-56 mt-4 -ml-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={adherenceData}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                  <XAxis dataKey="label" tick={{ fontSize: 10 }} />
+                  <YAxis tick={{ fontSize: 10 }} />
+                  <YAxis yAxisId="r" orientation="right" domain={[0, 100]} tick={{ fontSize: 10 }} />
+                  <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Bar dataKey="planned_tss" name="TSS previsto" fill="#94a3b8" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="actual_tss" name="TSS ejecutado" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                  <Line yAxisId="r" type="monotone" dataKey="compliance" name="Cumplimiento %" stroke="#22c55e" strokeWidth={2} dot={false} />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+          </section>
+
+          <section className="bg-surface border rounded-xl p-5">
+            <h2 className="font-display text-lg font-bold uppercase">Tiempo en zonas (8 semanas)</h2>
+            <div className="h-56 mt-4 -ml-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={d.zones ?? []}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                  <XAxis dataKey="zone" tick={{ fontSize: 11 }} />
+                  <YAxis tick={{ fontSize: 10 }} />
+                  <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} formatter={(v: any, _n, p: any) => [`${v} min (${p?.payload?.pct ?? 0}%)`, "Tiempo"]} />
+                  <Bar dataKey="minutes" name="Minutos" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </section>
+
+          {readinessData.length > 0 && (
+            <section className="bg-surface border rounded-xl p-5">
+              <h2 className="font-display text-lg font-bold uppercase">Readiness medio semanal</h2>
+              <div className="h-48 mt-4 -ml-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={readinessData}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                    <XAxis dataKey="label" tick={{ fontSize: 10 }} />
+                    <YAxis domain={[1, 5]} tick={{ fontSize: 10 }} />
+                    <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
+                    <Line type="monotone" dataKey="score" name="Readiness" stroke="#0ea5e9" strokeWidth={2} />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+            </section>
+          )}
+
 
           <section className="bg-surface border rounded-xl p-5">
             <h2 className="font-display text-lg font-bold uppercase flex items-center gap-2">

@@ -30,6 +30,7 @@ import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/publi
 import { Route as ApiPublicHooksWeeklyWorkoutsRouteImport } from './routes/api/public/hooks/weekly-workouts'
 import { Route as ApiPublicHooksReadinessPushRouteImport } from './routes/api/public/hooks/readiness-push'
 import { Route as ApiPublicHooksIntervalsDetectRouteImport } from './routes/api/public/hooks/intervals-detect'
+import { Route as ApiPublicHooksActivityDetectRouteImport } from './routes/api/public/hooks/activity-detect'
 
 const OfflineRoute = OfflineRouteImport.update({
   id: '/offline',
@@ -144,6 +145,12 @@ const ApiPublicHooksIntervalsDetectRoute =
     path: '/api/public/hooks/intervals-detect',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksActivityDetectRoute =
+  ApiPublicHooksActivityDetectRouteImport.update({
+    id: '/api/public/hooks/activity-detect',
+    path: '/api/public/hooks/activity-detect',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -162,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
   '/actividades/': typeof AuthenticatedActividadesIndexRoute
   '/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
+  '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
@@ -184,6 +192,7 @@ export interface FileRoutesByTo {
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
   '/actividades': typeof AuthenticatedActividadesIndexRoute
   '/competiciones': typeof AuthenticatedCompeticionesIndexRoute
+  '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
@@ -208,6 +217,7 @@ export interface FileRoutesById {
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
   '/_authenticated/actividades/': typeof AuthenticatedActividadesIndexRoute
   '/_authenticated/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
+  '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
     | '/api/public/setup-admin'
     | '/actividades/'
     | '/competiciones/'
+    | '/api/public/hooks/activity-detect'
     | '/api/public/hooks/intervals-detect'
     | '/api/public/hooks/readiness-push'
     | '/api/public/hooks/weekly-workouts'
@@ -254,6 +265,7 @@ export interface FileRouteTypes {
     | '/api/public/setup-admin'
     | '/actividades'
     | '/competiciones'
+    | '/api/public/hooks/activity-detect'
     | '/api/public/hooks/intervals-detect'
     | '/api/public/hooks/readiness-push'
     | '/api/public/hooks/weekly-workouts'
@@ -277,6 +289,7 @@ export interface FileRouteTypes {
     | '/api/public/setup-admin'
     | '/_authenticated/actividades/'
     | '/_authenticated/competiciones/'
+    | '/api/public/hooks/activity-detect'
     | '/api/public/hooks/intervals-detect'
     | '/api/public/hooks/readiness-push'
     | '/api/public/hooks/weekly-workouts'
@@ -288,6 +301,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   OfflineRoute: typeof OfflineRoute
   ApiPublicSetupAdminRoute: typeof ApiPublicSetupAdminRoute
+  ApiPublicHooksActivityDetectRoute: typeof ApiPublicHooksActivityDetectRoute
   ApiPublicHooksIntervalsDetectRoute: typeof ApiPublicHooksIntervalsDetectRoute
   ApiPublicHooksReadinessPushRoute: typeof ApiPublicHooksReadinessPushRoute
   ApiPublicHooksWeeklyWorkoutsRoute: typeof ApiPublicHooksWeeklyWorkoutsRoute
@@ -443,6 +457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksIntervalsDetectRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/activity-detect': {
+      id: '/api/public/hooks/activity-detect'
+      path: '/api/public/hooks/activity-detect'
+      fullPath: '/api/public/hooks/activity-detect'
+      preLoaderRoute: typeof ApiPublicHooksActivityDetectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -486,6 +507,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   OfflineRoute: OfflineRoute,
   ApiPublicSetupAdminRoute: ApiPublicSetupAdminRoute,
+  ApiPublicHooksActivityDetectRoute: ApiPublicHooksActivityDetectRoute,
   ApiPublicHooksIntervalsDetectRoute: ApiPublicHooksIntervalsDetectRoute,
   ApiPublicHooksReadinessPushRoute: ApiPublicHooksReadinessPushRoute,
   ApiPublicHooksWeeklyWorkoutsRoute: ApiPublicHooksWeeklyWorkoutsRoute,

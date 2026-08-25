@@ -179,7 +179,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Mobile bottom nav */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-surface border-t flex items-center justify-around px-2 py-2">
-        {NAV.slice(0, 5).map(({ to, label, icon: Icon }) => (
+        {NAV.slice(0, 4).map(({ to, label, icon: Icon }) => (
           <Link
             key={to}
             to={to}
@@ -191,7 +191,16 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="text-[10px] font-medium">{label}</span>
           </Link>
         ))}
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-md text-muted-foreground"
+          aria-label="Más secciones"
+        >
+          <Menu className="size-5" />
+          <span className="text-[10px] font-medium">Más</span>
+        </button>
       </nav>
+
 
       <OnboardingTour />
     </div>
