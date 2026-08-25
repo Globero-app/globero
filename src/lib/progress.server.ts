@@ -109,6 +109,83 @@ export async function buildProgress(supabase: any, userId: string, profile: any)
     .sort((a, b) => a.week_start.localeCompare(b.week_start))
     .slice(-16);
 
+  // ── Prescrito vs ejecutado por semana ─────────────────────────────
+  type AdhRow = { week_start: string; planned_tss: number; actual_tss: number; planned: number; done: number };
+  const adhMap = new Map<string, AdhRow>();
+  for (const w of (workouts ?? []) as any[]) {
+    const d = String(w.plan?.scheduled_date ?? w.completed_at ?? "").slice(0, 10);
+    if (!d) continue;
+    const ws = weekStart(d);
+    const row = adhMap.get(ws) ?? { week_start: ws, planned_tss: 0, actual_tss: 0, planned: 0, done: 0 };
+    const planned = Number(w.planned_tss) || estimatePlanTss(w.plan, ftp, lthr, maxHr, w.duration_minutes);
+    row.planned_tss += planned;
+    row.planned += 1;
+    if (w.status === "completed") {
+      row.done += 1;
+      row.actual_tss += Number(w.actual_tss) || planned;
+    }
+    adhMap.set(ws, row);
+  }
+  const adherence = [...adhMap.values()]
+    .sort((a, b) => a.week_start.localeCompare(b.week_start))
+    .slice(-12)
+    .map((r) => ({
+      week_start: r.week_start,
+      planned_tss: Math.round(r.planned_tss),
+      actual_tss: Math.round(r.actual_tss),
+      planned: r.planned,
+      done: r.done,
+      compliance: r.planned ? Math.round((r.done / r.planned) * 100) : 0,
+    }));
+
+  // ── Tiempo en zonas (entrenos completados, últimas 8 semanas) ─────
+  const zoneSeconds = [0, 0, 0, 0, 0, 0, 0];
+  const zoneSince = isoDate(new Date(todayMs - 56 * DAY));
+  for (const w of (workouts ?? []) as any[]) {
+    if (w.status !== "completed") continue;
+    const d = String(w.plan?.scheduled_date ?? w.completed_at ?? "").slice(0, 10);
+    if (!d || d < zoneSince) continue;
+    for (const s of (w.plan?.steps ?? []) as any[]) {
+      const secs = Number(s.duration_seconds) || 0;
+      if (secs <= 0) continue;
+      const mid = (Number(s.target_low) + Number(s.target_high)) / 2;
+      let pct = 0;
+      if (s.target === "power" && ftp) pct = mid / ftp;
+      else if (s.target === "hr" && lthr) pct = mid / lthr / 0.95;
+      else pct = 0.6;
+      const z = pct < 0.56 ? 1 : pct < 0.76 ? 2 : pct < 0.9 ? 3 : pct < 1.05 ? 4 : pct < 1.2 ? 5 : 6;
+      zoneSeconds[z] += secs;
+    }
+  }
+  const totalZone = zoneSeconds.reduce((a, b) => a + b, 0);
+  const zones = [1, 2, 3, 4, 5, 6].map((z) => ({
+    zone: `Z${z}`,
+    minutes: Math.round(zoneSeconds[z]! / 60),
+    pct: totalZone ? Math.round((zoneSeconds[z]! / totalZone) * 100) : 0,
+  }));
+
+  // ── Readiness medio por semana ────────────────────────────────────
+  const { data: readiness } = await supabase
+    .from("readiness_entries")
+    .select("entry_date,score")
+    .eq("user_id", userId)
+    .gte("entry_date", isoDate(new Date(todayMs - 120 * DAY)))
+    .order("entry_date", { ascending: true });
+  const rMap = new Map<string, { sum: number; n: number }>();
+  for (const r of (readiness ?? []) as any[]) {
+    const ws = weekStart(String(r.entry_date));
+    const cur = rMap.get(ws) ?? { sum: 0, n: 0 };
+    cur.sum += Number(r.score) || 0;
+    cur.n += 1;
+    rMap.set(ws, cur);
+  }
+  const readinessWeekly = [...rMap.entries()]
+    .map(([week_start, v]) => ({ week_start, score: Math.round((v.sum / v.n) * 10) / 10 }))
+    .sort((a, b) => a.week_start.localeCompare(b.week_start))
+    .slice(-12);
+
+
+
   // ── PRs de potencia ───────────────────────────────────────────────
   const prs: PowerPr[] = [];
   for (const b of PR_BUCKETS) {
