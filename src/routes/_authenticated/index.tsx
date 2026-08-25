@@ -11,6 +11,8 @@ import { es } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MaintenanceAlertsBanner } from "@/components/MaintenanceAlertsBanner";
 import { AdjustTodayCard } from "@/components/AdjustTodayCard";
+import { TodayPanel } from "@/components/TodayPanel";
+
 import { useEffect, useRef } from "react";
 import { useTodayPushTriggers, notifyStravaSync } from "@/lib/push-triggers";
 
