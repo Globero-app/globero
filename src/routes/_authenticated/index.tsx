@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MaintenanceAlertsBanner } from "@/components/MaintenanceAlertsBanner";
 import { AdjustTodayCard } from "@/components/AdjustTodayCard";
 import { TodayPanel } from "@/components/TodayPanel";
+import { CoachBriefCard } from "@/components/CoachBriefCard";
 
 import { useEffect, useRef } from "react";
 import { useTodayPushTriggers, notifyStravaSync } from "@/lib/push-triggers";
@@ -124,6 +125,8 @@ function Dashboard() {
       </div>
 
       <MaintenanceAlertsBanner />
+
+      <CoachBriefCard />
 
       <TodayPanel />
 
