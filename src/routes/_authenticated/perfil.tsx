@@ -73,6 +73,13 @@ function PerfilPage() {
       zones_display_mode: form.zones_display_mode || "watts",
       pre_race_days: form.pre_race_days ? Number(form.pre_race_days) : 3,
 
+      cyclist_type: form.cyclist_type || "mixto",
+      strengths: form.strengths || null,
+      weaknesses: form.weaknesses || null,
+      location_city: form.location_city || null,
+      weather_auto_indoor: form.weather_auto_indoor ?? true,
+      weather_wind_threshold_kmh: form.weather_wind_threshold_kmh != null && form.weather_wind_threshold_kmh !== "" ? Number(form.weather_wind_threshold_kmh) : 25,
+
       dietary_preferences: form.dietary_preferences,
       strava_client_id: form.strava_client_id,
       strava_client_secret: form.strava_client_secret,
