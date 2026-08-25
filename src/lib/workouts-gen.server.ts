@@ -215,6 +215,56 @@ PERIODIZACIÓN OBLIGATORIA:
   const effectiveCount = schedule.length;
   const longDay = input.long_ride_day ?? null;
 
+  // ---- Perfil tipológico y meteorología ----
+  const cyclistType = (profile.cyclist_type as string) ?? "mixto";
+  const strengths = (profile.strengths as string | null) ?? "";
+  const weaknesses = (profile.weaknesses as string | null) ?? "";
+  const locationCity = (profile.location_city as string | null) ?? "";
+  const windThreshold = Number(profile.weather_wind_threshold_kmh ?? 25);
+  const autoIndoor = (profile.weather_auto_indoor as boolean | null) ?? true;
+
+  let weatherMap: Map<string, import("./weather").WeatherDay> | null = null;
+  if (locationCity.trim()) {
+    try {
+      weatherMap = await fetchDailyWeather(locationCity, schedule.map((s) => s.date));
+    } catch (e) {
+      console.warn("[workouts-gen] weather fetch failed", e);
+    }
+  }
+
+  const weatherAdvices = schedule.map((s) => {
+    const w = weatherMap?.get(s.date);
+    if (!w) return null;
+    return adviseForWorkout(w, windThreshold, autoIndoor);
+  });
+
+  const profileBlock = `
+PERFIL TIPOLÓGICO DEL CICLISTA:
+- Tipo: ${cyclistType}
+${strengths ? `- Fortalezas: ${strengths}` : ""}
+${weaknesses ? `- Debilidades a trabajar: ${weaknesses}` : ""}
+AJUSTES POR PERFIL:
+- Sprinter: prioriza trabajo neuromuscular, sprints, aceleraciones de 10-30 s y recuperaciones largas.
+- Rodador: sesiones de umbral/tempo sostenido, Z3-Z4 prolongada y rodajes aeróbicos en llano.
+- Escalador: rodajes largos de Z2, repeticiones en subida (2-10 min) y fuerza específica a baja cadencia.
+- Contrarrelojista: trabajo aeróbico constante, series de umbral y simulaciones de crono en posición.
+- Mixto: equilibrio entre cualidades sin sesgar demasiado.`;
+
+  const weatherBlock = weatherMap
+    ? `
+PREVISIÓN METEOROLÓGICA (${locationCity}):
+${schedule.map((s, i) => {
+      const w = weatherMap!.get(s.date);
+      const a = weatherAdvices[i];
+      if (!w) return `- ${s.date}: sin datos`;
+      return `- ${s.date}: ${w.summary}, viento ${w.wind_kmh} km/h, ${w.precip_mm} mm de lluvia.${a ? ` Ajuste: ${a.note}` : ""}`;
+    }).join("\n")}
+REGLAS METEOROLÓGICAS:
+- Si un día tiene lluvia intensa (≥5 mm), frío extremo (≤2 °C), calor extremo (≥35 °C), tormenta o viento muy fuerte, y el perfil tiene weather_auto_indoor activado, propón ese entrenamiento como rodillo (indoor) y ajusta la duración a 60-90 min.
+- En días de viento fuerte pero sin precipitación extrema, puedes reducir la duración de la tirada larga o cambiarla por una sesión de calidad corta.
+- En días templados y sin viento, prioriza salida a exterior.`
+    : "";
+
   // ---- Bloque de 4 semanas (periodización) ----
   const planWeekStart = weekStart(schedule[0].date);
   const { data: lastBlock } = await supabase
