@@ -317,6 +317,7 @@ export type Database = {
         Row: {
           age: number | null
           created_at: string
+          cyclist_type: Database["public"]["Enums"]["cyclist_type_enum"]
           dietary_preferences: string | null
           email: string
           ftp: number | null
@@ -328,6 +329,7 @@ export type Database = {
           intervals_api_key: string | null
           intervals_athlete_id: string | null
           linking_code: string | null
+          location_city: string | null
           lthr: number | null
           max_hr: number | null
           notify_channel: string
@@ -349,8 +351,12 @@ export type Database = {
           strava_client_secret: string | null
           strava_expires_at: number | null
           strava_refresh_token: string | null
+          strengths: string | null
           telegram_chat_id: string | null
           updated_at: string
+          weaknesses: string | null
+          weather_auto_indoor: boolean
+          weather_wind_threshold_kmh: number
           weekly_auto_enabled: boolean
           weekly_bike_type: string
           weekly_duration_minutes: number
@@ -364,6 +370,7 @@ export type Database = {
         Insert: {
           age?: number | null
           created_at?: string
+          cyclist_type?: Database["public"]["Enums"]["cyclist_type_enum"]
           dietary_preferences?: string | null
           email: string
           ftp?: number | null
@@ -375,6 +382,7 @@ export type Database = {
           intervals_api_key?: string | null
           intervals_athlete_id?: string | null
           linking_code?: string | null
+          location_city?: string | null
           lthr?: number | null
           max_hr?: number | null
           notify_channel?: string
@@ -396,8 +404,12 @@ export type Database = {
           strava_client_secret?: string | null
           strava_expires_at?: number | null
           strava_refresh_token?: string | null
+          strengths?: string | null
           telegram_chat_id?: string | null
           updated_at?: string
+          weaknesses?: string | null
+          weather_auto_indoor?: boolean
+          weather_wind_threshold_kmh?: number
           weekly_auto_enabled?: boolean
           weekly_bike_type?: string
           weekly_duration_minutes?: number
@@ -411,6 +423,7 @@ export type Database = {
         Update: {
           age?: number | null
           created_at?: string
+          cyclist_type?: Database["public"]["Enums"]["cyclist_type_enum"]
           dietary_preferences?: string | null
           email?: string
           ftp?: number | null
@@ -422,6 +435,7 @@ export type Database = {
           intervals_api_key?: string | null
           intervals_athlete_id?: string | null
           linking_code?: string | null
+          location_city?: string | null
           lthr?: number | null
           max_hr?: number | null
           notify_channel?: string
@@ -443,8 +457,12 @@ export type Database = {
           strava_client_secret?: string | null
           strava_expires_at?: number | null
           strava_refresh_token?: string | null
+          strengths?: string | null
           telegram_chat_id?: string | null
           updated_at?: string
+          weaknesses?: string | null
+          weather_auto_indoor?: boolean
+          weather_wind_threshold_kmh?: number
           weekly_auto_enabled?: boolean
           weekly_bike_type?: string
           weekly_duration_minutes?: number
@@ -791,6 +809,12 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      cyclist_type_enum:
+        | "sprinter"
+        | "rodador"
+        | "escalador"
+        | "contrarrelojista"
+        | "mixto"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -919,6 +943,13 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      cyclist_type_enum: [
+        "sprinter",
+        "rodador",
+        "escalador",
+        "contrarrelojista",
+        "mixto",
+      ],
     },
   },
 } as const

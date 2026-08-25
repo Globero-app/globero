@@ -8,7 +8,7 @@ import { generateWorkouts, completeWorkout, deleteWorkout, convertWorkoutToTrain
 import { uploadWorkoutsToIntervals } from "@/lib/intervals.functions";
 import { downloadFit, type FitWorkout, type FitWorkoutStep } from "@/lib/fit-writer";
 import { downloadZwo, type ZwoWorkout, type ZwoStep } from "@/lib/zwo-writer";
-import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown, Home, Bike } from "lucide-react";
+import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown, Home, Bike, CloudRain, Sun } from "lucide-react";
 
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -618,6 +618,12 @@ function WorkoutCard({
             {plan.competition_name && <p className="text-[11px] font-mono uppercase text-primary mt-0.5">🏁 {plan.competition_name}</p>}
             {plan.summary && <p className="text-sm mt-2">{plan.summary}</p>}
             {plan.rationale && <p className="text-[11px] text-muted-foreground mt-1.5">🧠 {plan.rationale}</p>}
+            {plan.weather_advice && (
+              <div className={`flex items-start gap-2 mt-2 text-[11px] rounded-md px-2 py-1.5 border ${plan.weather_advice.indoor ? "bg-sky-50 border-sky-200 text-sky-800" : "bg-emerald-50 border-emerald-200 text-emerald-800"}`}>
+                {plan.weather_advice.indoor ? <CloudRain className="size-3.5 shrink-0 mt-0.5" /> : <Sun className="size-3.5 shrink-0 mt-0.5" />}
+                <span>{plan.weather_advice.note}</span>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <button onClick={() => setShowPreview(true)} title="Ver y descargar .FIT" className="p-2 rounded-md hover:bg-secondary text-primary">

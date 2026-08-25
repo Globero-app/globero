@@ -1,3 +1,6 @@
+import { fetchDailyWeather, adviseForWorkout } from "./weather-daily.server";
+import type { WeatherDay } from "./weather";
+
 const MODEL = "google/gemini-3-flash-preview";
 const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
@@ -213,6 +216,56 @@ PERIODIZACIÓN OBLIGATORIA:
   const effectiveCount = schedule.length;
   const longDay = input.long_ride_day ?? null;
 
+  // ---- Perfil tipológico y meteorología ----
+  const cyclistType = (profile.cyclist_type as string) ?? "mixto";
+  const strengths = (profile.strengths as string | null) ?? "";
+  const weaknesses = (profile.weaknesses as string | null) ?? "";
+  const locationCity = (profile.location_city as string | null) ?? "";
+  const windThreshold = Number(profile.weather_wind_threshold_kmh ?? 25);
+  const autoIndoor = (profile.weather_auto_indoor as boolean | null) ?? true;
+
+  let weatherMap: Map<string, WeatherDay> | null = null;
+  if (locationCity.trim()) {
+    try {
+      weatherMap = await fetchDailyWeather(locationCity, schedule.map((s) => s.date));
+    } catch (e) {
+      console.warn("[workouts-gen] weather fetch failed", e);
+    }
+  }
+
+  const weatherAdvices = schedule.map((s) => {
+    const w = weatherMap?.get(s.date);
+    if (!w) return null;
+    return adviseForWorkout(w, windThreshold, autoIndoor);
+  });
+
+  const profileBlock = `
+PERFIL TIPOLÓGICO DEL CICLISTA:
+- Tipo: ${cyclistType}
+${strengths ? `- Fortalezas: ${strengths}` : ""}
+${weaknesses ? `- Debilidades a trabajar: ${weaknesses}` : ""}
+AJUSTES POR PERFIL:
+- Sprinter: prioriza trabajo neuromuscular, sprints, aceleraciones de 10-30 s y recuperaciones largas.
+- Rodador: sesiones de umbral/tempo sostenido, Z3-Z4 prolongada y rodajes aeróbicos en llano.
+- Escalador: rodajes largos de Z2, repeticiones en subida (2-10 min) y fuerza específica a baja cadencia.
+- Contrarrelojista: trabajo aeróbico constante, series de umbral y simulaciones de crono en posición.
+- Mixto: equilibrio entre cualidades sin sesgar demasiado.`;
+
+  const weatherBlock = weatherMap
+    ? `
+PREVISIÓN METEOROLÓGICA (${locationCity}):
+${schedule.map((s, i) => {
+      const w = weatherMap!.get(s.date);
+      const a = weatherAdvices[i];
+      if (!w) return `- ${s.date}: sin datos`;
+      return `- ${s.date}: ${w.summary}, viento ${w.wind_kmh} km/h, ${w.precip_mm} mm de lluvia.${a ? ` Ajuste: ${a.note}` : ""}`;
+    }).join("\n")}
+REGLAS METEOROLÓGICAS:
+- Si un día tiene lluvia intensa (≥5 mm), frío extremo (≤2 °C), calor extremo (≥35 °C), tormenta o viento muy fuerte, y el perfil tiene weather_auto_indoor activado, propón ese entrenamiento como rodillo (indoor) y ajusta la duración a 60-90 min.
+- En días de viento fuerte pero sin precipitación extrema, puedes reducir la duración de la tirada larga o cambiarla por una sesión de calidad corta.
+- En días templados y sin viento, prioriza salida a exterior.`
+    : "";
+
   // ---- Bloque de 4 semanas (periodización) ----
   const planWeekStart = weekStart(schedule[0].date);
   const { data: lastBlock } = await supabase
@@ -276,6 +329,8 @@ PERFIL:
 - FTP: ${ftp ?? "no especificado"}W · FC máx: ${maxHr ?? "n/a"} ppm · LTHR: ${lthr ?? "n/a"} ppm
 - Tipo de bici: ${input.bike_type}
 
+${profileBlock}
+
 ${basisBlock}
 
 PETICIÓN:
@@ -287,6 +342,7 @@ ${competitionBlock}
 ${blockBlock}
 ${loadBlock}
 ${scheduleBlock}
+${weatherBlock}
 
 ACTIVIDADES RECIENTES (Strava): ${recent && recent.length ? JSON.stringify(recent) : "ninguna"}
 
@@ -299,7 +355,7 @@ READINESS DE HOY (${madridToday}): ${readinessStatus}
 HISTÓRICO READINESS 14 días: ${readinessArr.length ? JSON.stringify(readinessArr) : "sin registros"}
 
 INSTRUCCIONES:
-1. Cada entrenamiento DEBE durar aproximadamente ${input.duration_minutes} minutos (suma de duration_seconds).
+1. Cada entrenamiento DEBE durar aproximadamente ${input.duration_minutes} minutos (suma de duration_seconds), salvo que el ajuste meteorológico lo convierta en rodillo (60-90 min).
 2. Incluye SIEMPRE calentamiento y vuelta a la calma.
 3. duration_type='time' con duration_seconds salvo descansos abiertos.
 4. Respeta ESTRICTAMENTE la BASE DE PRESCRIPCIÓN (${basis === "hr" ? "frecuencia cardíaca" : "potencia/FTP"}).
@@ -308,7 +364,8 @@ INSTRUCCIONES:
 7. PLAN MIXTO: alterna resistencia, intervalos y fuerza entre las sesiones del bloque; no repitas el mismo tipo dos días seguidos.
 8. PROGRESIÓN Y MEJORA: usa el histórico de entrenamientos realizados (RPE, notas, cumplimiento) y las actividades de Strava para subir la carga de forma progresiva respecto a la semana anterior. Si el RPE medio >4 reduce intensidad; si <2 auméntala.
 9. TIPO DE BICI (${input.bike_type}): adapta el enfoque al material.
-10. MODULACIÓN POR READINESS: la PRIMERA sesión del plan se ajusta al Readiness de hoy (1 → descanso/movilidad, 2 → Z1-Z2 corto, 3 → estándar, 4-5 → puedes subir carga).`;
+10. MODULACIÓN POR READINESS: la PRIMERA sesión del plan se ajusta al Readiness de hoy (1 → descanso/movilidad, 2 → Z1-Z2 corto, 3 → estándar, 4-5 → puedes subir carga).
+11. AJUSTE METEOROLÓGICO: si el día tiene condiciones adversas según la previsión, indícalo en el summary y, si procede, convierte la sesión en rodillo (indoor=true) con duración 60-90 min.`;
 
   const result = await callAI([{ role: "user", content: prompt }], PlanSchema);
 
@@ -316,6 +373,8 @@ INSTRUCCIONES:
   const items = (result.workouts as any[]).slice(0, effectiveCount).map((w, i) => {
     const slot = schedule[i];
     const isLong = !!slot && longDay !== null && slot.dow === longDay;
+    const weather = weatherMap?.get(slot?.date ?? w.scheduled_date ?? "") ?? null;
+    const advice = weatherAdvices[i] ?? (weather ? adviseForWorkout(weather, windThreshold, autoIndoor) : null);
     const ctx = {
       ftp,
       lthr,
@@ -333,6 +392,8 @@ INSTRUCCIONES:
       ctx,
       date: slot?.date ?? w.scheduled_date ?? null,
       isLong,
+      weather,
+      advice,
     };
   });
 
@@ -359,6 +420,18 @@ INSTRUCCIONES:
       week_mode: week.mode,
       week_target_tss: week.target_tss,
       rationale: `${rationaleBase} · TSS previsto ${it.tss}`,
+      weather: it.weather ? {
+        date: it.weather.date,
+        summary: it.weather.summary,
+        temp_max_c: it.weather.temp_max_c,
+        wind_kmh: it.weather.wind_kmh,
+        precip_mm: it.weather.precip_mm,
+      } : null,
+      weather_advice: it.advice ? {
+        indoor: it.advice.indoor,
+        reason: it.advice.reason,
+        note: it.advice.note,
+      } : null,
     },
     status: "pending",
   }));
