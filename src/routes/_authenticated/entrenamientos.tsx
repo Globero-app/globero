@@ -407,7 +407,13 @@ function EntrenamientosPage() {
 
       {/* Lista */}
       <div className="space-y-3">
-        <h2 className="font-display text-lg font-bold uppercase">Tus entrenamientos</h2>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <h2 className="font-display text-lg font-bold uppercase">Tus entrenamientos</h2>
+          <PlanIoBar
+            workouts={workouts.data ?? []}
+            onImported={() => qc.invalidateQueries({ queryKey: ["workouts"] })}
+          />
+        </div>
         {workouts.isLoading && (
           <div className="grid gap-3">
             {[1, 2, 3].map((i) => <Skeleton key={i} className="h-28 w-full" />)}
