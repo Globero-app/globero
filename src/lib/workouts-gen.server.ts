@@ -419,6 +419,18 @@ INSTRUCCIONES:
       week_mode: week.mode,
       week_target_tss: week.target_tss,
       rationale: `${rationaleBase} · TSS previsto ${it.tss}`,
+      weather: it.weather ? {
+        date: it.weather.date,
+        summary: it.weather.summary,
+        temp_max_c: it.weather.temp_max_c,
+        wind_kmh: it.weather.wind_kmh,
+        precip_mm: it.weather.precip_mm,
+      } : null,
+      weather_advice: it.advice ? {
+        indoor: it.advice.indoor,
+        reason: it.advice.reason,
+        note: it.advice.note,
+      } : null,
     },
     status: "pending",
   }));
