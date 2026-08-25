@@ -223,7 +223,7 @@ PERIODIZACIÓN OBLIGATORIA:
   const windThreshold = Number(profile.weather_wind_threshold_kmh ?? 25);
   const autoIndoor = (profile.weather_auto_indoor as boolean | null) ?? true;
 
-  let weatherMap: Map<string, import("./weather").WeatherDay> | null = null;
+  let weatherMap: Map<string, WeatherDay> | null = null;
   if (locationCity.trim()) {
     try {
       weatherMap = await fetchDailyWeather(locationCity, schedule.map((s) => s.date));
