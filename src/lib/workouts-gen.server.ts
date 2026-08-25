@@ -372,6 +372,8 @@ INSTRUCCIONES:
   const items = (result.workouts as any[]).slice(0, effectiveCount).map((w, i) => {
     const slot = schedule[i];
     const isLong = !!slot && longDay !== null && slot.dow === longDay;
+    const weather = weatherMap?.get(slot?.date ?? w.scheduled_date ?? "") ?? null;
+    const advice = weatherAdvices[i] ?? (weather ? adviseForWorkout(weather, windThreshold, autoIndoor) : null);
     const ctx = {
       ftp,
       lthr,
@@ -389,6 +391,8 @@ INSTRUCCIONES:
       ctx,
       date: slot?.date ?? w.scheduled_date ?? null,
       isLong,
+      weather,
+      advice,
     };
   });
 
