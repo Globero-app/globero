@@ -45,6 +45,17 @@ function ProgresoPage() {
     label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: es }),
   }));
 
+  const adherenceData = (d?.adherence ?? []).map((w: any) => ({
+    ...w,
+    label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: es }),
+  }));
+
+  const readinessData = (d?.readiness_weekly ?? []).map((w: any) => ({
+    ...w,
+    label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: es }),
+  }));
+
+
   const ctlDelta = d?.ctl_30d_ago != null ? Math.round((d.current.ctl - d.ctl_30d_ago) * 10) / 10 : null;
 
   return (
