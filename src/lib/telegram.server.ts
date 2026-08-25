@@ -193,6 +193,89 @@ export async function handleTelegramUpdate(update: any): Promise<void> {
   }
   const userId = (profile as any).id as string;
 
+  // ── Comandos rápidos ──────────────────────────────────────────────
+  const cmdMatch = text.match(/^\/(\w+)(?:@\w+)?(?:\s+(.*))?$/s);
+  if (cmdMatch) {
+    const cmd = cmdMatch[1]!.toLowerCase();
+    const arg = (cmdMatch[2] ?? "").trim();
+
+    if (cmd === "ayuda" || cmd === "help") {
+      await telegramSend(
+        chatId,
+        `Comandos disponibles:
+/hoy — resumen del día (entreno, forma y consejo)
+/forma — CTL, ATL, TSB y alertas de fatiga
+/semana — resumen semanal y objetivos
+/menu — menú de hoy
+/readiness N — registra tu readiness (1-5)
+/salud — tu último registro de peso, sueño y fatiga
+/ayuda — esta lista
+
+También puedes escribirme en lenguaje natural: "pásame el entreno de hoy a rodillo 1h", "mi peso es 72 kg", "cámbiame la cena".`,
+      );
+      return;
+    }
+
+    if (cmd === "hoy" || cmd === "forma") {
+      const { buildDailyBrief, runCoachAlerts } = await import("./coach.server");
+      if (cmd === "hoy") {
+        const brief = await buildDailyBrief(supabaseAdmin, userId);
+        await telegramSend(chatId, `🧭 ${brief.date}\n${brief.detail}`);
+        return;
+      }
+      const res = await runCoachAlerts(supabaseAdmin, userId, false);
+      const { buildTrainingLoad } = await import("./training-load.server");
+      const load = await buildTrainingLoad(supabaseAdmin, userId, profile);
+      const alerts = res.alerts.length ? res.alerts.map((a) => `· ${a.title}: ${a.message}`).join("\n") : "Sin alertas.";
+      await telegramSend(
+        chatId,
+        `📈 Forma actual\nCTL ${Math.round(load.ctl)} · ATL ${Math.round(load.atl)} · TSB ${Math.round(load.tsb)}\nAdherencia 28d: ${load.adherence_pct ?? "n/a"}%\nReadiness 7d: ${load.readiness_7d ?? "n/a"}/5 (${load.readiness_trend})\n\n${alerts}`,
+      );
+      return;
+    }
+
+    if (cmd === "semana") {
+      const { buildWeeklySummaryText } = await import("./weekly-summary.server");
+      const s = await buildWeeklySummaryText(supabaseAdmin, userId);
+      await telegramSend(chatId, `📊 ${s.detail}`);
+      return;
+    }
+
+    if (cmd === "salud") {
+      const { data: h } = await supabaseAdmin
+        .from("health_entries")
+        .select("*")
+        .eq("user_id", userId)
+        .order("entry_date", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!h) {
+        await telegramSend(chatId, "Aún no tienes registros de salud. Añádelos en la app → Salud.");
+        return;
+      }
+      const e: any = h;
+      await telegramSend(
+        chatId,
+        `❤️ Salud (${e.entry_date})\nPeso: ${e.weight_kg ?? "—"} kg\nSueño: ${e.sleep_hours ?? "—"} h (calidad ${e.sleep_quality ?? "—"}/5)\nFatiga: ${e.fatigue ?? "—"}/5 · Dolor muscular: ${e.soreness ?? "—"}/5\nFC reposo: ${e.resting_hr ?? "—"} bpm${e.note ? `\nNotas: ${e.note}` : ""}`,
+      );
+      return;
+    }
+
+    if (cmd === "readiness") {
+      const n = Number(arg.match(/[1-5]/)?.[0]);
+      if (!n) {
+        await telegramSend(chatId, "Indica un valor del 1 al 5. Ejemplo: /readiness 4");
+        return;
+      }
+      // Se procesa con la lógica de readiness reutilizando el flujo natural
+      return handleTelegramUpdate({ message: { chat: { id: chatId }, text: `hoy me encuentro a ${n}` } });
+    }
+
+    if (cmd === "menu") {
+      // continúa al flujo normal; la IA responderá con el menú
+    }
+  }
+
   const { data: pending } = await supabaseAdmin
     .from("workouts")
     .select("*")
