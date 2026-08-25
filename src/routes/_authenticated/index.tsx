@@ -26,12 +26,22 @@ function Dashboard() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const sync = useServerFn(stravaSync);
+  const loadFn = useServerFn(getTrainingLoad);
 
   const profile = useQuery({
     queryKey: ["profile", user?.id],
     queryFn: async () => {
       const { data } = await supabase.from("profiles").select("*").eq("id", user!.id).maybeSingle();
       return data;
+    },
+    enabled: !!user,
+  });
+
+  const load = useQuery({
+    queryKey: ["training_load", user?.id],
+    queryFn: async () => {
+      const res = await loadFn({ data: undefined });
+      return res?.load ?? null;
     },
     enabled: !!user,
   });
@@ -70,6 +80,7 @@ function Dashboard() {
       .then((res: any) => {
         qc.invalidateQueries({ queryKey: ["recent_activities"] });
         qc.invalidateQueries({ queryKey: ["strava_activities"] });
+        qc.invalidateQueries({ queryKey: ["training_load"] });
         void notifyStravaSync(user.id, res?.count ?? 0);
       })
       .catch(() => {});
@@ -91,8 +102,10 @@ function Dashboard() {
   const next = upcoming[0];
   const daysToNext = next ? Math.ceil((new Date(next.date).getTime() - today.getTime()) / 86400000) : null;
 
-  // CTL (42d EMA) y ATL (7d EMA) basados en suffer_score como proxy de TSS
-  const { ctl, atl, tsb } = computeForm(acts.data ?? []);
+  // CTL/ATL/TSB unificado: mismo motor que usa el generador de entrenamientos
+  const ctl = load.data?.ctl ?? 0;
+  const atl = load.data?.atl ?? 0;
+  const tsb = load.data?.tsb ?? 0;
   const form = interpretTSB(tsb);
 
   // Progreso del plan de carga: días transcurridos vs ventana de plan (90 días antes de la cita)
