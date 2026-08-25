@@ -328,6 +328,8 @@ PERFIL:
 - FTP: ${ftp ?? "no especificado"}W · FC máx: ${maxHr ?? "n/a"} ppm · LTHR: ${lthr ?? "n/a"} ppm
 - Tipo de bici: ${input.bike_type}
 
+${profileBlock}
+
 ${basisBlock}
 
 PETICIÓN:
@@ -339,6 +341,7 @@ ${competitionBlock}
 ${blockBlock}
 ${loadBlock}
 ${scheduleBlock}
+${weatherBlock}
 
 ACTIVIDADES RECIENTES (Strava): ${recent && recent.length ? JSON.stringify(recent) : "ninguna"}
 
@@ -351,7 +354,7 @@ READINESS DE HOY (${madridToday}): ${readinessStatus}
 HISTÓRICO READINESS 14 días: ${readinessArr.length ? JSON.stringify(readinessArr) : "sin registros"}
 
 INSTRUCCIONES:
-1. Cada entrenamiento DEBE durar aproximadamente ${input.duration_minutes} minutos (suma de duration_seconds).
+1. Cada entrenamiento DEBE durar aproximadamente ${input.duration_minutes} minutos (suma de duration_seconds), salvo que el ajuste meteorológico lo convierta en rodillo (60-90 min).
 2. Incluye SIEMPRE calentamiento y vuelta a la calma.
 3. duration_type='time' con duration_seconds salvo descansos abiertos.
 4. Respeta ESTRICTAMENTE la BASE DE PRESCRIPCIÓN (${basis === "hr" ? "frecuencia cardíaca" : "potencia/FTP"}).
@@ -360,7 +363,8 @@ INSTRUCCIONES:
 7. PLAN MIXTO: alterna resistencia, intervalos y fuerza entre las sesiones del bloque; no repitas el mismo tipo dos días seguidos.
 8. PROGRESIÓN Y MEJORA: usa el histórico de entrenamientos realizados (RPE, notas, cumplimiento) y las actividades de Strava para subir la carga de forma progresiva respecto a la semana anterior. Si el RPE medio >4 reduce intensidad; si <2 auméntala.
 9. TIPO DE BICI (${input.bike_type}): adapta el enfoque al material.
-10. MODULACIÓN POR READINESS: la PRIMERA sesión del plan se ajusta al Readiness de hoy (1 → descanso/movilidad, 2 → Z1-Z2 corto, 3 → estándar, 4-5 → puedes subir carga).`;
+10. MODULACIÓN POR READINESS: la PRIMERA sesión del plan se ajusta al Readiness de hoy (1 → descanso/movilidad, 2 → Z1-Z2 corto, 3 → estándar, 4-5 → puedes subir carga).
+11. AJUSTE METEOROLÓGICO: si el día tiene condiciones adversas según la previsión, indícalo en el summary y, si procede, convierte la sesión en rodillo (indoor=true) con duración 60-90 min.`;
 
   const result = await callAI([{ role: "user", content: prompt }], PlanSchema);
 
