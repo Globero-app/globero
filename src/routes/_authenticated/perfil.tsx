@@ -229,6 +229,51 @@ function PerfilPage() {
           </p>
         </Section>
 
+        <Section title="Perfil ciclista">
+          <Field label="Tipo de ciclista">
+            <select className="input" value={form.cyclist_type ?? "mixto"} onChange={(e) => setForm({ ...form, cyclist_type: e.target.value })}>
+              <option value="mixto">Mixto / sin definir</option>
+              <option value="sprinter">Sprinter</option>
+              <option value="rodador">Rodador</option>
+              <option value="escalador">Escalador</option>
+              <option value="contrarrelojista">Contrarrelojista</option>
+            </select>
+          </Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Fortalezas">
+              <input className="input" placeholder="Sprint, llano, larga distancia…" value={form.strengths ?? ""} onChange={(e) => setForm({ ...form, strengths: e.target.value })} />
+            </Field>
+            <Field label="Debilidades a trabajar">
+              <input className="input" placeholder="Subidas, final, crono…" value={form.weaknesses ?? ""} onChange={(e) => setForm({ ...form, weaknesses: e.target.value })} />
+            </Field>
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            La IA sesgará la distribución de carga según tu perfil: más sprint/VO₂max para sprinters, umbral para rodadores, Z2 y subidas para escaladores, y aeróbico constante para contrarrelojistas.
+          </p>
+        </Section>
+
+        <Section title="Meteorología">
+          <Field label="Ciudad base para previsión">
+            <input className="input" placeholder="Madrid, Barcelona, Sevilla…" value={form.location_city ?? ""} onChange={(e) => setForm({ ...form, location_city: e.target.value })} />
+          </Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Umbral de viento (km/h)">
+              <input type="number" min={10} max={60} className="input" value={form.weather_wind_threshold_kmh ?? 25} onChange={(e) => setForm({ ...form, weather_wind_threshold_kmh: e.target.value })} />
+            </Field>
+            <label className="flex items-center gap-2 text-sm self-end pb-2">
+              <input
+                type="checkbox"
+                checked={form.weather_auto_indoor ?? true}
+                onChange={(e) => setForm({ ...form, weather_auto_indoor: e.target.checked })}
+              />
+              <span>Sugerir rodillo en mal tiempo</span>
+            </label>
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Si indicas una ciudad, la IA consultará la previsión para cada día de entreno y ajustará o sugerirá rodillo ante lluvia intensa, viento muy fuerte o temperaturas extremas.
+          </p>
+        </Section>
+
         <Section title="Plan nutricional">
           <Field label="Días previos para Menú Pre-Carrera (1-5)">
             <input type="number" min={1} max={5} className="input" value={form.pre_race_days ?? 3} onChange={(e) => setForm({...form, pre_race_days: e.target.value})} />
