@@ -113,6 +113,11 @@ export const stravaSync = createServerFn({ method: "POST" })
         if (Object.keys(update).length) await supabase.from("profiles").update(update).eq("id", userId);
       }
     } catch (e) { console.error("auto-hr", e); }
+    // Picos mean-max de potencia para la curva de Progreso
+    try {
+      const { syncMissingPowerPeaks } = await import("./power-peaks.server");
+      await syncMissingPowerPeaks(supabase, userId, { limit: 15, sinceDays: 90 });
+    } catch (e) { console.error("power-peaks-sync", e); }
     // Push del servidor si el usuario lo tiene habilitado
     if (rows.length) {
       try {
