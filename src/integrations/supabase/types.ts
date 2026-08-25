@@ -139,6 +139,45 @@ export type Database = {
         }
         Relationships: []
       }
+      coach_alerts: {
+        Row: {
+          alert_date: string
+          created_at: string
+          dismissed_at: string | null
+          id: string
+          kind: string
+          message: string
+          severity: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_date: string
+          created_at?: string
+          dismissed_at?: string | null
+          id?: string
+          kind: string
+          message: string
+          severity?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_date?: string
+          created_at?: string
+          dismissed_at?: string | null
+          id?: string
+          kind?: string
+          message?: string
+          severity?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       competitions: {
         Row: {
           created_at: string
@@ -250,6 +289,51 @@ export type Database = {
           rpe?: number | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      health_entries: {
+        Row: {
+          created_at: string
+          entry_date: string
+          fatigue: number | null
+          id: string
+          note: string | null
+          resting_hr: number | null
+          sleep_hours: number | null
+          sleep_quality: number | null
+          soreness: number | null
+          updated_at: string
+          user_id: string
+          weight_kg: number | null
+        }
+        Insert: {
+          created_at?: string
+          entry_date: string
+          fatigue?: number | null
+          id?: string
+          note?: string | null
+          resting_hr?: number | null
+          sleep_hours?: number | null
+          sleep_quality?: number | null
+          soreness?: number | null
+          updated_at?: string
+          user_id: string
+          weight_kg?: number | null
+        }
+        Update: {
+          created_at?: string
+          entry_date?: string
+          fatigue?: number | null
+          id?: string
+          note?: string | null
+          resting_hr?: number | null
+          sleep_hours?: number | null
+          sleep_quality?: number | null
+          soreness?: number | null
+          updated_at?: string
+          user_id?: string
+          weight_kg?: number | null
         }
         Relationships: []
       }
@@ -369,6 +453,8 @@ export type Database = {
           lthr: number | null
           max_hr: number | null
           notify_channel: string
+          notify_daily_brief: boolean
+          notify_fatigue_alerts: boolean
           notify_maintenance_email: boolean
           notify_maintenance_push: boolean
           notify_prerace_push: boolean
@@ -422,6 +508,8 @@ export type Database = {
           lthr?: number | null
           max_hr?: number | null
           notify_channel?: string
+          notify_daily_brief?: boolean
+          notify_fatigue_alerts?: boolean
           notify_maintenance_email?: boolean
           notify_maintenance_push?: boolean
           notify_prerace_push?: boolean
@@ -475,6 +563,8 @@ export type Database = {
           lthr?: number | null
           max_hr?: number | null
           notify_channel?: string
+          notify_daily_brief?: boolean
+          notify_fatigue_alerts?: boolean
           notify_maintenance_email?: boolean
           notify_maintenance_push?: boolean
           notify_prerace_push?: boolean
