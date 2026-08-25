@@ -1,4 +1,5 @@
-import { fetchDailyWeather, adviseForWorkout, type WeatherDay } from "./weather-daily.server";
+import { fetchDailyWeather, adviseForWorkout } from "./weather-daily.server";
+import type { WeatherDay } from "./weather";
 
 const MODEL = "google/gemini-3-flash-preview";
 const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
