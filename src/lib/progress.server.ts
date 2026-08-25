@@ -223,6 +223,10 @@ export async function buildProgress(supabase: any, userId: string, profile: any)
   return {
     series: series.slice(-180),
     weekly,
+    adherence,
+    zones,
+    readiness_weekly: readinessWeekly,
+
     prs,
     current: last ? { ctl: last.ctl, atl: last.atl, tsb: last.tsb } : { ctl: 0, atl: 0, tsb: 0 },
     ctl_30d_ago: series[series.length - 31]?.ctl ?? null,
