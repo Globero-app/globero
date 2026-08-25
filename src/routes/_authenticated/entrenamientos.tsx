@@ -8,7 +8,7 @@ import { generateWorkouts, completeWorkout, deleteWorkout, convertWorkoutToTrain
 import { uploadWorkoutsToIntervals } from "@/lib/intervals.functions";
 import { downloadFit, type FitWorkout, type FitWorkoutStep } from "@/lib/fit-writer";
 import { downloadZwo, type ZwoWorkout, type ZwoStep } from "@/lib/zwo-writer";
-import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown, Home, Bike } from "lucide-react";
+import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown, Home, Bike, CloudRain, Sun } from "lucide-react";
 
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
