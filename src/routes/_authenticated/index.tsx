@@ -109,7 +109,10 @@ function Dashboard() {
 
       <MaintenanceAlertsBanner />
 
+      <TodayPanel />
+
       <AdjustTodayCard />
+
 
       {/* Countdown + Form */}
       {(next || (acts.data?.length ?? 0) > 0) && (
