@@ -8,7 +8,10 @@ import { generateWorkouts, completeWorkout, deleteWorkout, convertWorkoutToTrain
 import { uploadWorkoutsToIntervals } from "@/lib/intervals.functions";
 import { downloadFit, type FitWorkout, type FitWorkoutStep } from "@/lib/fit-writer";
 import { downloadZwo, type ZwoWorkout, type ZwoStep } from "@/lib/zwo-writer";
-import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown, Home, Bike, CloudRain, Sun } from "lucide-react";
+import { importWorkoutPlan } from "@/lib/plan-io.functions";
+import { buildPlanCsv, parsePlanCsv, parseZwo, downloadText, type ImportSession } from "@/lib/plan-io";
+import { buildIcs } from "@/lib/ics";
+import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown, Home, Bike, CloudRain, Sun, Upload } from "lucide-react";
 
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -407,7 +410,13 @@ function EntrenamientosPage() {
 
       {/* Lista */}
       <div className="space-y-3">
-        <h2 className="font-display text-lg font-bold uppercase">Tus entrenamientos</h2>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <h2 className="font-display text-lg font-bold uppercase">Tus entrenamientos</h2>
+          <PlanIoBar
+            workouts={workouts.data ?? []}
+            onImported={() => qc.invalidateQueries({ queryKey: ["workouts"] })}
+          />
+        </div>
         {workouts.isLoading && (
           <div className="grid gap-3">
             {[1, 2, 3].map((i) => <Skeleton key={i} className="h-28 w-full" />)}
@@ -880,5 +889,121 @@ function PrescribedVsExecuted({ w }: { w: any }) {
           : "Cuando enlaces la actividad de Strava se calculará el TSS real y el cumplimiento."}
       </p>
     </div>
+  );
+}
+
+/* ============================================================
+   Importar / Exportar plan (CSV, ICS, ZWO)
+   ============================================================ */
+
+function PlanIoBar({ workouts, onImported }: { workouts: any[]; onImported: () => void }) {
+  const doImport = useServerFn(importWorkoutPlan);
+  const [preview, setPreview] = useState<ImportSession[] | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const exportCsv = () => {
+    if (!workouts.length) return toast.error("No hay entrenamientos que exportar");
+    downloadText(buildPlanCsv(workouts), "plan-entrenamientos.csv", "text/csv;charset=utf-8");
+  };
+
+  const exportIcs = () => {
+    if (!workouts.length) return toast.error("No hay entrenamientos que exportar");
+    const events = workouts
+      .filter((w) => w.plan?.scheduled_date)
+      .map((w) => ({
+        id: w.id,
+        kind: "workout" as const,
+        date: w.plan.scheduled_date as string,
+        title: (w.plan.title ?? w.plan.name ?? "Entrenamiento") as string,
+        subtitle: `${w.duration_minutes} min`,
+        status: w.status,
+      }));
+    if (!events.length) return toast.error("Los entrenamientos no tienen fecha asignada");
+    downloadText(buildIcs(events), "plan-entrenamientos.ics", "text/calendar;charset=utf-8");
+  };
+
+  const onFiles = async (files: FileList | null) => {
+    if (!files?.length) return;
+    const sessions: ImportSession[] = [];
+    for (const f of Array.from(files).slice(0, 60)) {
+      const text = await f.text();
+      if (f.name.toLowerCase().endsWith(".zwo")) {
+        const s = parseZwo(text, f.name.replace(/\.zwo$/i, ""));
+        if (s) sessions.push(s);
+      } else {
+        sessions.push(...parsePlanCsv(text));
+      }
+    }
+    if (!sessions.length) return toast.error("No se han detectado sesiones válidas en el archivo");
+    setPreview(sessions.slice(0, 90));
+  };
+
+  const confirmImport = async () => {
+    if (!preview?.length) return;
+    setBusy(true);
+    try {
+      const r: any = await doImport({ data: { sessions: preview, upload_to_intervals: true } });
+      toast.success(`${r.imported} sesiones importadas${r.uploaded ? ` · ${r.uploaded} subidas a Intervals.icu` : ""}`);
+      setPreview(null);
+      onImported();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Error importando el plan");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="flex items-center gap-2">
+        <button onClick={exportCsv} className="text-xs font-semibold inline-flex items-center gap-1.5 border rounded-lg px-3 py-1.5 hover:bg-secondary">
+          <FileDown className="size-3.5" /> CSV
+        </button>
+        <button onClick={exportIcs} className="text-xs font-semibold inline-flex items-center gap-1.5 border rounded-lg px-3 py-1.5 hover:bg-secondary">
+          <Download className="size-3.5" /> ICS
+        </button>
+        <label className="text-xs font-semibold inline-flex items-center gap-1.5 border rounded-lg px-3 py-1.5 hover:bg-secondary cursor-pointer">
+          <Upload className="size-3.5" /> Importar
+          <input
+            type="file"
+            accept=".csv,.zwo,text/csv,application/xml"
+            multiple
+            className="hidden"
+            onChange={(e) => { onFiles(e.target.files); e.currentTarget.value = ""; }}
+          />
+        </label>
+      </div>
+
+      <Dialog open={!!preview} onOpenChange={(o) => !o && setPreview(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Importar plan</DialogTitle>
+            <DialogDescription>
+              {preview?.length ?? 0} sesiones detectadas. Se crearán como entrenamientos pendientes y se subirán a Intervals.icu si tienes la conexión activa.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-72 overflow-y-auto space-y-1.5">
+            {preview?.map((s, i) => (
+              <div key={i} className="flex items-center justify-between gap-3 text-sm border rounded-lg px-3 py-2">
+                <span className="truncate">{s.title}</span>
+                <span className="text-xs text-muted-foreground shrink-0">
+                  {s.scheduled_date} · {s.duration_minutes} min
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <button onClick={() => setPreview(null)} className="text-sm px-4 py-2 rounded-lg border hover:bg-secondary">Cancelar</button>
+            <button
+              onClick={confirmImport}
+              disabled={busy}
+              className="text-sm px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold disabled:opacity-50 inline-flex items-center gap-2"
+            >
+              {busy && <Loader2 className="size-4 animate-spin" />} Importar
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
