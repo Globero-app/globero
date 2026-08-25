@@ -34,7 +34,7 @@ export const Route = createFileRoute("/api/public/hooks/readiness-push")({
 
         const { data: users, error } = await supabaseAdmin
           .from("profiles")
-          .select("id, full_name, readiness_push_enabled, notify_training_push, notify_prerace_push, notify_maintenance_push")
+          .select("id, full_name, readiness_push_enabled, notify_training_push, notify_prerace_push, notify_maintenance_push, notify_daily_brief, notify_fatigue_alerts")
           .eq("readiness_push_hour", madridHour);
         if (error) {
           return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { "content-type": "application/json" } });
@@ -80,7 +80,7 @@ export const Route = createFileRoute("/api/public/hooks/readiness-push")({
         }
 
         // ── Slots 1..n: notificaciones adicionales, en orden fijo ─────────
-        const ORDER = ["notify_training_push", "notify_prerace_push", "notify_maintenance_push"] as const;
+        const ORDER = ["notify_daily_brief", "notify_training_push", "notify_prerace_push", "notify_maintenance_push", "notify_fatigue_alerts"] as const;
         let sent = 0;
         let notified = 0;
 
@@ -89,7 +89,15 @@ export const Route = createFileRoute("/api/public/hooks/readiness-push")({
           const key = active[slot - 1];
           if (!key) continue;
 
-          if (key === "notify_training_push") {
+          if (key === "notify_daily_brief") {
+            const { sendDailyBrief } = await import("@/lib/coach.server");
+            const ok = await sendDailyBrief(supabaseAdmin, u.id);
+            if (ok) { sent += 1; notified++; }
+          } else if (key === "notify_fatigue_alerts") {
+            const { runCoachAlerts } = await import("@/lib/coach.server");
+            const res = await runCoachAlerts(supabaseAdmin, u.id, true);
+            if (res.notified) { sent += res.notified; notified++; }
+          } else if (key === "notify_training_push") {
             const { data: ws } = await supabaseAdmin
               .from("workouts")
               .select("id, plan, duration_minutes, training_type, status")

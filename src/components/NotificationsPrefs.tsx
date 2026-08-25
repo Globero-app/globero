@@ -3,13 +3,15 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
-import { Bell, Smartphone, CheckCircle2, AlertCircle, Wrench, Dumbbell, Droplets, Activity, Server, Send, PowerOff } from "lucide-react";
+import { Bell, Smartphone, CheckCircle2, AlertCircle, Wrench, Dumbbell, Droplets, Activity, Server, Send, PowerOff, Compass, AlertTriangle } from "lucide-react";
 import { pushPermission, requestPushPermission, sendLocalPush } from "@/lib/push";
 import { useServerFn } from "@tanstack/react-start";
 import { sendTestPush } from "@/lib/push-server.functions";
 import { enableServerPush, disableServerPush, getServerPushSubscription, serverPushSupported } from "@/lib/push-client";
 
 type PrefKey =
+  | "notify_daily_brief"
+  | "notify_fatigue_alerts"
   | "notify_training_push"
   | "notify_prerace_push"
   | "notify_strava_push"
@@ -25,6 +27,8 @@ interface Cat {
 }
 
 const CATEGORIES: Cat[] = [
+  { key: "notify_daily_brief", icon: Compass, label: "Resumen diario del coach", desc: "Qué toca hoy, tu forma actual y un consejo del coach IA.", requiresPermission: true },
+  { key: "notify_fatigue_alerts", icon: AlertTriangle, label: "Alertas de fatiga", desc: "Avisos cuando la fatiga, la rampa de carga o el sueño se disparan.", requiresPermission: true },
   { key: "notify_training_push", icon: Dumbbell, label: "Entrenamiento de hoy", desc: "Aviso cuando toca la sesión planificada del día.", requiresPermission: true },
   { key: "notify_prerace_push", icon: Droplets, label: "Hidratación pre-carrera", desc: "Recordatorio 2-3 días antes con tu plan de hidratación y sodio.", requiresPermission: true },
   { key: "notify_strava_push", icon: Activity, label: "Sincronización Strava", desc: "Confirmación cuando entran nuevas actividades.", requiresPermission: true },
