@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { getProgress, getThresholdStatus } from "@/lib/progress.functions";
+import { getProgress, getThresholdStatus, getPowerCurve } from "@/lib/progress.functions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingUp, Zap, Mountain, Route as RouteIcon } from "lucide-react";
 import { format } from "date-fns";
@@ -16,10 +16,10 @@ export const Route = createFileRoute("/_authenticated/progreso")({
   component: ProgresoPage,
   head: () => ({
     meta: [
-      { title: "Progreso · CTL, TSB y PRs de potencia" },
-      { name: "description", content: "Evolución de tu forma: fitness (CTL), fatiga (ATL), frescura (TSB), carga semanal y récords de potencia del último año." },
-      { property: "og:title", content: "Progreso del ciclista · CTL, TSB y PRs" },
-      { property: "og:description", content: "Sigue la evolución de tu entrenamiento con curvas de carga y tus mejores potencias." },
+      { title: "Progreso · CTL, TSB y curva de potencia" },
+      { name: "description", content: "Evolución de tu forma: fitness (CTL), fatiga (ATL), frescura (TSB), carga semanal y curva mean-max de potencia del último año." },
+      { property: "og:title", content: "Progreso del ciclista · CTL, TSB y potencia" },
+      { property: "og:description", content: "Sigue la evolución de tu entrenamiento con curvas de carga y tu curva de potencia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -29,9 +29,11 @@ export const Route = createFileRoute("/_authenticated/progreso")({
 function ProgresoPage() {
   const getProg = useServerFn(getProgress);
   const getTh = useServerFn(getThresholdStatus);
+  const getCurve = useServerFn(getPowerCurve);
 
   const q = useQuery({ queryKey: ["progress"], queryFn: () => getProg({ data: {} } as any), staleTime: 5 * 60_000 });
   const th = useQuery({ queryKey: ["threshold-status"], queryFn: () => getTh({ data: {} } as any), staleTime: 10 * 60_000 });
+  const curve = useQuery({ queryKey: ["power-curve"], queryFn: () => getCurve({ data: {} } as any), staleTime: 10 * 60_000 });
 
   const d: any = q.data;
 
@@ -170,6 +172,37 @@ function ProgresoPage() {
             </section>
           )}
 
+          <section className="bg-surface border rounded-xl p-5">
+            <h2 className="font-display text-lg font-bold uppercase flex items-center gap-2">
+              <Zap className="size-4 text-primary" /> Curva de potencia (mean-max, 12 meses)
+            </h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Mejor potencia media sostenida por cada duración. Se calcula a partir de los streams de Strava tras sincronizar.
+            </p>
+            {curve.isLoading ? (
+              <Skeleton className="h-56 w-full mt-4" />
+            ) : (curve.data ?? []).length === 0 ? (
+              <p className="text-sm text-muted-foreground mt-4">
+                Aún no hay picos de potencia calculados. Sincroniza Strava y se generarán automáticamente para actividades con potenciómetro.
+              </p>
+            ) : (
+              <div className="h-56 mt-4 -ml-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={curve.data as any[]}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                    <XAxis dataKey="label" tick={{ fontSize: 10 }} />
+                    <YAxis tick={{ fontSize: 10 }} label={{ value: "W", angle: -90, position: "insideLeft", fontSize: 10 }} />
+                    <Tooltip
+                      contentStyle={{ fontSize: 12, borderRadius: 8 }}
+                      formatter={(v: any, _n, p: any) => [`${v} W${p?.payload?.wkg ? ` (${p.payload.wkg} W/kg)` : ""}`, "Potencia"]}
+                      labelFormatter={(_: any, p: any) => p?.[0]?.payload?.label ?? ""}
+                    />
+                    <Line type="monotone" dataKey="watts" name="Potencia media" stroke="var(--primary)" strokeWidth={2} dot={{ r: 3 }} />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </section>
 
           <section className="bg-surface border rounded-xl p-5">
             <h2 className="font-display text-lg font-bold uppercase flex items-center gap-2">

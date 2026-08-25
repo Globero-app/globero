@@ -313,6 +313,42 @@ export type Database = {
         }
         Relationships: []
       }
+      power_peaks: {
+        Row: {
+          activity_date: string
+          activity_id: number
+          created_at: string
+          duration_seconds: number
+          id: string
+          updated_at: string
+          user_id: string
+          watts: number
+          wkg: number | null
+        }
+        Insert: {
+          activity_date: string
+          activity_id: number
+          created_at?: string
+          duration_seconds: number
+          id?: string
+          updated_at?: string
+          user_id: string
+          watts: number
+          wkg?: number | null
+        }
+        Update: {
+          activity_date?: string
+          activity_id?: number
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          updated_at?: string
+          user_id?: string
+          watts?: number
+          wkg?: number | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age: number | null

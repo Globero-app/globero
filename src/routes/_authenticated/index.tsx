@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { useServerFn } from "@tanstack/react-start";
 import { stravaSync } from "@/lib/strava.functions";
+import { getTrainingLoad } from "@/lib/workouts.functions";
 import { Trophy, Flame, Bike, ChevronRight, Plus, Trash2, Activity, Timer, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -25,12 +26,22 @@ function Dashboard() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const sync = useServerFn(stravaSync);
+  const loadFn = useServerFn(getTrainingLoad);
 
   const profile = useQuery({
     queryKey: ["profile", user?.id],
     queryFn: async () => {
       const { data } = await supabase.from("profiles").select("*").eq("id", user!.id).maybeSingle();
       return data;
+    },
+    enabled: !!user,
+  });
+
+  const load = useQuery({
+    queryKey: ["training_load", user?.id],
+    queryFn: async () => {
+      const res = await loadFn({ data: undefined });
+      return res?.load ?? null;
     },
     enabled: !!user,
   });
@@ -69,6 +80,7 @@ function Dashboard() {
       .then((res: any) => {
         qc.invalidateQueries({ queryKey: ["recent_activities"] });
         qc.invalidateQueries({ queryKey: ["strava_activities"] });
+        qc.invalidateQueries({ queryKey: ["training_load"] });
         void notifyStravaSync(user.id, res?.count ?? 0);
       })
       .catch(() => {});
@@ -90,8 +102,10 @@ function Dashboard() {
   const next = upcoming[0];
   const daysToNext = next ? Math.ceil((new Date(next.date).getTime() - today.getTime()) / 86400000) : null;
 
-  // CTL (42d EMA) y ATL (7d EMA) basados en suffer_score como proxy de TSS
-  const { ctl, atl, tsb } = computeForm(acts.data ?? []);
+  // CTL/ATL/TSB unificado: mismo motor que usa el generador de entrenamientos
+  const ctl = load.data?.ctl ?? 0;
+  const atl = load.data?.atl ?? 0;
+  const tsb = load.data?.tsb ?? 0;
   const form = interpretTSB(tsb);
 
   // Progreso del plan de carga: días transcurridos vs ventana de plan (90 días antes de la cita)
@@ -252,29 +266,6 @@ function StatCard({ label, value, sub, icon: Icon, accent }: any) {
 
 function Dot({ color, on }: { color: string; on: boolean }) {
   return <span className={`size-4 rounded-full ${color} transition-opacity ${on ? "opacity-100 ring-2 ring-offset-2 ring-offset-surface ring-current shadow-lg" : "opacity-20"}`} />;
-}
-
-function computeForm(acts: Array<{ start_date: string | null; suffer_score: number | null }>) {
-  if (!acts.length) return { ctl: 0, atl: 0, tsb: 0 };
-  const byDay = new Map<string, number>();
-  for (const a of acts) {
-    if (!a.start_date) continue;
-    const k = a.start_date.slice(0, 10);
-    byDay.set(k, (byDay.get(k) ?? 0) + (a.suffer_score ?? 0));
-  }
-  const days = [...byDay.keys()].sort();
-  if (!days.length) return { ctl: 0, atl: 0, tsb: 0 };
-  const start = new Date(days[0]);
-  const end = new Date();
-  const kCtl = 2 / (42 + 1);
-  const kAtl = 2 / (7 + 1);
-  let ctl = 0, atl = 0;
-  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-    const tss = byDay.get(d.toISOString().slice(0, 10)) ?? 0;
-    ctl = ctl + kCtl * (tss - ctl);
-    atl = atl + kAtl * (tss - atl);
-  }
-  return { ctl, atl, tsb: ctl - atl };
 }
 
 function interpretTSB(tsb: number): { level: "green" | "yellow" | "red"; title: string; message: string } {
