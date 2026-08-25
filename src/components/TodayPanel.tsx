@@ -86,7 +86,7 @@ export function TodayPanel() {
             {readiness.data.ai_message && (
               <p className="text-xs text-muted-foreground mt-1.5">{readiness.data.ai_message}</p>
             )}
-            <Link to="/readiness" search={{}} className="text-xs text-primary font-semibold inline-flex items-center gap-1 mt-3">
+            <Link to="/readiness" search={{ score: undefined }} className="text-xs text-primary font-semibold inline-flex items-center gap-1 mt-3">
               <Check className="size-3.5" /> Ver histórico
             </Link>
           </div>
