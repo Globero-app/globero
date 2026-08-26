@@ -99,7 +99,21 @@ export const saveReadiness = createServerFn({ method: "POST" })
       if (upErr) throw new Error(upErr.message);
       if (!updated) throw new Error("No se pudo recuperar el entrenamiento adaptado");
       const { syncWorkoutEvent } = await import("./intervals.server");
-      const intervalsEventId = await syncWorkoutEvent(supabase, userId, updated, { strict: true });
+      let intervalsEventId: string | null;
+      try {
+        intervalsEventId = await syncWorkoutEvent(supabase, userId, updated, { strict: true });
+      } catch (syncError) {
+        await supabase
+          .from("workouts")
+          .update({
+            plan: workout.plan,
+            duration_minutes: workout.duration_minutes,
+            planned_tss: workout.planned_tss,
+          })
+          .eq("id", workout.id)
+          .eq("user_id", userId);
+        throw syncError;
+      }
       action = "adapted";
       message = `${adapted.message}${intervalsEventId ? " Actualizado también en Intervals.icu." : ""}`;
     }

@@ -433,7 +433,21 @@ ${context}`,
       if (updateError) throw new Error(updateError.message);
       if (!updated) throw new Error("No se pudo recuperar el entrenamiento adaptado");
       const { syncWorkoutEvent } = await import("./intervals.server");
-      const intervalsEventId = await syncWorkoutEvent(supabaseAdmin, userId, updated, { strict: true });
+      let intervalsEventId: string | null;
+      try {
+        intervalsEventId = await syncWorkoutEvent(supabaseAdmin, userId, updated, { strict: true });
+      } catch (syncError) {
+        await supabaseAdmin
+          .from("workouts")
+          .update({
+            plan: workout.plan,
+            duration_minutes: workout.duration_minutes,
+            planned_tss: workout.planned_tss,
+          })
+          .eq("id", workout.id)
+          .eq("user_id", userId);
+        throw syncError;
+      }
       action = "adapted";
       msg = `Registrado ${score}/5. ${adapted.message}\n\nNuevo entreno: ${adapted.title} (${durationMinutes} min).${intervalsEventId ? " Actualizado también en Intervals.icu." : ""}`;
     }
