@@ -5,8 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
-import { stravaExchange, stravaDisconnect, stravaEstimateFtp, stravaEstimateHr } from "@/lib/strava.functions";
-import { connectIntervals, disconnectIntervals, syncIntervalsZones } from "@/lib/intervals.functions";
+import { connectIntervals, disconnectIntervals, syncIntervalsZones, intervalsEstimateFtp, intervalsEstimateHr, intervalsSyncActivities } from "@/lib/intervals.functions";
 import { Bike, CheckCircle2, Link as LinkIcon, Unlink, Wrench, Wand2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { computePowerZones, computeHrZones } from "@/lib/zones";
@@ -23,10 +22,9 @@ export const Route = createFileRoute("/_authenticated/perfil")({
 function PerfilPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const exchange = useServerFn(stravaExchange);
-  const disconnect = useServerFn(stravaDisconnect);
-  const estimateFtp = useServerFn(stravaEstimateFtp);
-  const estimateHr = useServerFn(stravaEstimateHr);
+  const estimateFtp = useServerFn(intervalsEstimateFtp);
+  const estimateHr = useServerFn(intervalsEstimateHr);
+  const syncActs = useServerFn(intervalsSyncActivities);
   const connectIcu = useServerFn(connectIntervals);
   const disconnectIcu = useServerFn(disconnectIntervals);
   const syncZonesIcu = useServerFn(syncIntervalsZones);
@@ -45,17 +43,6 @@ function PerfilPage() {
 
   const [form, setForm] = useState<any>({});
   useEffect(() => { if (profileQ.data) setForm(profileQ.data); }, [profileQ.data]);
-
-  // Captura ?code=... de Strava
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
-    if (code) {
-      exchange({ data: { code } })
-        .then(() => { toast.success("Strava conectado"); qc.invalidateQueries(); window.history.replaceState({}, "", "/perfil"); })
-        .catch((e) => toast.error(e.message));
-    }
-  }, [exchange, qc]);
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,8 +68,6 @@ function PerfilPage() {
       weather_wind_threshold_kmh: form.weather_wind_threshold_kmh != null && form.weather_wind_threshold_kmh !== "" ? Number(form.weather_wind_threshold_kmh) : 25,
 
       dietary_preferences: form.dietary_preferences,
-      strava_client_id: form.strava_client_id,
-      strava_client_secret: form.strava_client_secret,
       readiness_push_enabled: form.readiness_push_enabled ?? true,
       readiness_push_hour: form.readiness_push_hour != null && form.readiness_push_hour !== "" ? Number(form.readiness_push_hour) : 7,
     }, { onConflict: "id" });
@@ -99,35 +84,7 @@ function PerfilPage() {
     }
   };
 
-  const connectStrava = async () => {
-    await save(new Event("submit") as any);
-    if (!form.strava_client_id) { toast.error("Añade tu Client ID de Strava primero"); return; }
-    const redirect = `${window.location.origin}/perfil`;
-    const url = `https://www.strava.com/oauth/authorize?client_id=${form.strava_client_id}&response_type=code&redirect_uri=${encodeURIComponent(redirect)}&approval_prompt=auto&scope=read,activity:read_all,activity:write,profile:read_all`;
-    // Strava bloquea el login dentro de iframes (cookies de terceros).
-    // Si estamos embebidos (p.ej. preview de Lovable), forzamos la ventana superior;
-    // si no es posible, abrimos en pestaña nueva.
-    const inIframe = typeof window !== "undefined" && window.self !== window.top;
-    if (inIframe) {
-      try {
-        window.top!.location.href = url;
-        return;
-      } catch {
-        window.open(url, "_blank", "noopener,noreferrer");
-        toast.info("Abre Strava en la pestaña nueva para completar la conexión.");
-        return;
-      }
-    }
-    window.location.href = url;
-  };
-
-  const handleDisconnect = async () => {
-    await disconnect({ data: undefined });
-    toast.success("Strava desconectado");
-    qc.invalidateQueries({ queryKey: ["profile"] });
-  };
-
-  const stravaConnected = !!profileQ.data?.strava_access_token;
+  const icuConnected = !!profileQ.data?.intervals_api_key;
 
   return (
     <div className="space-y-8 max-w-4xl">
@@ -154,10 +111,10 @@ function PerfilPage() {
           <Field label="FTP (W)">
             <div className="flex gap-2">
               <input type="number" className="input" value={form.ftp ?? ""} onChange={(e) => setForm({...form, ftp: e.target.value})} />
-              {!!profileQ.data?.strava_access_token && (
+              {!!icuConnected && (
                 <button
                   type="button"
-                  title="Estimar FTP automáticamente desde tus actividades de Strava"
+                  title="Estimar FTP automáticamente desde tus actividades de Intervals.icu"
                   onClick={async () => {
                     try {
                       const r = await estimateFtp({ data: undefined });
@@ -172,8 +129,8 @@ function PerfilPage() {
                 </button>
               )}
             </div>
-            {!!profileQ.data?.strava_access_token && (
-              <p className="mt-1 text-[10px] text-muted-foreground">Se calcula desde tus actividades Strava con potencia. Puedes modificarlo manualmente.</p>
+            {!!icuConnected && (
+              <p className="mt-1 text-[10px] text-muted-foreground">Se calcula desde tus actividades de Intervals.icu con potencia. Puedes modificarlo manualmente.</p>
             )}
             <div className="mt-2">
               <Link to="/ftp-test" className="text-xs font-semibold text-primary hover:underline">
@@ -199,10 +156,10 @@ function PerfilPage() {
                     return { ...f, max_hr: v, lthr: auto };
                   });
                 }} />
-                {!!profileQ.data?.strava_access_token && (
+                {!!icuConnected && (
                   <button
                     type="button"
-                    title="Estimar FC máx y LTHR desde tus actividades de Strava"
+                    title="Estimar FC máx y LTHR desde tus actividades de Intervals.icu"
                     onClick={async () => {
                       try {
                         const r = await estimateHr({ data: undefined });
@@ -223,8 +180,8 @@ function PerfilPage() {
             </Field>
           </div>
           <p className="text-[11px] text-muted-foreground">
-            {profileQ.data?.strava_access_token
-              ? "Se calculan automáticamente desde tus actividades Strava con pulsómetro (FC máx registrada y LTHR = mejor FC media de 20' × 0,95). Puedes modificarlos manualmente."
+            {icuConnected
+              ? "Se calculan automáticamente desde tus actividades de Intervals.icu con pulsómetro (FC máx registrada y LTHR = mejor FC media de 20' × 0,95). Puedes modificarlos manualmente."
               : "LTHR = FC media del último 20' del test FTP × 0,95. Si no lo indicas, se estima como 92 % de tu FC máx."}
           </p>
         </Section>
@@ -281,37 +238,6 @@ function PerfilPage() {
           <Field label="Preferencias / intolerancias">
             <textarea className="input min-h-[80px]" placeholder="Vegano, intolerancia lactosa, sin gluten…" value={form.dietary_preferences ?? ""} onChange={(e) => setForm({...form, dietary_preferences: e.target.value})} />
           </Field>
-        </Section>
-
-        <Section title="Conexión Strava" className="lg:col-span-2">
-          {stravaConnected ? (
-            <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="size-5 text-emerald-600" />
-                <div>
-                  <p className="font-semibold text-emerald-800">Strava conectado</p>
-                  <p className="text-xs text-emerald-700">Athlete ID: {profileQ.data?.strava_athlete_id}</p>
-                </div>
-              </div>
-              <button type="button" onClick={handleDisconnect} className="text-xs font-semibold text-destructive hover:underline flex items-center gap-1">
-                <Unlink className="size-3" /> Desconectar
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                Necesitas una app propia en <a className="underline text-primary" href="https://www.strava.com/settings/api" target="_blank" rel="noopener">Strava Developers</a>.
-                Como Authorization Callback Domain pon: <code className="bg-muted px-1.5 py-0.5 rounded text-xs">{typeof window !== "undefined" ? window.location.hostname : "tu-dominio"}</code>
-              </p>
-              <div className="grid md:grid-cols-2 gap-3">
-                <Field label="Client ID"><input className="input" value={form.strava_client_id ?? ""} onChange={(e) => setForm({...form, strava_client_id: e.target.value})} /></Field>
-                <Field label="Client Secret"><input type="password" className="input" value={form.strava_client_secret ?? ""} onChange={(e) => setForm({...form, strava_client_secret: e.target.value})} /></Field>
-              </div>
-              <button type="button" onClick={connectStrava} className="inline-flex items-center gap-2 bg-[#fc4c02] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90">
-                <Bike className="size-4" /> Conectar con Strava
-              </button>
-            </div>
-          )}
         </Section>
 
         <Section title="Conexión Intervals.icu" className="lg:col-span-2">
