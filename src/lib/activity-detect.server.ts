@@ -1,7 +1,5 @@
 /** Detección periódica de actividades nuevas y asignación al entreno/competición del día. */
 
-const STRAVA_API = "https://www.strava.com/api/v3";
-
 /** Bloqueo simple (lease) para que dos ejecuciones del cron no se solapen. */
 export async function acquireJobLock(admin: any, jobName: string, leaseSeconds: number): Promise<boolean> {
   const now = new Date();
@@ -36,33 +34,10 @@ export async function releaseJobLock(admin: any, jobName: string, details?: unkn
     .eq("job_name", jobName);
 }
 
-/** Descarga las últimas actividades de Strava del usuario y las guarda. */
-async function pullStrava(admin: any, userId: string): Promise<number> {
-  const { getStravaToken } = await import("./strava.server");
-  const token = await getStravaToken(admin, userId);
-  if (!token) return 0;
-  const res = await fetch(`${STRAVA_API}/athlete/activities?per_page=10`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) return 0;
-  const acts = (await res.json()) as any[];
-  const rows = acts.map((a) => ({
-    id: a.id,
-    user_id: userId,
-    name: a.name,
-    type: a.sport_type ?? a.type,
-    distance: a.distance,
-    moving_time: a.moving_time,
-    total_elevation_gain: a.total_elevation_gain,
-    average_speed: a.average_speed,
-    average_heartrate: a.average_heartrate,
-    average_watts: a.average_watts,
-    suffer_score: a.suffer_score,
-    start_date: a.start_date,
-    raw: a,
-  }));
-  if (rows.length) await admin.from("intervals_activities").upsert(rows, { onConflict: "id" });
-  return rows.length;
+/** Descarga las últimas actividades de Intervals.icu del usuario y las guarda. */
+async function pullIntervals(admin: any, userId: string): Promise<number> {
+  const { syncIntervalsActivities } = await import("./intervals-activities.server");
+  return syncIntervalsActivities(admin, userId, { days: 7 });
 }
 
 type DetectResult = { auto: number; asked: number };
@@ -74,7 +49,7 @@ type DetectResult = { auto: number; asked: number };
  */
 export async function detectAndAssign(admin: any, userId: string, todayISO: string): Promise<DetectResult> {
   const out: DetectResult = { auto: 0, asked: 0 };
-  await pullStrava(admin, userId);
+  await pullIntervals(admin, userId);
 
   const sinceISO = new Date(Date.now() - 2 * 86400000).toISOString();
   const sinceDay = sinceISO.slice(0, 10);
@@ -103,7 +78,7 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
 
   const linked = new Set<string>();
   for (const w of (wRes.data ?? []) as any[]) {
-    const id = (w.plan as any)?.strava_activity_id;
+    const id = (w.plan as any)?.strava_activity_id ?? (w.plan as any)?.intervals_activity_id;
     if (id) linked.add(String(id));
   }
   for (const c of (cRes.data ?? []) as any[]) {
