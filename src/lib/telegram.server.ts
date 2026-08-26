@@ -208,7 +208,6 @@ export async function handleTelegramUpdate(update: any): Promise<void> {
 /semana — resumen semanal y objetivos
 /menu — menú de hoy
 /readiness N — registra tu readiness (1-5)
-/salud — tu último registro de peso, sueño y fatiga
 /ayuda — esta lista
 
 También puedes escribirme en lenguaje natural: "pásame el entreno de hoy a rodillo 1h", "mi peso es 72 kg", "cámbiame la cena".`,
@@ -238,26 +237,6 @@ También puedes escribirme en lenguaje natural: "pásame el entreno de hoy a rod
       const { buildWeeklySummaryText } = await import("./weekly-summary.server");
       const s = await buildWeeklySummaryText(supabaseAdmin, userId);
       await telegramSend(chatId, `📊 ${s.detail}`);
-      return;
-    }
-
-    if (cmd === "salud") {
-      const { data: h } = await supabaseAdmin
-        .from("health_entries")
-        .select("*")
-        .eq("user_id", userId)
-        .order("entry_date", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (!h) {
-        await telegramSend(chatId, "Aún no tienes registros de salud. Añádelos en la app → Salud.");
-        return;
-      }
-      const e: any = h;
-      await telegramSend(
-        chatId,
-        `❤️ Salud (${e.entry_date})\nPeso: ${e.weight_kg ?? "—"} kg\nSueño: ${e.sleep_hours ?? "—"} h (calidad ${e.sleep_quality ?? "—"}/5)\nFatiga: ${e.fatigue ?? "—"}/5 · Dolor muscular: ${e.soreness ?? "—"}/5\nFC reposo: ${e.resting_hr ?? "—"} bpm${e.note ? `\nNotas: ${e.note}` : ""}`,
-      );
       return;
     }
 

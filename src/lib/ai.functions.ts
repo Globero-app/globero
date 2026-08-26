@@ -104,14 +104,13 @@ export const generateMenu = createServerFn({ method: "POST" })
       ? `\nDatos recientes de Intervals.icu (10 actividades): ${JSON.stringify(recentAct)}`
       : "";
 
-    const days = profile.pre_race_days ?? 3;
+    const days = 5;
     const weight = profile.weight_kg ?? 70;
 
     const prompt = `Eres un nutricionista deportivo especializado en CICLISMO. Genera un menú PRE-CARRERA de ${days} días para un ciclista con este perfil:
 - Edad: ${profile.age ?? "n/a"}, Sexo: ${profile.gender ?? "n/a"}, Peso: ${weight}kg, Altura: ${profile.height_cm ?? "n/a"}cm
 - FTP: ${profile.ftp ?? "n/a"}W
 - Preferencias/intolerancias: ${profile.dietary_preferences || "ninguna"}
-- Foco nutricional: ${profile.nutrition_focus || "carbohidratos"}
 
 Competición objetivo: "${comp.name}" el ${comp.date}
 - Distancia: ${comp.distance_km} km, Desnivel: ${comp.elevation_m} m

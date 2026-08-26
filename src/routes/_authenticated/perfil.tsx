@@ -28,7 +28,6 @@ function PerfilPage() {
   const connectIcu = useServerFn(connectIntervals);
   const disconnectIcu = useServerFn(disconnectIntervals);
   const syncZonesIcu = useServerFn(syncIntervalsZones);
-  const [syncZones, setSyncZones] = useState(true);
   const [icu, setIcu] = useState({ athlete_id: "", api_key: "" });
   const [icuBusy, setIcuBusy] = useState(false);
 
@@ -58,7 +57,6 @@ function PerfilPage() {
       max_hr: form.max_hr ? Number(form.max_hr) : null,
       lthr: form.lthr ? Number(form.lthr) : null,
       zones_display_mode: form.zones_display_mode || "watts",
-      pre_race_days: form.pre_race_days ? Number(form.pre_race_days) : 3,
 
       cyclist_type: form.cyclist_type || "mixto",
       strengths: form.strengths || null,
@@ -75,7 +73,7 @@ function PerfilPage() {
     else {
       toast.success("Perfil guardado");
       qc.invalidateQueries({ queryKey: ["profile"] });
-      if (syncZones && profileQ.data?.intervals_athlete_id && profileQ.data?.intervals_api_key) {
+      if (profileQ.data?.intervals_athlete_id && profileQ.data?.intervals_api_key) {
         try {
           const r = await syncZonesIcu({ data: undefined });
           if (r.ok) toast.success("Zonas sincronizadas con Intervals.icu");
@@ -231,14 +229,13 @@ function PerfilPage() {
           </p>
         </Section>
 
-        <Section title="Plan nutricional">
-          <Field label="Días previos para Menú Pre-Carrera (1-5)">
-            <input type="number" min={1} max={5} className="input" value={form.pre_race_days ?? 3} onChange={(e) => setForm({...form, pre_race_days: e.target.value})} />
-          </Field>
+        <Section title="Nutrición">
           <Field label="Preferencias / intolerancias">
             <textarea className="input min-h-[80px]" placeholder="Vegano, intolerancia lactosa, sin gluten…" value={form.dietary_preferences ?? ""} onChange={(e) => setForm({...form, dietary_preferences: e.target.value})} />
           </Field>
+          <p className="text-[11px] text-muted-foreground">Se tienen en cuenta siempre en el plan semanal y en el plan de competición (se adapta 5 días antes de cada carrera).</p>
         </Section>
+
 
         <Section title="Conexión Intervals.icu" className="lg:col-span-2">
           {profileQ.data?.intervals_api_key ? (
@@ -263,22 +260,9 @@ function PerfilPage() {
                 <Unlink className="size-3" /> Desconectar
               </button>
             </div>
-            <label className="flex items-center gap-2 text-xs font-semibold">
-              <input type="checkbox" checked={syncZones} onChange={(e) => setSyncZones(e.target.checked)} />
-              Sincronizar zonas y umbrales (FTP, LTHR, FC máx) con Intervals.icu al guardar el perfil
-            </label>
-            <button
-              type="button"
-              onClick={async () => {
-                try {
-                  const r = await syncZonesIcu({ data: undefined });
-                  toast[r.ok ? "success" : "error"](r.ok ? "Zonas sincronizadas con Intervals.icu" : "No se pudieron sincronizar");
-                } catch (e: any) { toast.error(e.message); }
-              }}
-              className="text-xs font-semibold text-primary hover:underline"
-            >
-              Sincronizar zonas ahora →
-            </button>
+            <p className="text-xs text-muted-foreground">
+              Sincronización de zonas y umbrales (FTP, LTHR, FC máx) con Intervals.icu al guardar el perfil
+            </p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -311,6 +295,10 @@ function PerfilPage() {
                   try {
                     await connectIcu({ data: { athlete_id: athleteId, api_key: apiKey } });
                     toast.success("Intervals.icu conectado");
+                    try {
+                      await syncZonesIcu({ data: undefined });
+                      toast.success("Zonas sincronizadas con Intervals.icu");
+                    } catch { /* no bloquea la conexión */ }
                     setIcu({ athlete_id: "", api_key: "" });
                     qc.invalidateQueries({ queryKey: ["profile"] });
                   } catch (e: any) {

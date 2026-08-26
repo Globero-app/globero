@@ -105,6 +105,12 @@ export function weekStartISO(from = new Date(), next = false): string {
   return d.toISOString().slice(0, 10);
 }
 
+function addDaysISO(iso: string, n: number): string {
+  const d = new Date(`${iso}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
 /** Genera (o regenera) el plan nutricional semanal adaptado a los entrenamientos de esa semana. */
 export async function generateWeeklyNutritionCore(
   supabase: any,
@@ -141,9 +147,16 @@ export async function generateWeeklyNutritionCore(
     .select("name,date,distance_km,elevation_m,intensity")
     .eq("user_id", userId)
     .gte("date", weekStart)
-    .lte("date", weekEnd);
+    .lte("date", addDaysISO(weekEnd, 5));
 
   const goal = opts.goal in GOAL_RULES ? opts.goal : "mantenimiento";
+
+  const upcoming = (comps ?? []).filter((c: any) => c.date > weekEnd);
+  const preRaceBlock = upcoming.length
+    ? `\nCOMPETICIONES PRÓXIMAS (adaptar los 5 días previos):\n${upcoming
+        .map((c: any) => `- ${c.name} el ${c.date} (${c.distance_km} km, ${c.elevation_m} m, intensidad ${c.intensity ?? "n/a"})`)
+        .join("\n")}`
+    : "";
 
   const daysBlock = days
     .map((d) => {
@@ -170,15 +183,17 @@ REGLAS DEL OBJETIVO: ${GOAL_RULES[goal]}
 
 ENTRENAMIENTOS DE LA SEMANA (${weekStart} a ${weekEnd}):
 ${daysBlock}
+${preRaceBlock}
 
 INSTRUCCIONES:
 1. Devuelve EXACTAMENTE 7 días, en orden, con la fecha indicada arriba y su día de la semana en español.
 2. Cada día con 5 tomas: desayuno, media mañana (media_manana), comida, merienda y cena.
 3. Ajusta calorías y carbohidratos al entreno de cada día: más CHO en días de tirada larga/intensidad, menos en descanso, manteniendo siempre el objetivo (${GOAL_LABEL[goal]}).
-4. Si hay competición ese día, prioriza energía disponible (CHO altos, digestión fácil).
-5. Ingredientes SIEMPRE con cantidades en gramos. Preparación en 2-4 frases.
-6. Macros realistas y coherentes con los objetivos diarios.
-7. Recetas variadas entre días, prácticas y fáciles. TODO en ESPAÑOL.`;
+4. Si algún día de la semana está dentro de los 5 días previos a una competición, adapta ese día a la carrera: carga progresiva de carbohidratos, digestión fácil, hidratación y sal, evitando exceso de fibra y grasas la víspera. Respeta SIEMPRE las preferencias / intolerancias.
+5. Si hay competición ese día, prioriza energía disponible (CHO altos, digestión fácil).
+6. Ingredientes SIEMPRE con cantidades en gramos. Preparación en 2-4 frases.
+7. Macros realistas y coherentes con los objetivos diarios.
+8. Recetas variadas entre días, prácticas y fáciles. TODO en ESPAÑOL.`;
 
   const result = await callAI([{ role: "user", content: prompt }], WeekSchema);
 

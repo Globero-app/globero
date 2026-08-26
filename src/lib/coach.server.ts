@@ -36,13 +36,6 @@ async function loadContext(supabase: any, userId: string) {
     .eq("entry_date", today)
     .maybeSingle();
 
-  const { data: health } = await supabase
-    .from("health_entries")
-    .select("entry_date,weight_kg,sleep_hours,sleep_quality,fatigue,soreness,resting_hr")
-    .eq("user_id", userId)
-    .gte("entry_date", daysAgoISO(7))
-    .order("entry_date", { ascending: false });
-
   const { data: comps } = await supabase
     .from("competitions")
     .select("name,date")
@@ -51,7 +44,7 @@ async function loadContext(supabase: any, userId: string) {
     .order("date", { ascending: true })
     .limit(1);
 
-  return { today, profile, load, todayWorkout, readiness, health: (health ?? []) as any[], comp: (comps?.[0] as any) ?? null };
+  return { today, profile, load, todayWorkout, readiness, health: [] as any[], comp: (comps?.[0] as any) ?? null };
 }
 
 /** Resumen diario del coach: qué toca hoy, forma actual y consejo. */
