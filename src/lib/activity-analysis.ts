@@ -1,4 +1,4 @@
-// Utilidades de análisis de actividad Strava basadas en streams
+// Utilidades de análisis de actividad de Intervals.icu basadas en streams
 
 export type Streams = {
   time?: { data: number[] };

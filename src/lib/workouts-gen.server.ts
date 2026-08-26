@@ -344,7 +344,7 @@ ${loadBlock}
 ${scheduleBlock}
 ${weatherBlock}
 
-ACTIVIDADES RECIENTES (Strava): ${recent && recent.length ? JSON.stringify(recent) : "ninguna"}
+ACTIVIDADES RECIENTES (Intervals.icu): ${recent && recent.length ? JSON.stringify(recent) : "ninguna"}
 
 ENTRENAMIENTOS YA REALIZADOS (prescrito vs ejecutado; RPE 1=fácil, 5=imposible): ${prevWorkouts && prevWorkouts.length ? JSON.stringify(prevWorkouts.map((w: any) => ({ tipo: w.training_type, min: w.duration_minutes, rpe: w.rpe, notas: w.feedback_notes, fecha: w.completed_at, tss_prescrito: w.planned_tss, tss_real: w.actual_tss, cumplimiento_pct: w.compliance }))) : "sin histórico"}
 - Si el cumplimiento medio es <85% de forma repetida, BAJA los targets prescritos; si es >115%, súbelos.
@@ -362,7 +362,7 @@ INSTRUCCIONES:
 5. Fuerza sobre la bici: cadencia baja (50-60rpm) con intensidad Z3-Z4.
 6. name MÁXIMO 15 caracteres. Title puede ser largo. TODO en ESPAÑOL.
 7. PLAN MIXTO: alterna resistencia, intervalos y fuerza entre las sesiones del bloque; no repitas el mismo tipo dos días seguidos.
-8. PROGRESIÓN Y MEJORA: usa el histórico de entrenamientos realizados (RPE, notas, cumplimiento) y las actividades de Strava para subir la carga de forma progresiva respecto a la semana anterior. Si el RPE medio >4 reduce intensidad; si <2 auméntala.
+8. PROGRESIÓN Y MEJORA: usa el histórico de entrenamientos realizados (RPE, notas, cumplimiento) y las actividades de Intervals.icu para subir la carga de forma progresiva respecto a la semana anterior. Si el RPE medio >4 reduce intensidad; si <2 auméntala.
 9. TIPO DE BICI (${input.bike_type}): adapta el enfoque al material.
 10. MODULACIÓN POR READINESS: la PRIMERA sesión del plan se ajusta al Readiness de hoy (1 → descanso/movilidad, 2 → Z1-Z2 corto, 3 → estándar, 4-5 → puedes subir carga).
 11. AJUSTE METEOROLÓGICO: si el día tiene condiciones adversas según la previsión, indícalo en el summary y, si procede, convierte la sesión en rodillo (indoor=true) con duración 60-90 min.`;

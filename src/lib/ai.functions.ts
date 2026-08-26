@@ -92,16 +92,16 @@ export const generateMenu = createServerFn({ method: "POST" })
     const { data: comp } = await supabase.from("competitions").select("*").eq("id", data.competitionId).maybeSingle();
     if (!profile || !comp) throw new Error("Datos no encontrados");
 
-    // Datos de Strava (últimas 10 si las hay) para personalizar
-    const { data: stravaAct } = await supabase
+    // Datos de actividades (últimas 10 si las hay) para personalizar
+    const { data: recentAct } = await supabase
       .from("intervals_activities")
       .select("name,distance,moving_time,total_elevation_gain,average_watts,icu_training_load,start_date")
       .eq("user_id", userId)
       .order("start_date", { ascending: false })
       .limit(10);
 
-    const stravaContext = stravaAct && stravaAct.length
-      ? `\nDatos recientes de Strava (10 actividades): ${JSON.stringify(stravaAct)}`
+    const recentContext = recentAct && recentAct.length
+      ? `\nDatos recientes de Intervals.icu (10 actividades): ${JSON.stringify(recentAct)}`
       : "";
 
     const days = profile.pre_race_days ?? 3;
@@ -116,7 +116,7 @@ export const generateMenu = createServerFn({ method: "POST" })
 Competición objetivo: "${comp.name}" el ${comp.date}
 - Distancia: ${comp.distance_km} km, Desnivel: ${comp.elevation_m} m
 - Tipo: ${comp.type}, Intensidad: ${comp.intensity}
-${stravaContext}
+${recentContext}
 
 INSTRUCCIONES:
 1. Genera EXACTAMENTE ${days} días, etiquetados como "Día -${days}" hasta "Día -1 (víspera)".

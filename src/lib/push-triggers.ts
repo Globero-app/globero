@@ -96,8 +96,8 @@ export function useTodayPushTriggers() {
   }, [preraceQ.data, prefsQ.data?.notify_prerace_push]);
 }
 
-/** Notifica al completar sync Strava si el usuario lo ha habilitado. */
-export async function notifyStravaSync(userId: string, count: number) {
+/** Notifica al completar sync Intervals.icu si el usuario lo ha habilitado. */
+export async function notifyIntervals.icuSync(userId: string, count: number) {
   if (count <= 0) return;
   const { data } = await supabase.from("profiles").select("notify_strava_push").eq("id", userId).maybeSingle();
   if (!(data as any)?.notify_strava_push) return;
@@ -105,7 +105,7 @@ export async function notifyStravaSync(userId: string, count: number) {
     category: "strava",
     tag: `strava-sync-${new Date().toISOString().slice(0, 10)}`,
     dedupe: "hour",
-    title: "✅ Strava sincronizado",
+    title: "✅ Intervals.icu sincronizado",
     body: count === 1 ? "1 actividad nueva importada" : `${count} actividades nuevas importadas`,
     url: "/actividades",
   });
