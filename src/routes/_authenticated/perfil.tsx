@@ -262,21 +262,10 @@ function PerfilPage() {
                 <Unlink className="size-3" /> Desconectar
               </button>
             </div>
-            <label className="flex items-center gap-2 text-xs font-semibold">
-              <input type="checkbox" checked={syncZones} onChange={(e) => setSyncZones(e.target.checked)} />
-              Sincronizar zonas y umbrales (FTP, LTHR, FC máx) con Intervals.icu al guardar el perfil
-            </label>
-            <button
-              type="button"
-              onClick={async () => {
-                try {
-                  const r = await syncZonesIcu({ data: undefined });
-                  toast[r.ok ? "success" : "error"](r.ok ? "Zonas sincronizadas con Intervals.icu" : "No se pudieron sincronizar");
-                } catch (e: any) { toast.error(e.message); }
-              }}
-              className="text-xs font-semibold text-primary hover:underline"
-            >
-              Sincronizar zonas ahora →
+            <p className="text-xs text-muted-foreground">
+              Sincronización de zonas y umbrales (FTP, LTHR, FC máx) con Intervals.icu al guardar el perfil
+            </p>
+
             </button>
             </div>
           ) : (
