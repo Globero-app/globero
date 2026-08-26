@@ -633,11 +633,20 @@ function WorkoutCard({
                 <span>{plan.weather_advice.note}</span>
               </div>
             )}
+            {plan.report?.text && (
+              <button
+                onClick={() => setShowReport(true)}
+                className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-mono uppercase rounded-md border border-primary/30 bg-primary/10 text-primary px-2 py-1 hover:bg-primary/20"
+              >
+                <FileText className="size-3.5" /> Ver informe
+              </button>
+            )}
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <button onClick={() => setShowPreview(true)} title="Ver y descargar .FIT" className="p-2 rounded-md hover:bg-secondary text-primary">
               <Eye className="size-4" />
             </button>
+
             {!completed && isIndoor && (
               <button
                 onClick={async () => {
