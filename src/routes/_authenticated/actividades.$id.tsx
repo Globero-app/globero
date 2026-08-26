@@ -70,20 +70,8 @@ function ActivityDetailPage() {
     enabled: !!user && !!startDate,
   });
 
-  if (detail.isLoading) {
-    return <div className="text-sm text-muted-foreground">Cargando análisis…</div>;
-  }
-  if (detail.isError) {
-    return (
-      <div className="max-w-xl mx-auto text-center py-20">
-        <p className="text-sm text-destructive mb-4">Error: {(detail.error as any)?.message}</p>
-        <Link to="/actividades" className="text-primary text-sm underline">Volver</Link>
-      </div>
-    );
-  }
-
-  const activity = detail.data!.activity;
-  const streams = (detail.data!.streams ?? {}) as Streams;
+  const activity = detail.data?.activity;
+  const streams = (detail.data?.streams ?? {}) as Streams;
   const ftp = profile.data?.ftp ?? 200;
   const hrMax = 220 - (profile.data?.age ?? 35);
 
@@ -121,6 +109,19 @@ function ActivityDetailPage() {
     () => complianceScore(plannedIntervals, intervals),
     [plannedIntervals, intervals],
   );
+
+  if (detail.isLoading) {
+    return <div className="text-sm text-muted-foreground">Cargando análisis…</div>;
+  }
+  if (detail.isError || !activity) {
+    return (
+      <div className="max-w-xl mx-auto text-center py-20">
+        <p className="text-sm text-destructive mb-4">Error: {(detail.error as any)?.message ?? "Actividad no disponible"}</p>
+        <Link to="/actividades" className="text-primary text-sm underline">Volver</Link>
+      </div>
+    );
+  }
+
 
   return (
     <div className="space-y-6">
