@@ -1,9 +1,10 @@
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
-import { saveReadiness } from "@/lib/readiness.functions";
-import { HeartPulse, UtensilsCrossed, Check, Loader2 } from "lucide-react";
+import { discardTodayWorkout, saveReadiness } from "@/lib/readiness.functions";
+import { HeartPulse, UtensilsCrossed, Check, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
 
@@ -30,6 +31,8 @@ export function TodayPanel() {
   const qc = useQueryClient();
   const today = madridToday();
   const save = useServerFn(saveReadiness);
+  const discard = useServerFn(discardTodayWorkout);
+  const [pendingDeletionId, setPendingDeletionId] = useState<string | null>(null);
 
   const readiness = useQuery({
     queryKey: ["readiness-today", user?.id, today],
@@ -64,10 +67,24 @@ export function TodayPanel() {
   const m = useMutation({
     mutationFn: (score: number) => save({ data: { score, note: null } }),
     onSuccess: (r: any) => {
+      if (r?.action === "suggest_delete" && r?.workout_id) setPendingDeletionId(r.workout_id);
       toast.success(r?.message ? String(r.message).slice(0, 160) : "Readiness registrado");
       qc.invalidateQueries({ queryKey: ["readiness-today"] });
       qc.invalidateQueries({ queryKey: ["today-workout"] });
       qc.invalidateQueries({ queryKey: ["workouts"] });
+      qc.invalidateQueries({ queryKey: ["calendar"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const remove = useMutation({
+    mutationFn: (workoutId: string) => discard({ data: { workout_id: workoutId } }),
+    onSuccess: () => {
+      setPendingDeletionId(null);
+      toast.success("Entrenamiento de hoy eliminado también de Intervals.icu");
+      qc.invalidateQueries({ queryKey: ["today-workout"] });
+      qc.invalidateQueries({ queryKey: ["workouts"] });
+      qc.invalidateQueries({ queryKey: ["calendar"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -78,7 +95,30 @@ export function TodayPanel() {
         <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-2">
           <HeartPulse className="size-3.5 text-primary" /> Readiness de hoy
         </p>
-        {readiness.data ? (
+        {pendingDeletionId ? (
+          <div className="mt-3 space-y-3">
+            <p className="text-sm">Tu Readiness es 1/5. ¿Deseas eliminar el entrenamiento de hoy?</p>
+            <div className="flex gap-2 flex-wrap">
+              <button
+                type="button"
+                disabled={remove.isPending}
+                onClick={() => remove.mutate(pendingDeletionId)}
+                className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-destructive text-destructive-foreground text-xs font-semibold disabled:opacity-50"
+              >
+                {remove.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Trash2 className="size-3.5" />}
+                Eliminar entrenamiento
+              </button>
+              <button
+                type="button"
+                disabled={remove.isPending}
+                onClick={() => setPendingDeletionId(null)}
+                className="px-3 py-2 rounded-lg border text-xs font-semibold"
+              >
+                Mantenerlo
+              </button>
+            </div>
+          </div>
+        ) : readiness.data ? (
           <div className="mt-3">
             <p className="font-display text-2xl font-bold uppercase tracking-tight">
               {readiness.data.score} · {LABELS[readiness.data.score] ?? ""}
