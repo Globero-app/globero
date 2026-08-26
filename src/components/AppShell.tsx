@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAppConfig } from "@/lib/use-app-config";
 import {
   LayoutDashboard, User, Activity, Trophy, UtensilsCrossed, Dumbbell,
-  Settings, LogOut, Menu, X, CalendarRange, HeartPulse, TrendingUp,
+  Settings, LogOut, Menu, X, CalendarRange, HeartPulse, TrendingUp, Sparkles,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -29,6 +29,21 @@ const NAV = [
   { to: "/readiness", label: "Readiness", icon: HeartPulse },
   { to: "/progreso", label: "Progreso", icon: TrendingUp },
 ] as const;
+
+function TourButton({ onClick }: { onClick?: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        onClick?.();
+        window.dispatchEvent(new Event("open-onboarding-tour"));
+      }}
+      className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+    >
+      <Sparkles className="size-4 shrink-0" /> Ver Tour
+    </button>
+  );
+}
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { user, isAdmin } = useAuth();
@@ -99,6 +114,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
           <NavLinks />
           <div className="pt-2 mt-2 border-t border-border/50">
+            <TourButton />
             <InstallAppButton />
           </div>
         </nav>
@@ -144,6 +160,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             <NavLinks onClick={() => setMobileOpen(false)} />
             <div className="pt-2 mt-2 border-t border-border/50 space-y-2">
+              <TourButton onClick={() => setMobileOpen(false)} />
               <InstallAppButton />
               <ThemeToggle />
             </div>

@@ -63,6 +63,19 @@ export function OnboardingTour() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [i, setI] = useState(0);
+  const [dontShow, setDontShow] = useState(false);
+  const [hideButton, setHideButton] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setHideButton(localStorage.getItem("sb-onboarding-never") === "1");
+    const openTour = () => {
+      setI(0);
+      setOpen(true);
+    };
+    window.addEventListener("open-onboarding-tour", openTour);
+    return () => window.removeEventListener("open-onboarding-tour", openTour);
+  }, []);
 
   const profileQ = useQuery({
     queryKey: ["profile-onboarding", user?.id],
@@ -80,13 +93,19 @@ export function OnboardingTour() {
   // Abrir al detectar perfil sin onboarding completado
   useEffect(() => {
     if (profileQ.data && !profileQ.data.onboarding_completed_at) {
-      const dismissedLocal = typeof window !== "undefined" && localStorage.getItem("sb-onboarding-dismissed");
+      const dismissedLocal =
+        typeof window !== "undefined" &&
+        (localStorage.getItem("sb-onboarding-dismissed") || localStorage.getItem("sb-onboarding-never"));
       if (!dismissedLocal) setOpen(true);
     }
   }, [profileQ.data]);
 
   const complete = async (skipped = false) => {
     setOpen(false);
+    if (typeof window !== "undefined" && dontShow) {
+      localStorage.setItem("sb-onboarding-never", "1");
+      setHideButton(true);
+    }
     if (!user) return;
     if (!skipped) {
       await supabase
@@ -103,6 +122,7 @@ export function OnboardingTour() {
   };
 
   if (!open) {
+    if (hideButton) return null;
     return (
       <button
         type="button"
@@ -156,6 +176,18 @@ export function OnboardingTour() {
             </div>
             <h2 className="font-display text-2xl font-bold uppercase tracking-tight">{step.title}</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">{step.body}</p>
+          </div>
+
+          <div className="px-4 pb-3">
+            <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+              <input
+                type="checkbox"
+                checked={dontShow}
+                onChange={(e) => setDontShow(e.target.checked)}
+                className="size-3.5 accent-current"
+              />
+              No volver a mostrar
+            </label>
           </div>
 
           <div className="p-4 border-t bg-muted/30 flex items-center justify-between gap-2">

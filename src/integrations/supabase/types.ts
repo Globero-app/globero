@@ -292,51 +292,6 @@ export type Database = {
         }
         Relationships: []
       }
-      health_entries: {
-        Row: {
-          created_at: string
-          entry_date: string
-          fatigue: number | null
-          id: string
-          note: string | null
-          resting_hr: number | null
-          sleep_hours: number | null
-          sleep_quality: number | null
-          soreness: number | null
-          updated_at: string
-          user_id: string
-          weight_kg: number | null
-        }
-        Insert: {
-          created_at?: string
-          entry_date: string
-          fatigue?: number | null
-          id?: string
-          note?: string | null
-          resting_hr?: number | null
-          sleep_hours?: number | null
-          sleep_quality?: number | null
-          soreness?: number | null
-          updated_at?: string
-          user_id: string
-          weight_kg?: number | null
-        }
-        Update: {
-          created_at?: string
-          entry_date?: string
-          fatigue?: number | null
-          id?: string
-          note?: string | null
-          resting_hr?: number | null
-          sleep_hours?: number | null
-          sleep_quality?: number | null
-          soreness?: number | null
-          updated_at?: string
-          user_id?: string
-          weight_kg?: number | null
-        }
-        Relationships: []
-      }
       hrv_entries: {
         Row: {
           created_at: string
