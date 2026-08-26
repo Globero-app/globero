@@ -11,7 +11,7 @@ import { downloadZwo, type ZwoWorkout, type ZwoStep } from "@/lib/zwo-writer";
 import { importWorkoutPlan } from "@/lib/plan-io.functions";
 import { buildPlanCsv, parsePlanCsv, parseZwo, downloadText, type ImportSession } from "@/lib/plan-io";
 import { buildIcs } from "@/lib/ics";
-import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown, Home, Bike, CloudRain, Sun, Upload } from "lucide-react";
+import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown, Home, Bike, CloudRain, Sun, Upload, FileText } from "lucide-react";
 
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -560,6 +560,7 @@ function WorkoutCard({
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [converting, setConverting] = useState(false);
+  const [showReport, setShowReport] = useState(false);
   const isIndoor = w.bike_type === "rodillo" || !!(w.plan as any)?.indoor;
 
 
@@ -633,11 +634,20 @@ function WorkoutCard({
                 <span>{plan.weather_advice.note}</span>
               </div>
             )}
+            {plan.report?.text && (
+              <button
+                onClick={() => setShowReport(true)}
+                className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-mono uppercase rounded-md border border-primary/30 bg-primary/10 text-primary px-2 py-1 hover:bg-primary/20"
+              >
+                <FileText className="size-3.5" /> Ver informe
+              </button>
+            )}
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <button onClick={() => setShowPreview(true)} title="Ver y descargar .FIT" className="p-2 rounded-md hover:bg-secondary text-primary">
               <Eye className="size-4" />
             </button>
+
             {!completed && isIndoor && (
               <button
                 onClick={async () => {
@@ -836,7 +846,21 @@ function WorkoutCard({
           </div>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={showReport} onOpenChange={setShowReport}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl uppercase">Informe del entrenamiento</DialogTitle>
+            <DialogDescription>
+              {plan.title ?? plan.name ?? "Entrenamiento"}
+              {plan.report?.created_at && ` · ${format(new Date(plan.report.created_at), "d MMM HH:mm", { locale: es })}`}
+            </DialogDescription>
+          </DialogHeader>
+          <p className="text-sm whitespace-pre-line leading-relaxed">{plan.report?.text}</p>
+        </DialogContent>
+      </Dialog>
     </>
+
   );
 }
 
