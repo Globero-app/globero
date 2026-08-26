@@ -29,9 +29,9 @@ const STEPS: Step[] = [
   },
   {
     icon: Bike,
-    title: "2 · Conecta Strava (opcional)",
+    title: "2 · Conecta Intervals.icu (opcional)",
     body: "Sincroniza tus actividades para que la IA analice tu forma real y estime tu FTP automáticamente.",
-    cta: { label: "Configurar Strava", to: "/perfil" },
+    cta: { label: "Configurar Intervals.icu", to: "/perfil" },
   },
   {
     icon: Gauge,
@@ -48,7 +48,7 @@ const STEPS: Step[] = [
   {
     icon: Dumbbell,
     title: "5 · Genera Entrenamientos con IA",
-    body: "Elige tipo, bici y cantidad (1-30). La IA usa tu FTP, Strava y feedback previo para construir el bloque.",
+    body: "Elige tipo, bici y cantidad (1-30). La IA usa tu FTP, Intervals.icu y feedback previo para construir el bloque.",
     cta: { label: "Ir a Entrenamientos", to: "/entrenamientos" },
   },
   {

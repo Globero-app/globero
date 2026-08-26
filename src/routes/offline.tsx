@@ -28,7 +28,7 @@ const AVAILABLE_OFFLINE = [
 ] as const;
 
 const REQUIRES_NETWORK = [
-  "Sincronizar con Strava",
+  "Sincronizar con Intervals.icu",
   "Generar nuevos entrenamientos con IA",
   "Crear o editar competiciones",
   "Guardar cambios en el perfil",

@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { useServerFn } from "@tanstack/react-start";
-import { stravaSync } from "@/lib/strava.functions";
+import { intervalsSyncActivities } from "@/lib/intervals.functions";
 import { getTrainingLoad } from "@/lib/workouts.functions";
 import { Trophy, Flame, Bike, ChevronRight, Plus, Trash2, Activity, Timer, Heart } from "lucide-react";
 import { toast } from "sonner";
@@ -16,7 +16,7 @@ import { TodayPanel } from "@/components/TodayPanel";
 import { CoachBriefCard } from "@/components/CoachBriefCard";
 
 import { useEffect, useRef } from "react";
-import { useTodayPushTriggers, notifyStravaSync } from "@/lib/push-triggers";
+import { useTodayPushTriggers, notifyActivitySync } from "@/lib/push-triggers";
 
 
 export const Route = createFileRoute("/_authenticated/")({
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/")({
 function Dashboard() {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const sync = useServerFn(stravaSync);
+  const sync = useServerFn(intervalsSyncActivities);
   const loadFn = useServerFn(getTrainingLoad);
 
   const profile = useQuery({
@@ -59,7 +59,7 @@ function Dashboard() {
   const acts = useQuery({
     queryKey: ["recent_activities", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("strava_activities").select("*").eq("user_id", user!.id).order("start_date", { ascending: false }).limit(60);
+      const { data } = await supabase.from("intervals_activities").select("*").eq("user_id", user!.id).order("start_date", { ascending: false }).limit(60);
       return data ?? [];
     },
     enabled: !!user,
@@ -68,11 +68,11 @@ function Dashboard() {
   // Notificaciones locales: entreno de hoy y pre-carrera
   useTodayPushTriggers();
 
-  // Auto-sync Strava al abrir el dashboard (una vez cada 10 min)
+  // Auto-sync Intervals.icu al abrir el dashboard (una vez cada 10 min)
   const autoSyncedRef = useRef(false);
   useEffect(() => {
-    if (!user || !profile.data?.strava_access_token || autoSyncedRef.current) return;
-    const key = `strava:lastSync:${user.id}`;
+    if (!user || !profile.data?.intervals_api_key || autoSyncedRef.current) return;
+    const key = `intervals:lastSync:${user.id}`;
     const last = Number(localStorage.getItem(key) ?? 0);
     if (Date.now() - last < 10 * 60 * 1000) return;
     autoSyncedRef.current = true;
@@ -80,12 +80,12 @@ function Dashboard() {
     sync({ data: undefined })
       .then((res: any) => {
         qc.invalidateQueries({ queryKey: ["recent_activities"] });
-        qc.invalidateQueries({ queryKey: ["strava_activities"] });
+        qc.invalidateQueries({ queryKey: ["intervals_activities"] });
         qc.invalidateQueries({ queryKey: ["training_load"] });
-        void notifyStravaSync(user.id, res?.count ?? 0);
+        void notifyActivitySync(user.id, res?.count ?? 0);
       })
       .catch(() => {});
-  }, [user, profile.data?.strava_access_token, sync, qc]);
+  }, [user, profile.data?.intervals_api_key, sync, qc]);
 
 
   const handleDelete = async (id: string) => {

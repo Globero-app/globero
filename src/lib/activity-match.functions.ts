@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { actSubtitle } from "./strava-match.helpers";
+import { actSubtitle } from "./activity-match.helpers";
 
-export type StravaMatch = {
+export type ActivityMatch = {
   activity_id: string;
   activity_name: string;
   activity_subtitle: string;
@@ -14,17 +14,17 @@ export type StravaMatch = {
   target_subtitle: string;
 };
 
-/** Actividades de Strava recientes que coinciden en fecha con un entreno o competición pendiente */
-export const getStravaMatches = createServerFn({ method: "GET" })
+/** Actividades de Intervals.icu recientes que coinciden en fecha con un entreno o competición pendiente */
+export const getActivityMatches = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<StravaMatch[]> => {
+  .handler(async ({ context }): Promise<ActivityMatch[]> => {
     const { supabase, userId } = context;
     const since = new Date(Date.now() - 14 * 24 * 3600 * 1000);
     const sinceDay = since.toISOString().slice(0, 10);
 
     const [aRes, wRes, cRes] = await Promise.all([
       supabase
-        .from("strava_activities")
+        .from("intervals_activities")
         .select("id, name, type, distance, moving_time, total_elevation_gain, start_date")
         .eq("user_id", userId)
         .gte("start_date", since.toISOString())
@@ -54,7 +54,7 @@ export const getStravaMatches = createServerFn({ method: "GET" })
       if (id) linkedActivityIds.add(String(id));
     }
 
-    const matches: StravaMatch[] = [];
+    const matches: ActivityMatch[] = [];
 
     for (const a of activities) {
       const actId = String(a.id);
@@ -105,17 +105,10 @@ export const getStravaMatches = createServerFn({ method: "GET" })
     return matches;
   });
 
-const LinkInput = z.object({
-  activity_id: z.string().min(1),
-  target_kind: z.enum(["workout", "competition"]),
-  target_id: z.string().uuid(),
-  accept: z.boolean(),
-});
-
-/** Asigna (o descarta) una actividad de Strava al entreno/competición de ese día */
-export const linkStravaActivity = createServerFn({ method: "POST" })
+/** Asigna (o descarta) una actividad de Intervals.icu al entreno/competición de ese día */
+export const linkActivityToTarget = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => LinkInput.parse(d))
+  .inputValidator((d: unknown) => z.object({ activity_id: z.string().min(1), target_kind: z.enum(["workout", "competition"]), target_id: z.string().uuid(), accept: z.boolean() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { linkWorkoutActivity, linkCompetitionActivity } = await import("./activity-link.server");

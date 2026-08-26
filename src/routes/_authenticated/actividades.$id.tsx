@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
-import { stravaActivityDetail } from "@/lib/strava.functions";
+import { intervalsActivityDetail } from "@/lib/intervals.functions";
 import {
   downsample, meanMaxCurve, powerZoneDistribution, hrZoneDistribution,
   detectIntervals, extractPlannedIntervals, complianceScore, normalizedPower,
@@ -25,7 +25,7 @@ export const Route = createFileRoute("/_authenticated/actividades/$id")({
 function ActivityDetailPage() {
   const { id } = Route.useParams();
   const { user } = useAuth();
-  const fetchDetail = useServerFn(stravaActivityDetail);
+  const fetchDetail = useServerFn(intervalsActivityDetail);
 
   const profile = useQuery({
     queryKey: ["profile-metrics", user?.id],
@@ -37,15 +37,15 @@ function ActivityDetailPage() {
   });
 
   const detail = useQuery({
-    queryKey: ["strava-detail", id],
+    queryKey: ["icu-detail", id],
     queryFn: () => fetchDetail({ data: { id } }),
     staleTime: 30 * 60 * 1000,
   });
 
   const actRow = useQuery({
-    queryKey: ["strava-row", id],
+    queryKey: ["icu-row", id],
     queryFn: async () => {
-      const { data } = await supabase.from("strava_activities").select("*").eq("id", Number(id)).maybeSingle();
+      const { data } = await supabase.from("intervals_activities").select("*").eq("id", String(id)).maybeSingle();
       return data;
     },
   });
@@ -136,9 +136,9 @@ function ActivityDetailPage() {
               {activity.start_date && format(new Date(activity.start_date), "EEEE d MMM yyyy · HH:mm", { locale: es })}
             </p>
           </div>
-          <a href={`https://www.strava.com/activities/${activity.id}`} target="_blank" rel="noopener"
+          <a href={`https://intervals.icu/activities/${activity.id}`} target="_blank" rel="noopener"
              className="inline-flex items-center gap-1 text-primary text-xs hover:opacity-80 shrink-0">
-            Strava <ExternalLink className="size-3" />
+            Intervals.icu <ExternalLink className="size-3" />
           </a>
         </div>
       </div>

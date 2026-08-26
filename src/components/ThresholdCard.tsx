@@ -69,7 +69,7 @@ export function ThresholdCard({ status, compact }: { status: ThresholdStatusView
           <p className="text-xs mt-3">{status.recommendation}</p>
           {(status.suggested_ftp || status.suggested_lthr) && (
             <p className="text-[11px] font-mono text-muted-foreground mt-2">
-              Estimación desde Strava:
+              Estimación desde Intervals.icu:
               {status.suggested_ftp ? ` FTP ~${status.suggested_ftp} W` : ""}
               {status.suggested_lthr ? ` · LTHR ~${status.suggested_lthr} ppm` : ""}
             </p>

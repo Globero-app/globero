@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { useServerFn } from "@tanstack/react-start";
-import { stravaSync } from "@/lib/strava.functions";
+import { intervalsSyncActivities } from "@/lib/intervals.functions";
 import { toast } from "sonner";
 import { RefreshCw, Activity, ExternalLink } from "lucide-react";
 import { useEffect, useRef } from "react";
@@ -20,21 +20,21 @@ export const Route = createFileRoute("/_authenticated/actividades/")({
 function ActividadesPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const sync = useServerFn(stravaSync);
+  const sync = useServerFn(intervalsSyncActivities);
 
   const profile = useQuery({
     queryKey: ["profile", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("strava_access_token").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("intervals_api_key").eq("id", user!.id).maybeSingle();
       return data;
     },
     enabled: !!user,
   });
 
   const acts = useQuery({
-    queryKey: ["strava_activities", user?.id],
+    queryKey: ["intervals_activities", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("strava_activities").select("*").eq("user_id", user!.id).order("start_date", { ascending: false }).limit(20);
+      const { data } = await supabase.from("intervals_activities").select("*").eq("user_id", user!.id).order("start_date", { ascending: false }).limit(20);
       return data ?? [];
     },
     enabled: !!user,
@@ -44,39 +44,39 @@ function ActividadesPage() {
     try {
       const r = await sync({ data: undefined });
       toast.success(`Sincronizadas ${r.count} actividades`);
-      qc.invalidateQueries({ queryKey: ["strava_activities"] });
-      qc.invalidateQueries({ queryKey: ["strava-matches"] });
+      qc.invalidateQueries({ queryKey: ["intervals_activities"] });
+      qc.invalidateQueries({ queryKey: ["activity-matches"] });
     } catch (e: any) {
       toast.error(e.message);
     }
   };
 
-  // Auto-sync al entrar si hay Strava conectado (una vez cada 10 min)
+  // Auto-sync al entrar si hay Intervals.icu conectado (una vez cada 10 min)
   const autoSyncedRef = useRef(false);
   useEffect(() => {
-    if (!user || !profile.data?.strava_access_token || autoSyncedRef.current) return;
-    const key = `strava:lastSync:${user.id}`;
+    if (!user || !profile.data?.intervals_api_key || autoSyncedRef.current) return;
+    const key = `intervals:lastSync:${user.id}`;
     const last = Number(localStorage.getItem(key) ?? 0);
     if (Date.now() - last < 10 * 60 * 1000) return;
     autoSyncedRef.current = true;
     localStorage.setItem(key, String(Date.now()));
     sync({ data: undefined })
       .then(() => {
-        qc.invalidateQueries({ queryKey: ["strava_activities"] });
-        qc.invalidateQueries({ queryKey: ["strava-matches"] });
+        qc.invalidateQueries({ queryKey: ["intervals_activities"] });
+        qc.invalidateQueries({ queryKey: ["activity-matches"] });
       })
       .catch(() => {});
-  }, [user, profile.data?.strava_access_token, sync, qc]);
+  }, [user, profile.data?.intervals_api_key, sync, qc]);
 
   // Calcula CTL (carga crónica, 42 días) y ATL (fatiga, 7 días) con suffer_score
   const chartData = buildCtlAtl(acts.data ?? []);
 
-  if (!profile.data?.strava_access_token) {
+  if (!profile.data?.intervals_api_key) {
     return (
       <div className="max-w-xl mx-auto text-center py-20">
         <Activity className="size-12 text-muted-foreground mx-auto mb-4" />
         <h1 className="font-display text-3xl font-bold uppercase tracking-tight mb-2">Actividades</h1>
-        <p className="text-muted-foreground mb-6">Conecta tu cuenta Strava desde el Perfil para ver tus actividades y gráficos.</p>
+        <p className="text-muted-foreground mb-6">Conecta tu cuenta Intervals.icu desde el Perfil para ver tus actividades y gráficos.</p>
         <a href="/perfil" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold">
           Ir al Perfil
         </a>
@@ -88,7 +88,7 @@ function ActividadesPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">Strava</p>
+          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">Intervals.icu</p>
           <h1 className="font-display text-4xl font-bold uppercase tracking-tight">Actividades</h1>
         </div>
         <button onClick={handleSync} className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-lg text-sm font-semibold">
@@ -132,9 +132,9 @@ function ActividadesPage() {
             <div className="flex items-center gap-6 text-xs">
               <div className="text-right"><p className="text-muted-foreground">Distancia</p><p className="font-semibold">{((a.distance ?? 0) / 1000).toFixed(1)}km</p></div>
               <div className="text-right hidden md:block"><p className="text-muted-foreground">Desnivel</p><p className="font-semibold">+{Math.round(a.total_elevation_gain ?? 0)}m</p></div>
-              <div className="text-right hidden md:block"><p className="text-muted-foreground">Sufrimiento</p><p className="font-semibold">{a.suffer_score ?? "—"}</p></div>
+              <div className="text-right hidden md:block"><p className="text-muted-foreground">Carga</p><p className="font-semibold">{a.icu_training_load ?? "—"}</p></div>
               <a
-                href={`https://www.strava.com/activities/${a.id}`}
+                href={`https://intervals.icu/activities/${a.id}`}
                 target="_blank"
                 rel="noopener"
                 onClick={(e) => e.stopPropagation()}
@@ -157,7 +157,7 @@ function buildCtlAtl(acts: any[]) {
   const dayMap = new Map<string, number>();
   sorted.forEach((a) => {
     const d = format(new Date(a.start_date), "yyyy-MM-dd");
-    dayMap.set(d, (dayMap.get(d) ?? 0) + (a.suffer_score ?? 0));
+    dayMap.set(d, (dayMap.get(d) ?? 0) + (a.icu_training_load ?? 0));
   });
   const start = new Date(sorted[0].start_date);
   start.setHours(0, 0, 0, 0);

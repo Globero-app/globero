@@ -9,7 +9,7 @@ import { downloadFit, type FitWorkoutStep } from "@/lib/fit-writer";
 import { downloadZwo, type ZwoStep } from "@/lib/zwo-writer";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { stravaImportFtpTest, markFtpTestCompleted } from "@/lib/strava.functions";
+import { intervalsImportFtpTest, markFtpTestCompleted } from "@/lib/intervals.functions";
 import { scheduleFtpTest } from "@/lib/workouts.functions";
 
 import { format } from "date-fns";
@@ -96,7 +96,7 @@ function FtpTestPage() {
   const { user } = useAuth();
   const router = useRouter();
   const qc = useQueryClient();
-  const importFromStrava = useServerFn(stravaImportFtpTest);
+  const importFromIntervals = useServerFn(intervalsImportFtpTest);
   const markCompleted = useServerFn(markFtpTestCompleted);
   const scheduleTest = useServerFn(scheduleFtpTest);
 
@@ -104,20 +104,20 @@ function FtpTestPage() {
   const profileQ = useQuery({
     queryKey: ["profile", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("ftp,strava_access_token,ftp_test_completed_at,max_hr,lthr,zones_display_mode").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("ftp,intervals_api_key,ftp_test_completed_at,max_hr,lthr,zones_display_mode").eq("id", user!.id).maybeSingle();
       return data;
     },
     enabled: !!user,
   });
 
-  const stravaConnected = !!profileQ.data?.strava_access_token;
+  const icuConnected = !!profileQ.data?.intervals_api_key;
 
-  // Actividades recientes de Strava con potencia y ≥ 30 min (candidatas a test FTP)
+  // Actividades recientes de Intervals.icu con potencia y ≥ 30 min (candidatas a test FTP)
   const recentActs = useQuery({
-    queryKey: ["strava-ftp-candidates", user?.id],
+    queryKey: ["icu-ftp-candidates", user?.id],
     queryFn: async () => {
       const { data } = await supabase
-        .from("strava_activities")
+        .from("intervals_activities")
         .select("id,name,start_date,moving_time,distance,average_watts,total_elevation_gain")
         .eq("user_id", user!.id)
         .gte("moving_time", 20 * 60)
@@ -126,7 +126,7 @@ function FtpTestPage() {
         .limit(15);
       return data ?? [];
     },
-    enabled: !!user && stravaConnected,
+    enabled: !!user && icuConnected,
   });
 
   const [phaseIdx, setPhaseIdx] = useState(0);
@@ -237,10 +237,10 @@ function FtpTestPage() {
     toast.success(".fit descargado. Copíalo a tu ciclocomputador (Garmin, Wahoo).");
   };
 
-  const handleImportStrava = async (activityId: string) => {
+  const handleImportIntervals = async (activityId: string) => {
     setImportingId(activityId);
     try {
-      const r = await importFromStrava({ data: { activity_id: activityId } });
+      const r = await importFromIntervals({ data: { activity_id: activityId } });
       toast.success(`FTP calculado: ${r.ftp} W (mejor 20' = ${r.avg_watts_20min} W)`);
       setSaved(r.ftp);
       qc.invalidateQueries({ queryKey: ["profile"] });
@@ -368,22 +368,22 @@ function FtpTestPage() {
 
 
 
-      {/* Marcar como realizado + importar desde Strava */}
+      {/* Marcar como realizado + importar desde Intervals.icu */}
       <div className="bg-surface border rounded-xl p-5 space-y-3">
         <h2 className="font-display text-lg font-bold uppercase tracking-tight flex items-center gap-2">
           <CheckCheck className="size-5" /> Marcar test como realizado
         </h2>
 
-        {stravaConnected ? (
+        {icuConnected ? (
           <>
             <p className="text-sm text-muted-foreground">
-              Selecciona la actividad de Strava donde hiciste el test. Calcularemos el mejor esfuerzo de 20 min y actualizaremos tu FTP y zonas.
+              Selecciona la actividad de Intervals.icu donde hiciste el test. Calcularemos el mejor esfuerzo de 20 min y actualizaremos tu FTP y zonas.
             </p>
             {recentActs.isLoading ? (
               <p className="text-xs text-muted-foreground">Cargando actividades…</p>
             ) : (recentActs.data ?? []).length === 0 ? (
               <p className="text-xs text-muted-foreground">
-                No hay actividades recientes con potencia. Sincroniza Strava desde el <Link to="/perfil" className="underline">perfil</Link> tras subir el test.
+                No hay actividades recientes con potencia. Sincroniza Intervals.icu desde el <Link to="/perfil" className="underline">perfil</Link> tras subir el test.
               </p>
             ) : (
               <ul className="divide-y border rounded-lg overflow-hidden">
@@ -396,7 +396,7 @@ function FtpTestPage() {
                       </p>
                     </div>
                     <button
-                      onClick={() => handleImportStrava(String(a.id))}
+                      onClick={() => handleImportIntervals(String(a.id))}
                       disabled={importingId === String(a.id)}
                       className="shrink-0 inline-flex items-center gap-1 bg-[#fc4c02] text-white px-3 py-1.5 rounded-md text-xs font-semibold disabled:opacity-50"
                     >
@@ -416,7 +416,7 @@ function FtpTestPage() {
         ) : (
           <>
             <p className="text-sm text-muted-foreground">
-              Conecta Strava en tu <Link to="/perfil" className="underline text-primary">perfil</Link> para importar el test directamente y calcular las zonas automáticamente.
+              Conecta Intervals.icu en tu <Link to="/perfil" className="underline text-primary">perfil</Link> para importar el test directamente y calcular las zonas automáticamente.
               Mientras tanto, introduce la potencia media de los 20 min más abajo cuando termines la prueba.
             </p>
             <button onClick={handleMarkOnly} className="text-xs font-semibold px-3 py-1.5 rounded-md border hover:bg-muted">

@@ -9,7 +9,7 @@ export interface RiderProfile {
   weight_kg: number;
   age?: number;
   ftp?: number;
-  /** 0-100. Proxy de forma actual (basado en horas Strava últimas 4 semanas). */
+  /** 0-100. Proxy de forma actual (basado en horas de actividad últimas 4 semanas). */
   fitness_score?: number;
 }
 

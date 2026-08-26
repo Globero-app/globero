@@ -54,7 +54,7 @@ function AuthPage() {
             Entrena.<br />Compite.<br /><span className="text-primary">Recupera.</span>
           </h1>
           <p className="text-sm text-accent-foreground/70 max-w-sm">
-            Plataforma integral para el equipo: planificación nutricional con IA, análisis de Strava y planes GPX con waypoints de carbohidratos.
+            Plataforma integral para el equipo: planificación nutricional con IA, análisis de Intervals.icu y planes GPX con waypoints de carbohidratos.
           </p>
         </div>
         <div className="relative text-[10px] uppercase tracking-widest text-accent-foreground/40">

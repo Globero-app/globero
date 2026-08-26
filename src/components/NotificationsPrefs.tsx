@@ -31,7 +31,7 @@ const CATEGORIES: Cat[] = [
   { key: "notify_fatigue_alerts", icon: AlertTriangle, label: "Alertas de fatiga", desc: "Avisos cuando la fatiga, la rampa de carga o el sueño se disparan.", requiresPermission: true },
   { key: "notify_training_push", icon: Dumbbell, label: "Entrenamiento de hoy", desc: "Aviso cuando toca la sesión planificada del día.", requiresPermission: true },
   { key: "notify_prerace_push", icon: Droplets, label: "Hidratación pre-carrera", desc: "Recordatorio 2-3 días antes con tu plan de hidratación y sodio.", requiresPermission: true },
-  { key: "notify_strava_push", icon: Activity, label: "Sincronización Strava", desc: "Confirmación cuando entran nuevas actividades.", requiresPermission: true },
+  { key: "notify_strava_push", icon: Activity, label: "Sincronización Intervals.icu", desc: "Confirmación cuando entran nuevas actividades.", requiresPermission: true },
   { key: "notify_maintenance_push", icon: Wrench, label: "Mantenimiento de material", desc: "Componentes al 85% o vencidos (cadena, pastillas, cubiertas…).", requiresPermission: true },
 ];
 
@@ -149,7 +149,7 @@ export function NotificationsPrefs() {
           <ServerStatusBadge status={serverSub} />
         </div>
         <p className="text-[11px] text-muted-foreground">
-          Recibe avisos con la app cerrada (recordatorios de entreno, sync Strava, mantenimiento…).
+          Recibe avisos con la app cerrada (recordatorios de entreno, sync Intervals.icu, mantenimiento…).
           Requiere permitir notificaciones e instalar la PWA en iOS.
         </p>
         <div className="flex flex-wrap gap-2">

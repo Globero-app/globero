@@ -177,13 +177,13 @@ function ProgresoPage() {
               <Zap className="size-4 text-primary" /> Curva de potencia (mean-max, 12 meses)
             </h2>
             <p className="text-xs text-muted-foreground mt-1">
-              Mejor potencia media sostenida por cada duración. Se calcula a partir de los streams de Strava tras sincronizar.
+              Mejor potencia media sostenida por cada duración. Se calcula a partir de los streams de Intervals.icu tras sincronizar.
             </p>
             {curve.isLoading ? (
               <Skeleton className="h-56 w-full mt-4" />
             ) : (curve.data ?? []).length === 0 ? (
               <p className="text-sm text-muted-foreground mt-4">
-                Aún no hay picos de potencia calculados. Sincroniza Strava y se generarán automáticamente para actividades con potenciómetro.
+                Aún no hay picos de potencia calculados. Sincroniza Intervals.icu y se generarán automáticamente para actividades con potenciómetro.
               </p>
             ) : (
               <div className="h-56 mt-4 -ml-4">
@@ -210,7 +210,7 @@ function ProgresoPage() {
             </h2>
             {d.prs.length === 0 ? (
               <p className="text-sm text-muted-foreground mt-2">
-                Sin datos de potencia en tus actividades. Sincroniza Strava con un medidor de potencia para ver tus PRs.
+                Sin datos de potencia en tus actividades. Sincroniza Intervals.icu con un medidor de potencia para ver tus PRs.
               </p>
             ) : (
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 mt-4">
