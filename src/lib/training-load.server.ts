@@ -55,13 +55,16 @@ export function weekStart(dateISO: string): string {
   return isoDate(d);
 }
 
-/** TSS estimado de una actividad de Strava. */
+/** TSS de una actividad: usa la carga real de Intervals.icu y estima si no existe. */
 export function estimateActivityTss(a: {
   moving_time?: number | null;
   average_watts?: number | null;
   average_heartrate?: number | null;
+  icu_training_load?: number | null;
   suffer_score?: number | null;
 }, ftp: number | null, lthr: number | null, maxHr: number | null): number {
+  // 0) Carga real calculada por Intervals.icu
+  if (a.icu_training_load && Number(a.icu_training_load) > 0) return Math.round(Number(a.icu_training_load));
   const hours = (Number(a.moving_time) || 0) / 3600;
   if (hours <= 0) return 0;
 
@@ -76,7 +79,7 @@ export function estimateActivityTss(a: {
     const ratio = Number(a.average_heartrate) / ref;
     return Math.round(hours * ratio * ratio * 100);
   }
-  // 3) Suffer score de Strava
+  // 3) Suffer score
   if (a.suffer_score && a.suffer_score > 0) return Math.round(Number(a.suffer_score));
   // 4) Fallback: ~50 TSS/h (Z2)
   return Math.round(hours * 50);
@@ -139,7 +142,7 @@ export async function buildTrainingLoad(supabase: any, userId: string, profile: 
   const [{ data: acts }, { data: workouts }] = await Promise.all([
     supabase
       .from("intervals_activities")
-      .select("moving_time,average_watts,average_heartrate,suffer_score,start_date,distance,total_elevation_gain,name")
+      .select("moving_time,average_watts,average_heartrate,icu_training_load,start_date,distance,total_elevation_gain,name")
       .eq("user_id", userId)
       .gte("start_date", `${since}T00:00:00Z`)
       .order("start_date", { ascending: false })
@@ -160,7 +163,7 @@ export async function buildTrainingLoad(supabase: any, userId: string, profile: 
     dailyMap.set(d, (dailyMap.get(d) ?? 0) + tss);
   }
 
-  // Si no hay Strava, usa entrenos completados como fuente de carga
+  // Si no hay actividades, usa entrenos completados como fuente de carga
   if (!dailyMap.size) {
     for (const w of workouts ?? []) {
       if (w.status !== "completed") continue;
