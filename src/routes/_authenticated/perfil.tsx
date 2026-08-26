@@ -265,8 +265,6 @@ function PerfilPage() {
             <p className="text-xs text-muted-foreground">
               Sincronización de zonas y umbrales (FTP, LTHR, FC máx) con Intervals.icu al guardar el perfil
             </p>
-
-            </button>
             </div>
           ) : (
             <div className="space-y-3">
