@@ -348,7 +348,7 @@ export const revertWorkoutToOutdoor = createServerFn({ method: "POST" })
       .update({
         plan: restored,
         duration_minutes: mins,
-        bike_type: backup.bike_type ?? "carretera",
+        bike_type: backup?.bike_type ?? "carretera",
         planned_tss: tss,
         actual_tss: null,
         actual_if: null,
