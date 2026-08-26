@@ -53,5 +53,27 @@ export const saveActivityFeedback = createServerFn({ method: "POST" })
         console.error("intervals activity update error", e);
       }
     }
-    return { ok: true, synced };
+    // Informe IA del entrenamiento enlazado a esta actividad
+    let report = false;
+    try {
+      const { data: candidates } = await supabase
+        .from("workouts")
+        .select("id,plan")
+        .eq("user_id", userId)
+        .eq("status", "completed")
+        .order("updated_at", { ascending: false })
+        .limit(50);
+      const match = (candidates ?? []).find(
+        (w: any) => String((w.plan as any)?.strava_activity_id ?? "") === String(data.activity_id),
+      );
+      if (match) {
+        const { generateAndNotifyWorkoutReport } = await import("./workout-report.server");
+        report = await generateAndNotifyWorkoutReport(supabase, userId, match.id);
+      }
+    } catch (e) {
+      console.error("workout report error", e);
+    }
+
+    return { ok: true, synced, report };
   });
+
