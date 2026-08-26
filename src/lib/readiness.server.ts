@@ -107,7 +107,6 @@ Duración original: ${workout.duration_minutes} min · Tipo: ${workout.training_
 
 REGLAS DE ADAPTACIÓN SEGÚN READINESS:
 - 2 (paseo relajado): convierte la sesión en rodaje suave Z1-Z2 sin intervalos, reduce la duración un 30-40%.
-- 3 (entreno normal): mantén la estructura pero suaviza los picos más duros y ajusta ligeramente el volumen (±10%).
 - 4 (entreno exigente): mantén o incrementa ligeramente la carga; puedes añadir un bloque de calidad.
 - 5 (dar lo máximo): sesión clave, sube intensidad y/o volumen de forma razonable (máximo +20%) sin comprometer la recuperación.
 

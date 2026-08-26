@@ -165,7 +165,9 @@ function eventBody(workout: any, doc: string, date: string) {
     type: workout?.plan?.indoor || workout?.bike_type === "rodillo" ? "VirtualRide" : "Ride",
     name: workout.plan?.title ?? workout.plan?.name ?? "Entrenamiento",
     description: doc,
+    workout_doc: null,
     moving_time: Math.max(60, Math.round((workout.duration_minutes ?? 60) * 60)),
+    icu_training_load: workout.planned_tss ?? null,
   };
 }
 
@@ -223,7 +225,12 @@ export function credsFromProfile(profile: any): IntervalsCreds | null {
 }
 
 /** Crea o actualiza el evento de un entrenamiento en Intervals.icu. Devuelve el event id o null. */
-export async function syncWorkoutEvent(supabase: any, userId: string, workout: any): Promise<string | null> {
+export async function syncWorkoutEvent(
+  supabase: any,
+  userId: string,
+  workout: any,
+  options: { strict?: boolean } = {},
+): Promise<string | null> {
   const { data: profile } = await supabase
     .from("profiles")
     .select("intervals_athlete_id,intervals_api_key,ftp,lthr,max_hr")
@@ -260,12 +267,18 @@ export async function syncWorkoutEvent(supabase: any, userId: string, workout: a
     return id || null;
   } catch (e) {
     console.error("intervals sync error", e);
+    if (options.strict) throw e;
     return null;
   }
 }
 
 /** Elimina el evento asociado a un entrenamiento en Intervals.icu (si existe). */
-export async function removeWorkoutEvent(supabase: any, userId: string, workout: any): Promise<void> {
+export async function removeWorkoutEvent(
+  supabase: any,
+  userId: string,
+  workout: any,
+  options: { strict?: boolean } = {},
+): Promise<void> {
   const eventId = workout?.plan?.intervals_event_id;
   if (!eventId) return;
   const { data: profile } = await supabase
@@ -279,6 +292,7 @@ export async function removeWorkoutEvent(supabase: any, userId: string, workout:
     await intervalsDeleteEvent(creds, String(eventId));
   } catch (e) {
     console.error("intervals delete error", e);
+    if (options.strict) throw e;
   }
 }
 

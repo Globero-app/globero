@@ -61,6 +61,8 @@ function ReadinessPage() {
       toast.success(r.action === "adapted" ? "Entreno de hoy adaptado por la IA" : "Readiness registrado");
       qc.invalidateQueries({ queryKey: ["readiness-recent"] });
       qc.invalidateQueries({ queryKey: ["workouts"] });
+      qc.invalidateQueries({ queryKey: ["today-workout"] });
+      qc.invalidateQueries({ queryKey: ["calendar"] });
     } catch (err: any) { toast.error(err.message); }
     finally { setBusy(false); }
   };
@@ -73,6 +75,8 @@ function ReadinessPage() {
       toast.success("Entrenamiento de hoy eliminado. Descansa.");
       setResult({ ...result, workout_id: null, action: "deleted" });
       qc.invalidateQueries({ queryKey: ["workouts"] });
+      qc.invalidateQueries({ queryKey: ["today-workout"] });
+      qc.invalidateQueries({ queryKey: ["calendar"] });
     } catch (e: any) { toast.error(e.message); }
     finally { setBusy(false); }
   };
