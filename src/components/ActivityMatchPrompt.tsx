@@ -8,7 +8,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
 
-/** Pregunta si una actividad de Strava corresponde al entreno/competición del día */
+/** Pregunta si una actividad de Intervals.icu corresponde al entreno/competición del día */
 export function ActivityMatchPrompt({ enabled = true }: { enabled?: boolean }) {
   const qc = useQueryClient();
   const load = useServerFn(getActivityMatches);
@@ -58,7 +58,7 @@ export function ActivityMatchPrompt({ enabled = true }: { enabled?: boolean }) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Activity className="size-4 text-primary" />
-            Nueva actividad detectada en Strava
+            Nueva actividad detectada en Intervals.icu
           </DialogTitle>
           <DialogDescription>
             {format(new Date(match.date + "T00:00:00"), "EEEE d MMMM yyyy", { locale: es })}

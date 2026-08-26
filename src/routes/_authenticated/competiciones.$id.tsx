@@ -70,7 +70,7 @@ function CompetitionDetail() {
     const stats = trackStats(pts);
     const simplified = simplifyTrack(pts, 800);
 
-    // Fitness score: horas de Strava últimas 4 semanas → 0-100
+    // Fitness score: horas de Intervals.icu últimas 4 semanas → 0-100
     let fitness_score: number | undefined;
     if (user) {
       const since = new Date(Date.now() - 28 * 86400_000).toISOString();
@@ -85,7 +85,7 @@ function CompetitionDetail() {
       }
     }
 
-    // Plan de nutrición adaptativo (perfil + Strava + perfil altimétrico)
+    // Plan de nutrición adaptativo (perfil + Intervals.icu + perfil altimétrico)
     const plan = planRaceNutrition(
       {
         weight_kg: profile.data?.weight_kg ?? 70,
@@ -190,7 +190,7 @@ function CompetitionDetail() {
                 </button>
               </div>
               <p className="text-[10px] text-muted-foreground mb-2">
-                Dosis ajustadas por perfil, forma (Strava últimas 4 semanas) y perfil altimétrico.
+                Dosis ajustadas por perfil, forma (Intervals.icu últimas 4 semanas) y perfil altimétrico.
               </p>
               <div className="max-h-56 overflow-y-auto space-y-1 text-xs">
                 {wpts.map((w: any, i: number) => (
@@ -244,7 +244,7 @@ function CompetitionDetail() {
           ) : (
             <div className="border-2 border-dashed rounded-xl p-12 text-center text-sm text-muted-foreground">
               <ChefHat className="size-8 mx-auto mb-2 opacity-50" />
-              Genera tu menú personalizado con IA.<br />Se basa en tu perfil, los datos de la competición{c.distance_km ? " " : ""}y tus actividades de Strava.
+              Genera tu menú personalizado con IA.<br />Se basa en tu perfil, los datos de la competición{c.distance_km ? " " : ""}y tus actividades de Intervals.icu.
             </div>
           )}
         </div>

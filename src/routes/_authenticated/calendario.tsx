@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_authenticated/calendario")({
   head: () => ({
     meta: [
       { title: "Calendario — Sentmenat Bici" },
-      { name: "description", content: "Calendario unificado: entrenamientos, competiciones y actividades reales de Strava." },
+      { name: "description", content: "Calendario unificado: entrenamientos, competiciones y actividades reales de Intervals.icu." },
     ],
   }),
   component: CalendarioPage,

@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { useServerFn } from "@tanstack/react-start";
-import { stravaSync } from "@/lib/strava.functions";
+import { intervalsSyncActivities } from "@/lib/intervals.functions";
 import { toast } from "sonner";
 import { RefreshCw, Activity, ExternalLink } from "lucide-react";
 import { useEffect, useRef } from "react";
@@ -20,12 +20,12 @@ export const Route = createFileRoute("/_authenticated/actividades/")({
 function ActividadesPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const sync = useServerFn(stravaSync);
+  const sync = useServerFn(intervalsSyncActivities);
 
   const profile = useQuery({
     queryKey: ["profile", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("strava_access_token").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("intervals_api_key").eq("id", user!.id).maybeSingle();
       return data;
     },
     enabled: !!user,
@@ -51,11 +51,11 @@ function ActividadesPage() {
     }
   };
 
-  // Auto-sync al entrar si hay Strava conectado (una vez cada 10 min)
+  // Auto-sync al entrar si hay Intervals.icu conectado (una vez cada 10 min)
   const autoSyncedRef = useRef(false);
   useEffect(() => {
-    if (!user || !profile.data?.strava_access_token || autoSyncedRef.current) return;
-    const key = `strava:lastSync:${user.id}`;
+    if (!user || !profile.data?.intervals_api_key || autoSyncedRef.current) return;
+    const key = `intervals:lastSync:${user.id}`;
     const last = Number(localStorage.getItem(key) ?? 0);
     if (Date.now() - last < 10 * 60 * 1000) return;
     autoSyncedRef.current = true;
@@ -66,17 +66,17 @@ function ActividadesPage() {
         qc.invalidateQueries({ queryKey: ["activity-matches"] });
       })
       .catch(() => {});
-  }, [user, profile.data?.strava_access_token, sync, qc]);
+  }, [user, profile.data?.intervals_api_key, sync, qc]);
 
   // Calcula CTL (carga crónica, 42 días) y ATL (fatiga, 7 días) con suffer_score
   const chartData = buildCtlAtl(acts.data ?? []);
 
-  if (!profile.data?.strava_access_token) {
+  if (!profile.data?.intervals_api_key) {
     return (
       <div className="max-w-xl mx-auto text-center py-20">
         <Activity className="size-12 text-muted-foreground mx-auto mb-4" />
         <h1 className="font-display text-3xl font-bold uppercase tracking-tight mb-2">Actividades</h1>
-        <p className="text-muted-foreground mb-6">Conecta tu cuenta Strava desde el Perfil para ver tus actividades y gráficos.</p>
+        <p className="text-muted-foreground mb-6">Conecta tu cuenta Intervals.icu desde el Perfil para ver tus actividades y gráficos.</p>
         <a href="/perfil" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold">
           Ir al Perfil
         </a>
@@ -88,7 +88,7 @@ function ActividadesPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">Strava</p>
+          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">Intervals.icu</p>
           <h1 className="font-display text-4xl font-bold uppercase tracking-tight">Actividades</h1>
         </div>
         <button onClick={handleSync} className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-lg text-sm font-semibold">
@@ -134,7 +134,7 @@ function ActividadesPage() {
               <div className="text-right hidden md:block"><p className="text-muted-foreground">Desnivel</p><p className="font-semibold">+{Math.round(a.total_elevation_gain ?? 0)}m</p></div>
               <div className="text-right hidden md:block"><p className="text-muted-foreground">Carga</p><p className="font-semibold">{a.icu_training_load ?? "—"}</p></div>
               <a
-                href={`https://www.strava.com/activities/${a.id}`}
+                href={`https://intervals.icu/activities/${a.id}`}
                 target="_blank"
                 rel="noopener"
                 onClick={(e) => e.stopPropagation()}

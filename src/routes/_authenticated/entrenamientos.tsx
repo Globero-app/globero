@@ -853,7 +853,7 @@ function targetLabel(s: any) {
   return "—";
 }
 
-/** Comparativa entre lo prescrito y lo ejecutado (desde Strava/Intervals). */
+/** Comparativa entre lo prescrito y lo ejecutado (desde Intervals.icu/Intervals). */
 function PrescribedVsExecuted({ w }: { w: any }) {
   const planned = Number(w.planned_tss) || null;
   const actual = Number(w.actual_tss) || null;
@@ -886,7 +886,7 @@ function PrescribedVsExecuted({ w }: { w: any }) {
             : diff < -10
               ? "Te quedaste por debajo de lo prescrito: la IA ajustará a la baja para asegurar el cumplimiento."
               : "Sesión ejecutada dentro del rango previsto: la progresión continúa según el bloque."
-          : "Cuando enlaces la actividad de Strava se calculará el TSS real y el cumplimiento."}
+          : "Cuando enlaces la actividad de Intervals.icu se calculará el TSS real y el cumplimiento."}
       </p>
     </div>
   );
