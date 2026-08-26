@@ -319,10 +319,8 @@ function PerfilPage() {
           <TelegramSection />
         </Section>
 
-        <Section title="Material y mantenimiento" className="lg:col-span-2">
-          <MaintenanceAlertsBanner variant="inline" />
+        <Section title="Notificaciones" className="lg:col-span-2">
           <NotificationsPrefs />
-          <BikesManager />
         </Section>
 
 

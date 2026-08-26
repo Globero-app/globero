@@ -16,6 +16,7 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedReadinessRouteImport } from './routes/_authenticated/readiness'
 import { Route as AuthenticatedProgresoRouteImport } from './routes/_authenticated/progreso'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
+import { Route as AuthenticatedMiBiciRouteImport } from './routes/_authenticated/mi-bici'
 import { Route as AuthenticatedMenusRouteImport } from './routes/_authenticated/menus'
 import { Route as AuthenticatedFtpTestRouteImport } from './routes/_authenticated/ftp-test'
 import { Route as AuthenticatedEntrenamientosRouteImport } from './routes/_authenticated/entrenamientos'
@@ -65,6 +66,11 @@ const AuthenticatedProgresoRoute = AuthenticatedProgresoRouteImport.update({
 const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMiBiciRoute = AuthenticatedMiBiciRouteImport.update({
+  id: '/mi-bici',
+  path: '/mi-bici',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMenusRoute = AuthenticatedMenusRouteImport.update({
@@ -168,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/entrenamientos': typeof AuthenticatedEntrenamientosRoute
   '/ftp-test': typeof AuthenticatedFtpTestRoute
   '/menus': typeof AuthenticatedMenusRoute
+  '/mi-bici': typeof AuthenticatedMiBiciRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/progreso': typeof AuthenticatedProgresoRoute
   '/readiness': typeof AuthenticatedReadinessRoute
@@ -191,6 +198,7 @@ export interface FileRoutesByTo {
   '/entrenamientos': typeof AuthenticatedEntrenamientosRoute
   '/ftp-test': typeof AuthenticatedFtpTestRoute
   '/menus': typeof AuthenticatedMenusRoute
+  '/mi-bici': typeof AuthenticatedMiBiciRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/progreso': typeof AuthenticatedProgresoRoute
   '/readiness': typeof AuthenticatedReadinessRoute
@@ -217,6 +225,7 @@ export interface FileRoutesById {
   '/_authenticated/entrenamientos': typeof AuthenticatedEntrenamientosRoute
   '/_authenticated/ftp-test': typeof AuthenticatedFtpTestRoute
   '/_authenticated/menus': typeof AuthenticatedMenusRoute
+  '/_authenticated/mi-bici': typeof AuthenticatedMiBiciRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/progreso': typeof AuthenticatedProgresoRoute
   '/_authenticated/readiness': typeof AuthenticatedReadinessRoute
@@ -244,6 +253,7 @@ export interface FileRouteTypes {
     | '/entrenamientos'
     | '/ftp-test'
     | '/menus'
+    | '/mi-bici'
     | '/perfil'
     | '/progreso'
     | '/readiness'
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/entrenamientos'
     | '/ftp-test'
     | '/menus'
+    | '/mi-bici'
     | '/perfil'
     | '/progreso'
     | '/readiness'
@@ -292,6 +303,7 @@ export interface FileRouteTypes {
     | '/_authenticated/entrenamientos'
     | '/_authenticated/ftp-test'
     | '/_authenticated/menus'
+    | '/_authenticated/mi-bici'
     | '/_authenticated/perfil'
     | '/_authenticated/progreso'
     | '/_authenticated/readiness'
@@ -371,6 +383,13 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof AuthenticatedPerfilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mi-bici': {
+      id: '/_authenticated/mi-bici'
+      path: '/mi-bici'
+      fullPath: '/mi-bici'
+      preLoaderRoute: typeof AuthenticatedMiBiciRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/menus': {
@@ -494,6 +513,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEntrenamientosRoute: typeof AuthenticatedEntrenamientosRoute
   AuthenticatedFtpTestRoute: typeof AuthenticatedFtpTestRoute
   AuthenticatedMenusRoute: typeof AuthenticatedMenusRoute
+  AuthenticatedMiBiciRoute: typeof AuthenticatedMiBiciRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedProgresoRoute: typeof AuthenticatedProgresoRoute
   AuthenticatedReadinessRoute: typeof AuthenticatedReadinessRoute
@@ -510,6 +530,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEntrenamientosRoute: AuthenticatedEntrenamientosRoute,
   AuthenticatedFtpTestRoute: AuthenticatedFtpTestRoute,
   AuthenticatedMenusRoute: AuthenticatedMenusRoute,
+  AuthenticatedMiBiciRoute: AuthenticatedMiBiciRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedProgresoRoute: AuthenticatedProgresoRoute,
   AuthenticatedReadinessRoute: AuthenticatedReadinessRoute,
