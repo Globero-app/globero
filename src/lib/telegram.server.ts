@@ -387,7 +387,9 @@ ${context}`,
       msg = `Registrado: ${score}/5 — ${READINESS_LABELS[score]}. Hoy no tienes entreno pendiente.`;
     } else if (score === 1) {
       action = "suggest_delete";
-      msg = `Registrado 1/5. Hoy mejor descansa: te sugiero eliminar la sesión "${workout.plan?.title ?? "de hoy"}" y priorizar sueño e hidratación.`;
+      msg = `Registrado 1/5. Hoy mejor descansa: te sugiero eliminar la sesión "${workout.plan?.title ?? "de hoy"}" y priorizar sueño e hidratación. Confirma la eliminación desde la pantalla Readiness de la app.`;
+    } else if (score === 3) {
+      msg = `Registrado 3/5 — ${READINESS_LABELS[score]}. El entrenamiento de hoy se mantiene sin cambios.`;
     } else {
       const { data: hist } = await supabaseAdmin
         .from("readiness_entries")
@@ -407,15 +409,47 @@ ${context}`,
         steps: adapted.steps,
         readiness_adapted: { score, date: today, message: adapted.message },
       };
-      await supabaseAdmin
+      const durationMinutes = Math.max(
+        15,
+        Math.round(
+          (adapted.steps as any[]).reduce((total, step) => total + (Number(step.duration_seconds) || 0), 0) / 60,
+        ) || Math.round(adapted.duration_minutes || workout.duration_minutes),
+      );
+      const { estimatePlanTss } = await import("./training-load.server");
+      const plannedTss = estimatePlanTss(
+        newPlan,
+        profile?.ftp ?? null,
+        profile?.lthr ?? null,
+        profile?.max_hr ?? null,
+        durationMinutes,
+      );
+      const { data: updated, error: updateError } = await supabaseAdmin
         .from("workouts")
-        .update({ plan: newPlan, duration_minutes: Math.max(15, Math.round(adapted.duration_minutes || workout.duration_minutes)) })
+        .update({ plan: newPlan, duration_minutes: durationMinutes, planned_tss: plannedTss })
         .eq("id", workout.id)
-        .eq("user_id", userId);
+        .eq("user_id", userId)
+        .select()
+        .maybeSingle();
+      if (updateError) throw new Error(updateError.message);
+      if (!updated) throw new Error("No se pudo recuperar el entrenamiento adaptado");
       const { syncWorkoutEvent } = await import("./intervals.server");
-      await syncWorkoutEvent(supabaseAdmin, userId, { ...workout, plan: newPlan });
+      let intervalsEventId: string | null;
+      try {
+        intervalsEventId = await syncWorkoutEvent(supabaseAdmin, userId, updated, { strict: true });
+      } catch (syncError) {
+        await supabaseAdmin
+          .from("workouts")
+          .update({
+            plan: workout.plan,
+            duration_minutes: workout.duration_minutes,
+            planned_tss: workout.planned_tss,
+          })
+          .eq("id", workout.id)
+          .eq("user_id", userId);
+        throw syncError;
+      }
       action = "adapted";
-      msg = `Registrado ${score}/5. ${adapted.message}\n\nNuevo entreno: ${adapted.title} (${Math.round(adapted.duration_minutes)} min). Actualizado también en Intervals.icu.`;
+      msg = `Registrado ${score}/5. ${adapted.message}\n\nNuevo entreno: ${adapted.title} (${durationMinutes} min).${intervalsEventId ? " Actualizado también en Intervals.icu." : ""}`;
     }
 
     await supabaseAdmin.from("readiness_entries").upsert(

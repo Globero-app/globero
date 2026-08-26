@@ -46,6 +46,9 @@ export const saveReadiness = createServerFn({ method: "POST" })
     } else if (data.score === 1) {
       action = "suggest_delete";
       message = `Hoy no estás preparado para entrenar. Te sugiero eliminar la sesión "${workout.plan?.title ?? workout.plan?.name ?? "de hoy"}" y priorizar descanso, hidratación y sueño. Mañana volvemos.`;
+    } else if (data.score === 3) {
+      action = "none";
+      message = `Readiness registrado: ${READINESS_LABELS[data.score]}. El entrenamiento de hoy se mantiene sin cambios.`;
     } else {
       const adapted = await callAI(
         [{
@@ -68,19 +71,51 @@ export const saveReadiness = createServerFn({ method: "POST" })
         steps: adapted.steps,
         readiness_adapted: { score: data.score, date: today, message: adapted.message },
       };
-      const { error: upErr } = await supabase
+      const durationMinutes = Math.max(
+        15,
+        Math.round(
+          (adapted.steps as any[]).reduce((total, step) => total + (Number(step.duration_seconds) || 0), 0) / 60,
+        ) || Math.round(adapted.duration_minutes || workout.duration_minutes),
+      );
+      const { estimatePlanTss } = await import("./training-load.server");
+      const plannedTss = estimatePlanTss(
+        newPlan,
+        profile?.ftp ?? null,
+        (profile as any)?.lthr ?? null,
+        (profile as any)?.max_hr ?? null,
+        durationMinutes,
+      );
+      const { data: updated, error: upErr } = await supabase
         .from("workouts")
         .update({
           plan: newPlan,
-          duration_minutes: Math.max(15, Math.round(adapted.duration_minutes || workout.duration_minutes)),
+          duration_minutes: durationMinutes,
+          planned_tss: plannedTss,
         })
         .eq("id", workout.id)
-        .eq("user_id", userId);
+        .eq("user_id", userId)
+        .select()
+        .maybeSingle();
       if (upErr) throw new Error(upErr.message);
+      if (!updated) throw new Error("No se pudo recuperar el entrenamiento adaptado");
       const { syncWorkoutEvent } = await import("./intervals.server");
-      await syncWorkoutEvent(supabase, userId, { ...workout, plan: newPlan });
+      let intervalsEventId: string | null;
+      try {
+        intervalsEventId = await syncWorkoutEvent(supabase, userId, updated, { strict: true });
+      } catch (syncError) {
+        await supabase
+          .from("workouts")
+          .update({
+            plan: workout.plan,
+            duration_minutes: workout.duration_minutes,
+            planned_tss: workout.planned_tss,
+          })
+          .eq("id", workout.id)
+          .eq("user_id", userId);
+        throw syncError;
+      }
       action = "adapted";
-      message = adapted.message;
+      message = `${adapted.message}${intervalsEventId ? " Actualizado también en Intervals.icu." : ""}`;
     }
 
     const { error } = await supabase.from("readiness_entries").upsert(
@@ -126,7 +161,7 @@ export const discardTodayWorkout = createServerFn({ method: "POST" })
       .maybeSingle();
     if (workout) {
       const { removeWorkoutEvent } = await import("./intervals.server");
-      await removeWorkoutEvent(supabase, userId, workout);
+      await removeWorkoutEvent(supabase, userId, workout, { strict: true });
     }
     const { error } = await supabase.from("workouts").delete().eq("id", data.workout_id).eq("user_id", userId);
     if (error) throw new Error(error.message);
