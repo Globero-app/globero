@@ -4,9 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "@tanstack/react-router";
-import {
-  User, Bike, Trophy, Dumbbell, HeartPulse, Gauge, X, ArrowRight, Sparkles,
-} from "lucide-react";
+import { User, Bike, Trophy, Dumbbell, HeartPulse, Gauge, X, ArrowRight, Sparkles } from "lucide-react";
 
 interface Step {
   icon: any;
@@ -29,26 +27,26 @@ const STEPS: Step[] = [
   },
   {
     icon: Bike,
-    title: "2 · Conecta Intervals.icu (opcional)",
-    body: "Sincroniza tus actividades para que la IA analice tu forma real y estime tu FTP automáticamente.",
+    title: "2 · Conecta Intervals.icu ",
+    body: "Sincroniza tus actividades para que la IA analice tu forma real y estime tu FTP automáticamente. También sincronizará tus entrenos.",
     cta: { label: "Configurar Intervals.icu", to: "/perfil" },
   },
   {
     icon: Gauge,
     title: "3 · Test de FTP asistido",
-    body: "¿No conoces tu FTP? Te guiamos paso a paso en una prueba de 20 minutos y calculamos automáticamente tus 7 zonas de potencia.",
+    body: "¿No conoces tu FTP? Te guiamos paso a paso en una prueba de 20 minutos y calculamos automáticamente tus zonas de potencia.",
     cta: { label: "Hacer el test", to: "/ftp-test" },
   },
   {
     icon: Trophy,
     title: "4 · Añade tu Competición objetivo",
-    body: "Registra la carrera que preparas. La IA generará el plan de entrenamientos periodizado hasta el evento y el menú pre-carrera.",
+    body: "Registra la carrera que preparas. La IA generará el plan de entrenamientos periodizado hasta el evento y el menú.",
     cta: { label: "Nueva competición", to: "/competiciones" },
   },
   {
     icon: Dumbbell,
     title: "5 · Genera Entrenamientos con IA",
-    body: "Elige tipo, bici y cantidad (1-30). La IA usa tu FTP, Intervals.icu y feedback previo para construir el bloque.",
+    body: "Elige tipo de bici, duración y días de entrenamiento. La IA usa tu FTP, Intervals.icu y feedback previo para construir el bloque.",
     cta: { label: "Ir a Entrenamientos", to: "/entrenamientos" },
   },
   {
@@ -93,7 +91,10 @@ export function OnboardingTour() {
     if (!skipped) {
       await supabase
         .from("profiles")
-        .upsert({ id: user.id, email: user.email ?? "", onboarding_completed_at: new Date().toISOString() }, { onConflict: "id" });
+        .upsert(
+          { id: user.id, email: user.email ?? "", onboarding_completed_at: new Date().toISOString() },
+          { onConflict: "id" },
+        );
       qc.invalidateQueries({ queryKey: ["profile"] });
       qc.invalidateQueries({ queryKey: ["profile-onboarding"] });
     } else if (typeof window !== "undefined") {
@@ -105,7 +106,10 @@ export function OnboardingTour() {
     return (
       <button
         type="button"
-        onClick={() => { setI(0); setOpen(true); }}
+        onClick={() => {
+          setI(0);
+          setOpen(true);
+        }}
         className="fixed bottom-4 right-4 z-40 hidden md:inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-xs font-semibold shadow-lg hover:opacity-90"
         title="Volver a ver el tour de bienvenida"
       >
@@ -122,18 +126,26 @@ export function OnboardingTour() {
     <AnimatePresence>
       <motion.div
         className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
       >
         <motion.div
           key={i}
-          initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }}
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ opacity: 0 }}
           className="w-full max-w-md rounded-2xl bg-surface border shadow-2xl overflow-hidden"
         >
           <div className="flex items-center justify-between p-4 border-b">
             <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">
               Paso {i + 1} / {STEPS.length}
             </p>
-            <button onClick={() => complete(true)} className="text-muted-foreground hover:text-foreground" aria-label="Cerrar tour">
+            <button
+              onClick={() => complete(true)}
+              className="text-muted-foreground hover:text-foreground"
+              aria-label="Cerrar tour"
+            >
               <X className="size-4" />
             </button>
           </div>
@@ -149,14 +161,20 @@ export function OnboardingTour() {
           <div className="p-4 border-t bg-muted/30 flex items-center justify-between gap-2">
             <div className="flex gap-1">
               {STEPS.map((_, idx) => (
-                <span key={idx} className={`h-1.5 rounded-full transition-all ${idx === i ? "w-6 bg-primary" : "w-1.5 bg-border"}`} />
+                <span
+                  key={idx}
+                  className={`h-1.5 rounded-full transition-all ${idx === i ? "w-6 bg-primary" : "w-1.5 bg-border"}`}
+                />
               ))}
             </div>
             <div className="flex gap-2">
               {step.cta?.to && (
                 <button
                   type="button"
-                  onClick={() => { router.navigate({ to: step.cta!.to! }); complete(false); }}
+                  onClick={() => {
+                    router.navigate({ to: step.cta!.to! });
+                    complete(false);
+                  }}
                   className="text-xs font-semibold px-3 py-2 rounded-lg border bg-surface hover:bg-muted"
                 >
                   {step.cta.label}
@@ -164,7 +182,7 @@ export function OnboardingTour() {
               )}
               <button
                 type="button"
-                onClick={() => isLast ? complete(false) : setI(i + 1)}
+                onClick={() => (isLast ? complete(false) : setI(i + 1))}
                 className="inline-flex items-center gap-1 text-xs font-semibold px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90"
               >
                 {isLast ? "Empezar" : "Siguiente"} <ArrowRight className="size-3.5" />
