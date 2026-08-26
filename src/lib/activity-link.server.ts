@@ -29,7 +29,7 @@ export async function linkWorkoutActivity(
         supabase.from("profiles").select("ftp,lthr,max_hr").eq("id", userId).maybeSingle(),
         supabase
           .from("intervals_activities")
-          .select("moving_time,average_watts,average_heartrate,suffer_score")
+          .select("moving_time,average_watts,average_heartrate,icu_training_load")
           .eq("id", Number(activityId))
           .eq("user_id", userId)
           .maybeSingle(),

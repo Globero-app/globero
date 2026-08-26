@@ -132,7 +132,7 @@ function ActividadesPage() {
             <div className="flex items-center gap-6 text-xs">
               <div className="text-right"><p className="text-muted-foreground">Distancia</p><p className="font-semibold">{((a.distance ?? 0) / 1000).toFixed(1)}km</p></div>
               <div className="text-right hidden md:block"><p className="text-muted-foreground">Desnivel</p><p className="font-semibold">+{Math.round(a.total_elevation_gain ?? 0)}m</p></div>
-              <div className="text-right hidden md:block"><p className="text-muted-foreground">Sufrimiento</p><p className="font-semibold">{a.suffer_score ?? "—"}</p></div>
+              <div className="text-right hidden md:block"><p className="text-muted-foreground">Carga</p><p className="font-semibold">{a.icu_training_load ?? "—"}</p></div>
               <a
                 href={`https://www.strava.com/activities/${a.id}`}
                 target="_blank"
@@ -157,7 +157,7 @@ function buildCtlAtl(acts: any[]) {
   const dayMap = new Map<string, number>();
   sorted.forEach((a) => {
     const d = format(new Date(a.start_date), "yyyy-MM-dd");
-    dayMap.set(d, (dayMap.get(d) ?? 0) + (a.suffer_score ?? 0));
+    dayMap.set(d, (dayMap.get(d) ?? 0) + (a.icu_training_load ?? 0));
   });
   const start = new Date(sorted[0].start_date);
   start.setHours(0, 0, 0, 0);
