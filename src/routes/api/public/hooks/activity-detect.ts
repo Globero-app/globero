@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 /**
- * Cron cada 15 min: detecta actividades nuevas en Strava, asigna las de alta confianza
+ * Cron cada 15 min: detecta actividades nuevas en Intervals.icu, asigna las de alta confianza
  * y avisa por push/Telegram del resto. A las 20:xx (Madrid) recuerda entrenos pendientes.
  * Auth: header `apikey` = SUPABASE_PUBLISHABLE_KEY.
  */
@@ -46,7 +46,7 @@ export const Route = createFileRoute("/api/public/hooks/activity-detect")({
           const { data: users } = await supabaseAdmin
             .from("profiles")
             .select("id, notify_strava_push, notify_training_push")
-            .not("strava_refresh_token", "is", null)
+            .not("intervals_api_key", "is", null)
             .limit(200);
 
           for (const u of (users ?? []) as any[]) {
