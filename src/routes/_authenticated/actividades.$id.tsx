@@ -337,7 +337,6 @@ function RouteMap({ latlng }: { latlng: [number, number][] }) {
     let cancelled = false;
     (async () => {
       const L = (await import("leaflet")).default;
-      await import("leaflet/dist/leaflet.css");
       if (cancelled || !ref.current) return;
       if (!mapRef.current) {
         mapRef.current = L.map(ref.current, { scrollWheelZoom: false });
@@ -345,11 +344,17 @@ function RouteMap({ latlng }: { latlng: [number, number][] }) {
       }
       const map = mapRef.current;
       map.eachLayer((l: any) => { if (l instanceof L.Polyline || l instanceof L.Marker) map.removeLayer(l); });
-      const line = L.polyline(latlng, { color: "#e11d48", weight: 4 }).addTo(map);
+      const pts = latlng.filter((p) => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1]));
+      if (pts.length === 0) return;
+      const line = L.polyline(pts, { color: "#e11d48", weight: 4 }).addTo(map);
       map.fitBounds(line.getBounds(), { padding: [20, 20] });
+      requestAnimationFrame(() => map.invalidateSize());
+      setTimeout(() => { map.invalidateSize(); map.fitBounds(line.getBounds(), { padding: [20, 20] }); }, 300);
     })();
     return () => { cancelled = true; };
   }, [latlng]);
+  useEffect(() => () => { mapRef.current?.remove(); mapRef.current = null; }, []);
+
   return (
     <div className="bg-surface border rounded-xl overflow-hidden">
       <div ref={ref} className="h-72 w-full" />
