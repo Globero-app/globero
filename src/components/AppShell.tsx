@@ -1,4 +1,4 @@
-import { StravaMatchPrompt } from "@/components/StravaMatchPrompt";
+import { ActivityMatchPrompt } from "@/components/ActivityMatchPrompt";
 import { ActivityFeedbackPrompt } from "@/components/ActivityFeedbackPrompt";
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/use-auth";
@@ -174,7 +174,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <SponsorsFooter />
       </main>
 
-      <StravaMatchPrompt />
+      <ActivityMatchPrompt />
       <ActivityFeedbackPrompt />
 
 

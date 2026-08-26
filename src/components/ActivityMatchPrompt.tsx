@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { getStravaMatches, linkStravaActivity, type StravaMatch } from "@/lib/strava-match.functions";
+import { getActivityMatches, linkActivityToTarget, type ActivityMatch } from "@/lib/activity-match.functions";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Activity, Trophy, Dumbbell } from "lucide-react";
 import { format } from "date-fns";
@@ -9,20 +9,20 @@ import { es } from "date-fns/locale";
 import { toast } from "sonner";
 
 /** Pregunta si una actividad de Strava corresponde al entreno/competición del día */
-export function StravaMatchPrompt({ enabled = true }: { enabled?: boolean }) {
+export function ActivityMatchPrompt({ enabled = true }: { enabled?: boolean }) {
   const qc = useQueryClient();
-  const load = useServerFn(getStravaMatches);
-  const link = useServerFn(linkStravaActivity);
+  const load = useServerFn(getActivityMatches);
+  const link = useServerFn(linkActivityToTarget);
   const [dismissed, setDismissed] = useState<string[]>([]);
 
   const q = useQuery({
-    queryKey: ["strava-matches"],
+    queryKey: ["activity-matches"],
     queryFn: () => load({ data: undefined }),
     enabled,
   });
 
   const m = useMutation({
-    mutationFn: (v: { match: StravaMatch; accept: boolean }) =>
+    mutationFn: (v: { match: ActivityMatch; accept: boolean }) =>
       link({
         data: {
           activity_id: v.match.activity_id,
@@ -40,7 +40,7 @@ export function StravaMatchPrompt({ enabled = true }: { enabled?: boolean }) {
             : "Actividad asignada a la competición",
         );
       }
-      qc.invalidateQueries({ queryKey: ["strava-matches"] });
+      qc.invalidateQueries({ queryKey: ["activity-matches"] });
       qc.invalidateQueries({ queryKey: ["calendar"] });
       qc.invalidateQueries({ queryKey: ["workouts"] });
     },

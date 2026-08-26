@@ -45,7 +45,7 @@ function ActividadesPage() {
       const r = await sync({ data: undefined });
       toast.success(`Sincronizadas ${r.count} actividades`);
       qc.invalidateQueries({ queryKey: ["intervals_activities"] });
-      qc.invalidateQueries({ queryKey: ["strava-matches"] });
+      qc.invalidateQueries({ queryKey: ["activity-matches"] });
     } catch (e: any) {
       toast.error(e.message);
     }
@@ -63,7 +63,7 @@ function ActividadesPage() {
     sync({ data: undefined })
       .then(() => {
         qc.invalidateQueries({ queryKey: ["intervals_activities"] });
-        qc.invalidateQueries({ queryKey: ["strava-matches"] });
+        qc.invalidateQueries({ queryKey: ["activity-matches"] });
       })
       .catch(() => {});
   }, [user, profile.data?.strava_access_token, sync, qc]);
