@@ -32,9 +32,9 @@ function ActividadesPage() {
   });
 
   const acts = useQuery({
-    queryKey: ["strava_activities", user?.id],
+    queryKey: ["intervals_activities", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("strava_activities").select("*").eq("user_id", user!.id).order("start_date", { ascending: false }).limit(20);
+      const { data } = await supabase.from("intervals_activities").select("*").eq("user_id", user!.id).order("start_date", { ascending: false }).limit(20);
       return data ?? [];
     },
     enabled: !!user,
@@ -44,7 +44,7 @@ function ActividadesPage() {
     try {
       const r = await sync({ data: undefined });
       toast.success(`Sincronizadas ${r.count} actividades`);
-      qc.invalidateQueries({ queryKey: ["strava_activities"] });
+      qc.invalidateQueries({ queryKey: ["intervals_activities"] });
       qc.invalidateQueries({ queryKey: ["strava-matches"] });
     } catch (e: any) {
       toast.error(e.message);
@@ -62,7 +62,7 @@ function ActividadesPage() {
     localStorage.setItem(key, String(Date.now()));
     sync({ data: undefined })
       .then(() => {
-        qc.invalidateQueries({ queryKey: ["strava_activities"] });
+        qc.invalidateQueries({ queryKey: ["intervals_activities"] });
         qc.invalidateQueries({ queryKey: ["strava-matches"] });
       })
       .catch(() => {});

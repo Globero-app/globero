@@ -48,7 +48,7 @@ export async function buildProgress(supabase: any, userId: string, profile: any)
 
   const [{ data: acts }, { data: workouts }] = await Promise.all([
     supabase
-      .from("strava_activities")
+      .from("intervals_activities")
       .select("name,start_date,moving_time,distance,total_elevation_gain,average_watts,average_heartrate,suffer_score")
       .eq("user_id", userId)
       .gte("start_date", `${since365}T00:00:00Z`)
@@ -270,7 +270,7 @@ export async function assessThresholds(supabase: any, userId: string, profile: a
   const lastTest: string | null = profile?.ftp_test_completed_at ?? null;
 
   const { data: acts } = await supabase
-    .from("strava_activities")
+    .from("intervals_activities")
     .select("name,start_date,moving_time,average_watts,average_heartrate")
     .eq("user_id", userId)
     .gte("start_date", `${since}T00:00:00Z`)

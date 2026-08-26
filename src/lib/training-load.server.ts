@@ -138,7 +138,7 @@ export async function buildTrainingLoad(supabase: any, userId: string, profile: 
 
   const [{ data: acts }, { data: workouts }] = await Promise.all([
     supabase
-      .from("strava_activities")
+      .from("intervals_activities")
       .select("moving_time,average_watts,average_heartrate,suffer_score,start_date,distance,total_elevation_gain,name")
       .eq("user_id", userId)
       .gte("start_date", `${since}T00:00:00Z`)

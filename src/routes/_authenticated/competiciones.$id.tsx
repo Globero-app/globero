@@ -75,7 +75,7 @@ function CompetitionDetail() {
     if (user) {
       const since = new Date(Date.now() - 28 * 86400_000).toISOString();
       const { data: acts } = await supabase
-        .from("strava_activities")
+        .from("intervals_activities")
         .select("moving_time")
         .eq("user_id", user.id)
         .gte("start_date", since);

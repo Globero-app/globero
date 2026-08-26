@@ -92,7 +92,7 @@ export const stravaSync = createServerFn({ method: "POST" })
       raw: a,
     }));
     if (rows.length) {
-      await supabase.from("strava_activities").upsert(rows, { onConflict: "id" });
+      await supabase.from("intervals_activities").upsert(rows, { onConflict: "id" });
     }
     // Auto-FTP: si el usuario no tiene FTP definido, calcularlo tras el sync
     try {
@@ -138,7 +138,7 @@ export const stravaSync = createServerFn({ method: "POST" })
 
 async function computeFtpFromActivities(supabase: any, userId: string): Promise<number | null> {
   const { data: acts } = await supabase
-    .from("strava_activities")
+    .from("intervals_activities")
     .select("average_watts,moving_time,type")
     .eq("user_id", userId);
   if (!acts?.length) return null;
@@ -175,7 +175,7 @@ async function computeHrFromActivities(
   userId: string,
 ): Promise<{ max_hr: number | null; lthr: number | null }> {
   const { data: acts } = await supabase
-    .from("strava_activities")
+    .from("intervals_activities")
     .select("average_heartrate,moving_time,type,raw")
     .eq("user_id", userId);
   if (!acts?.length) return { max_hr: null, lthr: null };

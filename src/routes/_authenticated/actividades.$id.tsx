@@ -45,7 +45,7 @@ function ActivityDetailPage() {
   const actRow = useQuery({
     queryKey: ["strava-row", id],
     queryFn: async () => {
-      const { data } = await supabase.from("strava_activities").select("*").eq("id", Number(id)).maybeSingle();
+      const { data } = await supabase.from("intervals_activities").select("*").eq("id", Number(id)).maybeSingle();
       return data;
     },
   });

@@ -94,7 +94,7 @@ export const generateMenu = createServerFn({ method: "POST" })
 
     // Datos de Strava (últimas 10 si las hay) para personalizar
     const { data: stravaAct } = await supabase
-      .from("strava_activities")
+      .from("intervals_activities")
       .select("name,distance,moving_time,total_elevation_gain,average_watts,suffer_score,start_date")
       .eq("user_id", userId)
       .order("start_date", { ascending: false })

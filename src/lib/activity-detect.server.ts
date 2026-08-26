@@ -61,7 +61,7 @@ async function pullStrava(admin: any, userId: string): Promise<number> {
     start_date: a.start_date,
     raw: a,
   }));
-  if (rows.length) await admin.from("strava_activities").upsert(rows, { onConflict: "id" });
+  if (rows.length) await admin.from("intervals_activities").upsert(rows, { onConflict: "id" });
   return rows.length;
 }
 
@@ -81,7 +81,7 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
 
   const [aRes, wRes, cRes, dRes] = await Promise.all([
     admin
-      .from("strava_activities")
+      .from("intervals_activities")
       .select("id, name, type, distance, moving_time, start_date")
       .eq("user_id", userId)
       .gte("start_date", sinceISO)

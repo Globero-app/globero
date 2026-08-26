@@ -117,7 +117,7 @@ function FtpTestPage() {
     queryKey: ["strava-ftp-candidates", user?.id],
     queryFn: async () => {
       const { data } = await supabase
-        .from("strava_activities")
+        .from("intervals_activities")
         .select("id,name,start_date,moving_time,distance,average_watts,total_elevation_gain")
         .eq("user_id", user!.id)
         .gte("moving_time", 20 * 60)

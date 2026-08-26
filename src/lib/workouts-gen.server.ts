@@ -117,7 +117,7 @@ export async function generateWorkoutsCore(supabase: any, userId: string, input:
 
 
   const { data: recent } = await supabase
-    .from("strava_activities")
+    .from("intervals_activities")
     .select("name,distance,moving_time,total_elevation_gain,average_watts,suffer_score,start_date")
     .eq("user_id", userId)
     .order("start_date", { ascending: false })

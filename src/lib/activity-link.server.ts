@@ -28,7 +28,7 @@ export async function linkWorkoutActivity(
       const [{ data: profile }, { data: act }] = await Promise.all([
         supabase.from("profiles").select("ftp,lthr,max_hr").eq("id", userId).maybeSingle(),
         supabase
-          .from("strava_activities")
+          .from("intervals_activities")
           .select("moving_time,average_watts,average_heartrate,suffer_score")
           .eq("id", Number(activityId))
           .eq("user_id", userId)

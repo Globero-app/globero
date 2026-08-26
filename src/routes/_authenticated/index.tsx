@@ -59,7 +59,7 @@ function Dashboard() {
   const acts = useQuery({
     queryKey: ["recent_activities", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("strava_activities").select("*").eq("user_id", user!.id).order("start_date", { ascending: false }).limit(60);
+      const { data } = await supabase.from("intervals_activities").select("*").eq("user_id", user!.id).order("start_date", { ascending: false }).limit(60);
       return data ?? [];
     },
     enabled: !!user,
@@ -80,7 +80,7 @@ function Dashboard() {
     sync({ data: undefined })
       .then((res: any) => {
         qc.invalidateQueries({ queryKey: ["recent_activities"] });
-        qc.invalidateQueries({ queryKey: ["strava_activities"] });
+        qc.invalidateQueries({ queryKey: ["intervals_activities"] });
         qc.invalidateQueries({ queryKey: ["training_load"] });
         void notifyStravaSync(user.id, res?.count ?? 0);
       })

@@ -28,7 +28,7 @@ export const getCalendar = createServerFn({ method: "GET" })
     const [wRes, cRes, aRes] = await Promise.all([
       supabase.from("workouts").select("id, training_type, duration_minutes, status, plan, completed_at, created_at").eq("user_id", userId),
       supabase.from("competitions").select("id, name, date, type, distance_km, elevation_m").eq("user_id", userId).gte("date", data.from).lte("date", data.to),
-      supabase.from("strava_activities").select("id, name, type, distance, moving_time, total_elevation_gain, start_date").eq("user_id", userId).gte("start_date", fromIso).lte("start_date", toIso),
+      supabase.from("intervals_activities").select("id, name, type, distance, moving_time, total_elevation_gain, start_date").eq("user_id", userId).gte("start_date", fromIso).lte("start_date", toIso),
     ]);
 
     const events: CalendarEvent[] = [];

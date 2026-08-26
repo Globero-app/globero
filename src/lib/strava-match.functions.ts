@@ -24,7 +24,7 @@ export const getStravaMatches = createServerFn({ method: "GET" })
 
     const [aRes, wRes, cRes] = await Promise.all([
       supabase
-        .from("strava_activities")
+        .from("intervals_activities")
         .select("id, name, type, distance, moving_time, total_elevation_gain, start_date")
         .eq("user_id", userId)
         .gte("start_date", since.toISOString())
