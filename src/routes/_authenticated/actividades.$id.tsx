@@ -37,13 +37,13 @@ function ActivityDetailPage() {
   });
 
   const detail = useQuery({
-    queryKey: ["strava-detail", id],
+    queryKey: ["icu-detail", id],
     queryFn: () => fetchDetail({ data: { id } }),
     staleTime: 30 * 60 * 1000,
   });
 
   const actRow = useQuery({
-    queryKey: ["strava-row", id],
+    queryKey: ["icu-row", id],
     queryFn: async () => {
       const { data } = await supabase.from("intervals_activities").select("*").eq("id", Number(id)).maybeSingle();
       return data;

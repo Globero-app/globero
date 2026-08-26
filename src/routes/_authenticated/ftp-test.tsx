@@ -110,11 +110,11 @@ function FtpTestPage() {
     enabled: !!user,
   });
 
-  const stravaConnected = !!profileQ.data?.intervals_api_key;
+  const icuConnected = !!profileQ.data?.intervals_api_key;
 
   // Actividades recientes de Intervals.icu con potencia y ≥ 30 min (candidatas a test FTP)
   const recentActs = useQuery({
-    queryKey: ["strava-ftp-candidates", user?.id],
+    queryKey: ["icu-ftp-candidates", user?.id],
     queryFn: async () => {
       const { data } = await supabase
         .from("intervals_activities")
@@ -126,7 +126,7 @@ function FtpTestPage() {
         .limit(15);
       return data ?? [];
     },
-    enabled: !!user && stravaConnected,
+    enabled: !!user && icuConnected,
   });
 
   const [phaseIdx, setPhaseIdx] = useState(0);
@@ -374,7 +374,7 @@ function FtpTestPage() {
           <CheckCheck className="size-5" /> Marcar test como realizado
         </h2>
 
-        {stravaConnected ? (
+        {icuConnected ? (
           <>
             <p className="text-sm text-muted-foreground">
               Selecciona la actividad de Intervals.icu donde hiciste el test. Calcularemos el mejor esfuerzo de 20 min y actualizaremos tu FTP y zonas.
