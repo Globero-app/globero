@@ -161,3 +161,37 @@ export async function estimateHrFromIntervals(
   const lthr = bestAvg > 0 ? Math.round(bestAvg * 0.98) : max_hr ? Math.round(max_hr * 0.92) : null;
   return { max_hr, lthr };
 }
+
+/** Renombra una actividad en Intervals.icu con el nombre del entreno planificado. No lanza errores. */
+export async function renameIntervalsActivity(
+  supabase: any,
+  userId: string,
+  activityId: string,
+  name: string,
+): Promise<void> {
+  try {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("intervals_athlete_id,intervals_api_key")
+      .eq("id", userId)
+      .maybeSingle();
+    const creds = credsFromProfile(profile);
+    if (!creds || !name.trim()) return;
+    const res = await fetch(`${BASE}/activity/${activityId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: authHeader(creds.apiKey) },
+      body: JSON.stringify({ name: name.trim().slice(0, 120) }),
+    });
+    if (!res.ok) {
+      console.error("[intervals] rename", res.status);
+      return;
+    }
+    await supabase
+      .from("intervals_activities")
+      .update({ name: name.trim().slice(0, 120) })
+      .eq("id", String(activityId))
+      .eq("user_id", userId);
+  } catch (e) {
+    console.error("[intervals] rename error", e);
+  }
+}
