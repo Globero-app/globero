@@ -96,7 +96,7 @@ function FtpTestPage() {
   const { user } = useAuth();
   const router = useRouter();
   const qc = useQueryClient();
-  const importFromIntervals.icu = useServerFn(intervalsImportFtpTest);
+  const importFromIntervals = useServerFn(intervalsImportFtpTest);
   const markCompleted = useServerFn(markFtpTestCompleted);
   const scheduleTest = useServerFn(scheduleFtpTest);
 
@@ -237,10 +237,10 @@ function FtpTestPage() {
     toast.success(".fit descargado. Copíalo a tu ciclocomputador (Garmin, Wahoo).");
   };
 
-  const handleImportIntervals.icu = async (activityId: string) => {
+  const handleImportIntervals = async (activityId: string) => {
     setImportingId(activityId);
     try {
-      const r = await importFromIntervals.icu({ data: { activity_id: activityId } });
+      const r = await importFromIntervals({ data: { activity_id: activityId } });
       toast.success(`FTP calculado: ${r.ftp} W (mejor 20' = ${r.avg_watts_20min} W)`);
       setSaved(r.ftp);
       qc.invalidateQueries({ queryKey: ["profile"] });
@@ -396,7 +396,7 @@ function FtpTestPage() {
                       </p>
                     </div>
                     <button
-                      onClick={() => handleImportIntervals.icu(String(a.id))}
+                      onClick={() => handleImportIntervals(String(a.id))}
                       disabled={importingId === String(a.id)}
                       className="shrink-0 inline-flex items-center gap-1 bg-[#fc4c02] text-white px-3 py-1.5 rounded-md text-xs font-semibold disabled:opacity-50"
                     >

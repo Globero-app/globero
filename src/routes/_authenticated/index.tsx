@@ -16,7 +16,7 @@ import { TodayPanel } from "@/components/TodayPanel";
 import { CoachBriefCard } from "@/components/CoachBriefCard";
 
 import { useEffect, useRef } from "react";
-import { useTodayPushTriggers, notifyIntervals.icuSync } from "@/lib/push-triggers";
+import { useTodayPushTriggers, notifyActivitySync } from "@/lib/push-triggers";
 
 
 export const Route = createFileRoute("/_authenticated/")({
@@ -82,7 +82,7 @@ function Dashboard() {
         qc.invalidateQueries({ queryKey: ["recent_activities"] });
         qc.invalidateQueries({ queryKey: ["intervals_activities"] });
         qc.invalidateQueries({ queryKey: ["training_load"] });
-        void notifyIntervals.icuSync(user.id, res?.count ?? 0);
+        void notifyActivitySync(user.id, res?.count ?? 0);
       })
       .catch(() => {});
   }, [user, profile.data?.intervals_api_key, sync, qc]);

@@ -97,7 +97,7 @@ export function useTodayPushTriggers() {
 }
 
 /** Notifica al completar sync Intervals.icu si el usuario lo ha habilitado. */
-export async function notifyIntervals.icuSync(userId: string, count: number) {
+export async function notifyActivitySync(userId: string, count: number) {
   if (count <= 0) return;
   const { data } = await supabase.from("profiles").select("notify_strava_push").eq("id", userId).maybeSingle();
   if (!(data as any)?.notify_strava_push) return;
