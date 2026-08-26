@@ -11,7 +11,7 @@ import { downloadZwo, type ZwoWorkout, type ZwoStep } from "@/lib/zwo-writer";
 import { importWorkoutPlan } from "@/lib/plan-io.functions";
 import { buildPlanCsv, parsePlanCsv, parseZwo, downloadText, type ImportSession } from "@/lib/plan-io";
 import { buildIcs } from "@/lib/ics";
-import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown, Home, Bike, CloudRain, Sun, Upload } from "lucide-react";
+import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown, Home, Bike, CloudRain, Sun, Upload, FileText } from "lucide-react";
 
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
