@@ -231,14 +231,13 @@ function PerfilPage() {
           </p>
         </Section>
 
-        <Section title="Plan nutricional">
-          <Field label="Días previos para Menú Pre-Carrera (1-5)">
-            <input type="number" min={1} max={5} className="input" value={form.pre_race_days ?? 3} onChange={(e) => setForm({...form, pre_race_days: e.target.value})} />
-          </Field>
+        <Section title="Nutrición">
           <Field label="Preferencias / intolerancias">
             <textarea className="input min-h-[80px]" placeholder="Vegano, intolerancia lactosa, sin gluten…" value={form.dietary_preferences ?? ""} onChange={(e) => setForm({...form, dietary_preferences: e.target.value})} />
           </Field>
+          <p className="text-[11px] text-muted-foreground">Se tienen en cuenta siempre en el plan semanal y en el plan de competición (se adapta 5 días antes de cada carrera).</p>
         </Section>
+
 
         <Section title="Conexión Intervals.icu" className="lg:col-span-2">
           {profileQ.data?.intervals_api_key ? (
