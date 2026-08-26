@@ -560,6 +560,7 @@ function WorkoutCard({
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [converting, setConverting] = useState(false);
+  const [showReport, setShowReport] = useState(false);
   const isIndoor = w.bike_type === "rodillo" || !!(w.plan as any)?.indoor;
 
 
