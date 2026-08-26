@@ -125,10 +125,21 @@ export async function getPowerCurve(supabase: any, userId: string, opts: { since
 
   const { data: rows } = await supabase
     .from("power_peaks")
-    .select("duration_seconds,watts,wkg,activity_date,activity_id,intervals_activities(name)")
+    .select("duration_seconds,watts,wkg,activity_date,activity_id")
     .eq("user_id", userId)
     .gte("activity_date", since.toISOString().slice(0, 10))
     .order("duration_seconds", { ascending: true });
+
+  const ids = [...new Set(((rows ?? []) as any[]).map((r) => String(r.activity_id)))];
+  const names = new Map<string, string>();
+  if (ids.length) {
+    const { data: acts } = await supabase
+      .from("intervals_activities")
+      .select("id,name")
+      .eq("user_id", userId)
+      .in("id", ids);
+    for (const a of (acts ?? []) as any[]) names.set(String(a.id), a.name ?? "Actividad");
+  }
 
   const best = new Map<number, { watts: number; wkg: number | null; date: string; activity_id: string; name: string }>();
   for (const r of (rows ?? []) as any[]) {
@@ -140,7 +151,7 @@ export async function getPowerCurve(supabase: any, userId: string, opts: { since
         wkg: r.wkg ? Number(r.wkg) : null,
         date: String(r.activity_date),
         activity_id: String(r.activity_id),
-        name: r.intervals_activities?.name ?? "Actividad",
+        name: names.get(String(r.activity_id)) ?? "Actividad",
       });
     }
   }
