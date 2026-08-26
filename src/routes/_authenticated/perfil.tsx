@@ -9,9 +9,7 @@ import { connectIntervals, disconnectIntervals, syncIntervalsZones, intervalsEst
 import { CheckCircle2, Link as LinkIcon, Unlink, Wrench, Wand2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { computePowerZones, computeHrZones } from "@/lib/zones";
-import { BikesManager } from "@/components/BikesManager";
 import { NotificationsPrefs } from "@/components/NotificationsPrefs";
-import { MaintenanceAlertsBanner } from "@/components/MaintenanceAlertsBanner";
 import { TelegramSection } from "@/components/TelegramSection";
 
 
@@ -319,10 +317,8 @@ function PerfilPage() {
           <TelegramSection />
         </Section>
 
-        <Section title="Material y mantenimiento" className="lg:col-span-2">
-          <MaintenanceAlertsBanner variant="inline" />
+        <Section title="Notificaciones" className="lg:col-span-2">
           <NotificationsPrefs />
-          <BikesManager />
         </Section>
 
 
