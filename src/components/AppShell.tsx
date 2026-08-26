@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAppConfig } from "@/lib/use-app-config";
 import {
   LayoutDashboard, User, Activity, Trophy, UtensilsCrossed, Dumbbell,
-  Settings, LogOut, Menu, X, CalendarRange, HeartPulse, TrendingUp, Sparkles,
+  Settings, LogOut, Menu, X, CalendarRange, HeartPulse, TrendingUp, Sparkles, Bike,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -21,6 +21,7 @@ import { OnboardingTour } from "@/components/OnboardingTour";
 const NAV = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/perfil", label: "Perfil", icon: User },
+  { to: "/mi-bici", label: "Mi Bici", icon: Bike },
   { to: "/calendario", label: "Calendario", icon: CalendarRange },
   { to: "/actividades", label: "Actividades", icon: Activity },
   { to: "/entrenamientos", label: "Entrenamientos", icon: Dumbbell },
