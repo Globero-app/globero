@@ -1,4 +1,4 @@
-/** Asignación de una actividad de Strava a un entreno o competición (compartido app + cron). */
+/** Asignación de una actividad de Intervals.icu a un entreno o competición (compartido app + cron). */
 
 export async function linkWorkoutActivity(
   supabase: any,
@@ -30,7 +30,7 @@ export async function linkWorkoutActivity(
         supabase
           .from("intervals_activities")
           .select("moving_time,average_watts,average_heartrate,icu_training_load")
-          .eq("id", Number(activityId))
+          .eq("id", String(activityId))
           .eq("user_id", userId)
           .maybeSingle(),
       ]);
@@ -57,8 +57,8 @@ export async function linkWorkoutActivity(
   if (accept) {
     const title = String(plan.title ?? plan.name ?? "").trim();
     if (title) {
-      const { renameStravaActivity } = await import("./strava.server");
-      void renameStravaActivity(supabase, userId, activityId, title, { indoor: !!plan.indoor });
+      const { renameIntervalsActivity } = await import("./intervals-activities.server");
+      void renameIntervalsActivity(supabase, userId, activityId, title);
     }
   }
   return { ok: true, completed: accept };
