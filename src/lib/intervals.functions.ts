@@ -2,14 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-const ConnectInput = z.object({
-  athlete_id: z.string().trim().min(1).max(40),
-  api_key: z.string().trim().min(8).max(200),
-});
-
 export const connectIntervals = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => ConnectInput.parse(d))
+  .inputValidator((d: unknown) => z.object({ athlete_id: z.string().trim().min(1).max(40), api_key: z.string().trim().min(8).max(200) }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { intervalsTestConnection } = await import("./intervals.server");
@@ -125,12 +120,10 @@ export const intervalsEstimateHr = createServerFn({ method: "POST" })
     return { max_hr, lthr };
   });
 
-const DetailInput = z.object({ id: z.union([z.string(), z.number()]).transform((v) => String(v)) });
-
 /** Detalle + streams de una actividad de Intervals.icu. */
 export const intervalsActivityDetail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => DetailInput.parse(d))
+  .inputValidator((d: unknown) => z.object({ id: z.union([z.string(), z.number()]).transform((v) => String(v)) }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: profile } = await supabase
@@ -158,14 +151,10 @@ export const intervalsActivityDetail = createServerFn({ method: "POST" })
     return { activity: (row?.raw as any) ?? row ?? {}, streams };
   });
 
-const FtpImportInput = z.object({
-  activity_id: z.union([z.string(), z.number()]).transform((v) => String(v)),
-});
-
 /** Importa una actividad de Intervals.icu como test FTP (mejor 20 min × 0,95). */
 export const intervalsImportFtpTest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => FtpImportInput.parse(d))
+  .inputValidator((d: unknown) => z.object({ activity_id: z.union([z.string(), z.number()]).transform((v) => String(v)) }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: profile } = await supabase
