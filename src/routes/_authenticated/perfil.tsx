@@ -28,7 +28,6 @@ function PerfilPage() {
   const connectIcu = useServerFn(connectIntervals);
   const disconnectIcu = useServerFn(disconnectIntervals);
   const syncZonesIcu = useServerFn(syncIntervalsZones);
-  const [syncZones, setSyncZones] = useState(true);
   const [icu, setIcu] = useState({ athlete_id: "", api_key: "" });
   const [icuBusy, setIcuBusy] = useState(false);
 
@@ -58,7 +57,6 @@ function PerfilPage() {
       max_hr: form.max_hr ? Number(form.max_hr) : null,
       lthr: form.lthr ? Number(form.lthr) : null,
       zones_display_mode: form.zones_display_mode || "watts",
-      pre_race_days: form.pre_race_days ? Number(form.pre_race_days) : 3,
 
       cyclist_type: form.cyclist_type || "mixto",
       strengths: form.strengths || null,
@@ -75,7 +73,7 @@ function PerfilPage() {
     else {
       toast.success("Perfil guardado");
       qc.invalidateQueries({ queryKey: ["profile"] });
-      if (syncZones && profileQ.data?.intervals_athlete_id && profileQ.data?.intervals_api_key) {
+      if (profileQ.data?.intervals_athlete_id && profileQ.data?.intervals_api_key) {
         try {
           const r = await syncZonesIcu({ data: undefined });
           if (r.ok) toast.success("Zonas sincronizadas con Intervals.icu");
@@ -297,6 +295,10 @@ function PerfilPage() {
                   try {
                     await connectIcu({ data: { athlete_id: athleteId, api_key: apiKey } });
                     toast.success("Intervals.icu conectado");
+                    try {
+                      await syncZonesIcu({ data: undefined });
+                      toast.success("Zonas sincronizadas con Intervals.icu");
+                    } catch { /* no bloquea la conexión */ }
                     setIcu({ athlete_id: "", api_key: "" });
                     qc.invalidateQueries({ queryKey: ["profile"] });
                   } catch (e: any) {
