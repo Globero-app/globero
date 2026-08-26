@@ -321,18 +321,19 @@ export const revertWorkoutToOutdoor = createServerFn({ method: "POST" })
 
     const plan: any = workout.plan ?? {};
     const backup = plan.outdoor_backup;
-    if (!backup?.plan) throw new Error("Este entrenamiento no tiene versión de exterior guardada");
+    const basePlan = backup?.plan ?? plan;
 
     const restored = {
-      ...backup.plan,
+      ...basePlan,
       indoor: false,
       converted_from_outdoor: false,
       outdoor_backup: null,
-      scheduled_date: plan.scheduled_date ?? backup.plan.scheduled_date ?? null,
+      scheduled_date: plan.scheduled_date ?? basePlan.scheduled_date ?? null,
       intervals_event_id: plan.intervals_event_id ?? null,
     };
 
-    const mins = backup.duration_minutes ?? workout.duration_minutes ?? 60;
+    const mins = backup?.duration_minutes ?? workout.duration_minutes ?? 60;
+
     const { data: profile } = await supabase
       .from("profiles")
       .select("ftp,max_hr,lthr")
