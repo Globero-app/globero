@@ -367,6 +367,63 @@ export type Database = {
         }
         Relationships: []
       }
+      intervals_activities: {
+        Row: {
+          average_heartrate: number | null
+          average_speed: number | null
+          average_watts: number | null
+          distance: number | null
+          icu_intensity: number | null
+          icu_training_load: number | null
+          id: string
+          max_heartrate: number | null
+          moving_time: number | null
+          name: string | null
+          raw: Json | null
+          start_date: string | null
+          synced_at: string
+          total_elevation_gain: number | null
+          type: string | null
+          user_id: string
+        }
+        Insert: {
+          average_heartrate?: number | null
+          average_speed?: number | null
+          average_watts?: number | null
+          distance?: number | null
+          icu_intensity?: number | null
+          icu_training_load?: number | null
+          id: string
+          max_heartrate?: number | null
+          moving_time?: number | null
+          name?: string | null
+          raw?: Json | null
+          start_date?: string | null
+          synced_at?: string
+          total_elevation_gain?: number | null
+          type?: string | null
+          user_id: string
+        }
+        Update: {
+          average_heartrate?: number | null
+          average_speed?: number | null
+          average_watts?: number | null
+          distance?: number | null
+          icu_intensity?: number | null
+          icu_training_load?: number | null
+          id?: string
+          max_heartrate?: number | null
+          moving_time?: number | null
+          name?: string | null
+          raw?: Json | null
+          start_date?: string | null
+          synced_at?: string
+          total_elevation_gain?: number | null
+          type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       job_runs: {
         Row: {
           created_at: string
@@ -400,7 +457,7 @@ export type Database = {
       power_peaks: {
         Row: {
           activity_date: string
-          activity_id: number
+          activity_id: string
           created_at: string
           duration_seconds: number
           id: string
@@ -411,7 +468,7 @@ export type Database = {
         }
         Insert: {
           activity_date: string
-          activity_id: number
+          activity_id: string
           created_at?: string
           duration_seconds: number
           id?: string
@@ -422,7 +479,7 @@ export type Database = {
         }
         Update: {
           activity_date?: string
-          activity_id?: number
+          activity_id?: string
           created_at?: string
           duration_seconds?: number
           id?: string
