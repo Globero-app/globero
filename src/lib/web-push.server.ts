@@ -74,3 +74,21 @@ export async function notifyUser(userId: string, payload: PushPayload): Promise<
   }
   return sent + tgSent;
 }
+
+/** Envía push únicamente (sin enrutar a Telegram). */
+export async function notifyUserPushOnly(userId: string, payload: PushPayload): Promise<number> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: subs } = await supabaseAdmin
+    .from("push_subscriptions").select("*").eq("user_id", userId);
+  if (!subs || !subs.length) return 0;
+  let sent = 0;
+  for (const s of subs as any[]) {
+    const ok = await sendWebPush(
+      { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
+      payload,
+    );
+    if (ok) sent++;
+    else await supabaseAdmin.from("push_subscriptions").delete().eq("endpoint", s.endpoint);
+  }
+  return sent;
+}
