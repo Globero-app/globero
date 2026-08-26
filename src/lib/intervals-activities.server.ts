@@ -90,16 +90,24 @@ export async function intervalsActivityStreams(
   });
   if (!res.ok) return {};
   const json = await res.json();
-  const out: Record<string, number[]> = {};
-  if (Array.isArray(json)) {
-    for (const s of json) if (s?.type && Array.isArray(s.data)) out[String(s.type)] = s.data;
-  } else if (json && typeof json === "object") {
-    for (const [k, v] of Object.entries(json as any)) {
-      const data = (v as any)?.data ?? v;
-      if (Array.isArray(data)) out[k] = data as number[];
+  const out: Record<string, any[]> = {};
+  const put = (type: string, s: any) => {
+    const data = s?.data ?? s;
+    if (!Array.isArray(data)) return;
+    // Intervals.icu devuelve latlng como data = lat[] y data2 = lng[]
+    if (type === "latlng" && Array.isArray(s?.data2)) {
+      out[type] = data.map((lat: number, i: number) => [lat, s.data2[i]] as [number, number]);
+    } else {
+      out[type] = data;
     }
+  };
+  if (Array.isArray(json)) {
+    for (const s of json) if (s?.type) put(String(s.type), s);
+  } else if (json && typeof json === "object") {
+    for (const [k, v] of Object.entries(json as any)) put(k, v);
   }
-  return out;
+  return out as Record<string, number[]>;
+
 }
 
 /** Datos del atleta en Intervals.icu (incluye icu_ftp, icu_resting_hr…). */
