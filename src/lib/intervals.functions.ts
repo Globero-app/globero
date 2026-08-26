@@ -80,7 +80,7 @@ export const intervalsSyncActivities = createServerFn({ method: "POST" })
         if (!prof?.max_hr && max_hr) update.max_hr = max_hr;
         if (!prof?.lthr && lthr) update.lthr = lthr;
       }
-      if (Object.keys(update).length) await supabase.from("profiles").update(update).eq("id", userId);
+      if (Object.keys(update).length) await supabase.from("profiles").update(update as any).eq("id", userId);
     } catch (e) {
       console.error("auto metrics", e);
     }
