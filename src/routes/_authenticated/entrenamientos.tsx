@@ -846,7 +846,21 @@ function WorkoutCard({
           </div>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={showReport} onOpenChange={setShowReport}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl uppercase">Informe del entrenamiento</DialogTitle>
+            <DialogDescription>
+              {plan.title ?? plan.name ?? "Entrenamiento"}
+              {plan.report?.created_at && ` · ${format(new Date(plan.report.created_at), "d MMM HH:mm", { locale: es })}`}
+            </DialogDescription>
+          </DialogHeader>
+          <p className="text-sm whitespace-pre-line leading-relaxed">{plan.report?.text}</p>
+        </DialogContent>
+      </Dialog>
     </>
+
   );
 }
 
