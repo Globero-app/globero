@@ -28,7 +28,6 @@ import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import { InstallAppButton } from "@/components/InstallAppButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { OnboardingTour } from "@/components/OnboardingTour";
-import { BrandLogo } from "@/components/BrandLogo";
 
 const NAV = [
   { to: "/", label: "Inicio", icon: LayoutDashboard },
@@ -115,7 +114,13 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 border-r bg-surface flex-col">
         <div className="px-6 py-6 border-b">
           <Link to="/" className="block">
-            <BrandLogo className="h-16 w-auto" />
+            <div className="font-display text-2xl font-bold uppercase tracking-tight">
+              <span className="text-primary italic">Globero</span>
+              <span className="ml-1.5 text-foreground/70">IA</span>
+            </div>
+            <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-1">
+              Plataforma de IA para ciclistas
+            </div>
           </Link>
         </div>
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
@@ -148,7 +153,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Mobile top bar */}
       <header className="lg:hidden sticky top-0 z-40 bg-surface/95 backdrop-blur border-b px-4 py-3 flex items-center justify-between">
         <Link to="/" className="block">
-          <BrandLogo className="h-9 w-auto" />
+          <span className="font-display text-lg font-bold uppercase tracking-tight">
+            <span className="text-primary italic">Globero</span>
+            <span className="ml-1.5 text-foreground/70">IA</span>
+          </span>
         </Link>
         <div className="flex items-center gap-1">
           <ThemeToggle compact />
