@@ -107,6 +107,9 @@ export function hrRangeToLthrPct(
 export function buildWorkoutDoc(plan: any, basis: "power" | "hr", refs: ZoneRefs): string {
   const steps = Array.isArray(plan?.steps) ? plan.steps : [];
   const ftp = refs.ftp;
+  // En rodillo (VirtualRide) Intervals usa un FTP propio que puede ser 0:
+  // se envían vatios absolutos para que el render no dependa de ese ajuste.
+  const indoor = !!plan?.indoor;
   const lines: string[] = [];
   for (const s of steps) {
     const secs = Number(s.duration_seconds) || 0;
@@ -139,7 +142,7 @@ export function buildWorkoutDoc(plan: any, basis: "power" | "hr", refs: ZoneRefs
 
     let target = "";
     if (s.target === "power" && low > 0) {
-      if (ftp && ftp > 0) {
+      if (!indoor && ftp && ftp > 0) {
         const pl = Math.round((low / ftp) * 100);
         const ph = Math.round(((high || low) / ftp) * 100);
         target = pl === ph ? `${pl}%` : `${pl}-${ph}%`;
