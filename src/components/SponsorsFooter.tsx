@@ -22,7 +22,7 @@ export function SponsorsFooter() {
     <footer className="mt-12 border-t bg-surface/50">
       <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8">
         <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground text-center mb-5">
-          Patrocinadores del Club
+          Colaboradores
         </p>
         <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6">
           {data.map((s) => {
