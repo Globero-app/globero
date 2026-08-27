@@ -41,7 +41,16 @@ function LandingFallback() {
 }
 
 function Landing() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    let active = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (active && data.session) navigate({ to: "/app", replace: true });
+    });
+    return () => { active = false; };
+  }, [navigate]);
   const blocks = Route.useLoaderData() as SiteBlock[];
+
   const by = (k: string) => blocks.find((b) => b.block_key === k);
   const hero = by("hero");
   const cta = by("cta");
