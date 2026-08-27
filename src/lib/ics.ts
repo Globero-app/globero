@@ -20,10 +20,10 @@ export function buildIcs(events: CalendarEvent[]): string {
   const lines: string[] = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Sentmenat Bici//Calendario//ES",
+    "PRODID:-//Globero//Calendario//ES",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    "X-WR-CALNAME:Sentmenat Bici",
+    "X-WR-CALNAME:Globero",
   ];
   for (const e of events) {
     const start = toIcsDate(e.date);
@@ -33,7 +33,7 @@ export function buildIcs(events: CalendarEvent[]): string {
     const prefix = e.kind === "competition" ? "🏆 " : e.kind === "workout" ? "🚴 " : "📊 ";
     lines.push(
       "BEGIN:VEVENT",
-      `UID:${e.id}@sentmenatbici`,
+      `UID:${e.id}@globero`,
       `DTSTAMP:${stamp}`,
       `DTSTART;VALUE=DATE:${start}`,
       `DTEND;VALUE=DATE:${end}`,

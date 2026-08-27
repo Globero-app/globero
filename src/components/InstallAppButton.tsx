@@ -90,7 +90,7 @@ export function InstallAppButton({ variant = "menu" }: { variant?: "menu" | "com
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Smartphone className="size-5 text-primary" /> Instalar Sentmenat Bici
+              <Smartphone className="size-5 text-primary" /> Instalar Globero
             </DialogTitle>
             <DialogDescription>
               Añade la app a tu pantalla de inicio para abrirla como una aplicación nativa, con acceso offline.
@@ -152,7 +152,7 @@ export function InstallAppButton({ variant = "menu" }: { variant?: "menu" | "com
               </li>
               <li className="flex gap-3">
                 <span className="size-6 rounded-full bg-primary/15 text-primary grid place-items-center text-xs font-bold shrink-0">2</span>
-                <span>O abre el menú del navegador y selecciona <strong>Instalar Sentmenat Bici…</strong></span>
+                <span>O abre el menú del navegador y selecciona <strong>Instalar Globero…</strong></span>
               </li>
               <li className="text-xs text-muted-foreground pl-9">
                 En Safari macOS: menú <strong>Archivo → Añadir al Dock</strong>.

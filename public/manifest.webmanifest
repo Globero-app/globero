@@ -1,7 +1,7 @@
 {
-  "name": "Sentmenat Bici",
-  "short_name": "Sentmenat",
-  "description": "Plataforma de gestión de ciclistas de Sentmenat Bici: competiciones, nutrición y entrenamiento.",
+  "name": "Globero",
+  "short_name": "Globero",
+  "description": "Plataforma de gestión de ciclistas de Globero: competiciones, nutrición y entrenamiento.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

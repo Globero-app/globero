@@ -117,7 +117,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="px-6 py-6 border-b">
           <Link to="/" className="block">
             <div className="font-display text-2xl font-bold uppercase tracking-tight">
-              <span className="text-primary italic">{config?.team_name?.split(" ")[0] ?? "Sentmenat"}</span>
+              <span className="text-primary italic">{config?.team_name?.split(" ")[0] ?? "Globero"}</span>
               <span className="ml-1.5 text-foreground/70">
                 {config?.team_name?.split(" ").slice(1).join(" ") ?? "Bici"}
               </span>
@@ -155,7 +155,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Mobile top bar */}
       <header className="lg:hidden sticky top-0 z-40 bg-surface/95 backdrop-blur border-b px-4 py-3 flex items-center justify-between">
         <Link to="/" className="font-display font-bold uppercase tracking-tight">
-          <span className="text-primary italic">{config?.team_name?.split(" ")[0] ?? "Sentmenat"}</span>
+          <span className="text-primary italic">{config?.team_name?.split(" ")[0] ?? "Globero"}</span>
           <span className="ml-1.5">{config?.team_name?.split(" ").slice(1).join(" ") ?? "Bici"}</span>
         </Link>
         <div className="flex items-center gap-1">

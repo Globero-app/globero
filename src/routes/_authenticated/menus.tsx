@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_authenticated/menus")({
   component: MenusPage,
   head: () => ({
     meta: [
-      { title: "Menús · Plan nutricional semanal | Sentmenat Bici" },
+      { title: "Menús · Plan nutricional semanal | Globero" },
       { name: "description", content: "Tu plan nutricional semanal adaptado a los entrenamientos y a tu objetivo: pérdida de peso, mantenimiento o masa muscular." },
       { property: "og:title", content: "Menús · Plan nutricional semanal" },
       { property: "og:description", content: "Menús diarios adaptados a tus entrenamientos y competiciones." },

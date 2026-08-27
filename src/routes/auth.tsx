@@ -45,7 +45,7 @@ function AuthPage() {
         <div className="relative">
           <div className="flex items-center gap-2">
             <Bike className="size-7 text-primary" />
-            <span className="font-display text-xl font-bold uppercase italic tracking-tight">Sentmenat Bici</span>
+            <span className="font-display text-xl font-bold uppercase italic tracking-tight">Globero</span>
           </div>
         </div>
         <div className="relative space-y-4 max-w-md">
@@ -58,7 +58,7 @@ function AuthPage() {
           </p>
         </div>
         <div className="relative text-[10px] uppercase tracking-widest text-accent-foreground/40">
-          © {new Date().getFullYear()} Sentmenat Bici
+          © {new Date().getFullYear()} Globero
         </div>
       </div>
 
@@ -67,7 +67,7 @@ function AuthPage() {
         <form onSubmit={handleLogin} className="w-full max-w-sm space-y-6">
           <div className="lg:hidden flex items-center gap-2 mb-8">
             <Bike className="size-6 text-primary" />
-            <span className="font-display text-lg font-bold uppercase italic">Sentmenat Bici</span>
+            <span className="font-display text-lg font-bold uppercase italic">Globero</span>
           </div>
           <div className="space-y-1">
             <h2 className="font-display text-3xl font-bold uppercase tracking-tight">Iniciar sesión</h2>

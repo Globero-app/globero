@@ -92,7 +92,7 @@ export function buildGpxWithWaypoints(
     `      <trkpt lat="${p.lat}" lon="${p.lon}">${p.ele != null ? `<ele>${p.ele}</ele>` : ""}</trkpt>`
   ).join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="Sentmenat Bici" xmlns="http://www.topografix.com/GPX/1/1">
+<gpx version="1.1" creator="Globero" xmlns="http://www.topografix.com/GPX/1/1">
 ${wptsXml}
   <trk><name>${escapeXml(routeName)}</name><trkseg>
 ${trkpts}

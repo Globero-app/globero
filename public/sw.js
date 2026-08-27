@@ -4,8 +4,8 @@ self.addEventListener("activate", (e) => { e.waitUntil(self.clients.claim()); })
 
 self.addEventListener("push", (event) => {
   let data = {};
-  try { data = event.data ? event.data.json() : {}; } catch (e) { data = { title: "Sentmenat Bici", body: event.data ? event.data.text() : "" }; }
-  const title = data.title || "Sentmenat Bici";
+  try { data = event.data ? event.data.json() : {}; } catch (e) { data = { title: "Globero", body: event.data ? event.data.text() : "" }; }
+  const title = data.title || "Globero";
   const options = {
     body: data.body || "",
     icon: data.icon || "/icon-192.png",

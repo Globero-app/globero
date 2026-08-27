@@ -591,7 +591,7 @@ function WorkoutCard({
     const zwo: ZwoWorkout = {
       name: plan.title ?? plan.name ?? "Workout",
       description: plan.summary ?? "",
-      author: "Sentmenat Bici",
+      author: "Globero",
       steps: (plan.steps ?? []).map((s: any): ZwoStep => ({
         name: s.name,
         description: s.description,

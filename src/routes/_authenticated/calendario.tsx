@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 export const Route = createFileRoute("/_authenticated/calendario")({
   head: () => ({
     meta: [
-      { title: "Calendario — Sentmenat Bici" },
+      { title: "Calendario — Globero" },
       { name: "description", content: "Calendario unificado: entrenamientos, competiciones y actividades reales de Intervals.icu." },
     ],
   }),
@@ -109,7 +109,7 @@ function CalendarioPage() {
 
   const handleExport = () => {
     if (!q.data?.length) { toast.info("No hay eventos en el rango"); return; }
-    downloadIcs(`sentmenat-${from}-${to}.ics`, q.data);
+    downloadIcs(`globero-${from}-${to}.ics`, q.data);
     toast.success("Calendario exportado (.ics)");
   };
 

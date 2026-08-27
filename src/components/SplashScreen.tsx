@@ -25,7 +25,7 @@ export function SplashScreen() {
     >
       <img
         src="/splash-logo.png"
-        alt="Sentmenat Bici"
+        alt="Globero"
         width={512}
         height={512}
         className="w-40 max-w-[55vw] animate-pulse rounded-2xl bg-white p-3 shadow-lg sm:w-52"

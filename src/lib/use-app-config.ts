@@ -16,7 +16,7 @@ export const DEFAULT_CONFIG: AppConfig = {
   button_color: "#e11d48",
   font_family: "Inter",
   display_font: "Barlow Condensed",
-  team_name: "Sentmenat Bici",
+  team_name: "Globero",
 };
 
 export function useAppConfig() {

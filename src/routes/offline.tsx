@@ -9,7 +9,7 @@ export const Route = createFileRoute("/offline")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Sin conexión — Sentmenat Bici" },
+      { title: "Sin conexión — Globero" },
       { name: "description", content: "Estado de la conexión y contenido disponible offline." },
       { name: "robots", content: "noindex" },
     ],
@@ -41,7 +41,7 @@ function OfflinePage() {
 
   useEffect(() => {
     if (online) {
-      document.title = "Conectado — Sentmenat Bici";
+      document.title = "Conectado — Globero";
     }
   }, [online]);
 
