@@ -318,29 +318,34 @@ export async function intervalsPushZones(supabase: any, userId: string): Promise
   if (maxHr) body.max_hr = maxHr;
   if (!Object.keys(body).length) return false;
 
-  // El PUT necesita el id numérico de los ajustes del deporte, no el nombre "Ride"
+  // El PUT necesita el id numérico de los ajustes del deporte, no el nombre "Ride".
+  // Se actualizan Ride y VirtualRide (rodillo) para que el FTP sea coherente en ambos.
   const settings = await call(creds, "/sport-settings");
-  const ride =
-    (Array.isArray(settings) ? settings : []).find((s: any) =>
-      (s?.types ?? []).some((t: string) => String(t).toLowerCase() === "ride"),
-    ) ?? (Array.isArray(settings) ? settings[0] : null);
-  const settingsId = ride?.id;
-  if (!settingsId) throw new Error("No se encontraron ajustes de Ride en Intervals.icu");
+  const list = Array.isArray(settings) ? settings : [];
+  const targets = list.filter((s: any) =>
+    (s?.types ?? []).some((t: string) => ["ride", "virtualride"].includes(String(t).toLowerCase())),
+  );
+  if (!targets.length && list[0]) targets.push(list[0]);
+  if (!targets.length) throw new Error("No se encontraron ajustes de Ride en Intervals.icu");
 
   const powerZones = [55, 75, 90, 105, 120, 150, 999];
   const powerZoneNames = ["Recuperación", "Resistencia", "Tempo", "Umbral", "VO₂ máx", "Anaeróbico", "Neuromuscular"];
   const hrRef = lthr || (maxHr ? Math.round(maxHr * 0.92) : null);
-  const hrZones = hrRef ? [...[81, 88, 93, 99, 102, 106].map((pct) => Math.round((pct / 100) * hrRef)), maxHr || 220] : ride?.hr_zones;
   const hrZoneNames = ["Recuperación", "Resistencia", "Tempo", "Umbral", "VO₂ bajo", "VO₂ alto", "Máxima"];
-  await call(creds, `/sport-settings/${settingsId}?recalcHrZones=false`, {
-    method: "PUT",
-    body: JSON.stringify({
-      ...ride,
-      ...body,
-      power_zones: powerZones,
-      power_zone_names: powerZoneNames,
-      ...(hrZones ? { hr_zones: hrZones, hr_zone_names: hrZoneNames } : {}),
-    }),
-  });
+  for (const target of targets) {
+    const hrZones = hrRef
+      ? [...[81, 88, 93, 99, 102, 106].map((pct) => Math.round((pct / 100) * hrRef)), maxHr || 220]
+      : target?.hr_zones;
+    await call(creds, `/sport-settings/${target.id}?recalcHrZones=false`, {
+      method: "PUT",
+      body: JSON.stringify({
+        ...target,
+        ...body,
+        power_zones: powerZones,
+        power_zone_names: powerZoneNames,
+        ...(hrZones ? { hr_zones: hrZones, hr_zone_names: hrZoneNames } : {}),
+      }),
+    });
+  }
   return true;
 }
