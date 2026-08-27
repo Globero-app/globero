@@ -9,7 +9,7 @@ export const Route = createFileRoute("/auth")({
   ssr: false,
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
-    if (data.user) throw redirect({ to: "/" });
+    if (data.user) throw redirect({ to: "/app" });
   },
   component: AuthPage,
 });
@@ -29,7 +29,7 @@ function AuthPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       toast.success("Bienvenido");
-      navigate({ to: "/" });
+      navigate({ to: "/app" });
     } catch (err: any) {
       toast.error(err.message || "Credenciales incorrectas");
     } finally {

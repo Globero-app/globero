@@ -241,7 +241,7 @@ export async function sendDailyBrief(supabase: any, userId: string): Promise<boo
       title: brief.title,
       body: brief.detail,
       tag: `daily-brief-${brief.date}`,
-      url: "/",
+      url: "/app",
     });
     return true;
   } catch (e) {

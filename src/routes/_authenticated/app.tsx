@@ -19,7 +19,7 @@ import { useEffect, useRef } from "react";
 import { useTodayPushTriggers, notifyActivitySync } from "@/lib/push-triggers";
 
 
-export const Route = createFileRoute("/_authenticated/")({
+export const Route = createFileRoute("/_authenticated/app")({
   component: Dashboard,
 });
 

@@ -18,7 +18,7 @@ export const Route = createFileRoute("/offline")({
 });
 
 const AVAILABLE_OFFLINE = [
-  { icon: LayoutDashboard, label: "Dashboard", to: "/", note: "Última versión cacheada" },
+  { icon: LayoutDashboard, label: "Dashboard", to: "/app", note: "Última versión cacheada" },
   { icon: User, label: "Perfil", to: "/perfil", note: "Datos vistos recientemente" },
   { icon: Activity, label: "Actividades", to: "/actividades", note: "Gráfico y lista cacheados" },
   { icon: Dumbbell, label: "Entrenamientos", to: "/entrenamientos", note: "Últimos vistos + descargas .fit/.zwo" },
@@ -50,7 +50,7 @@ function OfflinePage() {
     try {
       // Try a lightweight fetch to confirm real connectivity (navigator.onLine can lie).
       await fetch("/manifest.webmanifest", { cache: "no-store" });
-      window.location.href = "/";
+      window.location.href = "/app";
     } catch {
       // Still offline — keep the user on this page.
       setTimeout(() => setChecking(false), 600);
@@ -83,7 +83,7 @@ function OfflinePage() {
                 </Button>
                 {online && (
                   <Button asChild variant="outline">
-                    <Link to="/">Volver al dashboard</Link>
+                    <Link to="/app">Volver al dashboard</Link>
                   </Button>
                 )}
               </div>

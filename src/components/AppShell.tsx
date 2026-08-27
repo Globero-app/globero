@@ -30,7 +30,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { OnboardingTour } from "@/components/OnboardingTour";
 
 const NAV = [
-  { to: "/", label: "Inicio", icon: LayoutDashboard },
+  { to: "/app", label: "Inicio", icon: LayoutDashboard },
   { to: "/perfil", label: "Perfil", icon: User },
   { to: "/entrenamientos", label: "Entrenamientos", icon: Dumbbell },
   { to: "/menus", label: "Nutrición", icon: UtensilsCrossed },
@@ -71,7 +71,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     router.navigate({ to: "/auth", replace: true });
   };
 
-  const isActive = (to: string) => (to === "/" ? path === "/" : path.startsWith(to));
+  const isActive = (to: string) => (to === "/app" ? path === "/app" : path.startsWith(to));
 
   const NavLinks = ({ onClick }: { onClick?: () => void }) => (
     <>
@@ -113,7 +113,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 border-r bg-surface flex-col">
         <div className="px-6 py-6 border-b">
-          <Link to="/" className="block">
+          <Link to="/app" className="block">
             <div className="font-display text-2xl font-bold uppercase tracking-tight">
               <span className="text-primary italic">Globero</span>
               <span className="ml-1.5 text-foreground/70">IA</span>
@@ -152,7 +152,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Mobile top bar */}
       <header className="lg:hidden sticky top-0 z-40 bg-surface/95 backdrop-blur border-b px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="block">
+        <Link to="/app" className="block">
           <span className="font-display text-lg font-bold uppercase tracking-tight">
             <span className="text-primary italic">Globero</span>
             <span className="ml-1.5 text-foreground/70">IA</span>
