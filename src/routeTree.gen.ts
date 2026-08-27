@@ -9,6 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as RegistroRouteImport } from './routes/registro'
+import { Route as RecuperarRouteImport } from './routes/recuperar'
 import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as OfflineRouteImport } from './routes/offline'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -36,6 +39,21 @@ import { Route as ApiPublicHooksIntervalsSyncRouteImport } from './routes/api/pu
 import { Route as ApiPublicHooksIntervalsDetectRouteImport } from './routes/api/public/hooks/intervals-detect'
 import { Route as ApiPublicHooksActivityDetectRouteImport } from './routes/api/public/hooks/activity-detect'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegistroRoute = RegistroRouteImport.update({
+  id: '/registro',
+  path: '/registro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecuperarRoute = RecuperarRouteImport.update({
+  id: '/recuperar',
+  path: '/recuperar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacidadRoute = PrivacidadRouteImport.update({
   id: '/privacidad',
   path: '/privacidad',
@@ -182,6 +200,9 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/offline': typeof OfflineRoute
   '/privacidad': typeof PrivacidadRoute
+  '/recuperar': typeof RecuperarRoute
+  '/registro': typeof RegistroRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/app': typeof AuthenticatedAppRoute
   '/backend': typeof AuthenticatedBackendRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
@@ -209,6 +230,9 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/offline': typeof OfflineRoute
   '/privacidad': typeof PrivacidadRoute
+  '/recuperar': typeof RecuperarRoute
+  '/registro': typeof RegistroRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/app': typeof AuthenticatedAppRoute
   '/backend': typeof AuthenticatedBackendRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
@@ -238,6 +262,9 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/offline': typeof OfflineRoute
   '/privacidad': typeof PrivacidadRoute
+  '/recuperar': typeof RecuperarRoute
+  '/registro': typeof RegistroRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/backend': typeof AuthenticatedBackendRoute
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
@@ -267,6 +294,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/offline'
     | '/privacidad'
+    | '/recuperar'
+    | '/registro'
+    | '/reset-password'
     | '/app'
     | '/backend'
     | '/calendario'
@@ -294,6 +324,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/offline'
     | '/privacidad'
+    | '/recuperar'
+    | '/registro'
+    | '/reset-password'
     | '/app'
     | '/backend'
     | '/calendario'
@@ -322,6 +355,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/offline'
     | '/privacidad'
+    | '/recuperar'
+    | '/registro'
+    | '/reset-password'
     | '/_authenticated/app'
     | '/_authenticated/backend'
     | '/_authenticated/calendario'
@@ -351,6 +387,9 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   OfflineRoute: typeof OfflineRoute
   PrivacidadRoute: typeof PrivacidadRoute
+  RecuperarRoute: typeof RecuperarRoute
+  RegistroRoute: typeof RegistroRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ApiPublicSetupAdminRoute: typeof ApiPublicSetupAdminRoute
   ApiPublicHooksActivityDetectRoute: typeof ApiPublicHooksActivityDetectRoute
   ApiPublicHooksIntervalsDetectRoute: typeof ApiPublicHooksIntervalsDetectRoute
@@ -362,6 +401,27 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registro': {
+      id: '/registro'
+      path: '/registro'
+      fullPath: '/registro'
+      preLoaderRoute: typeof RegistroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recuperar': {
+      id: '/recuperar'
+      path: '/recuperar'
+      fullPath: '/recuperar'
+      preLoaderRoute: typeof RecuperarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacidad': {
       id: '/privacidad'
       path: '/privacidad'
@@ -590,6 +650,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   OfflineRoute: OfflineRoute,
   PrivacidadRoute: PrivacidadRoute,
+  RecuperarRoute: RecuperarRoute,
+  RegistroRoute: RegistroRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ApiPublicSetupAdminRoute: ApiPublicSetupAdminRoute,
   ApiPublicHooksActivityDetectRoute: ApiPublicHooksActivityDetectRoute,
   ApiPublicHooksIntervalsDetectRoute: ApiPublicHooksIntervalsDetectRoute,
