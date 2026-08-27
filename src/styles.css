@@ -4,7 +4,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Sentmenat Bici — deportivo, técnico, minimalista */
+/* Globero — deportivo, técnico, minimalista */
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);

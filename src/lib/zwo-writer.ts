@@ -43,7 +43,7 @@ export function encodeZwo(wk: ZwoWorkout, ftp: number): string {
   const lines: string[] = [];
   lines.push(`<?xml version="1.0" encoding="UTF-8"?>`);
   lines.push(`<workout_file>`);
-  lines.push(`  <author>${esc(wk.author ?? "Sentmenat Bici")}</author>`);
+  lines.push(`  <author>${esc(wk.author ?? "Globero")}</author>`);
   lines.push(`  <name>${esc(wk.name)}</name>`);
   lines.push(`  <description>${esc(wk.description ?? "")}</description>`);
   lines.push(`  <sportType>bike</sportType>`);

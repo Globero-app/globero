@@ -4,7 +4,6 @@ import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { useAppConfig } from "@/lib/use-app-config";
 import {
   LayoutDashboard,
   User,
@@ -29,6 +28,7 @@ import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import { InstallAppButton } from "@/components/InstallAppButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { OnboardingTour } from "@/components/OnboardingTour";
+import { BrandLogo } from "@/components/BrandLogo";
 
 const NAV = [
   { to: "/", label: "Inicio", icon: LayoutDashboard },
@@ -60,7 +60,6 @@ function TourButton({ onClick }: { onClick?: () => void }) {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { user, isAdmin } = useAuth();
-  const config = useAppConfig().data;
   const router = useRouter();
   const qc = useQueryClient();
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -116,13 +115,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 border-r bg-surface flex-col">
         <div className="px-6 py-6 border-b">
           <Link to="/" className="block">
-            <div className="font-display text-2xl font-bold uppercase tracking-tight">
-              <span className="text-primary italic">{config?.team_name?.split(" ")[0] ?? "Sentmenat"}</span>
-              <span className="ml-1.5 text-foreground/70">
-                {config?.team_name?.split(" ").slice(1).join(" ") ?? "Bici"}
-              </span>
-            </div>
-            <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-1">Gestión del equipo</div>
+            <BrandLogo className="h-16 w-auto" />
           </Link>
         </div>
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
@@ -154,9 +147,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Mobile top bar */}
       <header className="lg:hidden sticky top-0 z-40 bg-surface/95 backdrop-blur border-b px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="font-display font-bold uppercase tracking-tight">
-          <span className="text-primary italic">{config?.team_name?.split(" ")[0] ?? "Sentmenat"}</span>
-          <span className="ml-1.5">{config?.team_name?.split(" ").slice(1).join(" ") ?? "Bici"}</span>
+        <Link to="/" className="block">
+          <BrandLogo className="h-9 w-auto" />
         </Link>
         <div className="flex items-center gap-1">
           <ThemeToggle compact />

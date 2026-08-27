@@ -16,7 +16,7 @@ interface Step {
 const STEPS: Step[] = [
   {
     icon: Sparkles,
-    title: "¡Bienvenido/a a Sentmenat Bici!",
+    title: "¡Bienvenido/a a Globero!",
     body: "Vamos a hacer un tour rápido para que saques el máximo partido a la app. En 6 pasos estarás listo/a para entrenar con IA.",
   },
   {

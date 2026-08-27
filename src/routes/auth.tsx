@@ -1,8 +1,9 @@
+import darkLogo from "@/assets/globero-dark.jpg.asset.json";
+import { BrandLogo } from "@/components/BrandLogo";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Bike } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -43,10 +44,7 @@ function AuthPage() {
         <div className="absolute -right-20 -top-20 size-96 rounded-full bg-primary/20 blur-3xl" />
         <div className="absolute -left-10 bottom-0 size-80 rounded-full bg-primary/10 blur-3xl" />
         <div className="relative">
-          <div className="flex items-center gap-2">
-            <Bike className="size-7 text-primary" />
-            <span className="font-display text-xl font-bold uppercase italic tracking-tight">Sentmenat Bici</span>
-          </div>
+          <img src={darkLogo.url} alt="Globero" className="h-20 w-auto object-contain" />
         </div>
         <div className="relative space-y-4 max-w-md">
           <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary">Gestión del equipo</p>
@@ -54,20 +52,19 @@ function AuthPage() {
             Entrena.<br />Compite.<br /><span className="text-primary">Recupera.</span>
           </h1>
           <p className="text-sm text-accent-foreground/70 max-w-sm">
-            Plataforma integral para el equipo: planificación nutricional con IA, análisis de Intervals.icu y planes GPX con waypoints de carbohidratos.
+            Plataforma de IA para ciclistas: planificación nutricional con IA, análisis de Intervals.icu y planes GPX con waypoints de carbohidratos.
           </p>
         </div>
         <div className="relative text-[10px] uppercase tracking-widest text-accent-foreground/40">
-          © {new Date().getFullYear()} Sentmenat Bici
+          © {new Date().getFullYear()} Globero
         </div>
       </div>
 
       {/* Form */}
       <div className="flex-1 flex items-center justify-center p-6 bg-background">
         <form onSubmit={handleLogin} className="w-full max-w-sm space-y-6">
-          <div className="lg:hidden flex items-center gap-2 mb-8">
-            <Bike className="size-6 text-primary" />
-            <span className="font-display text-lg font-bold uppercase italic">Sentmenat Bici</span>
+          <div className="lg:hidden mb-8">
+            <BrandLogo className="h-14 w-auto" />
           </div>
           <div className="space-y-1">
             <h2 className="font-display text-3xl font-bold uppercase tracking-tight">Iniciar sesión</h2>

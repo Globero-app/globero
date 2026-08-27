@@ -224,7 +224,7 @@ function FtpTestPage() {
   const handleDownloadZwo = () => {
     const steps = buildTestSteps(referenceFtp);
     downloadZwo(
-      { name: "Test FTP 20min", description: `Protocolo Coggan 20 min. FTP referencia: ${referenceFtp}W. FTP real ≈ 0.95 × media de los 20 min.`, author: "Sentmenat Bici", steps },
+      { name: "Test FTP 20min", description: `Protocolo Coggan 20 min. FTP referencia: ${referenceFtp}W. FTP real ≈ 0.95 × media de los 20 min.`, author: "Globero", steps },
       referenceFtp,
       "test-ftp-20min",
     );

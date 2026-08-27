@@ -13,9 +13,9 @@ export const Route = createFileRoute("/_authenticated/readiness")({
   component: ReadinessPage,
   head: () => ({
     meta: [
-      { title: "Readiness diario | Sentmenat Bici" },
+      { title: "Readiness diario | Globero" },
       { name: "description", content: "Indica cómo te encuentras hoy y la IA adaptará automáticamente tu entrenamiento del día." },
-      { property: "og:title", content: "Readiness diario | Sentmenat Bici" },
+      { property: "og:title", content: "Readiness diario | Globero" },
       { property: "og:description", content: "Indica cómo te encuentras hoy y la IA adaptará tu entrenamiento." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -21,10 +21,10 @@ export default defineConfig({
         devOptions: { enabled: true, type: "module", navigateFallback: "/offline" },
         filename: "sw.js",
         manifest: {
-          name: "Sentmenat Bici",
-          short_name: "Sentmenat",
+          name: "Globero",
+          short_name: "Globero",
           description:
-            "Plataforma de gestión del equipo ciclista Sentmenat Bici: competiciones, nutrición y entrenamiento.",
+            "Plataforma de gestión del equipo ciclista Globero: competiciones, nutrición y entrenamiento.",
           theme_color: "#0f172a",
           background_color: "#0f172a",
           display: "standalone",
