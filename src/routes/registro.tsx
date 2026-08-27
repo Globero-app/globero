@@ -39,6 +39,8 @@ function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
+  const [resending, setResending] = useState(false);
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = schema.safeParse({ fullName, email, password });
@@ -51,7 +53,7 @@ function SignUpPage() {
         email: parsed.data.email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/app`,
+          emailRedirectTo: `${window.location.origin}/auth?confirmado=1`,
           data: { full_name: parsed.data.fullName },
         },
       });
@@ -61,6 +63,23 @@ function SignUpPage() {
       toast.error(err.message || "No se ha podido crear la cuenta");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const resend = async () => {
+    setResending(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: email.trim(),
+        options: { emailRedirectTo: `${window.location.origin}/auth?confirmado=1` },
+      });
+      if (error) throw error;
+      toast.success("Email de confirmación reenviado");
+    } catch (err: any) {
+      toast.error(err.message || "No se ha podido reenviar el email");
+    } finally {
+      setResending(false);
     }
   };
 
@@ -74,7 +93,12 @@ function SignUpPage() {
             <p className="text-sm text-muted-foreground">
               Te hemos enviado un email a <strong>{email}</strong> para confirmar el alta. Al pulsar el enlace tu cuenta quedará activada y podrás acceder a la aplicación.
             </p>
-            <Link to="/auth" className="inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Ir al login</Link>
+            <div className="flex flex-wrap gap-2">
+              <Link to="/auth" className="inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Ir al login</Link>
+              <button type="button" onClick={resend} disabled={resending} className="inline-flex rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-secondary disabled:opacity-50">
+                {resending ? "Reenviando…" : "Reenviar email"}
+              </button>
+            </div>
           </div>
         ) : (
           <form onSubmit={submit} className="space-y-5">
