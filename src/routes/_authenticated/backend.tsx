@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Trash2, Shield, User as UserIcon, ArrowUp, ArrowDown, Eye, EyeOff } from "lucide-react";
+import { SiteContentTab } from "@/components/SiteContentTab";
+
 
 export const Route = createFileRoute("/_authenticated/backend")({
   ssr: false,
