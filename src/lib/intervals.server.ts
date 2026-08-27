@@ -114,7 +114,11 @@ export function buildWorkoutDoc(plan: any, basis: "power" | "hr", refs: ZoneRefs
   for (const s of steps) {
     const secs = Number(s.duration_seconds) || 0;
     const dur = s.duration_type === "open" || !secs ? "5m" : secs % 60 === 0 ? `${secs / 60}m` : `${secs}s`;
-    const name = String(s.name ?? "").slice(0, 40);
+    // En rodillo se eliminan tokens de zona del nombre (Z2, Z5a...) porque
+    // Intervals los interpreta como objetivo y los resuelve con el FTP de
+    // VirtualRide (a menudo 0), mostrando "(0-0w)".
+    let name = String(s.name ?? "").slice(0, 40);
+    if (indoor) name = name.replace(/\bz\s*[1-7][abc]?\b/gi, "").replace(/\s{2,}/g, " ").trim();
     const low = Number(s.target_low) || 0;
     const high = Number(s.target_high) || 0;
 
