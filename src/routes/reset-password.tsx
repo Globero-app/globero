@@ -22,15 +22,42 @@ export const Route = createFileRoute("/reset-password")({
 
 function ResetPasswordPage() {
   const navigate = useNavigate();
-  const [ready, setReady] = useState(false);
+  const [status, setStatus] = useState<"checking" | "valid" | "invalid">("checking");
+  const [errorText, setErrorText] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setReady(!!data.session));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setReady(!!session));
-    return () => sub.subscription.unsubscribe();
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const search = new URLSearchParams(window.location.search);
+    const err = hash.get("error_description") || search.get("error_description");
+    const code = hash.get("error_code") || search.get("error_code");
+    if (err) {
+      setStatus("invalid");
+      setErrorText(
+        code === "otp_expired" || /expired/i.test(err)
+          ? "El enlace de recuperación ha caducado. Solicita uno nuevo."
+          : decodeURIComponent(err),
+      );
+      return;
+    }
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (session) setStatus("valid");
+    });
+    const timer = setTimeout(async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) setStatus("valid");
+      else {
+        setStatus("invalid");
+        setErrorText("El enlace no es válido o ya ha sido utilizado. Solicita uno nuevo.");
+      }
+    }, 1200);
+    return () => {
+      clearTimeout(timer);
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   const submit = async (e: React.FormEvent) => {
@@ -50,6 +77,8 @@ function ResetPasswordPage() {
     }
   };
 
+  const ready = status === "valid";
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-6">
       <div className="w-full max-w-sm space-y-6">
@@ -57,9 +86,16 @@ function ResetPasswordPage() {
         <div className="space-y-1">
           <h1 className="font-display text-3xl font-bold uppercase tracking-tight">Nueva contraseña</h1>
           <p className="text-sm text-muted-foreground">
-            {ready ? "Introduce tu nueva contraseña." : "Abre esta página desde el enlace que has recibido por email."}
+            {status === "checking" && "Comprobando el enlace…"}
+            {status === "valid" && "Introduce tu nueva contraseña."}
+            {status === "invalid" && errorText}
           </p>
         </div>
+        {status === "invalid" && (
+          <Link to="/recuperar" className="inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+            Solicitar nuevo enlace
+          </Link>
+        )}
         {ready && (
           <form onSubmit={submit} className="space-y-4">
             <div>
