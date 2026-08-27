@@ -9,10 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as RegistroRouteImport } from './routes/registro'
+import { Route as RecuperarRouteImport } from './routes/recuperar'
+import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as OfflineRouteImport } from './routes/offline'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedReadinessRouteImport } from './routes/_authenticated/readiness'
 import { Route as AuthenticatedProgresoRouteImport } from './routes/_authenticated/progreso'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
@@ -22,6 +26,7 @@ import { Route as AuthenticatedFtpTestRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedEntrenamientosRouteImport } from './routes/_authenticated/entrenamientos'
 import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
 import { Route as AuthenticatedBackendRouteImport } from './routes/_authenticated/backend'
+import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedCompeticionesIndexRouteImport } from './routes/_authenticated/competiciones.index'
 import { Route as AuthenticatedActividadesIndexRouteImport } from './routes/_authenticated/actividades.index'
 import { Route as ApiPublicSetupAdminRouteImport } from './routes/api/public/setup-admin'
@@ -34,6 +39,26 @@ import { Route as ApiPublicHooksIntervalsSyncRouteImport } from './routes/api/pu
 import { Route as ApiPublicHooksIntervalsDetectRouteImport } from './routes/api/public/hooks/intervals-detect'
 import { Route as ApiPublicHooksActivityDetectRouteImport } from './routes/api/public/hooks/activity-detect'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegistroRoute = RegistroRouteImport.update({
+  id: '/registro',
+  path: '/registro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecuperarRoute = RecuperarRouteImport.update({
+  id: '/recuperar',
+  path: '/recuperar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadRoute = PrivacidadRouteImport.update({
+  id: '/privacidad',
+  path: '/privacidad',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OfflineRoute = OfflineRouteImport.update({
   id: '/offline',
   path: '/offline',
@@ -48,10 +73,10 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedReadinessRoute = AuthenticatedReadinessRouteImport.update({
   id: '/readiness',
@@ -97,6 +122,11 @@ const AuthenticatedCalendarioRoute = AuthenticatedCalendarioRouteImport.update({
 const AuthenticatedBackendRoute = AuthenticatedBackendRouteImport.update({
   id: '/backend',
   path: '/backend',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
+  id: '/app',
+  path: '/app',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedCompeticionesIndexRoute =
@@ -166,9 +196,14 @@ const ApiPublicHooksActivityDetectRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthenticatedIndexRoute
+  '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/offline': typeof OfflineRoute
+  '/privacidad': typeof PrivacidadRoute
+  '/recuperar': typeof RecuperarRoute
+  '/registro': typeof RegistroRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/app': typeof AuthenticatedAppRoute
   '/backend': typeof AuthenticatedBackendRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/entrenamientos': typeof AuthenticatedEntrenamientosRoute
@@ -191,8 +226,14 @@ export interface FileRoutesByFullPath {
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/offline': typeof OfflineRoute
+  '/privacidad': typeof PrivacidadRoute
+  '/recuperar': typeof RecuperarRoute
+  '/registro': typeof RegistroRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/app': typeof AuthenticatedAppRoute
   '/backend': typeof AuthenticatedBackendRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/entrenamientos': typeof AuthenticatedEntrenamientosRoute
@@ -202,7 +243,6 @@ export interface FileRoutesByTo {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/progreso': typeof AuthenticatedProgresoRoute
   '/readiness': typeof AuthenticatedReadinessRoute
-  '/': typeof AuthenticatedIndexRoute
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
@@ -217,9 +257,15 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/offline': typeof OfflineRoute
+  '/privacidad': typeof PrivacidadRoute
+  '/recuperar': typeof RecuperarRoute
+  '/registro': typeof RegistroRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/backend': typeof AuthenticatedBackendRoute
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/entrenamientos': typeof AuthenticatedEntrenamientosRoute
@@ -229,7 +275,6 @@ export interface FileRoutesById {
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/progreso': typeof AuthenticatedProgresoRoute
   '/_authenticated/readiness': typeof AuthenticatedReadinessRoute
-  '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/_authenticated/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
@@ -248,6 +293,11 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/offline'
+    | '/privacidad'
+    | '/recuperar'
+    | '/registro'
+    | '/reset-password'
+    | '/app'
     | '/backend'
     | '/calendario'
     | '/entrenamientos'
@@ -270,8 +320,14 @@ export interface FileRouteTypes {
     | '/api/public/telegram/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/auth'
     | '/offline'
+    | '/privacidad'
+    | '/recuperar'
+    | '/registro'
+    | '/reset-password'
+    | '/app'
     | '/backend'
     | '/calendario'
     | '/entrenamientos'
@@ -281,7 +337,6 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/progreso'
     | '/readiness'
-    | '/'
     | '/actividades/$id'
     | '/competiciones/$id'
     | '/api/public/setup-admin'
@@ -295,9 +350,15 @@ export interface FileRouteTypes {
     | '/api/public/telegram/webhook'
   id:
     | '__root__'
+    | '/'
     | '/_authenticated'
     | '/auth'
     | '/offline'
+    | '/privacidad'
+    | '/recuperar'
+    | '/registro'
+    | '/reset-password'
+    | '/_authenticated/app'
     | '/_authenticated/backend'
     | '/_authenticated/calendario'
     | '/_authenticated/entrenamientos'
@@ -307,7 +368,6 @@ export interface FileRouteTypes {
     | '/_authenticated/perfil'
     | '/_authenticated/progreso'
     | '/_authenticated/readiness'
-    | '/_authenticated/'
     | '/_authenticated/actividades/$id'
     | '/_authenticated/competiciones/$id'
     | '/api/public/setup-admin'
@@ -322,9 +382,14 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   OfflineRoute: typeof OfflineRoute
+  PrivacidadRoute: typeof PrivacidadRoute
+  RecuperarRoute: typeof RecuperarRoute
+  RegistroRoute: typeof RegistroRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ApiPublicSetupAdminRoute: typeof ApiPublicSetupAdminRoute
   ApiPublicHooksActivityDetectRoute: typeof ApiPublicHooksActivityDetectRoute
   ApiPublicHooksIntervalsDetectRoute: typeof ApiPublicHooksIntervalsDetectRoute
@@ -336,6 +401,34 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registro': {
+      id: '/registro'
+      path: '/registro'
+      fullPath: '/registro'
+      preLoaderRoute: typeof RegistroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recuperar': {
+      id: '/recuperar'
+      path: '/recuperar'
+      fullPath: '/recuperar'
+      preLoaderRoute: typeof RecuperarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidad': {
+      id: '/privacidad'
+      path: '/privacidad'
+      fullPath: '/privacidad'
+      preLoaderRoute: typeof PrivacidadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/offline': {
       id: '/offline'
       path: '/offline'
@@ -357,12 +450,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/': {
-      id: '/_authenticated/'
+    '/': {
+      id: '/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/readiness': {
       id: '/_authenticated/readiness'
@@ -425,6 +518,13 @@ declare module '@tanstack/react-router' {
       path: '/backend'
       fullPath: '/backend'
       preLoaderRoute: typeof AuthenticatedBackendRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/app': {
+      id: '/_authenticated/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/competiciones/': {
@@ -508,6 +608,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAppRoute: typeof AuthenticatedAppRoute
   AuthenticatedBackendRoute: typeof AuthenticatedBackendRoute
   AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedEntrenamientosRoute: typeof AuthenticatedEntrenamientosRoute
@@ -517,7 +618,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedProgresoRoute: typeof AuthenticatedProgresoRoute
   AuthenticatedReadinessRoute: typeof AuthenticatedReadinessRoute
-  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedActividadesIdRoute: typeof AuthenticatedActividadesIdRoute
   AuthenticatedCompeticionesIdRoute: typeof AuthenticatedCompeticionesIdRoute
   AuthenticatedActividadesIndexRoute: typeof AuthenticatedActividadesIndexRoute
@@ -525,6 +625,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAppRoute: AuthenticatedAppRoute,
   AuthenticatedBackendRoute: AuthenticatedBackendRoute,
   AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedEntrenamientosRoute: AuthenticatedEntrenamientosRoute,
@@ -534,7 +635,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedProgresoRoute: AuthenticatedProgresoRoute,
   AuthenticatedReadinessRoute: AuthenticatedReadinessRoute,
-  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedActividadesIdRoute: AuthenticatedActividadesIdRoute,
   AuthenticatedCompeticionesIdRoute: AuthenticatedCompeticionesIdRoute,
   AuthenticatedActividadesIndexRoute: AuthenticatedActividadesIndexRoute,
@@ -545,9 +645,14 @@ const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   OfflineRoute: OfflineRoute,
+  PrivacidadRoute: PrivacidadRoute,
+  RecuperarRoute: RecuperarRoute,
+  RegistroRoute: RegistroRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ApiPublicSetupAdminRoute: ApiPublicSetupAdminRoute,
   ApiPublicHooksActivityDetectRoute: ApiPublicHooksActivityDetectRoute,
   ApiPublicHooksIntervalsDetectRoute: ApiPublicHooksIntervalsDetectRoute,

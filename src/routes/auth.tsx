@@ -1,6 +1,6 @@
 import darkLogo from "@/assets/globero-dark.jpg.asset.json";
 import { BrandLogo } from "@/components/BrandLogo";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -9,7 +9,7 @@ export const Route = createFileRoute("/auth")({
   ssr: false,
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();
-    if (data.user) throw redirect({ to: "/" });
+    if (data.user) throw redirect({ to: "/app" });
   },
   component: AuthPage,
 });
@@ -29,7 +29,7 @@ function AuthPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       toast.success("Bienvenido");
-      navigate({ to: "/" });
+      navigate({ to: "/app" });
     } catch (err: any) {
       toast.error(err.message || "Credenciales incorrectas");
     } finally {
@@ -94,9 +94,18 @@ function AuthPage() {
           >
             {loading ? "Entrando…" : "Entrar"}
           </button>
-          <p className="text-xs text-muted-foreground text-center">
-            Sin cuenta? Pide al admin del equipo que te dé de alta desde el Backend.
-          </p>
+          <div className="space-y-2 text-center">
+            <p className="text-xs text-muted-foreground">
+              <Link to="/recuperar" className="text-primary underline">¿Olvidaste tu contraseña?</Link>
+            </p>
+            <p className="text-xs text-muted-foreground">
+              ¿No tienes cuenta? <Link to="/registro" className="text-primary underline">Date de alta</Link>
+            </p>
+            <p className="text-[11px] text-muted-foreground">
+              <Link to="/" className="hover:underline">Inicio</Link> · <Link to="/privacidad" className="hover:underline">Política de Privacidad</Link>
+            </p>
+          </div>
+
         </form>
       </div>
     </div>

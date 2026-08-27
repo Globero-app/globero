@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Trash2, Shield, User as UserIcon, ArrowUp, ArrowDown, Eye, EyeOff } from "lucide-react";
+import { SiteContentTab } from "@/components/SiteContentTab";
+
 
 export const Route = createFileRoute("/_authenticated/backend")({
   ssr: false,
@@ -15,13 +17,13 @@ export const Route = createFileRoute("/_authenticated/backend")({
     const { data } = await supabase.auth.getUser();
     if (!data.user) throw redirect({ to: "/auth" });
     const { data: role } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id).eq("role", "admin").maybeSingle();
-    if (!role) throw redirect({ to: "/" });
+    if (!role) throw redirect({ to: "/app" });
   },
   component: BackendPage,
 });
 
 function BackendPage() {
-  const [tab, setTab] = useState<"config" | "users" | "sponsors">("config");
+  const [tab, setTab] = useState<"config" | "users" | "sponsors" | "site">("config");
   return (
     <div className="space-y-6">
       <div>
@@ -29,16 +31,17 @@ function BackendPage() {
         <h1 className="font-display text-4xl font-bold uppercase tracking-tight">Backend</h1>
       </div>
       <div className="border-b flex gap-1 flex-wrap">
-        {[["config", "Configuración visual"], ["users", "Usuarios"], ["sponsors", "Patrocinadores"]].map(([k, l]) => (
+        {[["config", "Configuración visual"], ["users", "Usuarios"], ["sponsors", "Patrocinadores"], ["site", "Web pública"]].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k as any)} className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${tab === k ? "border-primary text-primary" : "border-transparent text-muted-foreground"}`}>
             {l}
           </button>
         ))}
       </div>
-      {tab === "config" ? <ConfigTab /> : tab === "users" ? <UsersTab /> : <SponsorsTab />}
+      {tab === "config" ? <ConfigTab /> : tab === "users" ? <UsersTab /> : tab === "sponsors" ? <SponsorsTab /> : <SiteContentTab />}
     </div>
   );
 }
+
 
 function ConfigTab() {
   const cfg = useAppConfig();

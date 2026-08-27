@@ -248,7 +248,7 @@ function ProgresoPage() {
           </section>
 
           <p className="text-xs text-muted-foreground">
-            ¿Quieres ajustar la sesión de hoy? Hazlo desde el <Link to="/" className="text-primary hover:underline">panel</Link>.
+            ¿Quieres ajustar la sesión de hoy? Hazlo desde el <Link to="/app" className="text-primary hover:underline">panel</Link>.
           </p>
         </>
       )}

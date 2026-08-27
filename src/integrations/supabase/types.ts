@@ -693,6 +693,51 @@ export type Database = {
           },
         ]
       }
+      site_content: {
+        Row: {
+          active: boolean
+          block_key: string
+          block_type: string
+          body: string | null
+          created_at: string
+          icon: string | null
+          id: string
+          section: string
+          sort_order: number
+          subtitle: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          block_key: string
+          block_type?: string
+          body?: string | null
+          created_at?: string
+          icon?: string | null
+          id?: string
+          section: string
+          sort_order?: number
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          block_key?: string
+          block_type?: string
+          body?: string | null
+          created_at?: string
+          icon?: string | null
+          id?: string
+          section?: string
+          sort_order?: number
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sponsors: {
         Row: {
           active: boolean
