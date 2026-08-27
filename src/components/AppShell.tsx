@@ -6,8 +6,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAppConfig } from "@/lib/use-app-config";
 import {
-  LayoutDashboard, User, Activity, Trophy, UtensilsCrossed, Dumbbell,
-  Settings, LogOut, Menu, X, CalendarRange, HeartPulse, TrendingUp, Sparkles, Bike,
+  LayoutDashboard,
+  User,
+  Activity,
+  Trophy,
+  UtensilsCrossed,
+  Dumbbell,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+  CalendarRange,
+  HeartPulse,
+  TrendingUp,
+  Sparkles,
+  Bike,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -17,18 +30,17 @@ import { InstallAppButton } from "@/components/InstallAppButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { OnboardingTour } from "@/components/OnboardingTour";
 
-
 const NAV = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/", label: "Inicio", icon: LayoutDashboard },
   { to: "/perfil", label: "Perfil", icon: User },
-  { to: "/mi-bici", label: "Mi Bici", icon: Bike },
-  { to: "/calendario", label: "Calendario", icon: CalendarRange },
-  { to: "/actividades", label: "Actividades", icon: Activity },
   { to: "/entrenamientos", label: "Entrenamientos", icon: Dumbbell },
+  { to: "/menus", label: "Nutrición", icon: UtensilsCrossed },
+  { to: "/actividades", label: "Actividades", icon: Activity },
   { to: "/competiciones", label: "Competiciones", icon: Trophy },
-  { to: "/menus", label: "Menús", icon: UtensilsCrossed },
-  { to: "/readiness", label: "Readiness", icon: HeartPulse },
   { to: "/progreso", label: "Progreso", icon: TrendingUp },
+  { to: "/calendario", label: "Calendario", icon: CalendarRange },
+  { to: "/readiness", label: "Readiness", icon: HeartPulse },
+  { to: "/mi-bici", label: "Mi Bici", icon: Bike },
 ] as const;
 
 function TourButton({ onClick }: { onClick?: () => void }) {
@@ -61,8 +73,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     router.navigate({ to: "/auth", replace: true });
   };
 
-  const isActive = (to: string) =>
-    to === "/" ? path === "/" : path.startsWith(to);
+  const isActive = (to: string) => (to === "/" ? path === "/" : path.startsWith(to));
 
   const NavLinks = ({ onClick }: { onClick?: () => void }) => (
     <>
@@ -107,7 +118,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link to="/" className="block">
             <div className="font-display text-2xl font-bold uppercase tracking-tight">
               <span className="text-primary italic">{config?.team_name?.split(" ")[0] ?? "Sentmenat"}</span>
-              <span className="ml-1.5 text-foreground/70">{config?.team_name?.split(" ").slice(1).join(" ") ?? "Bici"}</span>
+              <span className="ml-1.5 text-foreground/70">
+                {config?.team_name?.split(" ").slice(1).join(" ") ?? "Bici"}
+              </span>
             </div>
             <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-1">Gestión del equipo</div>
           </Link>
@@ -130,11 +143,13 @@ export function AppShell({ children }: { children: ReactNode }) {
               <p className="text-[10px] text-muted-foreground">{isAdmin ? "Administrador" : "Ciclista"}</p>
             </div>
           </div>
-          <button onClick={handleSignOut} className="w-full flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground hover:text-destructive px-3 py-2 rounded-md hover:bg-secondary">
+          <button
+            onClick={handleSignOut}
+            className="w-full flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground hover:text-destructive px-3 py-2 rounded-md hover:bg-secondary"
+          >
             <LogOut className="size-3.5" /> Cerrar sesión
           </button>
         </div>
-
       </aside>
 
       {/* Mobile top bar */}
@@ -151,12 +166,13 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-50 bg-background/95 backdrop-blur flex flex-col">
           <div className="flex items-center justify-between px-4 py-3 border-b">
             <span className="font-display font-bold uppercase">Menú</span>
-            <button onClick={() => setMobileOpen(false)} className="p-2"><X className="size-5" /></button>
+            <button onClick={() => setMobileOpen(false)} className="p-2">
+              <X className="size-5" />
+            </button>
           </div>
           <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             <NavLinks onClick={() => setMobileOpen(false)} />
@@ -166,7 +182,13 @@ export function AppShell({ children }: { children: ReactNode }) {
               <ThemeToggle />
             </div>
 
-            <button onClick={() => { setMobileOpen(false); handleSignOut(); }} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10">
+            <button
+              onClick={() => {
+                setMobileOpen(false);
+                handleSignOut();
+              }}
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10"
+            >
               <LogOut className="size-4" /> Cerrar sesión
             </button>
           </nav>
@@ -194,7 +216,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       <ActivityMatchPrompt />
       <ActivityFeedbackPrompt />
 
-
       {/* Mobile bottom nav */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-surface border-t flex items-center justify-around px-2 py-2">
         {NAV.slice(0, 4).map(({ to, label, icon: Icon }) => (
@@ -218,7 +239,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           <span className="text-[10px] font-medium">Más</span>
         </button>
       </nav>
-
 
       <OnboardingTour />
     </div>
