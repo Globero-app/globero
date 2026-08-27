@@ -32,6 +32,8 @@ import { Route as AuthenticatedActividadesIndexRouteImport } from './routes/_aut
 import { Route as ApiPublicSetupAdminRouteImport } from './routes/api/public/setup-admin'
 import { Route as AuthenticatedCompeticionesIdRouteImport } from './routes/_authenticated/competiciones.$id'
 import { Route as AuthenticatedActividadesIdRouteImport } from './routes/_authenticated/actividades.$id'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
 import { Route as ApiPublicHooksWeeklyWorkoutsRouteImport } from './routes/api/public/hooks/weekly-workouts'
 import { Route as ApiPublicHooksReadinessPushRouteImport } from './routes/api/public/hooks/readiness-push'
@@ -158,6 +160,16 @@ const AuthenticatedActividadesIdRoute =
     path: '/actividades/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicTelegramWebhookRoute =
   ApiPublicTelegramWebhookRouteImport.update({
     id: '/api/public/telegram/webhook',
@@ -224,6 +236,8 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -254,6 +268,8 @@ export interface FileRoutesByTo {
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -286,6 +302,8 @@ export interface FileRoutesById {
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -318,6 +336,8 @@ export interface FileRouteTypes {
     | '/api/public/hooks/readiness-push'
     | '/api/public/hooks/weekly-workouts'
     | '/api/public/telegram/webhook'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -348,6 +368,8 @@ export interface FileRouteTypes {
     | '/api/public/hooks/readiness-push'
     | '/api/public/hooks/weekly-workouts'
     | '/api/public/telegram/webhook'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
   id:
     | '__root__'
     | '/'
@@ -379,6 +401,8 @@ export interface FileRouteTypes {
     | '/api/public/hooks/readiness-push'
     | '/api/public/hooks/weekly-workouts'
     | '/api/public/telegram/webhook'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -397,6 +421,8 @@ export interface RootRouteChildren {
   ApiPublicHooksReadinessPushRoute: typeof ApiPublicHooksReadinessPushRoute
   ApiPublicHooksWeeklyWorkoutsRoute: typeof ApiPublicHooksWeeklyWorkoutsRoute
   ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -562,6 +588,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedActividadesIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/telegram/webhook': {
       id: '/api/public/telegram/webhook'
       path: '/api/public/telegram/webhook'
@@ -660,6 +700,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksReadinessPushRoute: ApiPublicHooksReadinessPushRoute,
   ApiPublicHooksWeeklyWorkoutsRoute: ApiPublicHooksWeeklyWorkoutsRoute,
   ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
