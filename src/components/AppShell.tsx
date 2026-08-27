@@ -148,9 +148,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Mobile top bar */}
       <header className="lg:hidden sticky top-0 z-40 bg-surface/95 backdrop-blur border-b px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="font-display font-bold uppercase tracking-tight">
-          <span className="text-primary italic">{config?.team_name?.split(" ")[0] ?? "Globero"}</span>
-          <span className="ml-1.5">{config?.team_name?.split(" ").slice(1).join(" ") ?? "Bici"}</span>
+        <Link to="/" className="block">
+          <BrandLogo className="h-9 w-auto" />
         </Link>
         <div className="flex items-center gap-1">
           <ThemeToggle compact />
