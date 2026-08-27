@@ -146,10 +146,17 @@ export function buildWorkoutDoc(plan: any, basis: "power" | "hr", refs: ZoneRefs
 
     let target = "";
     if (s.target === "power" && low > 0) {
-      if (!indoor && ftp && ftp > 0) {
+      if (ftp && ftp > 0) {
         const pl = Math.round((low / ftp) * 100);
         const ph = Math.round(((high || low) / ftp) * 100);
         target = pl === ph ? `${pl}%` : `${pl}-${ph}%`;
+        // En rodillo Intervals no resuelve los vatios del % con el FTP de
+        // VirtualRide (a menudo 0), así que se añaden como texto: "(68-81w)".
+        if (indoor) {
+          const wl = Math.round(low);
+          const wh = Math.round(high || low);
+          name = `(${wl === wh ? `${wl}w` : `${wl}-${wh}w`})${name ? ` ${name}` : ""}`;
+        }
       } else {
         target = high && high !== low ? `${low}-${high}w` : `${low}w`;
       }
