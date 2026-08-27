@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/backend")({
 });
 
 function BackendPage() {
-  const [tab, setTab] = useState<"config" | "users" | "sponsors">("config");
+  const [tab, setTab] = useState<"config" | "users" | "sponsors" | "site">("config");
   return (
     <div className="space-y-6">
       <div>
@@ -29,16 +29,17 @@ function BackendPage() {
         <h1 className="font-display text-4xl font-bold uppercase tracking-tight">Backend</h1>
       </div>
       <div className="border-b flex gap-1 flex-wrap">
-        {[["config", "Configuración visual"], ["users", "Usuarios"], ["sponsors", "Patrocinadores"]].map(([k, l]) => (
+        {[["config", "Configuración visual"], ["users", "Usuarios"], ["sponsors", "Patrocinadores"], ["site", "Web pública"]].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k as any)} className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${tab === k ? "border-primary text-primary" : "border-transparent text-muted-foreground"}`}>
             {l}
           </button>
         ))}
       </div>
-      {tab === "config" ? <ConfigTab /> : tab === "users" ? <UsersTab /> : <SponsorsTab />}
+      {tab === "config" ? <ConfigTab /> : tab === "users" ? <UsersTab /> : tab === "sponsors" ? <SponsorsTab /> : <SiteContentTab />}
     </div>
   );
 }
+
 
 function ConfigTab() {
   const cfg = useAppConfig();
