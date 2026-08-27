@@ -24,7 +24,7 @@ export function SplashScreen() {
       style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <img
-        src="/splash-logo.png"
+        src="/icon-512.png"
         alt="Globero"
         width={512}
         height={512}
