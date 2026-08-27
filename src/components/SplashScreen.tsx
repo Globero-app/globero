@@ -28,7 +28,7 @@ export function SplashScreen() {
         alt="Globero"
         width={512}
         height={512}
-        className="w-40 max-w-[55vw] animate-pulse rounded-2xl bg-white p-3 shadow-lg sm:w-52"
+        className="w-40 max-w-[55vw] animate-pulse rounded-2xl shadow-lg sm:w-52"
       />
       <div className="h-1 w-24 overflow-hidden rounded-full bg-muted">
         <div className="h-full w-1/2 animate-[splash-bar_1.2s_ease-in-out_infinite] rounded-full bg-primary" />
