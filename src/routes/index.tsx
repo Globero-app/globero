@@ -1,4 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { getSiteContent, type SiteBlock } from "@/lib/site-content.functions";
 import * as Icons from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -39,7 +41,16 @@ function LandingFallback() {
 }
 
 function Landing() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    let active = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (active && data.session) navigate({ to: "/app", replace: true });
+    });
+    return () => { active = false; };
+  }, [navigate]);
   const blocks = Route.useLoaderData() as SiteBlock[];
+
   const by = (k: string) => blocks.find((b) => b.block_key === k);
   const hero = by("hero");
   const cta = by("cta");
