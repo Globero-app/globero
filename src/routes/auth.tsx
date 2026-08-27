@@ -91,6 +91,11 @@ function AuthPage() {
             <h2 className="font-display text-3xl font-bold uppercase tracking-tight">Iniciar sesión</h2>
             <p className="text-sm text-muted-foreground">Accede a tu panel del equipo.</p>
           </div>
+          {notice && (
+            <div className={`rounded-lg border p-3 text-xs ${notice.kind === "ok" ? "border-primary/40 bg-primary/10 text-primary" : "border-destructive/40 bg-destructive/10 text-destructive"}`}>
+              {notice.text}
+            </div>
+          )}
           <div className="space-y-3">
             <div>
               <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</label>
