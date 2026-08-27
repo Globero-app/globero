@@ -9,9 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as OfflineRouteImport } from './routes/offline'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedReadinessRouteImport } from './routes/_authenticated/readiness'
 import { Route as AuthenticatedProgresoRouteImport } from './routes/_authenticated/progreso'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
@@ -34,6 +36,11 @@ import { Route as ApiPublicHooksIntervalsSyncRouteImport } from './routes/api/pu
 import { Route as ApiPublicHooksIntervalsDetectRouteImport } from './routes/api/public/hooks/intervals-detect'
 import { Route as ApiPublicHooksActivityDetectRouteImport } from './routes/api/public/hooks/activity-detect'
 
+const PrivacidadRoute = PrivacidadRouteImport.update({
+  id: '/privacidad',
+  path: '/privacidad',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OfflineRoute = OfflineRouteImport.update({
   id: '/offline',
   path: '/offline',
@@ -46,6 +53,11 @@ const AuthRoute = AuthRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedReadinessRoute = AuthenticatedReadinessRouteImport.update({
@@ -166,9 +178,10 @@ const ApiPublicHooksActivityDetectRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthenticatedRouteRouteWithChildren
+  '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/offline': typeof OfflineRoute
+  '/privacidad': typeof PrivacidadRoute
   '/app': typeof AuthenticatedAppRoute
   '/backend': typeof AuthenticatedBackendRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
@@ -192,9 +205,10 @@ export interface FileRoutesByFullPath {
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof AuthenticatedRouteRouteWithChildren
+  '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/offline': typeof OfflineRoute
+  '/privacidad': typeof PrivacidadRoute
   '/app': typeof AuthenticatedAppRoute
   '/backend': typeof AuthenticatedBackendRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
@@ -219,9 +233,11 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/offline': typeof OfflineRoute
+  '/privacidad': typeof PrivacidadRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/backend': typeof AuthenticatedBackendRoute
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
@@ -250,6 +266,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/offline'
+    | '/privacidad'
     | '/app'
     | '/backend'
     | '/calendario'
@@ -276,6 +293,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/offline'
+    | '/privacidad'
     | '/app'
     | '/backend'
     | '/calendario'
@@ -299,9 +317,11 @@ export interface FileRouteTypes {
     | '/api/public/telegram/webhook'
   id:
     | '__root__'
+    | '/'
     | '/_authenticated'
     | '/auth'
     | '/offline'
+    | '/privacidad'
     | '/_authenticated/app'
     | '/_authenticated/backend'
     | '/_authenticated/calendario'
@@ -326,9 +346,11 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   OfflineRoute: typeof OfflineRoute
+  PrivacidadRoute: typeof PrivacidadRoute
   ApiPublicSetupAdminRoute: typeof ApiPublicSetupAdminRoute
   ApiPublicHooksActivityDetectRoute: typeof ApiPublicHooksActivityDetectRoute
   ApiPublicHooksIntervalsDetectRoute: typeof ApiPublicHooksIntervalsDetectRoute
@@ -340,6 +362,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/privacidad': {
+      id: '/privacidad'
+      path: '/privacidad'
+      fullPath: '/privacidad'
+      preLoaderRoute: typeof PrivacidadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/offline': {
       id: '/offline'
       path: '/offline'
@@ -359,6 +388,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/readiness': {
@@ -549,9 +585,11 @@ const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   OfflineRoute: OfflineRoute,
+  PrivacidadRoute: PrivacidadRoute,
   ApiPublicSetupAdminRoute: ApiPublicSetupAdminRoute,
   ApiPublicHooksActivityDetectRoute: ApiPublicHooksActivityDetectRoute,
   ApiPublicHooksIntervalsDetectRoute: ApiPublicHooksIntervalsDetectRoute,
