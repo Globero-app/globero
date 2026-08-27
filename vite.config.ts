@@ -112,11 +112,12 @@ export default defineConfig({
       }),
     ],
     resolve: {
+      dedupe: ["react", "react-dom", "@tanstack/react-router"],
       alias: {
         "entities/lib/decode.js": `${entitiesRoot}/lib/decode.js`,
         "entities/lib/encode.js": `${entitiesRoot}/lib/encode.js`,
-        entities: entitiesRoot,
       },
     },
+
   },
 });
