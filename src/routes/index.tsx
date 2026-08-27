@@ -13,8 +13,8 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: "Entrenamientos con IA, nutrición semanal, readiness diario y análisis de actividades." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:image", content: "https://sentmenatbici.lovable.app/og-image.jpg" },
-      { name: "twitter:image", content: "https://sentmenatbici.lovable.app/og-image.jpg" },
+      { property: "og:image", content: "https://globero.app/og-image.jpg" },
+      { name: "twitter:image", content: "https://globero.app/og-image.jpg" },
     ],
   }),
   component: Landing,
@@ -61,13 +61,16 @@ function Landing() {
       <main className="flex-1">
         <section className="relative overflow-hidden border-b">
           <div className="absolute -right-24 -top-24 size-96 rounded-full bg-primary/10 blur-3xl" />
-          <div className="max-w-6xl mx-auto px-4 py-20 lg:py-28 relative">
-            <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary">{hero?.subtitle}</p>
+          <div className="max-w-6xl mx-auto px-4 py-20 lg:py-28 relative flex flex-col items-center text-center">
+            <BrandLogo className="h-28 sm:h-36 lg:h-44 w-auto" />
+            <p className="mt-6 text-[10px] font-mono uppercase tracking-[0.3em] text-primary">
+              {hero?.subtitle || "Plataforma de IA para ciclistas"}
+            </p>
             <h1 className="mt-3 font-display text-5xl lg:text-7xl font-bold uppercase italic tracking-tight leading-none">
               {hero?.title || "Globero IA"}
             </h1>
             <p className="mt-5 max-w-2xl text-base lg:text-lg text-muted-foreground whitespace-pre-line">{hero?.body}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap gap-3 justify-center">
               <Link to="/auth" className="rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90">
                 {cta?.title || "Acceder"}
               </Link>

@@ -101,8 +101,8 @@ export function InstallAppButton({ variant = "menu" }: { variant?: "menu" | "com
             <div className="text-xs rounded-md border border-amber-500/40 bg-amber-500/10 text-amber-200 p-3">
               Estás viendo la app dentro del editor. Para instalarla, abre la URL publicada directamente en el navegador de tu móvil:
               <br />
-              <a className="underline font-medium" href="https://sentmenatbici.lovable.app" target="_blank" rel="noreferrer">
-                sentmenatbici.lovable.app
+              <a className="underline font-medium" href="https://globero.app" target="_blank" rel="noreferrer">
+                globero.app
               </a>
             </div>
           )}

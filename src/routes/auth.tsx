@@ -1,13 +1,14 @@
 import darkLogo from "@/assets/globero-dark.jpg.asset.json";
 import { BrandLogo } from "@/components/BrandLogo";
 import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
   beforeLoad: async () => {
+    if (typeof window !== "undefined" && window.location.hash.includes("access_token")) return;
     const { data } = await supabase.auth.getUser();
     if (data.user) throw redirect({ to: "/app" });
   },
@@ -19,6 +20,26 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [notice, setNotice] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+
+  useEffect(() => {
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const search = new URLSearchParams(window.location.search);
+    const err = hash.get("error_description") || search.get("error_description");
+    if (err) {
+      setNotice({ kind: "error", text: decodeURIComponent(err) + ". El enlace puede haber caducado; solicita uno nuevo." });
+    } else if (search.get("confirmado") === "1" || hash.get("type") === "signup") {
+      setNotice({ kind: "ok", text: "Email confirmado correctamente. Ya puedes acceder." });
+    }
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (session) navigate({ to: "/app" });
+    });
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) navigate({ to: "/app" });
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,6 +91,11 @@ function AuthPage() {
             <h2 className="font-display text-3xl font-bold uppercase tracking-tight">Iniciar sesión</h2>
             <p className="text-sm text-muted-foreground">Accede a tu panel del equipo.</p>
           </div>
+          {notice && (
+            <div className={`rounded-lg border p-3 text-xs ${notice.kind === "ok" ? "border-primary/40 bg-primary/10 text-primary" : "border-destructive/40 bg-destructive/10 text-destructive"}`}>
+              {notice.text}
+            </div>
+          )}
           <div className="space-y-3">
             <div>
               <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</label>
