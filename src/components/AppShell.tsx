@@ -4,7 +4,6 @@ import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { useAppConfig } from "@/lib/use-app-config";
 import {
   LayoutDashboard,
   User,
@@ -29,6 +28,7 @@ import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import { InstallAppButton } from "@/components/InstallAppButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { OnboardingTour } from "@/components/OnboardingTour";
+import { BrandLogo } from "@/components/BrandLogo";
 
 const NAV = [
   { to: "/", label: "Inicio", icon: LayoutDashboard },
@@ -60,7 +60,6 @@ function TourButton({ onClick }: { onClick?: () => void }) {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { user, isAdmin } = useAuth();
-  const config = useAppConfig().data;
   const router = useRouter();
   const qc = useQueryClient();
   const path = useRouterState({ select: (s) => s.location.pathname });
