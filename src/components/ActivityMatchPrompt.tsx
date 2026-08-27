@@ -15,10 +15,13 @@ export function ActivityMatchPrompt({ enabled = true }: { enabled?: boolean }) {
   const link = useServerFn(linkActivityToTarget);
   const [dismissed, setDismissed] = useState<string[]>([]);
 
+  const { user, loading } = useAuth();
+
   const q = useQuery({
-    queryKey: ["activity-matches"],
+    queryKey: ["activity-matches", user?.id],
     queryFn: () => load({ data: undefined }),
-    enabled,
+    enabled: enabled && !loading && !!user,
+    retry: false,
   });
 
   const m = useMutation({
