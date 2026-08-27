@@ -116,13 +116,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 border-r bg-surface flex-col">
         <div className="px-6 py-6 border-b">
           <Link to="/" className="block">
-            <div className="font-display text-2xl font-bold uppercase tracking-tight">
-              <span className="text-primary italic">{config?.team_name?.split(" ")[0] ?? "Globero"}</span>
-              <span className="ml-1.5 text-foreground/70">
-                {config?.team_name?.split(" ").slice(1).join(" ") ?? "Bici"}
-              </span>
-            </div>
-            <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-1">Gestión del equipo</div>
+            <BrandLogo className="h-16 w-auto" />
           </Link>
         </div>
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
