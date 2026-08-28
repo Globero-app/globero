@@ -299,7 +299,10 @@ REGLAS OBLIGATORIAS:
       .maybeSingle();
     if (error) throw new Error(error.message);
 
-    const { syncWorkoutEvent } = await import("./intervals.server");
+    const { syncWorkoutEvent, intervalsPushZones } = await import("./intervals.server");
+    // Asegura que VirtualRide tenga el mismo FTP que Ride para que los porcentajes
+    // se rendericen correctamente en Intervals.icu.
+    try { await intervalsPushZones(supabase, userId); } catch (e) { console.error("push zones on trainer", e); }
     const eventId = await syncWorkoutEvent(supabase, userId, updated);
 
     return { ok: true, workout: updated, intervals_synced: !!eventId };
