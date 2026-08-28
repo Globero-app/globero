@@ -67,6 +67,11 @@ export const saveActivityFeedback = createServerFn({ method: "POST" })
         (w: any) => String((w.plan as any)?.strava_activity_id ?? "") === String(data.activity_id),
       );
       if (match) {
+        await supabase
+          .from("workouts")
+          .update({ rpe: Math.max(1, Math.min(5, Math.round(data.rpe / 2))) })
+          .eq("id", match.id)
+          .eq("user_id", userId);
         const { generateAndNotifyWorkoutReport } = await import("./workout-report.server");
         report = await generateAndNotifyWorkoutReport(supabase, userId, match.id);
       }

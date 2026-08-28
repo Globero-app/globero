@@ -623,7 +623,7 @@ function WorkoutCard({
             <p className="text-xs text-muted-foreground mt-1">
               {w.duration_minutes} min · {plan.steps?.length ?? 0} bloques
               {plan.scheduled_date && ` · 📅 ${format(new Date(plan.scheduled_date), "d MMM", { locale: es })}`}
-              {completed && w.completed_at && ` · Completado ${format(new Date(w.completed_at), "d MMM", { locale: es })} · RPE ${w.rpe}/5`}
+              {completed && w.completed_at && ` · Completado ${format(new Date(w.completed_at), "d MMM", { locale: es })}${w.rpe != null ? ` · RPE ${w.rpe}/5` : ""}`}
             </p>
             {plan.competition_name && <p className="text-[11px] font-mono uppercase text-primary mt-0.5">🏁 {plan.competition_name}</p>}
             {plan.summary && <p className="text-sm mt-2">{plan.summary}</p>}
