@@ -177,10 +177,12 @@ export function buildWorkoutDoc(plan: any, basis: "power" | "hr", refs: ZoneRefs
 
 
 function eventBody(workout: any, doc: string, date: string) {
+  const indoor = workout?.plan?.indoor || workout?.bike_type === "rodillo";
   return {
     start_date_local: `${date}T00:00:00`,
     category: "WORKOUT",
-    type: workout?.plan?.indoor || workout?.bike_type === "rodillo" ? "VirtualRide" : "Ride",
+    type: "Ride",
+    indoor,
     name: workout.plan?.title ?? workout.plan?.name ?? "Entrenamiento",
     description: doc,
     workout_doc: null,
