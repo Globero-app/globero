@@ -14,18 +14,16 @@ export const intervalsOAuthExchange = createServerFn({ method: "POST" })
     const clientSecret = process.env["INTERVALS_CLIENT_SECRET"];
     if (!clientSecret) throw new Error("Falta INTERVALS_CLIENT_SECRET");
 
-    const basic = btoa(`${clientId}:${clientSecret}`);
     const body = new URLSearchParams({
-      grant_type: "authorization_code",
+      client_id: clientId,
+      client_secret: clientSecret,
       code: data.code,
+      grant_type: "authorization_code",
       redirect_uri: REDIRECT_URI,
     });
     const res = await fetch("https://intervals.icu/api/oauth/token", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Basic ${basic}`,
-      },
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: body.toString(),
     });
     const text = await res.text();
