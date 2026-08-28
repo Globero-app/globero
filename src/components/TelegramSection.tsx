@@ -13,8 +13,9 @@ export function TelegramSection() {
   const disconnect = useServerFn(disconnectTelegram);
 
   const q = useQuery({
-    queryKey: ["telegram-status"],
+    queryKey: ["telegram-status", user?.id],
     queryFn: () => status({ data: undefined }),
+    enabled: !loading && !!user,
   });
 
   const data = q.data;
