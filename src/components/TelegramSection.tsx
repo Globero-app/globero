@@ -3,16 +3,19 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { CheckCircle2, Send, Unlink } from "lucide-react";
 import { getTelegramStatus, generateTelegramCode, disconnectTelegram } from "@/lib/telegram.functions";
+import { useAuth } from "@/lib/use-auth";
 
 export function TelegramSection() {
   const qc = useQueryClient();
+  const { user, loading } = useAuth();
   const status = useServerFn(getTelegramStatus);
   const genCode = useServerFn(generateTelegramCode);
   const disconnect = useServerFn(disconnectTelegram);
 
   const q = useQuery({
-    queryKey: ["telegram-status"],
+    queryKey: ["telegram-status", user?.id],
     queryFn: () => status({ data: undefined }),
+    enabled: !loading && !!user,
   });
 
   const data = q.data;
