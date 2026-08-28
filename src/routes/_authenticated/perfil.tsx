@@ -5,10 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
-import { connectIntervals, disconnectIntervals, syncIntervalsZones, intervalsEstimateFtp, intervalsEstimateHr, intervalsSyncActivities } from "@/lib/intervals.functions";
+import { disconnectIntervals, syncIntervalsZones, intervalsEstimateFtp, intervalsEstimateHr, intervalsSyncActivities } from "@/lib/intervals.functions";
 import { CheckCircle2, Link as LinkIcon, Unlink, Wrench, Wand2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { computePowerZones, computeHrZones } from "@/lib/zones";
+import { intervalsAuthorizeUrl } from "@/lib/intervals-oauth";
 import { NotificationsPrefs } from "@/components/NotificationsPrefs";
 import { TelegramSection } from "@/components/TelegramSection";
 
@@ -23,11 +24,8 @@ function PerfilPage() {
   const estimateFtp = useServerFn(intervalsEstimateFtp);
   const estimateHr = useServerFn(intervalsEstimateHr);
   const syncActs = useServerFn(intervalsSyncActivities);
-  const connectIcu = useServerFn(connectIntervals);
   const disconnectIcu = useServerFn(disconnectIntervals);
   const syncZonesIcu = useServerFn(syncIntervalsZones);
-  const [icu, setIcu] = useState({ athlete_id: "", api_key: "" });
-  const [icuBusy, setIcuBusy] = useState(false);
 
   const profileQ = useQuery({
     queryKey: ["profile", user?.id],
