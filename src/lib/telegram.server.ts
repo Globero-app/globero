@@ -479,23 +479,39 @@ INSTRUCCIONES:
       ],
       AdaptSchema,
     );
+    const requestedDate =
+      typeof (analysis as any).new_scheduled_date === "string" &&
+      /^\d{4}-\d{2}-\d{2}$/.test((analysis as any).new_scheduled_date)
+        ? ((analysis as any).new_scheduled_date as string)
+        : null;
     const newPlan = {
       ...(workout.plan as any),
       name: adapted.name,
       title: adapted.title,
       summary: adapted.summary,
       steps: adapted.steps,
+      ...(requestedDate ? { scheduled_date: requestedDate } : {}),
     };
-    await supabaseAdmin
+    const newDuration = Math.max(15, Math.round(adapted.duration_minutes || workout.duration_minutes));
+    const { data: updatedWorkout, error: modifyError } = await supabaseAdmin
       .from("workouts")
-      .update({ plan: newPlan, duration_minutes: Math.max(15, Math.round(adapted.duration_minutes || workout.duration_minutes)) })
+      .update({ plan: newPlan, duration_minutes: newDuration })
       .eq("id", workout.id)
-      .eq("user_id", userId);
+      .eq("user_id", userId)
+      .select()
+      .maybeSingle();
+    if (modifyError) throw new Error(modifyError.message);
+    if (!updatedWorkout) throw new Error("No se pudo actualizar el entrenamiento");
     const { syncWorkoutEvent } = await import("./intervals.server");
-    await syncWorkoutEvent(supabaseAdmin, userId, { ...workout, plan: newPlan });
+    let syncOk = true;
+    try {
+      await syncWorkoutEvent(supabaseAdmin, userId, updatedWorkout, { strict: true });
+    } catch {
+      syncOk = false;
+    }
     await telegramSend(
       chatId,
-      `✅ ${adapted.message}\n\n${adapted.title} · ${Math.round(adapted.duration_minutes)} min\n${adapted.summary}\n\nSincronizado con Intervals.icu.`,
+      `✅ ${adapted.message}\n\n${adapted.title} · ${newDuration} min${requestedDate ? ` · ${requestedDate}` : ""}\n${adapted.summary}\n\n${syncOk ? "Sincronizado con Intervals.icu." : "⚠️ No se ha podido sincronizar con Intervals.icu."}`,
     );
     return;
   }
