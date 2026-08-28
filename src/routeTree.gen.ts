@@ -29,6 +29,7 @@ import { Route as AuthenticatedBackendRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedCompeticionesIndexRouteImport } from './routes/_authenticated/competiciones.index'
 import { Route as AuthenticatedActividadesIndexRouteImport } from './routes/_authenticated/actividades.index'
+import { Route as AuthIntervalsCallbackRouteImport } from './routes/auth/intervals/callback'
 import { Route as ApiPublicSetupAdminRouteImport } from './routes/api/public/setup-admin'
 import { Route as AuthenticatedCompeticionesIdRouteImport } from './routes/_authenticated/competiciones.$id'
 import { Route as AuthenticatedActividadesIdRouteImport } from './routes/_authenticated/actividades.$id'
@@ -143,6 +144,11 @@ const AuthenticatedActividadesIndexRoute =
     path: '/actividades/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthIntervalsCallbackRoute = AuthIntervalsCallbackRouteImport.update({
+  id: '/auth/intervals/callback',
+  path: '/auth/intervals/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicSetupAdminRoute = ApiPublicSetupAdminRouteImport.update({
   id: '/api/public/setup-admin',
   path: '/api/public/setup-admin',
@@ -228,6 +234,7 @@ export interface FileRoutesByFullPath {
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
+  '/auth/intervals/callback': typeof AuthIntervalsCallbackRoute
   '/actividades/': typeof AuthenticatedActividadesIndexRoute
   '/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
@@ -260,6 +267,7 @@ export interface FileRoutesByTo {
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
+  '/auth/intervals/callback': typeof AuthIntervalsCallbackRoute
   '/actividades': typeof AuthenticatedActividadesIndexRoute
   '/competiciones': typeof AuthenticatedCompeticionesIndexRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
@@ -294,6 +302,7 @@ export interface FileRoutesById {
   '/_authenticated/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/_authenticated/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
+  '/auth/intervals/callback': typeof AuthIntervalsCallbackRoute
   '/_authenticated/actividades/': typeof AuthenticatedActividadesIndexRoute
   '/_authenticated/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
@@ -328,6 +337,7 @@ export interface FileRouteTypes {
     | '/actividades/$id'
     | '/competiciones/$id'
     | '/api/public/setup-admin'
+    | '/auth/intervals/callback'
     | '/actividades/'
     | '/competiciones/'
     | '/api/public/hooks/activity-detect'
@@ -360,6 +370,7 @@ export interface FileRouteTypes {
     | '/actividades/$id'
     | '/competiciones/$id'
     | '/api/public/setup-admin'
+    | '/auth/intervals/callback'
     | '/actividades'
     | '/competiciones'
     | '/api/public/hooks/activity-detect'
@@ -393,6 +404,7 @@ export interface FileRouteTypes {
     | '/_authenticated/actividades/$id'
     | '/_authenticated/competiciones/$id'
     | '/api/public/setup-admin'
+    | '/auth/intervals/callback'
     | '/_authenticated/actividades/'
     | '/_authenticated/competiciones/'
     | '/api/public/hooks/activity-detect'
@@ -415,6 +427,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   AuthIndexRoute: typeof AuthIndexRoute
   ApiPublicSetupAdminRoute: typeof ApiPublicSetupAdminRoute
+  AuthIntervalsCallbackRoute: typeof AuthIntervalsCallbackRoute
   ApiPublicHooksActivityDetectRoute: typeof ApiPublicHooksActivityDetectRoute
   ApiPublicHooksIntervalsDetectRoute: typeof ApiPublicHooksIntervalsDetectRoute
   ApiPublicHooksIntervalsSyncRoute: typeof ApiPublicHooksIntervalsSyncRoute
@@ -567,6 +580,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedActividadesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/auth/intervals/callback': {
+      id: '/auth/intervals/callback'
+      path: '/auth/intervals/callback'
+      fullPath: '/auth/intervals/callback'
+      preLoaderRoute: typeof AuthIntervalsCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/setup-admin': {
       id: '/api/public/setup-admin'
       path: '/api/public/setup-admin'
@@ -694,6 +714,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   AuthIndexRoute: AuthIndexRoute,
   ApiPublicSetupAdminRoute: ApiPublicSetupAdminRoute,
+  AuthIntervalsCallbackRoute: AuthIntervalsCallbackRoute,
   ApiPublicHooksActivityDetectRoute: ApiPublicHooksActivityDetectRoute,
   ApiPublicHooksIntervalsDetectRoute: ApiPublicHooksIntervalsDetectRoute,
   ApiPublicHooksIntervalsSyncRoute: ApiPublicHooksIntervalsSyncRoute,

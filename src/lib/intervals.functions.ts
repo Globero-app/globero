@@ -24,7 +24,7 @@ export const disconnectIntervals = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { error } = await supabase
       .from("profiles")
-      .update({ intervals_athlete_id: null, intervals_api_key: null })
+      .update({ intervals_athlete_id: null, intervals_api_key: null, intervals_oauth: false, intervals_refresh_token: null, intervals_token_expires_at: null })
       .eq("id", userId);
     if (error) throw new Error(error.message);
     return { ok: true };
