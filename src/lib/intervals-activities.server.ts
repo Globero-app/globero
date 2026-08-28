@@ -47,7 +47,7 @@ export async function syncIntervalsActivities(
   if (!creds) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("intervals_athlete_id,intervals_api_key")
+      .select("intervals_athlete_id,intervals_api_key,intervals_oauth")
       .eq("id", userId)
       .maybeSingle();
     creds = credsFromProfile(profile);
@@ -122,7 +122,7 @@ export async function intervalsGetAthlete(creds: IntervalsCreds): Promise<any> {
 export async function estimateFtpFromIntervals(supabase: any, userId: string): Promise<number | null> {
   const { data: profile } = await supabase
     .from("profiles")
-    .select("intervals_athlete_id,intervals_api_key")
+    .select("intervals_athlete_id,intervals_api_key,intervals_oauth")
     .eq("id", userId)
     .maybeSingle();
   const creds = credsFromProfile(profile);
@@ -180,7 +180,7 @@ export async function renameIntervalsActivity(
   try {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("intervals_athlete_id,intervals_api_key")
+      .select("intervals_athlete_id,intervals_api_key,intervals_oauth")
       .eq("id", userId)
       .maybeSingle();
     const creds = credsFromProfile(profile);

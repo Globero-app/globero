@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/auth")({
+export const Route = createFileRoute("/auth/")({
   ssr: false,
   beforeLoad: async () => {
     if (typeof window !== "undefined" && window.location.hash.includes("access_token")) return;

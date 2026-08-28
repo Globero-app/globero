@@ -128,7 +128,7 @@ export const intervalsActivityDetail = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { data: profile } = await supabase
       .from("profiles")
-      .select("intervals_athlete_id,intervals_api_key")
+      .select("intervals_athlete_id,intervals_api_key,intervals_oauth")
       .eq("id", userId)
       .maybeSingle();
     const { credsFromProfile } = await import("./intervals.server");
@@ -159,7 +159,7 @@ export const intervalsImportFtpTest = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { data: profile } = await supabase
       .from("profiles")
-      .select("intervals_athlete_id,intervals_api_key")
+      .select("intervals_athlete_id,intervals_api_key,intervals_oauth")
       .eq("id", userId)
       .maybeSingle();
     const { credsFromProfile } = await import("./intervals.server");

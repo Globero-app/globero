@@ -14,9 +14,9 @@ import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as RecuperarRouteImport } from './routes/recuperar'
 import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as OfflineRouteImport } from './routes/offline'
-import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthenticatedReadinessRouteImport } from './routes/_authenticated/readiness'
 import { Route as AuthenticatedProgresoRouteImport } from './routes/_authenticated/progreso'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
@@ -66,11 +66,6 @@ const OfflineRoute = OfflineRouteImport.update({
   path: '/offline',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -78,6 +73,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthIndexRoute = AuthIndexRouteImport.update({
+  id: '/auth/',
+  path: '/auth/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedReadinessRoute = AuthenticatedReadinessRouteImport.update({
@@ -209,7 +209,6 @@ const ApiPublicHooksActivityDetectRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
   '/offline': typeof OfflineRoute
   '/privacidad': typeof PrivacidadRoute
   '/recuperar': typeof RecuperarRoute
@@ -225,6 +224,7 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/progreso': typeof AuthenticatedProgresoRoute
   '/readiness': typeof AuthenticatedReadinessRoute
+  '/auth/': typeof AuthIndexRoute
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
@@ -241,7 +241,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
   '/offline': typeof OfflineRoute
   '/privacidad': typeof PrivacidadRoute
   '/recuperar': typeof RecuperarRoute
@@ -257,6 +256,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/progreso': typeof AuthenticatedProgresoRoute
   '/readiness': typeof AuthenticatedReadinessRoute
+  '/auth': typeof AuthIndexRoute
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
@@ -275,7 +275,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/auth': typeof AuthRoute
   '/offline': typeof OfflineRoute
   '/privacidad': typeof PrivacidadRoute
   '/recuperar': typeof RecuperarRoute
@@ -291,6 +290,7 @@ export interface FileRoutesById {
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/progreso': typeof AuthenticatedProgresoRoute
   '/_authenticated/readiness': typeof AuthenticatedReadinessRoute
+  '/auth/': typeof AuthIndexRoute
   '/_authenticated/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/_authenticated/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
@@ -309,7 +309,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/auth'
     | '/offline'
     | '/privacidad'
     | '/recuperar'
@@ -325,6 +324,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/progreso'
     | '/readiness'
+    | '/auth/'
     | '/actividades/$id'
     | '/competiciones/$id'
     | '/api/public/setup-admin'
@@ -341,7 +341,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/auth'
     | '/offline'
     | '/privacidad'
     | '/recuperar'
@@ -357,6 +356,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/progreso'
     | '/readiness'
+    | '/auth'
     | '/actividades/$id'
     | '/competiciones/$id'
     | '/api/public/setup-admin'
@@ -374,7 +374,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
-    | '/auth'
     | '/offline'
     | '/privacidad'
     | '/recuperar'
@@ -390,6 +389,7 @@ export interface FileRouteTypes {
     | '/_authenticated/perfil'
     | '/_authenticated/progreso'
     | '/_authenticated/readiness'
+    | '/auth/'
     | '/_authenticated/actividades/$id'
     | '/_authenticated/competiciones/$id'
     | '/api/public/setup-admin'
@@ -408,12 +408,12 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AuthRoute: typeof AuthRoute
   OfflineRoute: typeof OfflineRoute
   PrivacidadRoute: typeof PrivacidadRoute
   RecuperarRoute: typeof RecuperarRoute
   RegistroRoute: typeof RegistroRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  AuthIndexRoute: typeof AuthIndexRoute
   ApiPublicSetupAdminRoute: typeof ApiPublicSetupAdminRoute
   ApiPublicHooksActivityDetectRoute: typeof ApiPublicHooksActivityDetectRoute
   ApiPublicHooksIntervalsDetectRoute: typeof ApiPublicHooksIntervalsDetectRoute
@@ -462,13 +462,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OfflineRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -481,6 +474,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/': {
+      id: '/auth/'
+      path: '/auth'
+      fullPath: '/auth/'
+      preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/readiness': {
@@ -687,12 +687,12 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AuthRoute: AuthRoute,
   OfflineRoute: OfflineRoute,
   PrivacidadRoute: PrivacidadRoute,
   RecuperarRoute: RecuperarRoute,
   RegistroRoute: RegistroRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  AuthIndexRoute: AuthIndexRoute,
   ApiPublicSetupAdminRoute: ApiPublicSetupAdminRoute,
   ApiPublicHooksActivityDetectRoute: ApiPublicHooksActivityDetectRoute,
   ApiPublicHooksIntervalsDetectRoute: ApiPublicHooksIntervalsDetectRoute,

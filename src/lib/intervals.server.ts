@@ -253,7 +253,7 @@ export async function syncWorkoutEvent(
 ): Promise<string | null> {
   const { data: profile } = await supabase
     .from("profiles")
-    .select("intervals_athlete_id,intervals_api_key,ftp,lthr,max_hr")
+    .select("intervals_athlete_id,intervals_api_key,intervals_oauth,ftp,lthr,max_hr")
     .eq("id", userId)
     .maybeSingle();
   const creds = credsFromProfile(profile);
@@ -303,7 +303,7 @@ export async function removeWorkoutEvent(
   if (!eventId) return;
   const { data: profile } = await supabase
     .from("profiles")
-    .select("intervals_athlete_id,intervals_api_key")
+    .select("intervals_athlete_id,intervals_api_key,intervals_oauth")
     .eq("id", userId)
     .maybeSingle();
   const creds = credsFromProfile(profile);
@@ -320,7 +320,7 @@ export async function removeWorkoutEvent(
 export async function intervalsPushZones(supabase: any, userId: string): Promise<boolean> {
   const { data: profile } = await supabase
     .from("profiles")
-    .select("intervals_athlete_id,intervals_api_key,ftp,lthr,max_hr")
+    .select("intervals_athlete_id,intervals_api_key,intervals_oauth,ftp,lthr,max_hr")
     .eq("id", userId)
     .maybeSingle();
   const creds = credsFromProfile(profile);
