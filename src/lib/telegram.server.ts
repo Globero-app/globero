@@ -69,6 +69,11 @@ const IntentSchema = {
     },
     readiness_score: { type: "number", description: "1-5 solo si intent=set_readiness" },
     change_request: { type: "string", description: "Qué cambio pide en el entreno, solo si intent=modify_workout" },
+    new_scheduled_date: {
+      type: "string",
+      description:
+        "Solo si intent=modify_workout y pide mover/aplazar el entreno a otro día. Fecha absoluta en formato YYYY-MM-DD calculada a partir de la FECHA del contexto (por ejemplo 'mañana' = FECHA + 1 día)",
+    },
     meal_key: {
       type: "string",
       enum: ["desayuno", "media_manana", "comida", "merienda", "cena"],
