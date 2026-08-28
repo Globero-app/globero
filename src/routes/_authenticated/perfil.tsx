@@ -265,49 +265,14 @@ function PerfilPage() {
           ) : (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Encuentra tu ID de atleta y tu clave API en{" "}
-                <a className="underline text-primary" href="https://intervals.icu/settings" target="_blank" rel="noopener">
-                  intervals.icu/settings
-                </a>{" "}
-                (sección Developer). Al subir entrenamientos, se crearán en tu calendario en los días indicados.
+                Vincula tu cuenta de Intervals.icu de forma segura. Se te pedirá autorizar Globero IA en Intervals.icu y volverás automáticamente aquí.
               </p>
-              <div className="grid md:grid-cols-2 gap-3">
-                <Field label="ID de Atleta">
-                  <input className="input" placeholder="i123456" value={icu.athlete_id} onChange={(e) => setIcu({ ...icu, athlete_id: e.target.value })} />
-                </Field>
-                <Field label="Clave API">
-                  <input type="password" className="input" value={icu.api_key} onChange={(e) => setIcu({ ...icu, api_key: e.target.value })} />
-                </Field>
-              </div>
               <button
                 type="button"
-                disabled={icuBusy || icu.athlete_id.trim().length < 1 || icu.api_key.trim().length < 8}
-                onClick={async () => {
-                  const athleteId = icu.athlete_id.trim();
-                  const apiKey = icu.api_key.trim();
-                  if (!athleteId || apiKey.length < 8) {
-                    toast.error("Introduce el ID de atleta y la clave API");
-                    return;
-                  }
-                  setIcuBusy(true);
-                  try {
-                    await connectIcu({ data: { athlete_id: athleteId, api_key: apiKey } });
-                    toast.success("Intervals.icu conectado");
-                    try {
-                      await syncZonesIcu({ data: undefined });
-                      toast.success("Zonas sincronizadas con Intervals.icu");
-                    } catch { /* no bloquea la conexión */ }
-                    setIcu({ athlete_id: "", api_key: "" });
-                    qc.invalidateQueries({ queryKey: ["profile"] });
-                  } catch (e: any) {
-                    toast.error(e.message ?? "No se pudo conectar");
-                  } finally {
-                    setIcuBusy(false);
-                  }
-                }}
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50"
+                onClick={() => { window.location.href = intervalsAuthorizeUrl(); }}
+                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90"
               >
-                <LinkIcon className="size-4" /> {icuBusy ? "Conectando…" : "Conectar con Intervals.icu"}
+                <LinkIcon className="size-4" /> Conectar con Intervals.icu
               </button>
             </div>
           )}
