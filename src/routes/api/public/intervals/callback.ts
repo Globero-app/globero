@@ -1,7 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createClient } from "@supabase/supabase-js";
-
-const REDIRECT_URI = "https://globero.app/auth/intervals/callback";
 
 function profileRedirect(origin: string, status: "success" | "error") {
   return new Response(null, {
@@ -56,10 +53,7 @@ export const Route = createFileRoute("/api/public/intervals/callback")({
         const token = await response.json() as { access_token?: string; athlete?: { id?: string | number } };
         if (!token.access_token || token.athlete?.id == null) return profileRedirect(appOrigin, "error");
 
-        const backendUrl = process.env["SUPABASE_URL"];
-        const backendKey = process.env["SUPABASE_SERVICE_ROLE_KEY"];
-        if (!backendUrl || !backendKey) return profileRedirect(appOrigin, "error");
-        const admin = createClient(backendUrl, backendKey, { auth: { persistSession: false } });
+        const { supabaseAdmin: admin } = await import("@/integrations/supabase/client.server");
         const { error } = await admin.from("profiles").update({
           intervals_athlete_id: String(token.athlete.id),
           intervals_api_key: token.access_token,
