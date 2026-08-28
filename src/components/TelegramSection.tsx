@@ -3,9 +3,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { CheckCircle2, Send, Unlink } from "lucide-react";
 import { getTelegramStatus, generateTelegramCode, disconnectTelegram } from "@/lib/telegram.functions";
+import { useAuth } from "@/hooks/useAuth";
 
 export function TelegramSection() {
   const qc = useQueryClient();
+  const { user, loading } = useAuth();
   const status = useServerFn(getTelegramStatus);
   const genCode = useServerFn(generateTelegramCode);
   const disconnect = useServerFn(disconnectTelegram);
