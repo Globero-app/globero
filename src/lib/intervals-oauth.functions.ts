@@ -2,8 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-const REDIRECT_URI = "https://globero.app/auth/intervals/callback";
-
 /** Intercambia el code de OAuth de Intervals.icu y guarda el token en el perfil. */
 export const intervalsOAuthExchange = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -18,8 +16,6 @@ export const intervalsOAuthExchange = createServerFn({ method: "POST" })
       client_id: clientId,
       client_secret: clientSecret,
       code: data.code,
-      grant_type: "authorization_code",
-      redirect_uri: REDIRECT_URI,
     });
     const res = await fetch("https://intervals.icu/api/oauth/token", {
       method: "POST",
