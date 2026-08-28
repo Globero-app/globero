@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth/intervals/callback")({
@@ -19,7 +19,6 @@ export const Route = createFileRoute("/auth/intervals/callback")({
 
 function IntervalsCallback() {
   const navigate = useNavigate();
-  const [msg, setMsg] = useState("Vinculando tu cuenta de Intervals.icu…");
   const done = useRef(false);
 
   useEffect(() => {
@@ -41,7 +40,7 @@ function IntervalsCallback() {
 
   return (
     <div className="min-h-[60vh] grid place-items-center p-8">
-      <p className="text-sm text-muted-foreground">{msg}</p>
+      <p className="text-sm text-muted-foreground">Vinculando tu cuenta de Intervals.icu…</p>
     </div>
   );
 }

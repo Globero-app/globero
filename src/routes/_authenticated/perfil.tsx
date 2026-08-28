@@ -40,6 +40,17 @@ function PerfilPage() {
 
   const [form, setForm] = useState<any>({});
   useEffect(() => { if (profileQ.data) setForm(profileQ.data); }, [profileQ.data]);
+  useEffect(() => {
+    const status = new URLSearchParams(window.location.search).get("intervals");
+    if (!status) return;
+    if (status === "success") {
+      toast.success("¡Cuenta de Intervals.icu conectada correctamente!");
+      qc.invalidateQueries({ queryKey: ["profile"] });
+    } else {
+      toast.error("No se pudo vincular Intervals.icu");
+    }
+    window.history.replaceState({}, "", window.location.pathname);
+  }, [qc]);
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
