@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { CheckCircle2, Send, Unlink } from "lucide-react";
 import { getTelegramStatus, generateTelegramCode, disconnectTelegram } from "@/lib/telegram.functions";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/lib/use-auth";
 
 export function TelegramSection() {
   const qc = useQueryClient();
