@@ -80,7 +80,7 @@ export const Route = createFileRoute("/api/public/hooks/readiness-push")({
         }
 
         // ── Slots 1..n: notificaciones adicionales, en orden fijo ─────────
-        const ORDER = ["notify_daily_brief", "notify_training_push", "notify_prerace_push", "notify_maintenance_push", "notify_fatigue_alerts"] as const;
+        const ORDER = ["notify_daily_brief", "notify_prerace_push", "notify_maintenance_push", "notify_fatigue_alerts"] as const;
         let sent = 0;
         let notified = 0;
 
@@ -97,22 +97,6 @@ export const Route = createFileRoute("/api/public/hooks/readiness-push")({
             const { runCoachAlerts } = await import("@/lib/coach.server");
             const res = await runCoachAlerts(supabaseAdmin, u.id, true);
             if (res.notified) { sent += res.notified; notified++; }
-          } else if (key === "notify_training_push") {
-            const { data: ws } = await supabaseAdmin
-              .from("workouts")
-              .select("id, plan, duration_minutes, training_type, status")
-              .eq("user_id", u.id)
-              .neq("status", "completed");
-            const w = (ws ?? []).find((x: any) => (x.plan as any)?.scheduled_date === madridDate);
-            if (!w) continue;
-            const name = ((w as any).plan as any)?.name ?? "Sesión planificada";
-            sent += await notifyUser(u.id, {
-              title: "🚴 Entrenamiento de hoy",
-              body: `${name} · ${(w as any).duration_minutes} min · ${(w as any).training_type}`,
-              tag: `training-${(w as any).id}-${madridDate}`,
-              url: "/entrenamientos",
-            });
-            notified++;
           } else if (key === "notify_prerace_push") {
             const { data: comps } = await supabaseAdmin
               .from("competitions")

@@ -98,10 +98,17 @@ export async function buildDailyBrief(supabase: any, userId: string) {
     ? `${(todayWorkout.plan as any)?.title ?? "Sesión"} · ${todayWorkout.duration_minutes} min · TSB ${Math.round(load.tsb)}`
     : `Descanso · TSB ${Math.round(load.tsb)}`;
 
+  const notificationBody = todayWorkout
+    ? `${(todayWorkout.plan as any)?.title ?? "Sesión"} · ${todayWorkout.duration_minutes} min · ${todayWorkout.bike_type}${
+        (todayWorkout.plan as any)?.summary ? "\n" + (todayWorkout.plan as any).summary : ""
+      }`
+    : "Hoy: día de descanso.";
+
   return {
     date: today,
     title: "🧭 Resumen de hoy",
     short,
+    body: notificationBody,
     detail: lines.join("\n"),
     advice,
     load: { ctl: Math.round(load.ctl), atl: Math.round(load.atl), tsb: Math.round(load.tsb) },
@@ -239,7 +246,7 @@ export async function sendDailyBrief(supabase: any, userId: string): Promise<boo
     const { notifyUser } = await import("./web-push.server");
     await notifyUser(userId, {
       title: brief.title,
-      body: brief.detail,
+      body: brief.body,
       tag: `daily-brief-${brief.date}`,
       url: "/app",
     });
