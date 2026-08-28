@@ -3,7 +3,7 @@ export const INTERVALS_CLIENT_ID =
 
 export const INTERVALS_REDIRECT_URI = "https://globero.app/auth/intervals/callback";
 
-export const INTERVALS_SCOPES = "ACTIVITY:READ,ACTIVITY:WRITE,ATHLETE:READ,ATHLETE:WRITE";
+export const INTERVALS_SCOPES = "ACTIVITY:WRITE,CALENDAR:WRITE,SETTINGS:WRITE";
 
 export function intervalsAuthorizeUrl() {
   const params = new URLSearchParams({
