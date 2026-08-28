@@ -45,7 +45,7 @@ function IntervalsCallback() {
       }
       try {
         await exchange({ data: { code } });
-        toast.success("¡Cuenta de Intervals.icu vinculada correctamente!");
+        toast.success("¡Conexión con Intervals.icu realizada con éxito!");
       } catch (e: any) {
         setMsg("Error al vincular");
         toast.error(e?.message ?? "No se pudo vincular Intervals.icu");
