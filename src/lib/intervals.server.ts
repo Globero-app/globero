@@ -148,15 +148,15 @@ export function buildWorkoutDoc(plan: any, basis: "power" | "hr", refs: ZoneRefs
     if (s.target === "power" && low > 0) {
       const wl = Math.round(low);
       const wh = Math.round(high || low);
-      if (indoor) {
-        // En rodillo el FTP de VirtualRide suele ser 0 y Intervals resolvería
-        // los % como "(0-0w)": se envían vatios absolutos y el % como texto.
+      if (indoor && ftp && ftp > 0) {
+        // En rodillo se envía el % como objetivo (Intervals lo resuelve con el
+        // FTP de VirtualRide, ya sincronizado) y los vatios absolutos como texto.
+        const pl = Math.round((low / ftp) * 100);
+        const ph = Math.round(((high || low) / ftp) * 100);
+        target = pl === ph ? `${pl}%` : `${pl}-${ph}%`;
+        name = `(${wl === wh ? `${wl}w` : `${wl}-${wh}w`})${name ? ` ${name}` : ""}`;
+      } else if (indoor) {
         target = wl === wh ? `${wl}w` : `${wl}-${wh}w`;
-        if (ftp && ftp > 0) {
-          const pl = Math.round((low / ftp) * 100);
-          const ph = Math.round(((high || low) / ftp) * 100);
-          name = `(${pl === ph ? `${pl}%` : `${pl}-${ph}%`})${name ? ` ${name}` : ""}`;
-        }
       } else if (ftp && ftp > 0) {
         const pl = Math.round((low / ftp) * 100);
         const ph = Math.round(((high || low) / ftp) * 100);
