@@ -4,13 +4,12 @@ export const INTERVALS_CLIENT_ID =
 export const INTERVALS_REDIRECT_URI = "https://globero.app/auth/intervals/callback";
 
 export const INTERVALS_SCOPES =
-  "ACTIVITY:WRITE,CALENDAR:WRITE,SETTINGS:WRITE";
+  "ACTIVITY:WRITE,CALENDAR:WRITE,SETTINGS:WRITE,WELLNESS:WRITE";
 
 export function intervalsAuthorizeUrl() {
   const params = new URLSearchParams({
     client_id: INTERVALS_CLIENT_ID,
     redirect_uri: INTERVALS_REDIRECT_URI,
-    response_type: "code",
     scope: INTERVALS_SCOPES,
   });
   return `https://intervals.icu/oauth/authorize?${params.toString()}`;
