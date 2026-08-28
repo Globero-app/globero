@@ -10,6 +10,7 @@ import { CheckCircle2, Link as LinkIcon, Unlink, Wrench, Wand2 } from "lucide-re
 import { Link } from "@tanstack/react-router";
 import { computePowerZones, computeHrZones } from "@/lib/zones";
 import { intervalsAuthorizeUrl } from "@/lib/intervals-oauth";
+import { createIntervalsOAuthState } from "@/lib/intervals-oauth.functions";
 import { NotificationsPrefs } from "@/components/NotificationsPrefs";
 import { TelegramSection } from "@/components/TelegramSection";
 
@@ -26,6 +27,7 @@ function PerfilPage() {
   const syncActs = useServerFn(intervalsSyncActivities);
   const disconnectIcu = useServerFn(disconnectIntervals);
   const syncZonesIcu = useServerFn(syncIntervalsZones);
+  const createOAuthState = useServerFn(createIntervalsOAuthState);
 
   const profileQ = useQuery({
     queryKey: ["profile", user?.id],
@@ -38,6 +40,17 @@ function PerfilPage() {
 
   const [form, setForm] = useState<any>({});
   useEffect(() => { if (profileQ.data) setForm(profileQ.data); }, [profileQ.data]);
+  useEffect(() => {
+    const status = new URLSearchParams(window.location.search).get("intervals");
+    if (!status) return;
+    if (status === "success") {
+      toast.success("¡Cuenta de Intervals.icu conectada correctamente!");
+      qc.invalidateQueries({ queryKey: ["profile"] });
+    } else {
+      toast.error("No se pudo vincular Intervals.icu");
+    }
+    window.history.replaceState({}, "", window.location.pathname);
+  }, [qc]);
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -267,7 +280,14 @@ function PerfilPage() {
               </p>
               <button
                 type="button"
-                onClick={() => { window.location.href = intervalsAuthorizeUrl(); }}
+                onClick={async () => {
+                  try {
+                    const { state } = await createOAuthState();
+                    window.location.href = intervalsAuthorizeUrl(state);
+                  } catch (e: any) {
+                    toast.error(e?.message ?? "No se pudo iniciar la conexión");
+                  }
+                }}
                 className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90"
               >
                 <LinkIcon className="size-4" /> Conectar con Intervals.icu
