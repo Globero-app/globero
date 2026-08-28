@@ -65,10 +65,15 @@ const IntentSchema = {
       type: "string",
       enum: ["chat", "set_readiness", "modify_workout", "update_profile", "swap_meal"],
       description:
-        "set_readiness si indica cómo se encuentra hoy; modify_workout si pide cambiar el entreno de hoy; update_profile si pide cambiar un dato de su perfil (peso, altura, edad, FTP, FCmáx, LTHR, objetivo nutricional, duración por defecto, base de entreno potencia/fc, hora del aviso de readiness); swap_meal si pide cambiar/sustituir una comida del menú de hoy; chat en el resto (incluidas preguntas sobre menú, recetas, zonas, FTP, métricas)",
+        "set_readiness si indica cómo se encuentra hoy; modify_workout si pide cambiar, aplazar o mover a otro día el entreno de hoy; update_profile si pide cambiar un dato de su perfil (peso, altura, edad, FTP, FCmáx, LTHR, objetivo nutricional, duración por defecto, base de entreno potencia/fc, hora del aviso de readiness); swap_meal si pide cambiar/sustituir una comida del menú de hoy; chat en el resto (incluidas preguntas sobre menú, recetas, zonas, FTP, métricas)",
     },
     readiness_score: { type: "number", description: "1-5 solo si intent=set_readiness" },
     change_request: { type: "string", description: "Qué cambio pide en el entreno, solo si intent=modify_workout" },
+    new_scheduled_date: {
+      type: "string",
+      description:
+        "Solo si intent=modify_workout y pide mover/aplazar el entreno a otro día. Fecha absoluta en formato YYYY-MM-DD calculada a partir de la FECHA del contexto (por ejemplo 'mañana' = FECHA + 1 día)",
+    },
     meal_key: {
       type: "string",
       enum: ["desayuno", "media_manana", "comida", "merienda", "cena"],
@@ -474,23 +479,39 @@ INSTRUCCIONES:
       ],
       AdaptSchema,
     );
+    const requestedDate =
+      typeof (analysis as any).new_scheduled_date === "string" &&
+      /^\d{4}-\d{2}-\d{2}$/.test((analysis as any).new_scheduled_date)
+        ? ((analysis as any).new_scheduled_date as string)
+        : null;
     const newPlan = {
       ...(workout.plan as any),
       name: adapted.name,
       title: adapted.title,
       summary: adapted.summary,
       steps: adapted.steps,
+      ...(requestedDate ? { scheduled_date: requestedDate } : {}),
     };
-    await supabaseAdmin
+    const newDuration = Math.max(15, Math.round(adapted.duration_minutes || workout.duration_minutes));
+    const { data: updatedWorkout, error: modifyError } = await supabaseAdmin
       .from("workouts")
-      .update({ plan: newPlan, duration_minutes: Math.max(15, Math.round(adapted.duration_minutes || workout.duration_minutes)) })
+      .update({ plan: newPlan, duration_minutes: newDuration })
       .eq("id", workout.id)
-      .eq("user_id", userId);
+      .eq("user_id", userId)
+      .select()
+      .maybeSingle();
+    if (modifyError) throw new Error(modifyError.message);
+    if (!updatedWorkout) throw new Error("No se pudo actualizar el entrenamiento");
     const { syncWorkoutEvent } = await import("./intervals.server");
-    await syncWorkoutEvent(supabaseAdmin, userId, { ...workout, plan: newPlan });
+    let syncOk = true;
+    try {
+      await syncWorkoutEvent(supabaseAdmin, userId, updatedWorkout, { strict: true });
+    } catch {
+      syncOk = false;
+    }
     await telegramSend(
       chatId,
-      `✅ ${adapted.message}\n\n${adapted.title} · ${Math.round(adapted.duration_minutes)} min\n${adapted.summary}\n\nSincronizado con Intervals.icu.`,
+      `✅ ${adapted.message}\n\n${adapted.title} · ${newDuration} min${requestedDate ? ` · ${requestedDate}` : ""}\n${adapted.summary}\n\n${syncOk ? "Sincronizado con Intervals.icu." : "⚠️ No se ha podido sincronizar con Intervals.icu."}`,
     );
     return;
   }
