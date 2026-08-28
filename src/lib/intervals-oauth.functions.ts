@@ -14,16 +14,17 @@ export const intervalsOAuthExchange = createServerFn({ method: "POST" })
     const clientSecret = process.env["INTERVALS_CLIENT_SECRET"];
     if (!clientSecret) throw new Error("Falta INTERVALS_CLIENT_SECRET");
 
-    const res = await fetch("https://intervals.icu/api/v1/oauth/token", {
+    const body = new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      code: data.code,
+      grant_type: "authorization_code",
+      redirect_uri: REDIRECT_URI,
+    });
+    const res = await fetch("https://intervals.icu/api/oauth/token", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        client_id: clientId,
-        client_secret: clientSecret,
-        code: data.code,
-        grant_type: "authorization_code",
-        redirect_uri: REDIRECT_URI,
-      }),
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString(),
     });
     const text = await res.text();
     if (!res.ok) throw new Error(`Intervals.icu OAuth ${res.status}: ${text.slice(0, 200)}`);
