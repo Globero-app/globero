@@ -18,8 +18,6 @@ export const intervalsOAuthExchange = createServerFn({ method: "POST" })
       client_id: clientId,
       client_secret: clientSecret,
       code: data.code,
-      grant_type: "authorization_code",
-      redirect_uri: REDIRECT_URI,
     });
     const res = await fetch("https://intervals.icu/api/oauth/token", {
       method: "POST",
