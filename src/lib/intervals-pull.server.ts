@@ -1,6 +1,7 @@
 /** Lectura inversa desde Intervals.icu: fechas movidas, eventos borrados y sesiones completadas. */
 
 import type { IntervalsCreds } from "./intervals.server";
+import { intervalsAuthHeader } from "./intervals.server";
 
 const BASE = "https://intervals.icu/api/v1";
 
@@ -9,9 +10,8 @@ function athletePath(athleteId: string) {
 }
 
 async function get(creds: IntervalsCreds, path: string) {
-  const token = Buffer.from(`API_KEY:${creds.apiKey}`).toString("base64");
   const res = await fetch(`${BASE}/athlete/${athletePath(creds.athleteId)}${path}`, {
-    headers: { Authorization: `Basic ${token}`, "Content-Type": "application/json" },
+    headers: { Authorization: intervalsAuthHeader(creds), "Content-Type": "application/json" },
   });
   if (!res.ok) throw new Error(`Intervals.icu ${res.status}: ${(await res.text()).slice(0, 200)}`);
   const text = await res.text();

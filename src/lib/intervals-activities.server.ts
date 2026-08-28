@@ -1,13 +1,11 @@
 /** Sincronización de actividades desde Intervals.icu (fuente única de datos). Solo servidor. */
 
 import type { IntervalsCreds } from "./intervals.server";
-import { credsFromProfile, intervalsListActivities } from "./intervals.server";
+import { credsFromProfile, intervalsListActivities, intervalsAuthHeader } from "./intervals.server";
 
 const BASE = "https://intervals.icu/api/v1";
 
-function authHeader(apiKey: string) {
-  return `Basic ${Buffer.from(`API_KEY:${apiKey}`).toString("base64")}`;
-}
+
 
 function isoDaysAgo(days: number): string {
   const d = new Date();
@@ -86,7 +84,7 @@ export async function intervalsActivityStreams(
   types = "watts,time",
 ): Promise<Record<string, number[]>> {
   const res = await fetch(`${BASE}/activity/${activityId}/streams?types=${types}`, {
-    headers: { Authorization: authHeader(creds.apiKey) },
+    headers: { Authorization: intervalsAuthHeader(creds) },
   });
   if (!res.ok) return {};
   const json = await res.json();
@@ -113,7 +111,7 @@ export async function intervalsActivityStreams(
 /** Datos del atleta en Intervals.icu (incluye icu_ftp, icu_resting_hr…). */
 export async function intervalsGetAthlete(creds: IntervalsCreds): Promise<any> {
   const path = String(creds.athleteId).startsWith("i") ? creds.athleteId : `i${creds.athleteId}`;
-  const res = await fetch(`${BASE}/athlete/${path}`, { headers: { Authorization: authHeader(creds.apiKey) } });
+  const res = await fetch(`${BASE}/athlete/${path}`, { headers: { Authorization: intervalsAuthHeader(creds) } });
   if (!res.ok) return null;
   return res.json();
 }
@@ -187,7 +185,7 @@ export async function renameIntervalsActivity(
     if (!creds || !name.trim()) return;
     const res = await fetch(`${BASE}/activity/${activityId}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json", Authorization: authHeader(creds.apiKey) },
+      headers: { "Content-Type": "application/json", Authorization: intervalsAuthHeader(creds) },
       body: JSON.stringify({ name: name.trim().slice(0, 120) }),
     });
     if (!res.ok) {
