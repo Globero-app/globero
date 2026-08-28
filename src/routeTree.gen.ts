@@ -36,7 +36,6 @@ import { Route as AuthenticatedActividadesIdRouteImport } from './routes/_authen
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
-import { Route as ApiPublicIntervalsCallbackRouteImport } from './routes/api/public/intervals/callback'
 import { Route as ApiPublicHooksWeeklyWorkoutsRouteImport } from './routes/api/public/hooks/weekly-workouts'
 import { Route as ApiPublicHooksReadinessPushRouteImport } from './routes/api/public/hooks/readiness-push'
 import { Route as ApiPublicHooksIntervalsSyncRouteImport } from './routes/api/public/hooks/intervals-sync'
@@ -183,12 +182,6 @@ const ApiPublicTelegramWebhookRoute =
     path: '/api/public/telegram/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicIntervalsCallbackRoute =
-  ApiPublicIntervalsCallbackRouteImport.update({
-    id: '/api/public/intervals/callback',
-    path: '/api/public/intervals/callback',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicHooksWeeklyWorkoutsRoute =
   ApiPublicHooksWeeklyWorkoutsRouteImport.update({
     id: '/api/public/hooks/weekly-workouts',
@@ -249,7 +242,6 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/intervals-sync': typeof ApiPublicHooksIntervalsSyncRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
-  '/api/public/intervals/callback': typeof ApiPublicIntervalsCallbackRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -283,7 +275,6 @@ export interface FileRoutesByTo {
   '/api/public/hooks/intervals-sync': typeof ApiPublicHooksIntervalsSyncRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
-  '/api/public/intervals/callback': typeof ApiPublicIntervalsCallbackRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -319,7 +310,6 @@ export interface FileRoutesById {
   '/api/public/hooks/intervals-sync': typeof ApiPublicHooksIntervalsSyncRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
-  '/api/public/intervals/callback': typeof ApiPublicIntervalsCallbackRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -355,7 +345,6 @@ export interface FileRouteTypes {
     | '/api/public/hooks/intervals-sync'
     | '/api/public/hooks/readiness-push'
     | '/api/public/hooks/weekly-workouts'
-    | '/api/public/intervals/callback'
     | '/api/public/telegram/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -389,7 +378,6 @@ export interface FileRouteTypes {
     | '/api/public/hooks/intervals-sync'
     | '/api/public/hooks/readiness-push'
     | '/api/public/hooks/weekly-workouts'
-    | '/api/public/intervals/callback'
     | '/api/public/telegram/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -424,7 +412,6 @@ export interface FileRouteTypes {
     | '/api/public/hooks/intervals-sync'
     | '/api/public/hooks/readiness-push'
     | '/api/public/hooks/weekly-workouts'
-    | '/api/public/intervals/callback'
     | '/api/public/telegram/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -446,7 +433,6 @@ export interface RootRouteChildren {
   ApiPublicHooksIntervalsSyncRoute: typeof ApiPublicHooksIntervalsSyncRoute
   ApiPublicHooksReadinessPushRoute: typeof ApiPublicHooksReadinessPushRoute
   ApiPublicHooksWeeklyWorkoutsRoute: typeof ApiPublicHooksWeeklyWorkoutsRoute
-  ApiPublicIntervalsCallbackRoute: typeof ApiPublicIntervalsCallbackRoute
   ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -643,13 +629,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTelegramWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/intervals/callback': {
-      id: '/api/public/intervals/callback'
-      path: '/api/public/intervals/callback'
-      fullPath: '/api/public/intervals/callback'
-      preLoaderRoute: typeof ApiPublicIntervalsCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/hooks/weekly-workouts': {
       id: '/api/public/hooks/weekly-workouts'
       path: '/api/public/hooks/weekly-workouts'
@@ -741,7 +720,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksIntervalsSyncRoute: ApiPublicHooksIntervalsSyncRoute,
   ApiPublicHooksReadinessPushRoute: ApiPublicHooksReadinessPushRoute,
   ApiPublicHooksWeeklyWorkoutsRoute: ApiPublicHooksWeeklyWorkoutsRoute,
-  ApiPublicIntervalsCallbackRoute: ApiPublicIntervalsCallbackRoute,
   ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
