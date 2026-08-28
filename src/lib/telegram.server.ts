@@ -65,7 +65,7 @@ const IntentSchema = {
       type: "string",
       enum: ["chat", "set_readiness", "modify_workout", "update_profile", "swap_meal"],
       description:
-        "set_readiness si indica cómo se encuentra hoy; modify_workout si pide cambiar el entreno de hoy; update_profile si pide cambiar un dato de su perfil (peso, altura, edad, FTP, FCmáx, LTHR, objetivo nutricional, duración por defecto, base de entreno potencia/fc, hora del aviso de readiness); swap_meal si pide cambiar/sustituir una comida del menú de hoy; chat en el resto (incluidas preguntas sobre menú, recetas, zonas, FTP, métricas)",
+        "set_readiness si indica cómo se encuentra hoy; modify_workout si pide cambiar, aplazar o mover a otro día el entreno de hoy; update_profile si pide cambiar un dato de su perfil (peso, altura, edad, FTP, FCmáx, LTHR, objetivo nutricional, duración por defecto, base de entreno potencia/fc, hora del aviso de readiness); swap_meal si pide cambiar/sustituir una comida del menú de hoy; chat en el resto (incluidas preguntas sobre menú, recetas, zonas, FTP, métricas)",
     },
     readiness_score: { type: "number", description: "1-5 solo si intent=set_readiness" },
     change_request: { type: "string", description: "Qué cambio pide en el entreno, solo si intent=modify_workout" },
