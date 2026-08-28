@@ -2,7 +2,12 @@
 
 const BASE = "https://intervals.icu/api/v1";
 
-export type IntervalsCreds = { athleteId: string; apiKey: string };
+export type IntervalsCreds = { athleteId: string; apiKey: string; oauth?: boolean };
+
+export function intervalsAuthHeader(creds: IntervalsCreds) {
+  if (creds.oauth) return `Bearer ${creds.apiKey}`;
+  return `Basic ${Buffer.from(`API_KEY:${creds.apiKey}`).toString("base64")}`;
+}
 
 function authHeader(apiKey: string) {
   const token = Buffer.from(`API_KEY:${apiKey}`).toString("base64");
@@ -18,7 +23,7 @@ async function call(creds: IntervalsCreds, path: string, init: RequestInit = {})
     ...init,
     headers: {
       "Content-Type": "application/json",
-      Authorization: authHeader(creds.apiKey),
+      Authorization: intervalsAuthHeader(creds),
       ...(init.headers ?? {}),
     },
   });
@@ -241,7 +246,7 @@ export async function intervalsUpdateActivity(
 /** Lee credenciales del perfil; null si no está conectado */
 export function credsFromProfile(profile: any): IntervalsCreds | null {
   if (!profile?.intervals_athlete_id || !profile?.intervals_api_key) return null;
-  return { athleteId: String(profile.intervals_athlete_id), apiKey: String(profile.intervals_api_key) };
+  return { athleteId: String(profile.intervals_athlete_id), apiKey: String(profile.intervals_api_key), oauth: !!profile.intervals_oauth };
 }
 
 /** Crea o actualiza el evento de un entrenamiento en Intervals.icu. Devuelve el event id o null. */
@@ -253,7 +258,7 @@ export async function syncWorkoutEvent(
 ): Promise<string | null> {
   const { data: profile } = await supabase
     .from("profiles")
-    .select("intervals_athlete_id,intervals_api_key,ftp,lthr,max_hr")
+    .select("intervals_athlete_id,intervals_api_key,intervals_oauth,ftp,lthr,max_hr")
     .eq("id", userId)
     .maybeSingle();
   const creds = credsFromProfile(profile);
@@ -303,7 +308,7 @@ export async function removeWorkoutEvent(
   if (!eventId) return;
   const { data: profile } = await supabase
     .from("profiles")
-    .select("intervals_athlete_id,intervals_api_key")
+    .select("intervals_athlete_id,intervals_api_key,intervals_oauth")
     .eq("id", userId)
     .maybeSingle();
   const creds = credsFromProfile(profile);
@@ -320,7 +325,7 @@ export async function removeWorkoutEvent(
 export async function intervalsPushZones(supabase: any, userId: string): Promise<boolean> {
   const { data: profile } = await supabase
     .from("profiles")
-    .select("intervals_athlete_id,intervals_api_key,ftp,lthr,max_hr")
+    .select("intervals_athlete_id,intervals_api_key,intervals_oauth,ftp,lthr,max_hr")
     .eq("id", userId)
     .maybeSingle();
   const creds = credsFromProfile(profile);

@@ -13,7 +13,7 @@ const DURATIONS = [
 async function credsFor(supabase: any, userId: string) {
   const { data: profile } = await supabase
     .from("profiles")
-    .select("intervals_athlete_id,intervals_api_key")
+    .select("intervals_athlete_id,intervals_api_key,intervals_oauth")
     .eq("id", userId)
     .maybeSingle();
   return credsFromProfile(profile);

@@ -460,6 +460,9 @@ export type Database = {
           id: string
           intervals_api_key: string | null
           intervals_athlete_id: string | null
+          intervals_oauth: boolean
+          intervals_refresh_token: string | null
+          intervals_token_expires_at: string | null
           linking_code: string | null
           location_city: string | null
           lthr: number | null
@@ -515,6 +518,9 @@ export type Database = {
           id: string
           intervals_api_key?: string | null
           intervals_athlete_id?: string | null
+          intervals_oauth?: boolean
+          intervals_refresh_token?: string | null
+          intervals_token_expires_at?: string | null
           linking_code?: string | null
           location_city?: string | null
           lthr?: number | null
@@ -570,6 +576,9 @@ export type Database = {
           id?: string
           intervals_api_key?: string | null
           intervals_athlete_id?: string | null
+          intervals_oauth?: boolean
+          intervals_refresh_token?: string | null
+          intervals_token_expires_at?: string | null
           linking_code?: string | null
           location_city?: string | null
           lthr?: number | null
