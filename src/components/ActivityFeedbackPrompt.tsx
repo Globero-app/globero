@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { getPendingActivityFeedback, saveActivityFeedback } from "@/lib/activity-feedback.functions";
 import { toast } from "sonner";
 import { Bike } from "lucide-react";
+import { useAuth } from "@/lib/use-auth";
 
 const FEEL = ["Muy mal", "Mal", "Normal", "Bien", "Muy bien"];
 
@@ -11,14 +12,17 @@ export function ActivityFeedbackPrompt() {
   const qc = useQueryClient();
   const pendingFn = useServerFn(getPendingActivityFeedback);
   const saveFn = useServerFn(saveActivityFeedback);
+  const { user, loading } = useAuth();
   const [open, setOpen] = useState(false);
   const [rpe, setRpe] = useState(5);
   const [feel, setFeel] = useState(3);
   const [busy, setBusy] = useState(false);
 
   const { data: pending } = useQuery({
-    queryKey: ["activity-feedback-pending"],
+    queryKey: ["activity-feedback-pending", user?.id],
     queryFn: () => pendingFn({ data: undefined }) as any,
+    enabled: !loading && !!user,
+    retry: false,
     refetchInterval: 5 * 60 * 1000,
   });
 
