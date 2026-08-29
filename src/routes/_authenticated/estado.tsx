@@ -7,7 +7,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { RefreshCw, CheckCircle2, XCircle, Bell, Send, AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getSyncStatus, getNotificationHistory } from "@/lib/diag.functions";
+import { getSyncStatus, getNotificationHistory, getAiUsage } from "@/lib/diag.functions";
 import { intervalsSyncActivities } from "@/lib/intervals.functions";
 import { useAuth } from "@/lib/use-auth";
 
@@ -39,11 +39,13 @@ function EstadoPage() {
   const qc = useQueryClient();
   const statusFn = useServerFn(getSyncStatus);
   const notifFn = useServerFn(getNotificationHistory);
+  const aiFn = useServerFn(getAiUsage);
   const syncFn = useServerFn(intervalsSyncActivities);
   const [syncing, setSyncing] = useState(false);
 
   const status = useQuery({ queryKey: ["sync_status", user?.id], queryFn: () => statusFn({ data: undefined } as any), enabled: !!user });
   const notifs = useQuery({ queryKey: ["notif_history", user?.id], queryFn: () => notifFn({ data: undefined } as any), enabled: !!user });
+  const aiUsage = useQuery({ queryKey: ["ai_usage", user?.id], queryFn: () => aiFn({ data: undefined } as any), enabled: !!user });
 
   const forceSync = async () => {
     setSyncing(true);
