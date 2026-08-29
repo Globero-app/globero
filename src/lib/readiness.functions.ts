@@ -12,7 +12,7 @@ export const saveReadiness = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => SaveInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { madridToday, callAI, AdaptSchema, pickTodayWorkout, buildAdaptPrompt, READINESS_LABELS } =
+    const { madridToday, deterministicAdapt, pickTodayWorkout, READINESS_LABELS } =
       await import("./readiness.server");
     const today = madridToday();
 
@@ -27,12 +27,6 @@ export const saveReadiness = createServerFn({ method: "POST" })
 
     const workout = pickTodayWorkout((pending ?? []) as any[], today);
 
-    const { data: hist } = await supabase
-      .from("readiness_entries")
-      .select("entry_date,score")
-      .eq("user_id", userId)
-      .order("entry_date", { ascending: false })
-      .limit(14);
 
     let action: "none" | "suggest_delete" | "adapted" = "none";
     let message = "";
