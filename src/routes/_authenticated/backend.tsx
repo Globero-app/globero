@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listAllUsers, createUser, setUserRole, deleteUser, updateAppConfig } from "@/lib/admin.functions";
-import { getErrorStats } from "@/lib/diag.functions";
+import { getErrorStats, getGlobalAiUsage } from "@/lib/diag.functions";
 import { useAppConfig } from "@/lib/use-app-config";
 import { useAuth } from "@/lib/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/backend")({
 });
 
 function BackendPage() {
-  const [tab, setTab] = useState<"config" | "users" | "sponsors" | "site" | "errors">("config");
+  const [tab, setTab] = useState<"config" | "users" | "sponsors" | "site" | "errors" | "ia">("config");
   return (
     <div className="space-y-6">
       <div>
@@ -32,13 +32,49 @@ function BackendPage() {
         <h1 className="font-display text-4xl font-bold uppercase tracking-tight">Backend</h1>
       </div>
       <div className="border-b flex gap-1 flex-wrap">
-        {[["config", "Configuración visual"], ["users", "Usuarios"], ["sponsors", "Patrocinadores"], ["site", "Web pública"], ["errors", "Errores"]].map(([k, l]) => (
+        {[["config", "Configuración visual"], ["users", "Usuarios"], ["sponsors", "Patrocinadores"], ["site", "Web pública"], ["errors", "Errores"], ["ia", "Uso de IA"]].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k as any)} className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${tab === k ? "border-primary text-primary" : "border-transparent text-muted-foreground"}`}>
             {l}
           </button>
         ))}
       </div>
-      {tab === "config" ? <ConfigTab /> : tab === "users" ? <UsersTab /> : tab === "sponsors" ? <SponsorsTab /> : tab === "errors" ? <ErrorsTab /> : <SiteContentTab />}
+      {tab === "config" ? <ConfigTab /> : tab === "users" ? <UsersTab /> : tab === "sponsors" ? <SponsorsTab /> : tab === "errors" ? <ErrorsTab /> : tab === "ia" ? <AiUsageTab /> : <SiteContentTab />}
+    </div>
+  );
+}
+
+function AiUsageTab() {
+  const aiFn = useServerFn(getGlobalAiUsage);
+  const q = useQuery({ queryKey: ["ai_usage_global"], queryFn: () => aiFn({ data: undefined } as any) });
+  const d = q.data as any;
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">Totales de todos los usuarios desde el {d?.since ?? "día 1"} del mes.</p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="border rounded-lg p-4">
+          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">Llamadas a la IA</p>
+          <p className="font-display text-2xl font-bold mt-1">{q.isLoading ? "…" : (d?.total_calls ?? 0)}</p>
+        </div>
+        <div className="border rounded-lg p-4">
+          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">Tokens consumidos</p>
+          <p className="font-display text-2xl font-bold mt-1">{q.isLoading ? "…" : (d?.total_tokens ?? 0).toLocaleString("es-ES")}</p>
+        </div>
+      </div>
+      {!q.isLoading && (d?.items ?? []).length === 0 ? (
+        <div className="border-2 border-dashed rounded-xl p-10 text-center text-sm text-muted-foreground">Sin llamadas registradas este mes.</div>
+      ) : (
+        <ul className="divide-y border rounded-xl">
+          {((d?.items ?? []) as any[]).map((g) => (
+            <li key={g.fn} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
+              <span className="font-medium truncate">{g.fn}</span>
+              <span className="text-xs text-muted-foreground shrink-0">
+                {g.calls} llamada(s) · {(g.prompt_tokens + g.completion_tokens).toLocaleString("es-ES")} tokens
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

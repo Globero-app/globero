@@ -139,3 +139,39 @@ export const getAiUsage = createServerFn({ method: "GET" })
       items,
     };
   });
+
+/** Uso global de IA (todos los usuarios) del mes actual. Solo admin. */
+export const getGlobalAiUsage = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data: role } = await supabase
+      .from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle();
+    if (!role) throw new Error("Solo administradores.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const since = new Date();
+    since.setUTCDate(1);
+    since.setUTCHours(0, 0, 0, 0);
+    const { data } = await supabaseAdmin
+      .from("ai_usage_log")
+      .select("fn,model,prompt_tokens,completion_tokens")
+      .gte("created_at", since.toISOString())
+      .limit(5000);
+
+    const groups = new Map<string, { fn: string; model: string; calls: number; prompt_tokens: number; completion_tokens: number }>();
+    for (const r of (data ?? []) as any[]) {
+      const g = groups.get(r.fn) ?? { fn: r.fn, model: r.model, calls: 0, prompt_tokens: 0, completion_tokens: 0 };
+      g.calls++;
+      g.prompt_tokens += Number(r.prompt_tokens) || 0;
+      g.completion_tokens += Number(r.completion_tokens) || 0;
+      groups.set(r.fn, g);
+    }
+    const items = [...groups.values()].sort((a, b) => b.calls - a.calls);
+    return {
+      since: since.toISOString().slice(0, 10),
+      total_calls: items.reduce((t, i) => t + i.calls, 0),
+      total_tokens: items.reduce((t, i) => t + i.prompt_tokens + i.completion_tokens, 0),
+      items,
+    };
+  });
