@@ -65,6 +65,15 @@ function Dashboard() {
     enabled: !!user,
   });
 
+  const ftpTestFn = useServerFn(getFtpTestStatus);
+  const ftpTest = useQuery({
+    queryKey: ["ftp_test_status", user?.id],
+    queryFn: () => ftpTestFn({ data: undefined } as any),
+    enabled: !!user,
+  });
+
+
+
   // Notificaciones locales: entreno de hoy y pre-carrera
   useTodayPushTriggers();
 
