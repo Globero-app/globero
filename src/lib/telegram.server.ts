@@ -360,6 +360,7 @@ ${context}`,
       { role: "user", content: text },
     ],
     IntentSchema,
+    { fn: "telegram-intent", userId },
   );
 
   if (analysis.intent === "set_readiness" && analysis.readiness_score >= 1 && analysis.readiness_score <= 5) {
@@ -384,6 +385,7 @@ ${context}`,
       const adapted = await callAI(
         [{ role: "user", content: buildAdaptPrompt({ score, note: text, profile, workout, history: (hist ?? []) as any[] }) }],
         AdaptSchema,
+        { fn: "telegram-adapt", userId },
       );
       const newPlan = {
         ...(workout.plan as any),
@@ -478,6 +480,7 @@ INSTRUCCIONES:
         },
       ],
       AdaptSchema,
+      { fn: "telegram-modify", userId },
     );
     const requestedDate =
       typeof (analysis as any).new_scheduled_date === "string" &&
@@ -581,6 +584,7 @@ Incluye cantidades en gramos en cada ingrediente. TODO en ESPAÑOL.`,
         },
       ],
       MealSchema,
+      { fn: "telegram-meal", userId },
     );
     const newPlan = {
       ...nutriPlan,
