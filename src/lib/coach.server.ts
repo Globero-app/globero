@@ -48,8 +48,14 @@ async function loadContext(supabase: any, userId: string) {
 }
 
 /** Resumen diario del coach: qué toca hoy, forma actual y consejo. */
+function briefHash(s: string): string {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return String(h >>> 0);
+}
+
 export async function buildDailyBrief(supabase: any, userId: string) {
-  const { today, load, todayWorkout, readiness, health, comp } = await loadContext(supabase, userId);
+  const { today, profile, load, todayWorkout, readiness, health, comp } = await loadContext(supabase, userId);
 
   const lines: string[] = [];
   if (todayWorkout) {
@@ -76,24 +82,37 @@ export async function buildDailyBrief(supabase: any, userId: string) {
     lines.push(`${comp.name}: faltan ${days} días.`);
   }
 
-  let advice = "";
-  try {
-    const { callAI } = await import("./readiness.server");
-    const res = await callAI(
-      [
-        {
-          role: "system",
-          content:
-            "Eres el entrenador de ciclismo del usuario. Devuelve UNA sola frase en español (máx. 200 caracteres), concreta y accionable, sin markdown ni emojis.",
-        },
-        { role: "user", content: lines.join("\n") },
-      ],
-      undefined,
-      { fn: "daily-brief", userId },
-    );
-    advice = typeof res === "string" ? res : String(res?.reply ?? res?.content ?? "");
-  } catch {
-    advice = "";
+  // Caché del consejo: solo se llama a la IA si cambia el contexto del día.
+  const inputHash = briefHash(lines.join("\n"));
+  const cache = ((profile as any)?.daily_brief_cache ?? null) as { hash?: string; advice?: string } | null;
+  let advice = cache?.hash === inputHash ? String(cache?.advice ?? "") : "";
+  if (!advice) {
+    try {
+      const { callAI } = await import("./ai-call.server");
+      const res = await callAI(
+        [
+          {
+            role: "system",
+            content:
+              "Eres el entrenador de ciclismo del usuario. Devuelve UNA sola frase en español (máx. 200 caracteres), concreta y accionable, sin markdown ni emojis.",
+          },
+          { role: "user", content: lines.join("\n") },
+        ],
+        undefined,
+        { fn: "daily-brief", userId },
+      );
+      advice = typeof res === "string" ? res : String(res?.reply ?? res?.content ?? "");
+      advice = advice.replace(/\s+/g, " ").trim().slice(0, 220);
+      if (advice) {
+        void supabase
+          .from("profiles")
+          .update({ daily_brief_cache: { hash: inputHash, advice } })
+          .eq("id", userId)
+          .then(() => {});
+      }
+    } catch {
+      advice = "";
+    }
   }
   advice = advice.replace(/\s+/g, " ").trim().slice(0, 220);
   if (advice) lines.push(`Consejo: ${advice}`);
