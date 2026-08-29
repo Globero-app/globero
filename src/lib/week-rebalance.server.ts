@@ -59,7 +59,7 @@ export async function rebalanceWeekCore(
     w,
     tss: Number(w.planned_tss) || estimatePlanTss(w.plan, ftp, lthr, maxHr, w.duration_minutes),
   }));
-  const sum = current.reduce((a, c) => a + c.tss, 0);
+  const sum = current.reduce((a: number, c: { tss: number }) => a + c.tss, 0);
   if (sum <= 0) return { changed: false, reason: "sin_carga", workouts: [] };
 
   // Sesiones ya hechas/planificadas de la semana que no se tocan también cuentan
