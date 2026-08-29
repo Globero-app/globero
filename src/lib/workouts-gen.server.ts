@@ -339,7 +339,7 @@ INSTRUCCIONES:
 10. MODULACIÓN POR READINESS: la PRIMERA sesión del plan se ajusta al Readiness de hoy (1 → descanso/movilidad, 2 → Z1-Z2 corto, 3 → estándar, 4-5 → puedes subir carga).
 11. AJUSTE METEOROLÓGICO: si el día tiene condiciones adversas según la previsión, indícalo en el summary y, si procede, convierte la sesión en rodillo (indoor=true) con duración 60-90 min.`;
 
-  const result = await callAI([{ role: "user", content: prompt }], PlanSchema);
+  const result = await callAI([{ role: "user", content: prompt }], PlanSchema, { fn: "workouts-gen" });
 
   // ---- Validación y corrección determinista ----
   const items = (result.workouts as any[]).slice(0, effectiveCount).map((w, i) => {

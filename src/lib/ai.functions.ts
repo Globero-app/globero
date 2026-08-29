@@ -96,7 +96,7 @@ INSTRUCCIONES:
 7. TODO en ESPAÑOL.
 8. Recetas variadas, prácticas, fáciles de cocinar.`;
 
-    const result = await callAI([{ role: "user", content: prompt }], MenuSchema);
+    const result = await callAI([{ role: "user", content: prompt }], MenuSchema, { fn: "menu-gen", userId });
 
     // Guarda
     await supabase.from("competitions").update({ menu_plan: result }).eq("id", data.competitionId);
@@ -129,7 +129,7 @@ Receta a sustituir: ${JSON.stringify(original)}
 Macros objetivo: carbohidratos ${original.macros.carbohidratos_g}g, calorías ${original.macros.calorias_kcal}.
 Incluye cantidades en gramos en cada ingrediente. TODO en ESPAÑOL.`;
 
-    const newRecipe = await callAI([{ role: "user", content: prompt }], RecipeSchema);
+    const newRecipe = await callAI([{ role: "user", content: prompt }], RecipeSchema, { fn: "recipe-swap", userId });
     menu.dias[data.dayIndex][data.mealKey] = newRecipe;
     await supabase.from("competitions").update({ menu_plan: menu }).eq("id", data.competitionId);
     return newRecipe;

@@ -167,7 +167,7 @@ INSTRUCCIONES:
 7. Macros realistas y coherentes con los objetivos diarios.
 8. Recetas variadas entre días, prácticas y fáciles. TODO en ESPAÑOL.`;
 
-  const result = await callAI([{ role: "user", content: prompt }], WeekSchema);
+  const result = await callAI([{ role: "user", content: prompt }], WeekSchema, { fn: "nutrition-week" });
 
   const { data: saved, error } = await supabase
     .from("weekly_nutrition_plans")
