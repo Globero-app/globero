@@ -7,7 +7,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { RefreshCw, CheckCircle2, XCircle, Bell, Send, AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getSyncStatus, getNotificationHistory } from "@/lib/diag.functions";
+import { getSyncStatus, getNotificationHistory, getAiUsage } from "@/lib/diag.functions";
 import { intervalsSyncActivities } from "@/lib/intervals.functions";
 import { useAuth } from "@/lib/use-auth";
 
@@ -39,11 +39,13 @@ function EstadoPage() {
   const qc = useQueryClient();
   const statusFn = useServerFn(getSyncStatus);
   const notifFn = useServerFn(getNotificationHistory);
+  const aiFn = useServerFn(getAiUsage);
   const syncFn = useServerFn(intervalsSyncActivities);
   const [syncing, setSyncing] = useState(false);
 
   const status = useQuery({ queryKey: ["sync_status", user?.id], queryFn: () => statusFn({ data: undefined } as any), enabled: !!user });
   const notifs = useQuery({ queryKey: ["notif_history", user?.id], queryFn: () => notifFn({ data: undefined } as any), enabled: !!user });
+  const aiUsage = useQuery({ queryKey: ["ai_usage", user?.id], queryFn: () => aiFn({ data: undefined } as any), enabled: !!user });
 
   const forceSync = async () => {
     setSyncing(true);
@@ -155,6 +157,36 @@ function EstadoPage() {
               </li>
             ))}
           </ul>
+        )}
+      </section>
+
+      <section className="bg-surface border rounded-xl p-6 space-y-4">
+        <h2 className="font-display text-2xl font-bold uppercase tracking-tight">Uso de IA (mes actual)</h2>
+        {aiUsage.isLoading ? (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Skeleton className="h-16" /><Skeleton className="h-16" />
+          </div>
+        ) : (
+          <>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Info label="Llamadas a la IA" value={String((aiUsage.data as any)?.total_calls ?? 0)} />
+              <Info label="Tokens consumidos" value={((aiUsage.data as any)?.total_tokens ?? 0).toLocaleString("es-ES")} />
+            </div>
+            {((aiUsage.data as any)?.items ?? []).length === 0 ? (
+              <p className="text-sm text-muted-foreground">Sin llamadas a la IA registradas desde el {(aiUsage.data as any)?.since ?? "día 1"}.</p>
+            ) : (
+              <ul className="divide-y border rounded-lg">
+                {((aiUsage.data as any).items as any[]).map((g) => (
+                  <li key={g.fn} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
+                    <span className="font-medium truncate">{g.fn}</span>
+                    <span className="text-xs text-muted-foreground shrink-0">
+                      {g.calls} llamada(s) · {(g.prompt_tokens + g.completion_tokens).toLocaleString("es-ES")} tokens
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
         )}
       </section>
     </div>

@@ -2,38 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-const MODEL = "google/gemini-3-flash-preview";
-const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
-
-async function callAI(messages: any[], schema?: any): Promise<any> {
-  const key = process.env.LOVABLE_API_KEY;
-  if (!key) throw new Error("LOVABLE_API_KEY no configurada");
-  const body: any = {
-    model: MODEL,
-    messages,
-  };
-  if (schema) {
-    body.tools = [{ type: "function", function: { name: "respond", description: "Devuelve la respuesta estructurada", parameters: schema } }];
-    body.tool_choice = { type: "function", function: { name: "respond" } };
-  }
-  const res = await fetch(GATEWAY, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    if (res.status === 429) throw new Error("Demasiadas peticiones a la IA. Espera unos segundos.");
-    if (res.status === 402) throw new Error("Sin créditos de IA disponibles.");
-    throw new Error(`AI ${res.status}: ${text.slice(0, 200)}`);
-  }
-  const json = await res.json();
-  const msg = json.choices?.[0]?.message;
-  if (schema && msg?.tool_calls?.[0]?.function?.arguments) {
-    return JSON.parse(msg.tool_calls[0].function.arguments);
-  }
-  return msg?.content ?? "";
-}
+import { callAI } from "./ai-call.server";
 
 const MenuInput = z.object({
   competitionId: z.string().uuid(),
@@ -127,7 +96,7 @@ INSTRUCCIONES:
 7. TODO en ESPAÑOL.
 8. Recetas variadas, prácticas, fáciles de cocinar.`;
 
-    const result = await callAI([{ role: "user", content: prompt }], MenuSchema);
+    const result = await callAI([{ role: "user", content: prompt }], MenuSchema, { fn: "menu-gen", userId });
 
     // Guarda
     await supabase.from("competitions").update({ menu_plan: result }).eq("id", data.competitionId);
@@ -160,7 +129,7 @@ Receta a sustituir: ${JSON.stringify(original)}
 Macros objetivo: carbohidratos ${original.macros.carbohidratos_g}g, calorías ${original.macros.calorias_kcal}.
 Incluye cantidades en gramos en cada ingrediente. TODO en ESPAÑOL.`;
 
-    const newRecipe = await callAI([{ role: "user", content: prompt }], RecipeSchema);
+    const newRecipe = await callAI([{ role: "user", content: prompt }], RecipeSchema, { fn: "recipe-swap", userId });
     menu.dias[data.dayIndex][data.mealKey] = newRecipe;
     await supabase.from("competitions").update({ menu_plan: menu }).eq("id", data.competitionId);
     return newRecipe;

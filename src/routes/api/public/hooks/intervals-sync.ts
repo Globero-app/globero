@@ -29,9 +29,27 @@ export const Route = createFileRoute("/api/public/hooks/intervals-sync")({
           });
         }
 
-        const totals = { moved: 0, removed: 0, completed: 0, users: 0 };
+        const totals = { moved: 0, removed: 0, completed: 0, users: 0, skipped: 0 };
+        const from = new Date(Date.now() - 3 * 86400000).toISOString().slice(0, 10);
+        const to = new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10);
         for (const u of users ?? []) {
           try {
+            // Skip barato: sin entrenos vinculados próximos ni actividad reciente, no hay nada que reconciliar.
+            const { data: pending } = await supabaseAdmin
+              .from("workouts")
+              .select("plan")
+              .eq("user_id", u.id)
+              .eq("status", "pending")
+              .not("plan->intervals_event_id", "is", null)
+              .limit(50);
+            const near = ((pending ?? []) as any[]).some((w) => {
+              const d = String(w?.plan?.scheduled_date ?? "");
+              return d >= from && d <= to;
+            });
+            if (!near) {
+              totals.skipped++;
+              continue;
+            }
             const r = await reconcileIntervalsEvents(supabaseAdmin, u.id, {
               athleteId: String(u.intervals_athlete_id),
               apiKey: String(u.intervals_api_key),

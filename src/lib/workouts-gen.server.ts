@@ -1,35 +1,7 @@
 import { fetchDailyWeather, adviseForWorkout } from "./weather-daily.server";
 import type { WeatherDay } from "./weather";
 
-const MODEL = "google/gemini-3-flash-preview";
-const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
-
-async function callAI(messages: any[], schema?: any): Promise<any> {
-  const key = process.env.LOVABLE_API_KEY;
-  if (!key) throw new Error("LOVABLE_API_KEY no configurada");
-  const body: any = { model: MODEL, messages };
-  if (schema) {
-    body.tools = [{ type: "function", function: { name: "respond", description: "Respuesta estructurada", parameters: schema } }];
-    body.tool_choice = { type: "function", function: { name: "respond" } };
-  }
-  const res = await fetch(GATEWAY, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    if (res.status === 429) throw new Error("Demasiadas peticiones a la IA. Espera unos segundos.");
-    if (res.status === 402) throw new Error("Sin créditos de IA disponibles.");
-    throw new Error(`AI ${res.status}: ${text.slice(0, 200)}`);
-  }
-  const json = await res.json();
-  const msg = json.choices?.[0]?.message;
-  if (schema && msg?.tool_calls?.[0]?.function?.arguments) {
-    return JSON.parse(msg.tool_calls[0].function.arguments);
-  }
-  return msg?.content ?? "";
-}
+import { callAI } from "./ai-call.server";
 
 const StepSchema = {
   type: "object",
@@ -367,7 +339,7 @@ INSTRUCCIONES:
 10. MODULACIÓN POR READINESS: la PRIMERA sesión del plan se ajusta al Readiness de hoy (1 → descanso/movilidad, 2 → Z1-Z2 corto, 3 → estándar, 4-5 → puedes subir carga).
 11. AJUSTE METEOROLÓGICO: si el día tiene condiciones adversas según la previsión, indícalo en el summary y, si procede, convierte la sesión en rodillo (indoor=true) con duración 60-90 min.`;
 
-  const result = await callAI([{ role: "user", content: prompt }], PlanSchema);
+  const result = await callAI([{ role: "user", content: prompt }], PlanSchema, { fn: "workouts-gen" });
 
   // ---- Validación y corrección determinista ----
   const items = (result.workouts as any[]).slice(0, effectiveCount).map((w, i) => {

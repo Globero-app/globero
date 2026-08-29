@@ -153,7 +153,7 @@ export async function handleTelegramUpdate(update: any): Promise<void> {
   if (!chatId || !text) return;
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { madridToday, callAI, AdaptSchema, pickTodayWorkout, buildAdaptPrompt, READINESS_LABELS } = await import(
+  const { madridToday, callAI, AdaptSchema, pickTodayWorkout, deterministicAdapt, READINESS_LABELS } = await import(
     "./readiness.server"
   );
   const today = madridToday();
@@ -360,6 +360,7 @@ ${context}`,
       { role: "user", content: text },
     ],
     IntentSchema,
+    { fn: "telegram-intent", userId },
   );
 
   if (analysis.intent === "set_readiness" && analysis.readiness_score >= 1 && analysis.readiness_score <= 5) {
@@ -375,16 +376,8 @@ ${context}`,
     } else if (score === 3) {
       msg = `Registrado 3/5 — ${READINESS_LABELS[score]}. El entrenamiento de hoy se mantiene sin cambios.`;
     } else {
-      const { data: hist } = await supabaseAdmin
-        .from("readiness_entries")
-        .select("entry_date,score")
-        .eq("user_id", userId)
-        .order("entry_date", { ascending: false })
-        .limit(14);
-      const adapted = await callAI(
-        [{ role: "user", content: buildAdaptPrompt({ score, note: text, profile, workout, history: (hist ?? []) as any[] }) }],
-        AdaptSchema,
-      );
+      // Ajuste determinista por reglas (sin llamada a la IA).
+      const adapted = deterministicAdapt({ score, workout, profile });
       const newPlan = {
         ...(workout.plan as any),
         name: adapted.name,
@@ -478,6 +471,7 @@ INSTRUCCIONES:
         },
       ],
       AdaptSchema,
+      { fn: "telegram-modify", userId },
     );
     const requestedDate =
       typeof (analysis as any).new_scheduled_date === "string" &&
@@ -581,6 +575,7 @@ Incluye cantidades en gramos en cada ingrediente. TODO en ESPAÑOL.`,
         },
       ],
       MealSchema,
+      { fn: "telegram-meal", userId },
     );
     const newPlan = {
       ...nutriPlan,
