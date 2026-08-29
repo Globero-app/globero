@@ -711,6 +711,7 @@ function WorkoutCard({
               {plan.scheduled_date && ` · 📅 ${format(new Date(plan.scheduled_date), "d MMM", { locale: es })}`}
               {completed && w.completed_at && ` · Completado ${format(new Date(w.completed_at), "d MMM", { locale: es })}${w.rpe != null ? ` · RPE ${w.rpe}/5` : ""}`}
             </p>
+            <ZoneBar steps={plan.steps} refs={refs} />
             {plan.competition_name && <p className="text-[11px] font-mono uppercase text-primary mt-0.5">🏁 {plan.competition_name}</p>}
             {plan.summary && <p className="text-sm mt-2">{plan.summary}</p>}
             {plan.rationale && <p className="text-[11px] text-muted-foreground mt-1.5">🧠 {plan.rationale}</p>}
