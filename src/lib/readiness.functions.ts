@@ -50,19 +50,8 @@ export const saveReadiness = createServerFn({ method: "POST" })
       action = "none";
       message = `Readiness registrado: ${READINESS_LABELS[data.score]}. El entrenamiento de hoy se mantiene sin cambios.`;
     } else {
-      const adapted = await callAI(
-        [{
-          role: "user",
-          content: buildAdaptPrompt({
-            score: data.score,
-            note: data.note ?? null,
-            profile,
-            workout,
-            history: (hist ?? []) as any[],
-          }),
-        }],
-        AdaptSchema,
-      );
+      // Ajuste determinista por reglas (sin llamada a la IA).
+      const adapted = deterministicAdapt({ score: data.score, workout, profile });
       const newPlan = {
         ...(workout.plan as any),
         name: adapted.name,
