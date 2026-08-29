@@ -76,19 +76,23 @@ describe("validateWorkout", () => {
 });
 
 describe("avoidBackToBackHard", () => {
-  const hardPlan = () => ({
-    name: "Duro",
-    steps: [
-      { name: "Calentamiento", duration_type: "time", duration_seconds: 600, target: "power", target_low: 100, target_high: 140, intensity: "warmup" },
-      { name: "Serie Z5", duration_type: "time", duration_seconds: 600, target: "power", target_low: 270, target_high: 300, intensity: "interval" },
-      { name: "Vuelta calma", duration_type: "time", duration_seconds: 600, target: "power", target_low: 90, target_high: 120, intensity: "cooldown" },
-    ],
-  });
+  const hardPlan = () =>
+    validateWorkout(
+      {
+        name: "Duro",
+        steps: [
+          { name: "Calentamiento", duration_type: "time", duration_seconds: 600, target: "power", target_low: 100, target_high: 140, intensity: "warmup" },
+          { name: "Serie Z5", duration_type: "time", duration_seconds: 600, target: "power", target_low: 270, target_high: 300, intensity: "interval" },
+          { name: "Vuelta calma", duration_type: "time", duration_seconds: 600, target: "power", target_low: 90, target_high: 120, intensity: "cooldown" },
+        ],
+      },
+      { ...ctx, duration_minutes: 30 },
+    ).plan;
 
   it("suaviza la segunda sesión dura en días consecutivos", () => {
     const items = [
-      { plan: hardPlan(), tss: 60, minutes: 45, ctx, date: "2026-08-31" },
-      { plan: hardPlan(), tss: 60, minutes: 45, ctx, date: "2026-09-01" },
+      { plan: hardPlan(), tss: 60, minutes: 30, ctx, date: "2026-08-31" },
+      { plan: hardPlan(), tss: 60, minutes: 30, ctx, date: "2026-09-01" },
     ];
     avoidBackToBackHard(items);
     expect(items[1].plan.softened_reason).toBeTruthy();
