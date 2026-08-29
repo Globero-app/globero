@@ -126,6 +126,9 @@ export async function notifyUser(userId: string, payload: PushPayload): Promise<
     error: sent ? null : "Ninguna suscripción aceptó el envío",
   });
   return sent + tgSent;
+}
+
+
 
 
 /** Envía push únicamente (sin enrutar a Telegram). */
