@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/use-auth";
 import { useServerFn } from "@tanstack/react-start";
 import { intervalsSyncActivities } from "@/lib/intervals.functions";
 import { getTrainingLoad } from "@/lib/workouts.functions";
+import { getFtpTestStatus } from "@/lib/diag.functions";
 import { Trophy, Flame, Bike, ChevronRight, Plus, Trash2, Activity, Timer, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -65,6 +66,15 @@ function Dashboard() {
     enabled: !!user,
   });
 
+  const ftpTestFn = useServerFn(getFtpTestStatus);
+  const ftpTest = useQuery({
+    queryKey: ["ftp_test_status", user?.id],
+    queryFn: () => ftpTestFn({ data: undefined } as any),
+    enabled: !!user,
+  });
+
+
+
   // Notificaciones locales: entreno de hoy y pre-carrera
   useTodayPushTriggers();
 
@@ -99,15 +109,23 @@ function Dashboard() {
   };
 
   const today = new Date();
-  const upcoming = (comps.data ?? []).filter((c) => new Date(c.date) >= today);
+  const todayISO = today.toISOString().slice(0, 10);
+  const upcoming = (comps.data ?? []).filter((c) => new Date(c.date) >= today || c.date === todayISO);
   const next = upcoming[0];
   const daysToNext = next ? Math.ceil((new Date(next.date).getTime() - today.getTime()) / 86400000) : null;
+  const isRaceDay = !!next && next.date === todayISO;
 
   // CTL/ATL/TSB unificado: mismo motor que usa el generador de entrenamientos
   const ctl = load.data?.ctl ?? 0;
   const atl = load.data?.atl ?? 0;
   const tsb = load.data?.tsb ?? 0;
   const form = interpretTSB(tsb);
+
+  // Proyección de CTL el día de la competición (decaimiento exponencial 42 días sin carga añadida)
+  const projectedCtl = next && daysToNext != null && daysToNext > 0
+    ? ctl * Math.exp(-daysToNext / 42) + (Number(load.data?.avg_weekly_tss_3w ?? 0) / 7) * (1 - Math.exp(-daysToNext / 42))
+    : ctl;
+
 
   // Progreso del plan de carga: días transcurridos vs ventana de plan (90 días antes de la cita)
   const PLAN_WINDOW_DAYS = 90;
@@ -124,6 +142,38 @@ function Dashboard() {
         </h1>
       </div>
 
+      {isRaceDay && next && (
+        <div className="rounded-xl border-2 border-primary bg-primary/10 p-6">
+          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary">Modo competición</p>
+          <h2 className="font-display text-3xl font-bold uppercase tracking-tight mt-1">Hoy compites: {next.name}</h2>
+          <div className="grid grid-cols-3 gap-3 mt-4 text-sm">
+            <div><p className="text-muted-foreground text-xs">Distancia</p><p className="font-semibold">{next.distance_km} km</p></div>
+            <div><p className="text-muted-foreground text-xs">Desnivel</p><p className="font-semibold">+{next.elevation_m} m</p></div>
+            <div><p className="text-muted-foreground text-xs">Forma (TSB)</p><p className="font-semibold">{tsb.toFixed(0)}</p></div>
+          </div>
+          <Link to="/competiciones/$id" params={{ id: next.id }} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+            Ver plan de carrera, nutrición y meteo <ChevronRight className="size-4" />
+          </Link>
+        </div>
+      )}
+
+      {ftpTest.data?.due && (
+        <div className="rounded-xl border bg-surface p-4 flex items-start gap-3">
+          <Timer className="size-4 text-primary mt-0.5 shrink-0" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold">
+              {ftpTest.data.overdue ? "Test de FTP/FC pendiente" : "Toca revisar tus umbrales"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {ftpTest.data.weeks_since == null
+                ? "Aún no has registrado ningún test. Programa uno para ajustar tus zonas."
+                : `Han pasado ${ftpTest.data.weeks_since} semanas desde tu último test. Recomendado cada 6-8 semanas.`}
+            </p>
+          </div>
+          <Link to="/ftp-test" className="text-xs font-semibold text-primary shrink-0">Programar</Link>
+        </div>
+      )}
+
       <MaintenanceAlertsBanner />
 
       <CoachBriefCard />
@@ -131,6 +181,7 @@ function Dashboard() {
       <TodayPanel />
 
       <AdjustTodayCard />
+
 
 
       {/* Countdown + Form */}
@@ -158,6 +209,9 @@ function Dashboard() {
                   <div className="h-full bg-primary transition-all duration-500" style={{ width: `${planProgress}%` }} />
                 </div>
               </div>
+              <p className="text-[10px] font-mono uppercase tracking-widest text-accent-foreground/60 mt-3">
+                CTL proyectado el día de la cita: <span className="text-primary">{projectedCtl.toFixed(0)}</span> (hoy {ctl.toFixed(0)})
+              </p>
             </div>
           )}
 
