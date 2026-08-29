@@ -292,6 +292,33 @@ export type Database = {
         }
         Relationships: []
       }
+      error_log: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          source: string
+          stack: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          source: string
+          stack?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          source?: string
+          stack?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       hrv_entries: {
         Row: {
           created_at: string
@@ -406,6 +433,42 @@ export type Database = {
           locked_until?: string
           paused_until?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      notification_log: {
+        Row: {
+          attempts: number
+          body: string
+          channel: string
+          created_at: string
+          error: string | null
+          id: string
+          status: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          body: string
+          channel: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          status?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          body?: string
+          channel?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          status?: string
+          title?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -827,6 +890,36 @@ export type Database = {
           synced_at?: string
           total_elevation_gain?: number | null
           type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sync_log: {
+        Row: {
+          created_at: string
+          id: string
+          items: number
+          kind: string
+          message: string | null
+          ok: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          items?: number
+          kind: string
+          message?: string | null
+          ok?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          items?: number
+          kind?: string
+          message?: string | null
+          ok?: boolean
           user_id?: string
         }
         Relationships: []
