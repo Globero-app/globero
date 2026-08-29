@@ -159,6 +159,36 @@ function EstadoPage() {
           </ul>
         )}
       </section>
+
+      <section className="bg-surface border rounded-xl p-6 space-y-4">
+        <h2 className="font-display text-2xl font-bold uppercase tracking-tight">Uso de IA (mes actual)</h2>
+        {aiUsage.isLoading ? (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Skeleton className="h-16" /><Skeleton className="h-16" />
+          </div>
+        ) : (
+          <>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Info label="Llamadas a la IA" value={String((aiUsage.data as any)?.total_calls ?? 0)} />
+              <Info label="Tokens consumidos" value={((aiUsage.data as any)?.total_tokens ?? 0).toLocaleString("es-ES")} />
+            </div>
+            {((aiUsage.data as any)?.items ?? []).length === 0 ? (
+              <p className="text-sm text-muted-foreground">Sin llamadas a la IA registradas desde el {(aiUsage.data as any)?.since ?? "día 1"}.</p>
+            ) : (
+              <ul className="divide-y border rounded-lg">
+                {((aiUsage.data as any).items as any[]).map((g) => (
+                  <li key={g.fn} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
+                    <span className="font-medium truncate">{g.fn}</span>
+                    <span className="text-xs text-muted-foreground shrink-0">
+                      {g.calls} llamada(s) · {(g.prompt_tokens + g.completion_tokens).toLocaleString("es-ES")} tokens
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        )}
+      </section>
     </div>
   );
 }
