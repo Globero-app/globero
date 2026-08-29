@@ -38,7 +38,7 @@ function BackendPage() {
           </button>
         ))}
       </div>
-      {tab === "config" ? <ConfigTab /> : tab === "users" ? <UsersTab /> : tab === "sponsors" ? <SponsorsTab /> : tab === "errors" ? <ErrorsTab /> : <SiteContentTab />}
+      {tab === "config" ? <ConfigTab /> : tab === "users" ? <UsersTab /> : tab === "sponsors" ? <SponsorsTab /> : tab === "errors" ? <ErrorsTab /> : tab === "ia" ? <AiUsageTab /> : <SiteContentTab />}
     </div>
   );
 }
