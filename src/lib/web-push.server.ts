@@ -146,5 +146,6 @@ export async function notifyUserPushOnly(userId: string, payload: PushPayload): 
     if (ok) sent++;
     else await supabaseAdmin.from("push_subscriptions").delete().eq("endpoint", s.endpoint);
   }
+  await logNotification(userId, { channel: "push", title: payload.title, body: payload.body, status: sent ? "sent" : "failed" });
   return sent;
 }
