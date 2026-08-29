@@ -153,7 +153,7 @@ export async function handleTelegramUpdate(update: any): Promise<void> {
   if (!chatId || !text) return;
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { madridToday, callAI, AdaptSchema, pickTodayWorkout, buildAdaptPrompt, READINESS_LABELS } = await import(
+  const { madridToday, callAI, AdaptSchema, pickTodayWorkout, deterministicAdapt, READINESS_LABELS } = await import(
     "./readiness.server"
   );
   const today = madridToday();
