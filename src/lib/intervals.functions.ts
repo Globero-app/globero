@@ -66,7 +66,14 @@ export const intervalsSyncActivities = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const { syncIntervalsActivities } = await import("./intervals-activities.server");
-    const count = await syncIntervalsActivities(supabase, userId, { days: 30 });
+    let count = 0;
+    try {
+      count = await syncIntervalsActivities(supabase, userId, { days: 30 });
+    } catch (e: any) {
+      await supabase.from("sync_log").insert({ user_id: userId, kind: "activities", ok: false, items: 0, message: String(e?.message ?? e).slice(0, 300) });
+      throw e;
+    }
+    await supabase.from("sync_log").insert({ user_id: userId, kind: "activities", ok: true, items: count });
     try {
       const { data: prof } = await supabase.from("profiles").select("ftp,max_hr,lthr").eq("id", userId).maybeSingle();
       const { estimateFtpFromIntervals, estimateHrFromIntervals } = await import("./intervals-activities.server");
