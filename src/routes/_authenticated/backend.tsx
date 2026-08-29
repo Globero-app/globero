@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listAllUsers, createUser, setUserRole, deleteUser, updateAppConfig } from "@/lib/admin.functions";
+import { getErrorStats } from "@/lib/diag.functions";
 import { useAppConfig } from "@/lib/use-app-config";
 import { useAuth } from "@/lib/use-auth";
 import { supabase } from "@/integrations/supabase/client";
