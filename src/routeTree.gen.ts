@@ -23,7 +23,6 @@ import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedMiBiciRouteImport } from './routes/_authenticated/mi-bici'
 import { Route as AuthenticatedMenusRouteImport } from './routes/_authenticated/menus'
 import { Route as AuthenticatedFtpTestRouteImport } from './routes/_authenticated/ftp-test'
-import { Route as AuthenticatedEstadoRouteImport } from './routes/_authenticated/estado'
 import { Route as AuthenticatedEntrenamientosRouteImport } from './routes/_authenticated/entrenamientos'
 import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
 import { Route as AuthenticatedBackendRouteImport } from './routes/_authenticated/backend'
@@ -110,11 +109,6 @@ const AuthenticatedMenusRoute = AuthenticatedMenusRouteImport.update({
 const AuthenticatedFtpTestRoute = AuthenticatedFtpTestRouteImport.update({
   id: '/ftp-test',
   path: '/ftp-test',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedEstadoRoute = AuthenticatedEstadoRouteImport.update({
-  id: '/estado',
-  path: '/estado',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedEntrenamientosRoute =
@@ -230,7 +224,6 @@ export interface FileRoutesByFullPath {
   '/backend': typeof AuthenticatedBackendRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/entrenamientos': typeof AuthenticatedEntrenamientosRoute
-  '/estado': typeof AuthenticatedEstadoRoute
   '/ftp-test': typeof AuthenticatedFtpTestRoute
   '/menus': typeof AuthenticatedMenusRoute
   '/mi-bici': typeof AuthenticatedMiBiciRoute
@@ -264,7 +257,6 @@ export interface FileRoutesByTo {
   '/backend': typeof AuthenticatedBackendRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/entrenamientos': typeof AuthenticatedEntrenamientosRoute
-  '/estado': typeof AuthenticatedEstadoRoute
   '/ftp-test': typeof AuthenticatedFtpTestRoute
   '/menus': typeof AuthenticatedMenusRoute
   '/mi-bici': typeof AuthenticatedMiBiciRoute
@@ -300,7 +292,6 @@ export interface FileRoutesById {
   '/_authenticated/backend': typeof AuthenticatedBackendRoute
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/entrenamientos': typeof AuthenticatedEntrenamientosRoute
-  '/_authenticated/estado': typeof AuthenticatedEstadoRoute
   '/_authenticated/ftp-test': typeof AuthenticatedFtpTestRoute
   '/_authenticated/menus': typeof AuthenticatedMenusRoute
   '/_authenticated/mi-bici': typeof AuthenticatedMiBiciRoute
@@ -336,7 +327,6 @@ export interface FileRouteTypes {
     | '/backend'
     | '/calendario'
     | '/entrenamientos'
-    | '/estado'
     | '/ftp-test'
     | '/menus'
     | '/mi-bici'
@@ -370,7 +360,6 @@ export interface FileRouteTypes {
     | '/backend'
     | '/calendario'
     | '/entrenamientos'
-    | '/estado'
     | '/ftp-test'
     | '/menus'
     | '/mi-bici'
@@ -405,7 +394,6 @@ export interface FileRouteTypes {
     | '/_authenticated/backend'
     | '/_authenticated/calendario'
     | '/_authenticated/entrenamientos'
-    | '/_authenticated/estado'
     | '/_authenticated/ftp-test'
     | '/_authenticated/menus'
     | '/_authenticated/mi-bici'
@@ -550,13 +538,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFtpTestRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/estado': {
-      id: '/_authenticated/estado'
-      path: '/estado'
-      fullPath: '/estado'
-      preLoaderRoute: typeof AuthenticatedEstadoRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/entrenamientos': {
       id: '/_authenticated/entrenamientos'
       path: '/entrenamientos'
@@ -691,7 +672,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBackendRoute: typeof AuthenticatedBackendRoute
   AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedEntrenamientosRoute: typeof AuthenticatedEntrenamientosRoute
-  AuthenticatedEstadoRoute: typeof AuthenticatedEstadoRoute
   AuthenticatedFtpTestRoute: typeof AuthenticatedFtpTestRoute
   AuthenticatedMenusRoute: typeof AuthenticatedMenusRoute
   AuthenticatedMiBiciRoute: typeof AuthenticatedMiBiciRoute
@@ -709,7 +689,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBackendRoute: AuthenticatedBackendRoute,
   AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedEntrenamientosRoute: AuthenticatedEntrenamientosRoute,
-  AuthenticatedEstadoRoute: AuthenticatedEstadoRoute,
   AuthenticatedFtpTestRoute: AuthenticatedFtpTestRoute,
   AuthenticatedMenusRoute: AuthenticatedMenusRoute,
   AuthenticatedMiBiciRoute: AuthenticatedMiBiciRoute,
