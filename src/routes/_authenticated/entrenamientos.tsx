@@ -951,6 +951,38 @@ function WorkoutCard({
   );
 }
 
+/** Barra visual de la estructura de la sesión, coloreada por zona (tipo Intervals.icu). */
+function ZoneBar({ steps, refs }: { steps: any[] | undefined; refs: { ftp: number | null; lthr: number | null; maxHr: number | null } }) {
+  if (!Array.isArray(steps) || !steps.length) return null;
+  const segs = steps
+    .map((s) => {
+      const sec = Number(s.duration_seconds) || 0;
+      if (sec <= 0) return null;
+      const z = describeStepZone(s, refs);
+      const fallback: Record<string, string> = {
+        warmup: "#94a3b8", recovery: "#94a3b8", rest: "#cbd5e1", cooldown: "#94a3b8",
+        active: "#22c55e", interval: "#ef4444",
+      };
+      const color = z?.zone.color ?? fallback[s.intensity] ?? "#22c55e";
+      const label = z ? z.zone.label.split(" · ")[0] : (s.intensity ?? "");
+      return { sec, color, name: s.name ?? "", label };
+    })
+    .filter(Boolean) as Array<{ sec: number; color: string; name: string; label: string }>;
+  if (!segs.length) return null;
+  const total = segs.reduce((a, s) => a + s.sec, 0);
+  return (
+    <div className="mt-2 flex h-2.5 w-full max-w-md overflow-hidden rounded-full bg-secondary" title="Estructura por zonas">
+      {segs.map((s, i) => (
+        <div
+          key={i}
+          style={{ width: `${(s.sec / total) * 100}%`, backgroundColor: s.color }}
+          title={`${s.name} · ${s.label} · ${Math.round(s.sec / 60)} min`}
+        />
+      ))}
+    </div>
+  );
+}
+
 function formatDuration(sec: number) {
   if (!sec) return "—";
   const m = Math.floor(sec / 60);
