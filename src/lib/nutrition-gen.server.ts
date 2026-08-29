@@ -1,32 +1,4 @@
-const MODEL = "google/gemini-3-flash-preview";
-const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
-
-async function callAI(messages: any[], schema?: any): Promise<any> {
-  const key = process.env.LOVABLE_API_KEY;
-  if (!key) throw new Error("LOVABLE_API_KEY no configurada");
-  const body: any = { model: MODEL, messages };
-  if (schema) {
-    body.tools = [{ type: "function", function: { name: "respond", description: "Respuesta estructurada", parameters: schema } }];
-    body.tool_choice = { type: "function", function: { name: "respond" } };
-  }
-  const res = await fetch(GATEWAY, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    if (res.status === 429) throw new Error("Demasiadas peticiones a la IA. Espera unos segundos.");
-    if (res.status === 402) throw new Error("Sin créditos de IA disponibles.");
-    throw new Error(`AI ${res.status}: ${text.slice(0, 200)}`);
-  }
-  const json = await res.json();
-  const msg = json.choices?.[0]?.message;
-  if (schema && msg?.tool_calls?.[0]?.function?.arguments) {
-    return JSON.parse(msg.tool_calls[0].function.arguments);
-  }
-  return msg?.content ?? "";
-}
+import { callAI } from "./ai-call.server";
 
 export const NUTRITION_GOALS = ["perdida_peso", "mantenimiento", "masa_muscular"] as const;
 export type NutritionGoal = (typeof NUTRITION_GOALS)[number];
