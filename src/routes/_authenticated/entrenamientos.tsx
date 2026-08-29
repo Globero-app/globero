@@ -4,7 +4,7 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
-import { generateWorkouts, completeWorkout, deleteWorkout, convertWorkoutToTrainer, revertWorkoutToOutdoor, getTrainingLoad } from "@/lib/workouts.functions";
+import { generateWorkouts, completeWorkout, deleteWorkout, convertWorkoutToTrainer, revertWorkoutToOutdoor, getTrainingLoad, rebalanceWeek } from "@/lib/workouts.functions";
 import { uploadWorkoutsToIntervals } from "@/lib/intervals.functions";
 import { downloadFit, type FitWorkout, type FitWorkoutStep } from "@/lib/fit-writer";
 import { downloadZwo, type ZwoWorkout, type ZwoStep } from "@/lib/zwo-writer";
@@ -66,6 +66,10 @@ function EntrenamientosPage() {
   const del = useServerFn(deleteWorkout);
   const toTrainer = useServerFn(convertWorkoutToTrainer);
   const toOutdoor = useServerFn(revertWorkoutToOutdoor);
+  const rebalance = useServerFn(rebalanceWeek);
+  const [tab, setTab] = useState<"semana" | "proximas" | "historial">("semana");
+  const [rebalancing, setRebalancing] = useState(false);
+
 
 
   const [bikeType, setBikeType] = useState<typeof BIKE_OPTIONS[number]["value"]>("carretera");
@@ -412,10 +416,41 @@ function EntrenamientosPage() {
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <h2 className="font-display text-lg font-bold uppercase">Tus entrenamientos</h2>
-          <PlanIoBar
-            workouts={workouts.data ?? []}
-            onImported={() => qc.invalidateQueries({ queryKey: ["workouts"] })}
-          />
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={rebalancing}
+              onClick={async () => {
+                setRebalancing(true);
+                try {
+                  const r: any = await rebalance({ data: {} });
+                  if (r?.changed) {
+                    toast.success(`Semana redistribuida: ${r.workouts.length} sesión(es) ajustadas al TSS objetivo`);
+                    qc.invalidateQueries({ queryKey: ["workouts"] });
+                  } else {
+                    toast.info(
+                      r?.reason === "ya_equilibrada"
+                        ? "La semana ya está equilibrada con el objetivo"
+                        : "No hay sesiones pendientes con objetivo semanal que ajustar",
+                    );
+                  }
+                } catch (e: any) {
+                  toast.error(e?.message ?? "Error redistribuyendo la semana");
+                } finally {
+                  setRebalancing(false);
+                }
+              }}
+              title="Reparte de nuevo la carga de la semana entre las sesiones pendientes"
+              className="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase rounded-md border px-2.5 py-1.5 hover:bg-secondary disabled:opacity-50"
+            >
+              {rebalancing ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles className="size-3.5" />}
+              Redistribuir semana
+            </button>
+            <PlanIoBar
+              workouts={workouts.data ?? []}
+              onImported={() => qc.invalidateQueries({ queryKey: ["workouts"] })}
+            />
+          </div>
         </div>
         {workouts.isLoading && (
           <div className="grid gap-3">
@@ -428,7 +463,52 @@ function EntrenamientosPage() {
             <p className="text-sm text-muted-foreground">Aún no has generado ningún entrenamiento.</p>
           </div>
         )}
-        {workouts.data?.map((w: any) => (
+        {(() => {
+          const all = workouts.data ?? [];
+          if (!all.length) return null;
+          const now = new Date();
+          const dow = now.getDay();
+          const monday = new Date(now);
+          monday.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1));
+          monday.setHours(0, 0, 0, 0);
+          const sunday = new Date(monday);
+          sunday.setDate(monday.getDate() + 7);
+          const refDate = (w: any) => new Date((w.plan as any)?.scheduled_date ?? w.completed_at ?? w.created_at);
+          const inWeek = (w: any) => { const d = refDate(w); return d >= monday && d < sunday; };
+          const isFuture = (w: any) => refDate(w) >= sunday;
+          const groups = {
+            semana: all.filter(inWeek),
+            proximas: all.filter(isFuture),
+            historial: all.filter((w: any) => !inWeek(w) && !isFuture(w)),
+          };
+          const counts = groups;
+          const list = groups[tab];
+          return (
+            <>
+              <div className="flex gap-1 rounded-lg border bg-surface p-1 w-fit">
+                {([
+                  ["semana", "Esta semana"],
+                  ["proximas", "Próximas"],
+                  ["historial", "Historial"],
+                ] as const).map(([key, label]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setTab(key)}
+                    className={`px-3 py-1.5 rounded-md text-xs font-semibold transition ${tab === key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"}`}
+                  >
+                    {label} ({counts[key].length})
+                  </button>
+                ))}
+              </div>
+              {list.length === 0 && (
+                <div className="text-center py-10 bg-surface border rounded-xl">
+                  <p className="text-sm text-muted-foreground">
+                    {tab === "semana" ? "No hay entrenamientos esta semana." : tab === "proximas" ? "No hay entrenamientos próximos." : "Sin historial reciente (se muestran los últimos 15 días)."}
+                  </p>
+                </div>
+              )}
+              {list.map((w: any) => (
           <WorkoutCard
             key={w.id}
             w={w}
@@ -440,8 +520,11 @@ function EntrenamientosPage() {
               qc.invalidateQueries({ queryKey: ["workouts"] });
             }}
             onDelete={async () => {
-              if (!confirm("¿Eliminar este entrenamiento?")) return;
-              await del({ data: { workout_id: w.id } });
+              if (!confirm("¿Eliminar este entrenamiento? La carga de la semana se redistribuirá entre las sesiones pendientes.")) return;
+              const r: any = await del({ data: { workout_id: w.id } });
+              if (r?.rebalanced?.changed) {
+                toast.success(`Eliminado. Semana redistribuida: ${r.rebalanced.workouts.length} sesión(es) ajustadas`);
+              }
               qc.invalidateQueries({ queryKey: ["workouts"] });
             }}
             onTrainer={async () => {
@@ -466,7 +549,10 @@ function EntrenamientosPage() {
             }}
           />
 
-        ))}
+              ))}
+            </>
+          );
+        })()}
       </div>
 
       <style>{`.input{width:100%;padding:.55rem .75rem;border-radius:.5rem;border:1px solid var(--border);background:var(--surface);font-size:.875rem;outline:none}.input:focus{box-shadow:0 0 0 2px var(--ring)}`}</style>
@@ -625,6 +711,7 @@ function WorkoutCard({
               {plan.scheduled_date && ` · 📅 ${format(new Date(plan.scheduled_date), "d MMM", { locale: es })}`}
               {completed && w.completed_at && ` · Completado ${format(new Date(w.completed_at), "d MMM", { locale: es })}${w.rpe != null ? ` · RPE ${w.rpe}/5` : ""}`}
             </p>
+            <ZoneBar steps={plan.steps} refs={refs} />
             {plan.competition_name && <p className="text-[11px] font-mono uppercase text-primary mt-0.5">🏁 {plan.competition_name}</p>}
             {plan.summary && <p className="text-sm mt-2">{plan.summary}</p>}
             {plan.rationale && <p className="text-[11px] text-muted-foreground mt-1.5">🧠 {plan.rationale}</p>}
@@ -861,6 +948,38 @@ function WorkoutCard({
       </Dialog>
     </>
 
+  );
+}
+
+/** Barra visual de la estructura de la sesión, coloreada por zona (tipo Intervals.icu). */
+function ZoneBar({ steps, refs }: { steps: any[] | undefined; refs: { ftp: number | null; lthr: number | null; maxHr: number | null } }) {
+  if (!Array.isArray(steps) || !steps.length) return null;
+  const segs = steps
+    .map((s) => {
+      const sec = Number(s.duration_seconds) || 0;
+      if (sec <= 0) return null;
+      const z = describeStepZone(s, refs);
+      const fallback: Record<string, string> = {
+        warmup: "#94a3b8", recovery: "#94a3b8", rest: "#cbd5e1", cooldown: "#94a3b8",
+        active: "#22c55e", interval: "#ef4444",
+      };
+      const color = z?.zone.color ?? fallback[s.intensity] ?? "#22c55e";
+      const label = z ? z.zone.label.split(" · ")[0] : (s.intensity ?? "");
+      return { sec, color, name: s.name ?? "", label };
+    })
+    .filter(Boolean) as Array<{ sec: number; color: string; name: string; label: string }>;
+  if (!segs.length) return null;
+  const total = segs.reduce((a, s) => a + s.sec, 0);
+  return (
+    <div className="mt-2 flex h-2.5 w-full max-w-md overflow-hidden rounded-full bg-secondary" title="Estructura por zonas">
+      {segs.map((s, i) => (
+        <div
+          key={i}
+          style={{ width: `${(s.sec / total) * 100}%`, backgroundColor: s.color }}
+          title={`${s.name} · ${s.label} · ${Math.round(s.sec / 60)} min`}
+        />
+      ))}
+    </div>
   );
 }
 

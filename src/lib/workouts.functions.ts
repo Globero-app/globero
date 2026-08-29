@@ -216,7 +216,37 @@ export const deleteWorkout = createServerFn({ method: "POST" })
     }
     const { error } = await supabase.from("workouts").delete().eq("id", data.workout_id).eq("user_id", userId);
     if (error) throw new Error(error.message);
-    return { ok: true };
+
+    // Semana adaptable: redistribuye la carga restante de esa semana
+    let rebalanced: any = null;
+    const schedDate = (workout?.plan as any)?.scheduled_date as string | undefined;
+    if (workout && workout.status === "pending" && schedDate) {
+      try {
+        const { rebalanceWeekCore } = await import("./week-rebalance.server");
+        rebalanced = await rebalanceWeekCore(supabase, userId, schedDate);
+      } catch (e) {
+        console.error("week-rebalance", e);
+      }
+    }
+    return { ok: true, rebalanced };
+  });
+
+/* ============================================================
+   Redistribuir manualmente la carga de la semana actual
+   ============================================================ */
+
+const RebalanceInput = z.object({
+  week_start: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+});
+
+export const rebalanceWeek = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => RebalanceInput.parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { madridTodayISO } = await import("./training-load.server");
+    const { rebalanceWeekCore } = await import("./week-rebalance.server");
+    return rebalanceWeekCore(supabase, userId, data.week_start ?? madridTodayISO());
   });
 
 /* ============================================================
