@@ -40,6 +40,7 @@ const NAV = [
   { to: "/calendario", label: "Calendario", icon: CalendarRange },
   { to: "/readiness", label: "Readiness", icon: HeartPulse },
   { to: "/mi-bici", label: "Mi Bici", icon: Bike },
+  { to: "/estado", label: "Estado", icon: RadioTower },
 ] as const;
 
 function TourButton({ onClick }: { onClick?: () => void }) {
