@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/use-auth";
 import { useServerFn } from "@tanstack/react-start";
 import { intervalsSyncActivities } from "@/lib/intervals.functions";
 import { getTrainingLoad } from "@/lib/workouts.functions";
+import { getFtpTestStatus } from "@/lib/diag.functions";
 import { Trophy, Flame, Bike, ChevronRight, Plus, Trash2, Activity, Timer, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
