@@ -32,7 +32,7 @@ function BackendPage() {
         <h1 className="font-display text-4xl font-bold uppercase tracking-tight">Backend</h1>
       </div>
       <div className="border-b flex gap-1 flex-wrap">
-        {[["config", "Configuración visual"], ["users", "Usuarios"], ["sponsors", "Patrocinadores"], ["site", "Web pública"], ["errors", "Errores"]].map(([k, l]) => (
+        {[["config", "Configuración visual"], ["users", "Usuarios"], ["sponsors", "Patrocinadores"], ["site", "Web pública"], ["errors", "Errores"], ["ia", "Uso de IA"]].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k as any)} className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${tab === k ? "border-primary text-primary" : "border-transparent text-muted-foreground"}`}>
             {l}
           </button>
