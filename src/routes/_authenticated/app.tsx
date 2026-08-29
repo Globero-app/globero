@@ -113,7 +113,7 @@ function Dashboard() {
 
   // Proyección de CTL el día de la competición (decaimiento exponencial 42 días sin carga añadida)
   const projectedCtl = next && daysToNext != null && daysToNext > 0
-    ? ctl * Math.exp(-daysToNext / 42) + (load.data?.weekly_tss ? (Number(load.data.weekly_tss) / 7) * (1 - Math.exp(-daysToNext / 42)) : 0)
+    ? ctl * Math.exp(-daysToNext / 42) + (Number(load.data?.avg_weekly_tss_3w ?? 0) / 7) * (1 - Math.exp(-daysToNext / 42))
     : ctl;
 
 
