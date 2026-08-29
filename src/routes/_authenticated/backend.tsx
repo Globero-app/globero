@@ -79,9 +79,6 @@ function ErrorsTab() {
     </div>
   );
 }
-    </div>
-  );
-}
 
 
 function ConfigTab() {
