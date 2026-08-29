@@ -549,7 +549,10 @@ function EntrenamientosPage() {
             }}
           />
 
-        ))}
+              ))}
+            </>
+          );
+        })()}
       </div>
 
       <style>{`.input{width:100%;padding:.55rem .75rem;border-radius:.5rem;border:1px solid var(--border);background:var(--surface);font-size:.875rem;outline:none}.input:focus{box-shadow:0 0 0 2px var(--ring)}`}</style>
