@@ -99,15 +99,23 @@ function Dashboard() {
   };
 
   const today = new Date();
-  const upcoming = (comps.data ?? []).filter((c) => new Date(c.date) >= today);
+  const todayISO = today.toISOString().slice(0, 10);
+  const upcoming = (comps.data ?? []).filter((c) => new Date(c.date) >= today || c.date === todayISO);
   const next = upcoming[0];
   const daysToNext = next ? Math.ceil((new Date(next.date).getTime() - today.getTime()) / 86400000) : null;
+  const isRaceDay = !!next && next.date === todayISO;
 
   // CTL/ATL/TSB unificado: mismo motor que usa el generador de entrenamientos
   const ctl = load.data?.ctl ?? 0;
   const atl = load.data?.atl ?? 0;
   const tsb = load.data?.tsb ?? 0;
   const form = interpretTSB(tsb);
+
+  // Proyección de CTL el día de la competición (decaimiento exponencial 42 días sin carga añadida)
+  const projectedCtl = next && daysToNext != null && daysToNext > 0
+    ? ctl * Math.exp(-daysToNext / 42) + (load.data?.weekly_tss ? (Number(load.data.weekly_tss) / 7) * (1 - Math.exp(-daysToNext / 42)) : 0)
+    : ctl;
+
 
   // Progreso del plan de carga: días transcurridos vs ventana de plan (90 días antes de la cita)
   const PLAN_WINDOW_DAYS = 90;
