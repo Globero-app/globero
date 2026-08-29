@@ -264,7 +264,7 @@ REGLAS OBLIGATORIAS:
 5. Incluye calentamiento y vuelta a la calma. Añade cambios de cadencia para evitar monotonía.
 6. name MÁXIMO 15 caracteres. Todo en ESPAÑOL. Indica en "summary" que es una sesión de rodillo.`;
 
-    const result = await callAI([{ role: "user", content: prompt }], WorkoutSchema);
+    const result = await callAI([{ role: "user", content: prompt }], WorkoutSchema, { fn: "workout-custom", userId });
 
     const steps = (result.steps ?? []) as any[];
     const totalSec = steps.reduce((acc, s) => acc + (Number(s.duration_seconds) || 0), 0);
