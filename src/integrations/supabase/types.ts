@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_usage_log: {
+        Row: {
+          completion_tokens: number
+          created_at: string
+          fn: string
+          id: string
+          model: string
+          prompt_tokens: number
+          user_id: string | null
+        }
+        Insert: {
+          completion_tokens?: number
+          created_at?: string
+          fn: string
+          id?: string
+          model: string
+          prompt_tokens?: number
+          user_id?: string | null
+        }
+        Update: {
+          completion_tokens?: number
+          created_at?: string
+          fn?: string
+          id?: string
+          model?: string
+          prompt_tokens?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       app_config: {
         Row: {
           accent_color: string
@@ -513,6 +543,7 @@ export type Database = {
           age: number | null
           created_at: string
           cyclist_type: Database["public"]["Enums"]["cyclist_type_enum"]
+          daily_brief_cache: Json | null
           dietary_preferences: string | null
           email: string
           ftp: number | null
@@ -571,6 +602,7 @@ export type Database = {
           age?: number | null
           created_at?: string
           cyclist_type?: Database["public"]["Enums"]["cyclist_type_enum"]
+          daily_brief_cache?: Json | null
           dietary_preferences?: string | null
           email: string
           ftp?: number | null
@@ -629,6 +661,7 @@ export type Database = {
           age?: number | null
           created_at?: string
           cyclist_type?: Database["public"]["Enums"]["cyclist_type_enum"]
+          daily_brief_cache?: Json | null
           dietary_preferences?: string | null
           email?: string
           ftp?: number | null
