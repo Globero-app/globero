@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/backend")({
 });
 
 function BackendPage() {
-  const [tab, setTab] = useState<"config" | "users" | "sponsors" | "site" | "errors">("config");
+  const [tab, setTab] = useState<"config" | "users" | "sponsors" | "site" | "errors" | "ia">("config");
   return (
     <div className="space-y-6">
       <div>
