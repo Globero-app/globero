@@ -49,6 +49,16 @@ export async function buildWorkoutReport(
 
   if (!act) return null;
 
+  // Sin potencia ni FC no hay análisis útil: informe determinista breve (sin IA).
+  if (!Number(act.average_watts) && !Number(act.average_heartrate)) {
+    const mins = Math.round(Number(act.moving_time ?? 0) / 60);
+    const km = Number(act.distance ?? 0) / 1000;
+    return {
+      title: plan.title ?? plan.name ?? "Sesión",
+      text: `Sesión registrada: ${mins} min${km > 1 ? `, ${km.toFixed(1)} km` : ""}. Sin datos de potencia ni frecuencia cardíaca no se genera análisis detallado.`,
+    };
+  }
+
   let load: any = null;
   try {
     load = await buildTrainingLoad(supabase, userId, profile);
