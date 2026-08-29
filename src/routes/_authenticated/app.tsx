@@ -199,6 +199,9 @@ function Dashboard() {
                   <div className="h-full bg-primary transition-all duration-500" style={{ width: `${planProgress}%` }} />
                 </div>
               </div>
+              <p className="text-[10px] font-mono uppercase tracking-widest text-accent-foreground/60 mt-3">
+                CTL proyectado el día de la cita: <span className="text-primary">{projectedCtl.toFixed(0)}</span> (hoy {ctl.toFixed(0)})
+              </p>
             </div>
           )}
 
