@@ -124,6 +124,38 @@ function Dashboard() {
         </h1>
       </div>
 
+      {isRaceDay && next && (
+        <div className="rounded-xl border-2 border-primary bg-primary/10 p-6">
+          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary">Modo competición</p>
+          <h2 className="font-display text-3xl font-bold uppercase tracking-tight mt-1">Hoy compites: {next.name}</h2>
+          <div className="grid grid-cols-3 gap-3 mt-4 text-sm">
+            <div><p className="text-muted-foreground text-xs">Distancia</p><p className="font-semibold">{next.distance_km} km</p></div>
+            <div><p className="text-muted-foreground text-xs">Desnivel</p><p className="font-semibold">+{next.elevation_m} m</p></div>
+            <div><p className="text-muted-foreground text-xs">Forma (TSB)</p><p className="font-semibold">{tsb.toFixed(0)}</p></div>
+          </div>
+          <Link to="/competiciones/$id" params={{ id: next.id }} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+            Ver plan de carrera, nutrición y meteo <ChevronRight className="size-4" />
+          </Link>
+        </div>
+      )}
+
+      {ftpTest.data?.due && (
+        <div className="rounded-xl border bg-surface p-4 flex items-start gap-3">
+          <Timer className="size-4 text-primary mt-0.5 shrink-0" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold">
+              {ftpTest.data.overdue ? "Test de FTP/FC pendiente" : "Toca revisar tus umbrales"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {ftpTest.data.weeks_since == null
+                ? "Aún no has registrado ningún test. Programa uno para ajustar tus zonas."
+                : `Han pasado ${ftpTest.data.weeks_since} semanas desde tu último test. Recomendado cada 6-8 semanas.`}
+            </p>
+          </div>
+          <Link to="/ftp-test" className="text-xs font-semibold text-primary shrink-0">Programar</Link>
+        </div>
+      )}
+
       <MaintenanceAlertsBanner />
 
       <CoachBriefCard />
@@ -131,6 +163,7 @@ function Dashboard() {
       <TodayPanel />
 
       <AdjustTodayCard />
+
 
 
       {/* Countdown + Form */}
