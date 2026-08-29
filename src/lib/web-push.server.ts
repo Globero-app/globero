@@ -41,8 +41,43 @@ export async function sendWebPush(sub: PushSub, payload: PushPayload): Promise<b
   }
 }
 
+/** Registra el envío de una notificación (histórico para diagnóstico). */
+export async function logNotification(
+  userId: string,
+  entry: { channel: string; title: string; body: string; status?: string; attempts?: number; error?: string | null },
+) {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("notification_log").insert({
+      user_id: userId,
+      channel: entry.channel,
+      title: entry.title,
+      body: entry.body,
+      status: entry.status ?? "sent",
+      attempts: entry.attempts ?? 1,
+      error: entry.error ?? null,
+    } as any);
+  } catch (e) {
+    console.error("[notify-log]", e);
+  }
+}
+
+/** Reintenta una operación con backoff corto. */
+async function withRetry<T>(fn: () => Promise<T>, tries = 3): Promise<{ value?: T; attempts: number; error?: any }> {
+  let lastErr: any;
+  for (let i = 1; i <= tries; i++) {
+    try {
+      return { value: await fn(), attempts: i };
+    } catch (e) {
+      lastErr = e;
+      if (i < tries) await new Promise((r) => setTimeout(r, 300 * i));
+    }
+  }
+  return { attempts: tries, error: lastErr };
+}
+
 /** Envía push a todas las suscripciones de un usuario. Limpia caducadas. */
-export async function notifyUser(userId: string, payload: PushPayload): Promise<number> {
+
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
   const { data: prof } = await supabaseAdmin
