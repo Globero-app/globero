@@ -416,10 +416,41 @@ function EntrenamientosPage() {
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <h2 className="font-display text-lg font-bold uppercase">Tus entrenamientos</h2>
-          <PlanIoBar
-            workouts={workouts.data ?? []}
-            onImported={() => qc.invalidateQueries({ queryKey: ["workouts"] })}
-          />
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={rebalancing}
+              onClick={async () => {
+                setRebalancing(true);
+                try {
+                  const r: any = await rebalance({ data: {} });
+                  if (r?.changed) {
+                    toast.success(`Semana redistribuida: ${r.workouts.length} sesión(es) ajustadas al TSS objetivo`);
+                    qc.invalidateQueries({ queryKey: ["workouts"] });
+                  } else {
+                    toast.info(
+                      r?.reason === "ya_equilibrada"
+                        ? "La semana ya está equilibrada con el objetivo"
+                        : "No hay sesiones pendientes con objetivo semanal que ajustar",
+                    );
+                  }
+                } catch (e: any) {
+                  toast.error(e?.message ?? "Error redistribuyendo la semana");
+                } finally {
+                  setRebalancing(false);
+                }
+              }}
+              title="Reparte de nuevo la carga de la semana entre las sesiones pendientes"
+              className="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase rounded-md border px-2.5 py-1.5 hover:bg-secondary disabled:opacity-50"
+            >
+              {rebalancing ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles className="size-3.5" />}
+              Redistribuir semana
+            </button>
+            <PlanIoBar
+              workouts={workouts.data ?? []}
+              onImported={() => qc.invalidateQueries({ queryKey: ["workouts"] })}
+            />
+          </div>
         </div>
         {workouts.isLoading && (
           <div className="grid gap-3">
@@ -432,7 +463,52 @@ function EntrenamientosPage() {
             <p className="text-sm text-muted-foreground">Aún no has generado ningún entrenamiento.</p>
           </div>
         )}
-        {workouts.data?.map((w: any) => (
+        {(() => {
+          const all = workouts.data ?? [];
+          if (!all.length) return null;
+          const now = new Date();
+          const dow = now.getDay();
+          const monday = new Date(now);
+          monday.setDate(now.getDate() - (dow === 0 ? 6 : dow - 1));
+          monday.setHours(0, 0, 0, 0);
+          const sunday = new Date(monday);
+          sunday.setDate(monday.getDate() + 7);
+          const refDate = (w: any) => new Date((w.plan as any)?.scheduled_date ?? w.completed_at ?? w.created_at);
+          const inWeek = (w: any) => { const d = refDate(w); return d >= monday && d < sunday; };
+          const isFuture = (w: any) => refDate(w) >= sunday;
+          const groups = {
+            semana: all.filter(inWeek),
+            proximas: all.filter(isFuture),
+            historial: all.filter((w: any) => !inWeek(w) && !isFuture(w)),
+          };
+          const counts = groups;
+          const list = groups[tab];
+          return (
+            <>
+              <div className="flex gap-1 rounded-lg border bg-surface p-1 w-fit">
+                {([
+                  ["semana", "Esta semana"],
+                  ["proximas", "Próximas"],
+                  ["historial", "Historial"],
+                ] as const).map(([key, label]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setTab(key)}
+                    className={`px-3 py-1.5 rounded-md text-xs font-semibold transition ${tab === key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"}`}
+                  >
+                    {label} ({counts[key].length})
+                  </button>
+                ))}
+              </div>
+              {list.length === 0 && (
+                <div className="text-center py-10 bg-surface border rounded-xl">
+                  <p className="text-sm text-muted-foreground">
+                    {tab === "semana" ? "No hay entrenamientos esta semana." : tab === "proximas" ? "No hay entrenamientos próximos." : "Sin historial reciente (se muestran los últimos 15 días)."}
+                  </p>
+                </div>
+              )}
+              {list.map((w: any) => (
           <WorkoutCard
             key={w.id}
             w={w}
@@ -444,8 +520,11 @@ function EntrenamientosPage() {
               qc.invalidateQueries({ queryKey: ["workouts"] });
             }}
             onDelete={async () => {
-              if (!confirm("¿Eliminar este entrenamiento?")) return;
-              await del({ data: { workout_id: w.id } });
+              if (!confirm("¿Eliminar este entrenamiento? La carga de la semana se redistribuirá entre las sesiones pendientes.")) return;
+              const r: any = await del({ data: { workout_id: w.id } });
+              if (r?.rebalanced?.changed) {
+                toast.success(`Eliminado. Semana redistribuida: ${r.rebalanced.workouts.length} sesión(es) ajustadas`);
+              }
               qc.invalidateQueries({ queryKey: ["workouts"] });
             }}
             onTrainer={async () => {
