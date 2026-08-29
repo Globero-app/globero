@@ -108,11 +108,15 @@ Bloque "Detalles adicionales:" con 2-4 viñetas que empiecen por "- " y solo con
 Párrafo final (máx. 3 frases) con la conclusión en el contexto de la fase de entrenamiento, TSB y readiness.
 Nunca inventes datos que no aparezcan. Máximo 200 palabras en total.`;
 
-  const { callAI } = await import("./readiness.server");
-  const res = await callAI([
-    { role: "system", content: system },
-    { role: "user", content: facts.join("\n") },
-  ]);
+  const { callAI } = await import("./ai-call.server");
+  const res = await callAI(
+    [
+      { role: "system", content: system },
+      { role: "user", content: facts.join("\n") },
+    ],
+    undefined,
+    { fn: "workout-report", userId },
+  );
   const text = (typeof res === "string" ? res : String(res?.reply ?? res?.content ?? "")).trim();
   if (!text) return null;
 

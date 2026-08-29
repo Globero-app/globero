@@ -79,14 +79,18 @@ export async function buildDailyBrief(supabase: any, userId: string) {
   let advice = "";
   try {
     const { callAI } = await import("./readiness.server");
-    const res = await callAI([
-      {
-        role: "system",
-        content:
-          "Eres el entrenador de ciclismo del usuario. Devuelve UNA sola frase en español (máx. 200 caracteres), concreta y accionable, sin markdown ni emojis.",
-      },
-      { role: "user", content: lines.join("\n") },
-    ]);
+    const res = await callAI(
+      [
+        {
+          role: "system",
+          content:
+            "Eres el entrenador de ciclismo del usuario. Devuelve UNA sola frase en español (máx. 200 caracteres), concreta y accionable, sin markdown ni emojis.",
+        },
+        { role: "user", content: lines.join("\n") },
+      ],
+      undefined,
+      { fn: "daily-brief", userId },
+    );
     advice = typeof res === "string" ? res : String(res?.reply ?? res?.content ?? "");
   } catch {
     advice = "";
