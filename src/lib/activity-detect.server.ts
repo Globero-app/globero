@@ -34,10 +34,19 @@ export async function releaseJobLock(admin: any, jobName: string, details?: unkn
     .eq("job_name", jobName);
 }
 
-/** Descarga las últimas actividades de Intervals.icu del usuario y las guarda. */
+/** Descarga las actividades nuevas de Intervals.icu (incremental según la última sincronizada). */
 async function pullIntervals(admin: any, userId: string): Promise<number> {
   const { syncIntervalsActivities } = await import("./intervals-activities.server");
-  return syncIntervalsActivities(admin, userId, { days: 7 });
+  const { data: last } = await admin
+    .from("intervals_activities")
+    .select("start_date")
+    .eq("user_id", userId)
+    .order("start_date", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const lastTs = last?.start_date ? new Date(last.start_date).getTime() : 0;
+  const days = lastTs ? Math.min(7, Math.max(1, Math.ceil((Date.now() - lastTs) / 86400000) + 1)) : 7;
+  return syncIntervalsActivities(admin, userId, { days });
 }
 
 type DetectResult = { auto: number; asked: number };
