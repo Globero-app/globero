@@ -376,17 +376,8 @@ ${context}`,
     } else if (score === 3) {
       msg = `Registrado 3/5 — ${READINESS_LABELS[score]}. El entrenamiento de hoy se mantiene sin cambios.`;
     } else {
-      const { data: hist } = await supabaseAdmin
-        .from("readiness_entries")
-        .select("entry_date,score")
-        .eq("user_id", userId)
-        .order("entry_date", { ascending: false })
-        .limit(14);
-      const adapted = await callAI(
-        [{ role: "user", content: buildAdaptPrompt({ score, note: text, profile, workout, history: (hist ?? []) as any[] }) }],
-        AdaptSchema,
-        { fn: "telegram-adapt", userId },
-      );
+      // Ajuste determinista por reglas (sin llamada a la IA).
+      const adapted = deterministicAdapt({ score, workout, profile });
       const newPlan = {
         ...(workout.plan as any),
         name: adapted.name,
