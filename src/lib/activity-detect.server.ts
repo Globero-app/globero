@@ -79,16 +79,24 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
       .select("id, name, date, type, race_feedback")
       .eq("user_id", userId)
       .gte("date", sinceDay),
-    admin.from("daily_activities").select("activity_id, match_notified_at").eq("user_id", userId).gte("date", sinceDay),
+    admin
+      .from("daily_activities")
+      .select("activity_id, match_notified_at, notification_sent")
+      .eq("user_id", userId)
+      .gte("date", sinceDay),
   ]);
 
   const activities: any[] = aRes.data ?? [];
   if (!activities.length) return out;
 
   const linked = new Set<string>();
+  const workoutByActivity = new Map<string, any>();
   for (const w of (wRes.data ?? []) as any[]) {
     const id = (w.plan as any)?.strava_activity_id ?? (w.plan as any)?.intervals_activity_id;
-    if (id) linked.add(String(id));
+    if (id) {
+      linked.add(String(id));
+      workoutByActivity.set(String(id), w);
+    }
   }
   for (const c of (cRes.data ?? []) as any[]) {
     const id = (c.race_feedback as any)?.strava_activity_id;
@@ -97,13 +105,49 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
   const notified = new Set(
     ((dRes.data ?? []) as any[]).filter((d) => d.match_notified_at).map((d) => String(d.activity_id)),
   );
+  const feedbackAsked = new Set(
+    ((dRes.data ?? []) as any[]).filter((d) => d.notification_sent).map((d) => String(d.activity_id)),
+  );
 
   const { linkWorkoutActivity } = await import("./activity-link.server");
   const { notifyUser } = await import("./web-push.server");
 
+  /** Pide RPE/sensaciones una sola vez por actividad. */
+  const askFeedback = async (a: any) => {
+    const actId = String(a.id);
+    if (feedbackAsked.has(actId)) return;
+    if (!String(a.type ?? "").toLowerCase().includes("ride")) return;
+    const day = String(a.start_date).slice(0, 10);
+    await admin.from("daily_activities").upsert(
+      { user_id: userId, activity_id: actId, date: day, notification_sent: true },
+      { onConflict: "user_id,activity_id" },
+    );
+    feedbackAsked.add(actId);
+    await notifyUser(userId, {
+      title: "¡Entrenamiento detectado! 🚴‍♂️",
+      body: "¿Cómo te has sentido hoy? Pulsa para evaluar tu esfuerzo.",
+      tag: `activity-feedback-${actId}`,
+      url: `/?screen=feedback&activity_id=${encodeURIComponent(actId)}`,
+      requireInteraction: true,
+    });
+  };
+
   for (const a of activities) {
     const actId = String(a.id);
-    if (linked.has(actId)) continue;
+    if (linked.has(actId)) {
+      // Ya asignada (p. ej. por la sincronización con Intervals): pide RPE e informe si faltan.
+      await askFeedback(a);
+      const wk0 = workoutByActivity.get(actId);
+      if (wk0 && !((wk0.plan as any)?.report)) {
+        try {
+          const { generateAndNotifyWorkoutReport } = await import("./workout-report.server");
+          await generateAndNotifyWorkoutReport(admin, userId, wk0.id);
+        } catch (e) {
+          console.error("[activity-detect] report", e);
+        }
+      }
+      continue;
+    }
     const day = String(a.start_date).slice(0, 10);
 
     const comp = ((cRes.data ?? []) as any[]).find((c) => {
