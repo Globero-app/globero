@@ -1,0 +1,1 @@
+select cron.unschedule('intervals-detect-30min');

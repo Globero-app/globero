@@ -23,7 +23,8 @@ export async function buildWorkoutReport(
   if (!w) return null;
 
   const plan: any = w.plan ?? {};
-  const activityId: string | null = plan.strava_activity_id ? String(plan.strava_activity_id) : null;
+  const rawActId = plan.strava_activity_id ?? plan.intervals_activity_id ?? null;
+  const activityId: string | null = rawActId ? String(rawActId) : null;
 
   const [{ data: profile }, { data: act }, { data: daily }] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
