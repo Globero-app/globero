@@ -165,6 +165,7 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
           return d === day;
         });
 
+    await askFeedback(a);
     if (!comp && !wk) continue;
 
     // Alta confianza solo para entrenos: duración ±20% y tipo de bici coherente
