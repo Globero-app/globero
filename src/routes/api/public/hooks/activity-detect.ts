@@ -19,7 +19,7 @@ export const Route = createFileRoute("/api/public/hooks/activity-detect")({
         );
 
         const JOB = "activity-detect";
-        const got = await acquireJobLock(supabaseAdmin, JOB, 600);
+        const got = await acquireJobLock(supabaseAdmin, JOB, 240);
         if (!got) {
           return new Response(JSON.stringify({ ok: true, skipped: "locked" }), {
             headers: { "content-type": "application/json" },
@@ -45,9 +45,10 @@ export const Route = createFileRoute("/api/public/hooks/activity-detect")({
         try {
           const { data: users } = await supabaseAdmin
             .from("profiles")
-            .select("id, notify_strava_push, notify_training_push")
-            .not("intervals_api_key", "is", null)
+            .select("id, notify_strava_push, notify_training_push, intervals_api_key, intervals_oauth, intervals_athlete_id")
+            .or("intervals_api_key.not.is.null,intervals_oauth.is.true")
             .limit(200);
+
 
           for (const u of (users ?? []) as any[]) {
             try {
