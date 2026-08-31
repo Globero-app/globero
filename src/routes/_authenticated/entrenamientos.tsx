@@ -4,13 +4,10 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
-import { generateWorkouts, completeWorkout, deleteWorkout, convertWorkoutToTrainer, revertWorkoutToOutdoor, getTrainingLoad, rebalanceWeek } from "@/lib/workouts.functions";
+import { generateWorkouts, completeWorkout, deleteWorkout, convertWorkoutToTrainer, revertWorkoutToOutdoor, getTrainingLoad } from "@/lib/workouts.functions";
 import { uploadWorkoutsToIntervals } from "@/lib/intervals.functions";
 import { downloadFit, type FitWorkout, type FitWorkoutStep } from "@/lib/fit-writer";
 import { downloadZwo, type ZwoWorkout, type ZwoStep } from "@/lib/zwo-writer";
-import { importWorkoutPlan } from "@/lib/plan-io.functions";
-import { buildPlanCsv, parsePlanCsv, parseZwo, downloadText, type ImportSession } from "@/lib/plan-io";
-import { buildIcs } from "@/lib/ics";
 import { Dumbbell, Download, CheckCircle2, Trash2, Loader2, Sparkles, ChevronDown, Eye, FileDown, Home, Bike, CloudRain, Sun, Upload, FileText } from "lucide-react";
 
 import { toast } from "sonner";
