@@ -409,41 +409,6 @@ function EntrenamientosPage() {
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <h2 className="font-display text-lg font-bold uppercase">Tus entrenamientos</h2>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              disabled={rebalancing}
-              onClick={async () => {
-                setRebalancing(true);
-                try {
-                  const r: any = await rebalance({ data: {} });
-                  if (r?.changed) {
-                    toast.success(`Semana redistribuida: ${r.workouts.length} sesión(es) ajustadas al TSS objetivo`);
-                    qc.invalidateQueries({ queryKey: ["workouts"] });
-                  } else {
-                    toast.info(
-                      r?.reason === "ya_equilibrada"
-                        ? "La semana ya está equilibrada con el objetivo"
-                        : "No hay sesiones pendientes con objetivo semanal que ajustar",
-                    );
-                  }
-                } catch (e: any) {
-                  toast.error(e?.message ?? "Error redistribuyendo la semana");
-                } finally {
-                  setRebalancing(false);
-                }
-              }}
-              title="Reparte de nuevo la carga de la semana entre las sesiones pendientes"
-              className="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase rounded-md border px-2.5 py-1.5 hover:bg-secondary disabled:opacity-50"
-            >
-              {rebalancing ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles className="size-3.5" />}
-              Redistribuir semana
-            </button>
-            <PlanIoBar
-              workouts={workouts.data ?? []}
-              onImported={() => qc.invalidateQueries({ queryKey: ["workouts"] })}
-            />
-          </div>
         </div>
         {workouts.isLoading && (
           <div className="grid gap-3">
