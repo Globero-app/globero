@@ -19,7 +19,7 @@ export const Route = createFileRoute("/api/public/hooks/activity-detect")({
         );
 
         const JOB = "activity-detect";
-        const got = await acquireJobLock(supabaseAdmin, JOB, 600);
+        const got = await acquireJobLock(supabaseAdmin, JOB, 240);
         if (!got) {
           return new Response(JSON.stringify({ ok: true, skipped: "locked" }), {
             headers: { "content-type": "application/json" },
