@@ -63,11 +63,7 @@ function EntrenamientosPage() {
   const del = useServerFn(deleteWorkout);
   const toTrainer = useServerFn(convertWorkoutToTrainer);
   const toOutdoor = useServerFn(revertWorkoutToOutdoor);
-  const rebalance = useServerFn(rebalanceWeek);
   const [tab, setTab] = useState<"semana" | "proximas" | "historial">("semana");
-  const [rebalancing, setRebalancing] = useState(false);
-
-
 
   const [bikeType, setBikeType] = useState<typeof BIKE_OPTIONS[number]["value"]>("carretera");
 
