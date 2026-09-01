@@ -15,3 +15,6 @@ export const emailExists = createServerFn({ method: "POST" })
       .maybeSingle();
     return { exists: !!row };
   });
+
+/** Desactiva la cuenta del usuario actual: corta conexiones y detiene automatismos. */
+export const deactivateMyAccount = (await import("@tanstack/react-start")).createServerFn({ method: "POST" })
