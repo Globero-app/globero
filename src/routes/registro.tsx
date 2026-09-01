@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { BrandLogo } from "@/components/BrandLogo";
 import { toast } from "sonner";
 import { z } from "zod";
+import { COUNTRIES } from "@/lib/countries";
 
 export const Route = createFileRoute("/registro")({
   ssr: false,
@@ -28,6 +29,7 @@ const schema = z.object({
   fullName: z.string().trim().min(3, "Indica nombre y apellido").max(100),
   email: z.string().trim().email("Email no válido").max(255),
   password: z.string().min(8, "Mínimo 8 caracteres").max(72),
+  country: z.string().length(2, "Selecciona tu país"),
 });
 
 function SignUpPage() {
@@ -35,6 +37,7 @@ function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
+  const [country, setCountry] = useState("");
   const [accept, setAccept] = useState(false);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
@@ -43,7 +46,7 @@ function SignUpPage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const parsed = schema.safeParse({ fullName, email, password });
+    const parsed = schema.safeParse({ fullName, email, password, country });
     if (!parsed.success) return toast.error(parsed.error.issues[0]!.message);
     if (password !== password2) return toast.error("Las contraseñas no coinciden");
     if (!accept) return toast.error("Debes aceptar la política de privacidad");
@@ -54,7 +57,7 @@ function SignUpPage() {
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth?confirmado=1`,
-          data: { full_name: parsed.data.fullName },
+          data: { full_name: parsed.data.fullName, country: parsed.data.country },
         },
       });
       if (error) throw error;
@@ -111,6 +114,16 @@ function SignUpPage() {
               <Field label="Email" type="email" value={email} onChange={setEmail} placeholder="tucorreo@ejemplo.com" />
               <Field label="Contraseña" type="password" value={password} onChange={setPassword} placeholder="••••••••" />
               <Field label="Repetir contraseña" type="password" value={password2} onChange={setPassword2} placeholder="••••••••" />
+              <div>
+                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">País</label>
+                <select
+                  required value={country} onChange={(e) => setCountry(e.target.value)}
+                  className="mt-1 w-full px-4 py-2.5 rounded-lg border bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="">Selecciona tu país</option>
+                  {COUNTRIES.map((c) => <option key={c.code} value={c.code}>{c.name}</option>)}
+                </select>
+              </div>
             </div>
             <label className="flex items-start gap-2 text-xs text-muted-foreground">
               <input type="checkbox" checked={accept} onChange={(e) => setAccept(e.target.checked)} className="mt-0.5" />

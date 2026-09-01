@@ -34,7 +34,8 @@ export const Route = createFileRoute("/api/public/hooks/weekly-workouts")({
         const { data: users, error } = await supabaseAdmin
           .from("profiles")
           .select("id, weekly_training_days, weekly_long_ride_day, weekly_bike_type, weekly_duration_minutes, weekly_target_basis, weekly_last_generated_at, nutrition_plan_enabled, nutrition_goal")
-          .eq("weekly_auto_enabled", true);
+          .eq("weekly_auto_enabled", true)
+          .is("deactivated_at", null);
         if (error) {
           return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { "content-type": "application/json" } });
         }

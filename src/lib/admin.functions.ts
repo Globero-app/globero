@@ -20,15 +20,32 @@ export const listAllUsers = createServerFn({ method: "GET" })
     const { data: list, error } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
     if (error) throw error;
     const { data: roles } = await supabaseAdmin.from("user_roles").select("user_id,role");
-    const { data: profiles } = await supabaseAdmin.from("profiles").select("id,full_name");
-    return list.users.map((u) => ({
-      id: u.id,
-      email: u.email,
-      created_at: u.created_at,
-      full_name: profiles?.find((p) => p.id === u.id)?.full_name ?? null,
-      roles: roles?.filter((r) => r.user_id === u.id).map((r) => r.role) ?? [],
-    }));
+    const { data: profiles } = await supabaseAdmin
+      .from("profiles")
+      .select("id,full_name,country,deactivated_at,telegram_chat_id,intervals_athlete_id,intervals_oauth");
+    const { data: usage } = await supabaseAdmin
+      .from("ai_usage_log")
+      .select("user_id,prompt_tokens,completion_tokens");
+    return list.users.map((u) => {
+      const p: any = profiles?.find((x: any) => x.id === u.id) ?? null;
+      const mine = (usage ?? []).filter((r: any) => r.user_id === u.id);
+      return {
+        id: u.id,
+        email: u.email,
+        created_at: u.created_at,
+        last_sign_in_at: (u as any).last_sign_in_at ?? null,
+        full_name: p?.full_name ?? null,
+        country: p?.country ?? null,
+        deactivated_at: p?.deactivated_at ?? null,
+        telegram: !!p?.telegram_chat_id,
+        intervals: !!(p?.intervals_athlete_id || p?.intervals_oauth),
+        ai_calls: mine.length,
+        ai_tokens: mine.reduce((s: number, r: any) => s + (r.prompt_tokens ?? 0) + (r.completion_tokens ?? 0), 0),
+        roles: roles?.filter((r) => r.user_id === u.id).map((r) => r.role) ?? [],
+      };
+    });
   });
+
 
 const CreateInput = z.object({
   email: z.string().email(),

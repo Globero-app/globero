@@ -21,7 +21,8 @@ export const Route = createFileRoute("/api/public/hooks/intervals-sync")({
           .from("profiles")
           .select("id, intervals_athlete_id, intervals_api_key")
           .not("intervals_athlete_id", "is", null)
-          .not("intervals_api_key", "is", null);
+          .not("intervals_api_key", "is", null)
+          .is("deactivated_at", null);
         if (error) {
           return new Response(JSON.stringify({ error: error.message }), {
             status: 500,

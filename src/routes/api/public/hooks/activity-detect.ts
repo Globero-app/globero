@@ -47,6 +47,7 @@ export const Route = createFileRoute("/api/public/hooks/activity-detect")({
             .from("profiles")
             .select("id, notify_strava_push, notify_training_push, intervals_api_key, intervals_oauth, intervals_athlete_id")
             .or("intervals_api_key.not.is.null,intervals_oauth.is.true")
+            .is("deactivated_at", null)
             .limit(200);
 
 
