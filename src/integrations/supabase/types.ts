@@ -541,9 +541,11 @@ export type Database = {
       profiles: {
         Row: {
           age: number | null
+          country: string | null
           created_at: string
           cyclist_type: Database["public"]["Enums"]["cyclist_type_enum"]
           daily_brief_cache: Json | null
+          deactivated_at: string | null
           dietary_preferences: string | null
           email: string
           ftp: number | null
@@ -600,9 +602,11 @@ export type Database = {
         }
         Insert: {
           age?: number | null
+          country?: string | null
           created_at?: string
           cyclist_type?: Database["public"]["Enums"]["cyclist_type_enum"]
           daily_brief_cache?: Json | null
+          deactivated_at?: string | null
           dietary_preferences?: string | null
           email: string
           ftp?: number | null
@@ -659,9 +663,11 @@ export type Database = {
         }
         Update: {
           age?: number | null
+          country?: string | null
           created_at?: string
           cyclist_type?: Database["public"]["Enums"]["cyclist_type_enum"]
           daily_brief_cache?: Json | null
+          deactivated_at?: string | null
           dietary_preferences?: string | null
           email?: string
           ftp?: number | null
