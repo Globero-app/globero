@@ -4,22 +4,27 @@ import { useServerFn } from "@tanstack/react-start";
 import { getTodayWorkout, adjustTodayWorkout } from "@/lib/adjust.functions";
 import { SlidersHorizontal, Loader2, Timer, Gauge } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/lib/use-auth";
 
 /** Módulo rápido del panel: recalcula la sesión de hoy (menos tiempo / más suave). */
 export function AdjustTodayCard() {
   const getToday = useServerFn(getTodayWorkout);
   const adjust = useServerFn(adjustTodayWorkout);
   const qc = useQueryClient();
+  const { user, loading } = useAuth();
   const [open, setOpen] = useState(false);
   const [minutes, setMinutes] = useState<number | null>(null);
   const [easier, setEasier] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const q = useQuery({
-    queryKey: ["today-workout"],
+    queryKey: ["today-workout", user?.id],
     queryFn: () => getToday({ data: {} } as any),
+    enabled: !loading && !!user,
+    retry: false,
     staleTime: 60_000,
   });
+
 
   const w: any = q.data;
   if (q.isLoading || !w) return null;
