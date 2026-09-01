@@ -13,6 +13,8 @@ import { intervalsAuthorizeUrl } from "@/lib/intervals-oauth";
 import { createIntervalsOAuthState } from "@/lib/intervals-oauth.functions";
 import { NotificationsPrefs } from "@/components/NotificationsPrefs";
 import { TelegramSection } from "@/components/TelegramSection";
+import { deactivateMyAccount } from "@/lib/account.functions";
+
 
 
 export const Route = createFileRoute("/_authenticated/perfil")({
