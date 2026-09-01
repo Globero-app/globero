@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { countryName } from "@/lib/countries";
 import { listAllUsers, createUser, setUserRole, deleteUser, updateAppConfig } from "@/lib/admin.functions";
 import { getErrorStats, getGlobalAiUsage } from "@/lib/diag.functions";
 import { useAppConfig } from "@/lib/use-app-config";
@@ -165,6 +166,7 @@ function UsersTab() {
 
   const users = useQuery({ queryKey: ["all_users"], queryFn: () => list({ data: undefined }) });
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState<string | null>(null);
   const [f, setF] = useState({ email: "", password: "", full_name: "", role: "user" as "user" | "admin" });
 
   const submit = async (e: React.FormEvent) => {
@@ -200,32 +202,52 @@ function UsersTab() {
       <div className="bg-surface border rounded-xl divide-y">
         {(users.data ?? []).map((u: any) => {
           const isAdmin = u.roles.includes("admin");
+          const isOpen = expanded === u.id;
           return (
-            <div key={u.id} className="p-4 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="size-10 rounded-full bg-primary/10 text-primary grid place-items-center text-sm font-bold">
-                  {(u.full_name ?? u.email)?.[0]?.toUpperCase()}
+            <div key={u.id}>
+              <button type="button" onClick={() => setExpanded(isOpen ? null : u.id)} className="w-full p-4 flex items-center justify-between gap-3 text-left hover:bg-secondary/40">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="size-10 rounded-full bg-primary/10 text-primary grid place-items-center text-sm font-bold">
+                    {(u.full_name ?? u.email)?.[0]?.toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-semibold truncate">{u.full_name ?? u.email}</p>
+                    <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className="font-semibold truncate">{u.full_name ?? u.email}</p>
-                  <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                <div className="flex items-center gap-2 shrink-0">
+                  {u.deactivated_at && <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-destructive/10 text-destructive">Baja</span>}
+                  <span className={`text-[10px] uppercase font-semibold px-2 py-0.5 rounded ${isAdmin ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"}`}>
+                    {isAdmin ? "Admin" : "Usuario"}
+                  </span>
+                  <ChevronDown className={`size-4 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`} />
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className={`text-[10px] uppercase font-semibold px-2 py-0.5 rounded ${isAdmin ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"}`}>
-                  {isAdmin ? "Admin" : "Usuario"}
-                </span>
-                {u.id !== me?.id && (
-                  <>
-                    <button onClick={() => toggleRole(u.id, u.roles)} className="p-1.5 text-muted-foreground hover:text-foreground" title="Cambiar rol">
-                      {isAdmin ? <UserIcon className="size-4" /> : <Shield className="size-4" />}
-                    </button>
-                    <button onClick={() => remove(u.id)} className="p-1.5 text-muted-foreground hover:text-destructive">
-                      <Trash2 className="size-4" />
-                    </button>
-                  </>
-                )}
-              </div>
+              </button>
+              {isOpen && (
+                <div className="px-4 pb-4 space-y-3 bg-secondary/20">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs pt-3">
+                    <Info label="Nombre" value={u.full_name ?? "—"} />
+                    <Info label="Email" value={u.email} />
+                    <Info label="País" value={countryName(u.country) ?? "—"} />
+                    <Info label="Alta" value={u.created_at ? new Date(u.created_at).toLocaleDateString("es-ES") : "—"} />
+                    <Info label="Llamadas IA" value={String(u.ai_calls ?? 0)} />
+                    <Info label="Tokens IA" value={(u.ai_tokens ?? 0).toLocaleString("es-ES")} />
+                    <Info label="Telegram" value={u.telegram ? "Conectado" : "No"} />
+                    <Info label="Intervals.icu" value={u.intervals ? "Conectado" : "No"} />
+                  </div>
+                  {u.id !== me?.id && (
+                    <div className="flex flex-wrap gap-2">
+                      <button onClick={() => toggleRole(u.id, u.roles)} className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-semibold hover:bg-secondary">
+                        {isAdmin ? <UserIcon className="size-3.5" /> : <Shield className="size-3.5" />}
+                        {isAdmin ? "Quitar admin" : "Convertir en Admin"}
+                      </button>
+                      <button onClick={() => remove(u.id)} className="inline-flex items-center gap-2 rounded-lg bg-destructive px-3 py-1.5 text-xs font-semibold text-destructive-foreground">
+                        <Trash2 className="size-3.5" /> Eliminar usuario
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           );
         })}
@@ -429,6 +451,15 @@ function SponsorsTab() {
           </form>
         </div>
       )}
+    </div>
+  );
+}
+
+function Info({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">{label}</p>
+      <p className="font-medium break-words">{value}</p>
     </div>
   );
 }
