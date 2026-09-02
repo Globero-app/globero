@@ -110,6 +110,7 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="es">
       <head>
         <HeadContent />
+        <script dangerouslySetInnerHTML={{ __html: canonicalHost }} />
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
       <body>
