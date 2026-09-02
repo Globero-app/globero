@@ -102,10 +102,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   const themeInit = `(function(){try{var t=localStorage.getItem('sb-theme')||'system';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;if(d)r.classList.add('dark');r.style.colorScheme=d?'dark':'light';}catch(e){}})();`;
+  // La sesión se guarda en el navegador por dominio: globero.app y
+  // www.globero.app tienen almacenamientos distintos. Forzamos un único
+  // dominio canónico para que la sesión sobreviva a las publicaciones.
+  const canonicalHost = `(function(){try{if(location.hostname==='www.globero.app'){location.replace('https://globero.app'+location.pathname+location.search+location.hash);}}catch(e){}})();`;
   return (
     <html lang="es">
       <head>
         <HeadContent />
+        <script dangerouslySetInnerHTML={{ __html: canonicalHost }} />
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
       <body>
