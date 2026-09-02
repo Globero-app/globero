@@ -235,6 +235,10 @@ export async function remindPendingWorkout(admin: any, userId: string, todayISO:
     .neq("status", "completed");
   const w = ((ws ?? []) as any[]).find((x) => (x.plan as any)?.scheduled_date === todayISO);
   if (!w) return false;
+  const plan = (w.plan as any) ?? {};
+  const label = `${plan.name ?? ""} ${plan.title ?? ""}`.toLowerCase();
+  if (plan.cancelled || w.status === "skipped" || w.status === "cancelled" || label.includes("descanso") || label.includes("cancelad")) return false;
+
   const { notifyUser } = await import("./web-push.server");
   await notifyUser(userId, {
     title: "⏳ Entreno pendiente",
