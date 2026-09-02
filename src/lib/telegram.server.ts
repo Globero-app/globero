@@ -446,7 +446,33 @@ ${context}`,
     return;
   }
 
+  if (analysis.intent === "delete_workout") {
+    if (!workout) {
+      await telegramSend(chatId, "Hoy no tienes ningún entrenamiento pendiente que eliminar.");
+      return;
+    }
+    const { removeWorkoutEvent } = await import("./intervals.server");
+    let syncOk = true;
+    try {
+      await removeWorkoutEvent(supabaseAdmin, userId, workout, { strict: true });
+    } catch {
+      syncOk = false;
+    }
+    const { error: delErr } = await supabaseAdmin
+      .from("workouts")
+      .delete()
+      .eq("id", workout.id)
+      .eq("user_id", userId);
+    if (delErr) throw new Error(delErr.message);
+    await telegramSend(
+      chatId,
+      `🗑️ Entrenamiento de hoy eliminado. Descansa y recupera.\n${syncOk ? "Eliminado también en Intervals.icu." : "⚠️ No se ha podido eliminar en Intervals.icu."}`,
+    );
+    return;
+  }
+
   if (analysis.intent === "modify_workout") {
+
     if (!workout) {
       await telegramSend(chatId, "Hoy no tienes ningún entrenamiento pendiente que modificar.");
       return;
