@@ -239,6 +239,17 @@ export async function remindPendingWorkout(admin: any, userId: string, todayISO:
   const label = `${plan.name ?? ""} ${plan.title ?? ""}`.toLowerCase();
   if (plan.cancelled || w.status === "skipped" || w.status === "cancelled" || label.includes("descanso") || label.includes("cancelad")) return false;
 
+  // Enviar el recordatorio sólo una vez al día
+  const { data: already } = await admin
+    .from("notification_log")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("title", "⏳ Entreno pendiente")
+    .gte("created_at", `${todayISO}T00:00:00Z`)
+    .lt("created_at", `${todayISO}T23:59:59Z`)
+    .limit(1);
+  if ((already ?? []).length > 0) return false;
+
   const { notifyUser } = await import("./web-push.server");
   await notifyUser(userId, {
     title: "⏳ Entreno pendiente",
