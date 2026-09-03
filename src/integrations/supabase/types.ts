@@ -1123,6 +1123,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      ai_usage_by_user: {
+        Args: never
+        Returns: {
+          calls: number
+          tokens: number
+          user_id: string
+        }[]
+      }
+      ai_usage_summary: {
+        Args: { _since: string }
+        Returns: {
+          calls: number
+          completion_tokens: number
+          fn: string
+          model: string
+          prompt_tokens: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
