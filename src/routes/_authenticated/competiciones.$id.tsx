@@ -13,7 +13,7 @@ import { RaceWeatherCard } from "@/components/RaceWeatherCard";
 import { Upload, Download, ChefHat, Sparkles, ArrowLeft, RefreshCcw, FileDown, X, Eye } from "lucide-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import jsPDF from "jspdf";
+
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -428,7 +428,8 @@ function RecipeModal({ recipe, onClose }: any) {
   );
 }
 
-function exportMenuPdf(menu: any, comp: any) {
+async function exportMenuPdf(menu: any, comp: any) {
+  const { default: jsPDF } = await import("jspdf");
   const doc = new jsPDF();
   let y = 15;
   doc.setFontSize(18); doc.text(`Menú Pre-Carrera — ${comp.name}`, 15, y); y += 8;
