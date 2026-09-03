@@ -153,21 +153,15 @@ export const getGlobalAiUsage = createServerFn({ method: "GET" })
     const since = new Date();
     since.setUTCDate(1);
     since.setUTCHours(0, 0, 0, 0);
-    const { data } = await supabaseAdmin
-      .from("ai_usage_log")
-      .select("fn,model,prompt_tokens,completion_tokens")
-      .gte("created_at", since.toISOString())
-      .limit(5000);
-
-    const groups = new Map<string, { fn: string; model: string; calls: number; prompt_tokens: number; completion_tokens: number }>();
-    for (const r of (data ?? []) as any[]) {
-      const g = groups.get(r.fn) ?? { fn: r.fn, model: r.model, calls: 0, prompt_tokens: 0, completion_tokens: 0 };
-      g.calls++;
-      g.prompt_tokens += Number(r.prompt_tokens) || 0;
-      g.completion_tokens += Number(r.completion_tokens) || 0;
-      groups.set(r.fn, g);
-    }
-    const items = [...groups.values()].sort((a, b) => b.calls - a.calls);
+    // Agregación en SQL: evita descargar miles de filas al servidor.
+    const { data } = await supabaseAdmin.rpc("ai_usage_summary", { _since: since.toISOString() });
+    const items = ((data ?? []) as any[]).map((r) => ({
+      fn: r.fn as string,
+      model: r.model as string,
+      calls: Number(r.calls) || 0,
+      prompt_tokens: Number(r.prompt_tokens) || 0,
+      completion_tokens: Number(r.completion_tokens) || 0,
+    }));
     return {
       since: since.toISOString().slice(0, 10),
       total_calls: items.reduce((t, i) => t + i.calls, 0),
