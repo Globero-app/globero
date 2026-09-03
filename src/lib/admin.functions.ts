@@ -40,8 +40,8 @@ export const listAllUsers = createServerFn({ method: "GET" })
         deactivated_at: p?.deactivated_at ?? null,
         telegram: !!p?.telegram_chat_id,
         intervals: !!(p?.intervals_athlete_id || p?.intervals_oauth),
-        ai_calls: mine.length,
-        ai_tokens: mine.reduce((s: number, r: any) => s + (r.prompt_tokens ?? 0) + (r.completion_tokens ?? 0), 0),
+        ai_calls: mine.calls,
+        ai_tokens: mine.tokens,
         roles: roles?.filter((r) => r.user_id === u.id).map((r) => r.role) ?? [],
       };
     });
