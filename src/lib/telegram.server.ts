@@ -1,152 +1,25 @@
-/** Helpers de servidor para el Bot de Telegram (no importar desde el cliente). */
-import { createHash, timingSafeEqual } from "crypto";
+/** Orquestador del Bot de Telegram (no importar desde el cliente). */
+export {
+  telegramCall,
+  telegramSend,
+  telegramBotUsername,
+  telegramWebhookSecret,
+  safeEqual,
+} from "./telegram-api.server";
 
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/telegram";
+import { telegramSend } from "./telegram-api.server";
+import { IntentSchema } from "./telegram-schemas.server";
+import { handleStartCommand, handleQuickCommand } from "./telegram-commands.server";
+import { buildTelegramContext } from "./telegram-context.server";
+import {
+  applyReadiness,
+  deleteTodayWorkout,
+  modifyTodayWorkout,
+  updateProfileFields,
+  swapMeal,
+} from "./telegram-actions.server";
 
-function creds() {
-  const lovable = process.env.LOVABLE_API_KEY;
-  const telegram = process.env.TELEGRAM_API_KEY;
-  if (!lovable) throw new Error("LOVABLE_API_KEY no configurada");
-  if (!telegram) throw new Error("TELEGRAM_API_KEY no configurada");
-  return { lovable, telegram };
-}
-
-export async function telegramCall(method: string, body: Record<string, unknown> = {}) {
-  const { lovable, telegram } = creds();
-  const res = await fetch(`${GATEWAY_URL}/${method}`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${lovable}`,
-      "X-Connection-Api-Key": telegram,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Telegram ${res.status}: ${text.slice(0, 300)}`);
-  }
-  const json: any = await res.json();
-  if (json?.ok === false) throw new Error(`Telegram: ${json.description ?? "error"}`);
-  return json.result;
-}
-
-export async function telegramSend(chatId: string | number, text: string) {
-  const chunks = String(text).match(/[\s\S]{1,3800}/g) ?? ["…"];
-  for (const chunk of chunks) {
-    await telegramCall("sendMessage", { chat_id: chatId, text: chunk });
-  }
-}
-
-export async function telegramBotUsername(): Promise<string | null> {
-  try {
-    const me: any = await telegramCall("getMe");
-    return me?.username ?? null;
-  } catch {
-    return null;
-  }
-}
-
-export function telegramWebhookSecret(): string {
-  const { telegram } = creds();
-  return createHash("sha256").update(`telegram-webhook:${telegram}`).digest("base64url");
-}
-
-export function safeEqual(a: string, b: string): boolean {
-  const left = Buffer.from(a);
-  const right = Buffer.from(b);
-  return left.length === right.length && timingSafeEqual(left, right);
-}
-
-const IntentSchema = {
-  type: "object",
-  properties: {
-    intent: {
-      type: "string",
-      enum: ["chat", "set_readiness", "modify_workout", "delete_workout", "update_profile", "swap_meal"],
-      description:
-        "set_readiness si indica cómo se encuentra hoy; delete_workout si pide eliminar, borrar, cancelar o saltarse el entreno de hoy (descansar sin reprogramar); modify_workout si pide cambiar, aplazar o mover a otro día el entreno de hoy; update_profile si pide cambiar un dato de su perfil (peso, altura, edad, FTP, FCmáx, LTHR, objetivo nutricional, duración por defecto, base de entreno potencia/fc, hora del aviso de readiness); swap_meal si pide cambiar/sustituir una comida del menú de hoy; chat en el resto (incluidas preguntas sobre menú, recetas, zonas, FTP, métricas)",
-    },
-
-    readiness_score: { type: "number", description: "1-5 solo si intent=set_readiness" },
-    change_request: { type: "string", description: "Qué cambio pide en el entreno, solo si intent=modify_workout" },
-    new_scheduled_date: {
-      type: "string",
-      description:
-        "Solo si intent=modify_workout y pide mover/aplazar el entreno a otro día. Fecha absoluta en formato YYYY-MM-DD calculada a partir de la FECHA del contexto (por ejemplo 'mañana' = FECHA + 1 día)",
-    },
-    meal_key: {
-      type: "string",
-      enum: ["desayuno", "media_manana", "comida", "merienda", "cena"],
-      description: "Comida a sustituir, solo si intent=swap_meal",
-    },
-    meal_request: { type: "string", description: "Preferencias para la nueva comida, solo si intent=swap_meal" },
-    profile_updates: {
-      type: "object",
-      description: "Solo si intent=update_profile. Incluye únicamente los campos a cambiar",
-      properties: {
-        weight_kg: { type: "number" },
-        height_cm: { type: "number" },
-        age: { type: "number" },
-        ftp: { type: "number" },
-        max_hr: { type: "number" },
-        lthr: { type: "number" },
-        nutrition_goal: { type: "string", enum: ["perdida_peso", "mantenimiento", "masa_muscular"] },
-        nutrition_plan_enabled: { type: "boolean" },
-        weekly_duration_minutes: { type: "number" },
-        weekly_target_basis: { type: "string", enum: ["power", "hr"] },
-        readiness_push_hour: { type: "number" },
-        zones_display_mode: { type: "string", enum: ["watts", "hr"] },
-      },
-    },
-    reply: { type: "string", description: "Respuesta breve en español para el chat (se usa si intent=chat)" },
-  },
-  required: ["intent", "reply"],
-};
-
-const MealSchema = {
-  type: "object",
-  properties: {
-    nombre: { type: "string" },
-    ingredientes: { type: "array", items: { type: "string" }, description: "Ingredientes con cantidades en gramos" },
-    preparacion: { type: "string" },
-    macros: {
-      type: "object",
-      properties: {
-        carbohidratos_g: { type: "number" },
-        proteinas_g: { type: "number" },
-        grasas_g: { type: "number" },
-        calorias_kcal: { type: "number" },
-      },
-      required: ["carbohidratos_g", "proteinas_g", "grasas_g", "calorias_kcal"],
-    },
-  },
-  required: ["nombre", "ingredientes", "preparacion", "macros"],
-};
-
-const PROFILE_LABELS: Record<string, string> = {
-  weight_kg: "Peso (kg)",
-  height_cm: "Altura (cm)",
-  age: "Edad",
-  ftp: "FTP (W)",
-  max_hr: "FC máx (bpm)",
-  lthr: "Umbral FC (bpm)",
-  nutrition_goal: "Objetivo nutricional",
-  nutrition_plan_enabled: "Plan nutricional",
-  weekly_duration_minutes: "Duración por defecto (min)",
-  weekly_target_basis: "Base del entreno",
-  readiness_push_hour: "Hora del aviso de readiness",
-  zones_display_mode: "Zonas mostradas en",
-};
-
-function formatMeal(key: string, meal: any): string {
-  if (!meal) return "";
-  const m = meal.macros ?? {};
-  return `${key}: ${meal.nombre} — ${Math.round(m.calorias_kcal ?? 0)} kcal · HC ${Math.round(m.carbohidratos_g ?? 0)}g · P ${Math.round(m.proteinas_g ?? 0)}g · G ${Math.round(m.grasas_g ?? 0)}g`;
-}
-
-
-/** Procesa un update de Telegram. Devuelve true si se ha respondido. */
+/** Procesa un update de Telegram. */
 export async function handleTelegramUpdate(update: any): Promise<void> {
   const message = update?.message ?? update?.edited_message;
   const chatId = message?.chat?.id;
@@ -154,38 +27,10 @@ export async function handleTelegramUpdate(update: any): Promise<void> {
   if (!chatId || !text) return;
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { madridToday, callAI, AdaptSchema, pickTodayWorkout, deterministicAdapt, READINESS_LABELS } = await import(
-    "./readiness.server"
-  );
+  const { madridToday, callAI } = await import("./readiness.server");
   const today = madridToday();
 
-  // /start CODIGO -> vinculación
-  const startMatch = text.match(/^\/start(?:\s+(\S+))?/i);
-  if (startMatch) {
-    const code = startMatch[1];
-    if (!code) {
-      await telegramSend(chatId, "Hola 👋 Para vincular tu cuenta, entra en la app → Perfil → Conectar Telegram y pulsa el botón.");
-      return;
-    }
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("id, full_name")
-      .eq("linking_code", code)
-      .maybeSingle();
-    if (!profile) {
-      await telegramSend(chatId, "❌ Código no válido o caducado. Genera uno nuevo en la app (Perfil → Conectar Telegram).");
-      return;
-    }
-    await supabaseAdmin
-      .from("profiles")
-      .update({ telegram_chat_id: String(chatId), linking_code: null })
-      .eq("id", (profile as any).id);
-    await telegramSend(
-      chatId,
-      `✅ Cuenta vinculada, ${(profile as any).full_name ?? "ciclista"}.\n\nYa puedes escribirme:\n· "hoy me encuentro a 4" para registrar tu readiness\n· "pásame el entreno de hoy a rodillo 1h" para adaptarlo\n· o preguntarme cualquier duda sobre tu entrenamiento.`,
-    );
-    return;
-  }
+  if (await handleStartCommand(supabaseAdmin, chatId, text)) return;
 
   const { data: profile } = await supabaseAdmin
     .from("profiles")
@@ -199,154 +44,17 @@ export async function handleTelegramUpdate(update: any): Promise<void> {
   }
   const userId = (profile as any).id as string;
 
-  // ── Comandos rápidos ──────────────────────────────────────────────
-  const cmdMatch = text.match(/^\/(\w+)(?:@\w+)?(?:\s+(.*))?$/s);
-  if (cmdMatch) {
-    const cmd = cmdMatch[1]!.toLowerCase();
-    const arg = (cmdMatch[2] ?? "").trim();
-
-    if (cmd === "ayuda" || cmd === "help") {
-      await telegramSend(
-        chatId,
-        `Comandos disponibles:
-/hoy — resumen del día (entreno, forma y consejo)
-/forma — CTL, ATL, TSB y alertas de fatiga
-/semana — resumen semanal y objetivos
-/menu — menú de hoy
-/readiness N — registra tu readiness (1-5)
-/ayuda — esta lista
-
-También puedes escribirme en lenguaje natural: "pásame el entreno de hoy a rodillo 1h", "mi peso es 72 kg", "cámbiame la cena".`,
-      );
-      return;
-    }
-
-    if (cmd === "hoy" || cmd === "forma") {
-      const { buildDailyBrief, runCoachAlerts } = await import("./coach.server");
-      if (cmd === "hoy") {
-        const brief = await buildDailyBrief(supabaseAdmin, userId);
-        await telegramSend(chatId, `🧭 ${brief.date}\n${brief.detail}`);
-        return;
-      }
-      const res = await runCoachAlerts(supabaseAdmin, userId, false);
-      const { buildTrainingLoad } = await import("./training-load.server");
-      const load = await buildTrainingLoad(supabaseAdmin, userId, profile);
-      const alerts = res.alerts.length ? res.alerts.map((a) => `· ${a.title}: ${a.message}`).join("\n") : "Sin alertas.";
-      await telegramSend(
-        chatId,
-        `📈 Forma actual\nCTL ${Math.round(load.ctl)} · ATL ${Math.round(load.atl)} · TSB ${Math.round(load.tsb)}\nAdherencia 28d: ${load.adherence_pct ?? "n/a"}%\nReadiness 7d: ${load.readiness_7d ?? "n/a"}/5 (${load.readiness_trend})\n\n${alerts}`,
-      );
-      return;
-    }
-
-    if (cmd === "semana") {
-      const { buildWeeklySummaryText } = await import("./weekly-summary.server");
-      const s = await buildWeeklySummaryText(supabaseAdmin, userId);
-      await telegramSend(chatId, `📊 ${s.detail}`);
-      return;
-    }
-
-    if (cmd === "readiness") {
-      const n = Number(arg.match(/[1-5]/)?.[0]);
-      if (!n) {
-        await telegramSend(chatId, "Indica un valor del 1 al 5. Ejemplo: /readiness 4");
-        return;
-      }
-      // Se procesa con la lógica de readiness reutilizando el flujo natural
-      return handleTelegramUpdate({ message: { chat: { id: chatId }, text: `hoy me encuentro a ${n}` } });
-    }
-
-    if (cmd === "menu") {
-      // continúa al flujo normal; la IA responderá con el menú
-    }
+  const cmd = await handleQuickCommand(supabaseAdmin, chatId, userId, profile, text);
+  if (cmd === true) return;
+  if (typeof cmd === "object" && cmd.rerunAs) {
+    return handleTelegramUpdate({ message: { chat: { id: chatId }, text: cmd.rerunAs } });
   }
 
-  const { data: pending } = await supabaseAdmin
-    .from("workouts")
-    .select("*")
-    .eq("user_id", userId)
-    .eq("status", "pending")
-    .order("created_at", { ascending: true });
-
-  const workout = pickTodayWorkout((pending ?? []) as any[], today);
-
-  const { data: readinessToday } = await supabaseAdmin
-    .from("readiness_entries")
-    .select("score,note,ai_message")
-    .eq("user_id", userId)
-    .eq("entry_date", today)
-    .maybeSingle();
-
-  // Entrenos de la semana (pendientes + completados recientes)
-  const { weekStartISO } = await import("./nutrition-gen.server");
-  const weekStart = weekStartISO(new Date(`${today}T12:00:00Z`));
-  const weekEnd = new Date(`${weekStart}T12:00:00Z`);
-  weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
-  const weekEndISO = weekEnd.toISOString().slice(0, 10);
-
-  const { data: allWorkouts } = await supabaseAdmin
-    .from("workouts")
-    .select("id,status,duration_minutes,bike_type,plan,completed_at")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: true })
-    .limit(200);
-
-  const weekWorkouts = ((allWorkouts ?? []) as any[])
-    .map((w) => ({ ...w, date: w.plan?.scheduled_date ?? null }))
-    .filter((w) => w.date && w.date >= weekStart && w.date <= weekEndISO)
-    .sort((a, b) => String(a.date).localeCompare(String(b.date)))
-    .map(
-      (w) =>
-        `${w.date}: ${w.plan?.title ?? "—"} · ${w.duration_minutes} min · ${w.bike_type} · ${w.status}${w.plan?.summary ? ` — ${w.plan.summary}` : ""}`,
-    );
-
-  // Plan nutricional de la semana / día
-  const { data: nutriRow } = await supabaseAdmin
-    .from("weekly_nutrition_plans")
-    .select("week_start,goal,plan")
-    .eq("user_id", userId)
-    .eq("week_start", weekStart)
-    .maybeSingle();
-
-  const nutriPlan = (nutriRow as any)?.plan ?? null;
-  const todayMenu = nutriPlan?.dias?.find((d: any) => d.fecha === today) ?? null;
-  const menuText = todayMenu
-    ? [
-        `Objetivos: ${Math.round(todayMenu.objetivo_calorias_kcal ?? 0)} kcal · HC ${Math.round(todayMenu.objetivo_carbohidratos_g ?? 0)}g · P ${Math.round(todayMenu.objetivo_proteinas_g ?? 0)}g`,
-        formatMeal("Desayuno", todayMenu.desayuno),
-        formatMeal("Media mañana", todayMenu.media_manana),
-        formatMeal("Comida", todayMenu.comida),
-        formatMeal("Merienda", todayMenu.merienda),
-        formatMeal("Cena", todayMenu.cena),
-        `Detalle completo (JSON): ${JSON.stringify(todayMenu)}`,
-      ]
-        .filter(Boolean)
-        .join("\n")
-    : "sin plan nutricional para hoy";
-
-  // Zonas
-  const { computePowerZones, computeHrZones } = await import("./zones");
-  const pz = computePowerZones((profile as any).ftp);
-  const hz = computeHrZones((profile as any).lthr, (profile as any).max_hr);
-  const zonesText = [
-    pz ? `Potencia: ${pz.map((z) => `${z.label} ${z.low}-${z.high === Infinity ? "∞" : z.high}W`).join(" | ")}` : "Potencia: sin FTP",
-    hz ? `FC: ${hz.map((z) => `${z.label} ${z.low}-${z.high === Infinity ? "∞" : z.high}bpm`).join(" | ")}` : "FC: sin LTHR/FCmáx",
-  ].join("\n");
-
-  const p: any = profile;
-  const context = `FECHA: ${today} (semana ${weekStart} → ${weekEndISO})
-PERFIL: ${p.full_name ?? "—"} · edad ${p.age ?? "n/a"} · sexo ${p.gender ?? "n/a"} · peso ${p.weight_kg ?? "n/a"}kg · altura ${p.height_cm ?? "n/a"}cm · FTP ${p.ftp ?? "n/a"}W · FCmáx ${p.max_hr ?? "n/a"} · LTHR ${p.lthr ?? "n/a"}
-AJUSTES: base entreno ${p.weekly_target_basis} · duración por defecto ${p.weekly_duration_minutes} min · bici ${p.weekly_bike_type} · días entreno ${JSON.stringify(p.weekly_training_days)} · tirada larga ${p.weekly_long_ride_day ?? "n/a"} · plan nutricional ${p.nutrition_plan_enabled ? "activo" : "desactivado"} (objetivo ${p.nutrition_goal}) · aviso readiness ${p.readiness_push_hour}:00 · zonas mostradas en ${p.zones_display_mode} · preferencias dietéticas: ${p.dietary_preferences || "ninguna"}
-READINESS DE HOY: ${readinessToday ? `${(readinessToday as any).score}/5 — ${READINESS_LABELS[(readinessToday as any).score]}` : "sin registrar"}
-ENTRENO DE HOY: ${workout ? JSON.stringify({ title: workout.plan?.title, summary: workout.plan?.summary, duration_minutes: workout.duration_minutes, bike_type: workout.bike_type, steps: workout.plan?.steps }) : "no hay entreno pendiente"}
-ENTRENOS DE LA SEMANA:
-${weekWorkouts.length ? weekWorkouts.join("\n") : "sin entrenos esta semana"}
-MENÚ DE HOY:
-${menuText}
-RESUMEN NUTRICIONAL SEMANAL: ${nutriPlan?.resumen ?? "n/a"}
-ZONAS DE ENTRENAMIENTO:
-${zonesText}`;
-
+  const { context, workout, todayMenu, nutriPlan, nutriRow, weekStart } = await buildTelegramContext(
+    supabaseAdmin,
+    profile,
+    today,
+  );
 
   const analysis = await callAI(
     [
@@ -365,260 +73,39 @@ ${context}`,
   );
 
   if (analysis.intent === "set_readiness" && analysis.readiness_score >= 1 && analysis.readiness_score <= 5) {
-    const score = Math.round(analysis.readiness_score);
-    let action: "none" | "suggest_delete" | "adapted" = "none";
-    let msg = "";
-
-    if (!workout) {
-      msg = `Registrado: ${score}/5 — ${READINESS_LABELS[score]}. Hoy no tienes entreno pendiente.`;
-    } else if (score === 1) {
-      action = "suggest_delete";
-      msg = `Registrado 1/5. Hoy mejor descansa: te sugiero eliminar la sesión "${workout.plan?.title ?? "de hoy"}" y priorizar sueño e hidratación. Confirma la eliminación desde la pantalla Readiness de la app.`;
-    } else if (score === 3) {
-      msg = `Registrado 3/5 — ${READINESS_LABELS[score]}. El entrenamiento de hoy se mantiene sin cambios.`;
-    } else {
-      // Ajuste determinista por reglas (sin llamada a la IA).
-      const adapted = deterministicAdapt({ score, workout, profile });
-      const newPlan = {
-        ...(workout.plan as any),
-        name: adapted.name,
-        title: adapted.title,
-        summary: adapted.summary,
-        steps: adapted.steps,
-        readiness_adapted: { score, date: today, message: adapted.message },
-      };
-      const durationMinutes = Math.max(
-        15,
-        Math.round(
-          (adapted.steps as any[]).reduce((total, step) => total + (Number(step.duration_seconds) || 0), 0) / 60,
-        ) || Math.round(adapted.duration_minutes || workout.duration_minutes),
-      );
-      const { estimatePlanTss } = await import("./training-load.server");
-      const plannedTss = estimatePlanTss(
-        newPlan,
-        profile?.ftp ?? null,
-        profile?.lthr ?? null,
-        profile?.max_hr ?? null,
-        durationMinutes,
-      );
-      const { data: updated, error: updateError } = await supabaseAdmin
-        .from("workouts")
-        .update({ plan: newPlan, duration_minutes: durationMinutes, planned_tss: plannedTss })
-        .eq("id", workout.id)
-        .eq("user_id", userId)
-        .select()
-        .maybeSingle();
-      if (updateError) throw new Error(updateError.message);
-      if (!updated) throw new Error("No se pudo recuperar el entrenamiento adaptado");
-      const { syncWorkoutEvent } = await import("./intervals.server");
-      let intervalsEventId: string | null;
-      try {
-        intervalsEventId = await syncWorkoutEvent(supabaseAdmin, userId, updated, { strict: true });
-      } catch (syncError) {
-        await supabaseAdmin
-          .from("workouts")
-          .update({
-            plan: workout.plan,
-            duration_minutes: workout.duration_minutes,
-            planned_tss: workout.planned_tss,
-          })
-          .eq("id", workout.id)
-          .eq("user_id", userId);
-        throw syncError;
-      }
-      action = "adapted";
-      msg = `Registrado ${score}/5. ${adapted.message}\n\nNuevo entreno: ${adapted.title} (${durationMinutes} min).${intervalsEventId ? " Actualizado también en Intervals.icu." : ""}`;
-    }
-
-    await supabaseAdmin.from("readiness_entries").upsert(
-      {
-        user_id: userId,
-        entry_date: today,
-        score,
-        note: text.slice(0, 500),
-        ai_action: action,
-        ai_message: msg,
-        workout_id: workout?.id ?? null,
-      },
-      { onConflict: "user_id,entry_date" },
-    );
-    await telegramSend(chatId, msg);
+    await applyReadiness({ supabaseAdmin, chatId, userId, profile, workout, today, text, score: analysis.readiness_score });
     return;
   }
 
   if (analysis.intent === "delete_workout") {
-    if (!workout) {
-      await telegramSend(chatId, "Hoy no tienes ningún entrenamiento pendiente que eliminar.");
-      return;
-    }
-    const { removeWorkoutEvent } = await import("./intervals.server");
-    let syncOk = true;
-    try {
-      await removeWorkoutEvent(supabaseAdmin, userId, workout, { strict: true });
-    } catch {
-      syncOk = false;
-    }
-    const { error: delErr } = await supabaseAdmin
-      .from("workouts")
-      .delete()
-      .eq("id", workout.id)
-      .eq("user_id", userId);
-    if (delErr) throw new Error(delErr.message);
-    await telegramSend(
-      chatId,
-      `🗑️ Entrenamiento de hoy eliminado. Descansa y recupera.\n${syncOk ? "Eliminado también en Intervals.icu." : "⚠️ No se ha podido eliminar en Intervals.icu."}`,
-    );
+    await deleteTodayWorkout({ supabaseAdmin, chatId, userId, workout });
     return;
   }
 
   if (analysis.intent === "modify_workout") {
-
-    if (!workout) {
-      await telegramSend(chatId, "Hoy no tienes ningún entrenamiento pendiente que modificar.");
-      return;
-    }
-    const adapted = await callAI(
-      [
-        {
-          role: "user",
-          content: `Eres un entrenador profesional de ciclismo. Modifica el entrenamiento de hoy según la petición del ciclista.
-
-PETICIÓN: "${analysis.change_request || text}"
-
-${context}
-
-ENTRENAMIENTO ORIGINAL (JSON): ${JSON.stringify({ ...(workout.plan as any), competition_id: undefined })}
-Duración original: ${workout.duration_minutes} min · Bici: ${workout.bike_type}
-
-INSTRUCCIONES:
-1. Devuelve el entrenamiento COMPLETO con todos sus steps (calentamiento y vuelta a la calma incluidos).
-2. Si hay FTP usa target='power' en vatios; si no target='hr' en bpm u 'open'.
-3. name ≤ 15 caracteres. TODO en ESPAÑOL.
-4. "message": explica en 1-2 frases qué has cambiado.`,
-        },
-      ],
-      AdaptSchema,
-      { fn: "telegram-modify", userId },
-    );
-    const requestedDate =
-      typeof (analysis as any).new_scheduled_date === "string" &&
-      /^\d{4}-\d{2}-\d{2}$/.test((analysis as any).new_scheduled_date)
-        ? ((analysis as any).new_scheduled_date as string)
-        : null;
-    const newPlan = {
-      ...(workout.plan as any),
-      name: adapted.name,
-      title: adapted.title,
-      summary: adapted.summary,
-      steps: adapted.steps,
-      ...(requestedDate ? { scheduled_date: requestedDate } : {}),
-    };
-    const newDuration = Math.max(15, Math.round(adapted.duration_minutes || workout.duration_minutes));
-    const { data: updatedWorkout, error: modifyError } = await supabaseAdmin
-      .from("workouts")
-      .update({ plan: newPlan, duration_minutes: newDuration })
-      .eq("id", workout.id)
-      .eq("user_id", userId)
-      .select()
-      .maybeSingle();
-    if (modifyError) throw new Error(modifyError.message);
-    if (!updatedWorkout) throw new Error("No se pudo actualizar el entrenamiento");
-    const { syncWorkoutEvent } = await import("./intervals.server");
-    let syncOk = true;
-    try {
-      await syncWorkoutEvent(supabaseAdmin, userId, updatedWorkout, { strict: true });
-    } catch {
-      syncOk = false;
-    }
-    await telegramSend(
-      chatId,
-      `✅ ${adapted.message}\n\n${adapted.title} · ${newDuration} min${requestedDate ? ` · ${requestedDate}` : ""}\n${adapted.summary}\n\n${syncOk ? "Sincronizado con Intervals.icu." : "⚠️ No se ha podido sincronizar con Intervals.icu."}`,
-    );
+    await modifyTodayWorkout({ supabaseAdmin, chatId, userId, workout, context, text, analysis });
     return;
   }
 
   if (analysis.intent === "update_profile" && analysis.profile_updates && Object.keys(analysis.profile_updates).length) {
-    const allowed = Object.keys(PROFILE_LABELS);
-    const updates: Record<string, any> = {};
-    for (const [k, v] of Object.entries(analysis.profile_updates as Record<string, any>)) {
-      if (!allowed.includes(k) || v === null || v === undefined) continue;
-      if (["weight_kg", "height_cm", "age", "ftp", "max_hr", "lthr", "weekly_duration_minutes", "readiness_push_hour"].includes(k)) {
-        const n = Number(v);
-        if (!Number.isFinite(n) || n <= 0) continue;
-        updates[k] = ["weight_kg", "height_cm"].includes(k) ? n : Math.round(n);
-      } else {
-        updates[k] = v;
-      }
-    }
-    if (!Object.keys(updates).length) {
-      await telegramSend(chatId, "No he podido identificar qué dato de tu perfil quieres cambiar. Dime por ejemplo: \"mi peso es 72 kg\".");
-      return;
-    }
-    if (updates.readiness_push_hour !== undefined) {
-      updates.readiness_push_hour = Math.min(23, Math.max(0, updates.readiness_push_hour));
-    }
-    const { error } = await supabaseAdmin.from("profiles").update(updates as any).eq("id", userId);
-    if (error) throw new Error(error.message);
-
-    // Si cambian FTP/LTHR/FCmáx, actualiza zonas en Intervals.icu
-    let extra = "";
-    if (["ftp", "lthr", "max_hr"].some((k) => k in updates)) {
-      try {
-        const { intervalsPushZones } = await import("./intervals.server");
-        await intervalsPushZones(supabaseAdmin, userId);
-        extra = "\nZonas sincronizadas con Intervals.icu.";
-      } catch {
-        extra = "\n(No se han podido sincronizar las zonas con Intervals.icu)";
-      }
-    }
-    const list = Object.entries(updates)
-      .map(([k, v]) => `· ${PROFILE_LABELS[k] ?? k}: ${v}`)
-      .join("\n");
-    await telegramSend(chatId, `✅ Perfil actualizado:\n${list}${extra}`);
+    await updateProfileFields({ supabaseAdmin, chatId, userId, updatesInput: analysis.profile_updates });
     return;
   }
 
   if (analysis.intent === "swap_meal") {
-    if (!todayMenu || !nutriRow) {
-      await telegramSend(chatId, "No tienes plan nutricional para hoy. Puedes generarlo desde la app en Menús.");
-      return;
-    }
-    const key = (analysis.meal_key as string) || "comida";
-    const original = (todayMenu as any)[key];
-    if (!original) {
-      await telegramSend(chatId, "No encuentro esa comida en el menú de hoy.");
-      return;
-    }
-    const newMeal = await callAI(
-      [
-        {
-          role: "user",
-          content: `Eres nutricionista deportivo de ciclismo. Sustituye esta comida (${key}) del menú de hoy por OTRA DISTINTA con macros similares (±10%).
-Petición del ciclista: "${analysis.meal_request || text}"
-Perfil: peso ${p.weight_kg ?? 70}kg · objetivo ${p.nutrition_goal} · preferencias: ${p.dietary_preferences || "ninguna"}
-Entreno de hoy: ${todayMenu.entrenamiento ?? "n/a"}
-Comida original (JSON): ${JSON.stringify(original)}
-Incluye cantidades en gramos en cada ingrediente. TODO en ESPAÑOL.`,
-        },
-      ],
-      MealSchema,
-      { fn: "telegram-meal", userId },
-    );
-    const newPlan = {
-      ...nutriPlan,
-      dias: nutriPlan.dias.map((d: any) => (d.fecha === today ? { ...d, [key]: newMeal } : d)),
-    };
-    const { error } = await supabaseAdmin
-      .from("weekly_nutrition_plans")
-      .update({ plan: newPlan })
-      .eq("user_id", userId)
-      .eq("week_start", weekStart);
-    if (error) throw new Error(error.message);
-    const m = newMeal.macros ?? {};
-    await telegramSend(
+    await swapMeal({
+      supabaseAdmin,
       chatId,
-      `✅ ${key} actualizada: ${newMeal.nombre}\n\nIngredientes:\n${(newMeal.ingredientes ?? []).map((i: string) => `· ${i}`).join("\n")}\n\n${newMeal.preparacion}\n\n${Math.round(m.calorias_kcal ?? 0)} kcal · HC ${Math.round(m.carbohidratos_g ?? 0)}g · P ${Math.round(m.proteinas_g ?? 0)}g · G ${Math.round(m.grasas_g ?? 0)}g`,
-    );
+      userId,
+      profile,
+      today,
+      weekStart,
+      todayMenu,
+      nutriPlan,
+      nutriRow,
+      analysis,
+      text,
+    });
     return;
   }
 
