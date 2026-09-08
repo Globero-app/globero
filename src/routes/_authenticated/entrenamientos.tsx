@@ -41,11 +41,16 @@ function EntrenamientosPage() {
   const workouts = useQuery({
     queryKey: ["workouts", user?.id],
     queryFn: async () => {
+      const cutoffIso = new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString();
+      const cutoffDay = cutoffIso.slice(0, 10);
       const { data } = await supabase
         .from("workouts")
-        .select("*")
+        .select("id,user_id,training_type,bike_type,duration_minutes,plan,status,rpe,feedback_notes,completed_at,created_at,planned_tss,actual_tss,actual_if,compliance")
         .eq("user_id", user!.id)
-        .order("created_at", { ascending: false });
+        .or(`created_at.gte.${cutoffIso},completed_at.gte.${cutoffIso},plan->>scheduled_date.gte.${cutoffDay}`)
+        .order("created_at", { ascending: false })
+        .limit(200);
+
       const cutoff = Date.now() - 15 * 24 * 60 * 60 * 1000;
       return (data ?? [])
         .filter((w: any) => {
