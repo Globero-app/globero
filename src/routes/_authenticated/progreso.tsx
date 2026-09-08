@@ -104,6 +104,8 @@ function ProgresoPage() {
             </div>
           </section>
 
+          <FtpHistoryChart history={d.ftp_history ?? []} weightKg={d.weight_kg ?? null} />
+
           <section className="bg-surface border rounded-xl p-5">
             <h2 className="font-display text-lg font-bold uppercase">Carga semanal (TSS)</h2>
             <div className="h-56 mt-4 -ml-4">
