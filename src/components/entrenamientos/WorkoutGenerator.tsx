@@ -89,6 +89,7 @@ export function WorkoutGenerator({ profile }: { profile: any }) {
     setTargetBasis(basis);
     setNutritionEnabled(nutrition);
     setNutritionGoal(goal);
+    setAutoEnabled(!!p.weekly_auto_enabled);
     if (days.length) {
       setTrainingDays(days);
       setLongRideDay(nextLong);
