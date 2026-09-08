@@ -392,6 +392,9 @@ INSTRUCCIONES:
     bike_type: input.bike_type,
     duration_minutes: it.minutes,
     planned_tss: it.tss,
+    session_goal: it.plan?.session_goal ?? null,
+    energy_system: it.plan?.energy_system ?? null,
+
     plan: {
       ...it.plan,
       target_basis: basis,
