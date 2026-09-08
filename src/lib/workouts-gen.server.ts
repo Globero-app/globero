@@ -94,7 +94,10 @@ const NUTRITION_TRAINING_RULES: Record<string, string> = {
 /** Núcleo de generación de entrenamientos (siempre plan MIXTO). Reutilizable por el cron semanal. */
 export async function generateWorkoutsCore(supabase: any, userId: string, input: GenCoreInput) {
   const { buildTrainingLoad, prescribeWeek, loadPromptBlock, weekStart } = await import("./training-load.server");
-  const { validateWorkout, enforceWeeklyTss, avoidBackToBackHard } = await import("./workout-validator.server");
+  const { validateWorkout, enforceWeeklyTss, avoidBackToBackHard, enforcePolarized } = await import("./workout-validator.server");
+  const { refreshAthleteProfile, athletePromptBlock, minutesForDay } = await import("./athlete-profile.server");
+  type AthleteProfile = Awaited<ReturnType<typeof refreshAthleteProfile>>;
+
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
   if (!profile) throw new Error("Perfil no encontrado");
