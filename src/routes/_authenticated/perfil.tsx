@@ -14,6 +14,7 @@ import { Section, Field } from "@/components/perfil/Section";
 import { ZonesPreview } from "@/components/perfil/ZonesPreview";
 import { DeleteAccountSection } from "@/components/perfil/DeleteAccountSection";
 import { IntervalsConnection } from "@/components/perfil/IntervalsConnection";
+import { AthleteProfileSection } from "@/components/perfil/AthleteProfileSection";
 
 
 
