@@ -218,6 +218,8 @@ function PerfilPage() {
           </p>
         </Section>
 
+        <AthleteProfileSection />
+
         <Section title="Meteorología">
           <Field label="Ciudad base para previsión">
             <input className="input" placeholder="Madrid, Barcelona, Sevilla…" value={form.location_city ?? ""} onChange={(e) => setForm({ ...form, location_city: e.target.value })} />
