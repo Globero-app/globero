@@ -5,15 +5,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
-import { disconnectIntervals, syncIntervalsZones, intervalsEstimateFtp, intervalsEstimateHr, intervalsSyncActivities } from "@/lib/intervals.functions";
-import { CheckCircle2, Link as LinkIcon, Unlink, Wrench, Wand2 } from "lucide-react";
+import { syncIntervalsZones, intervalsEstimateFtp, intervalsEstimateHr } from "@/lib/intervals.functions";
+import { Wand2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { computePowerZones, computeHrZones } from "@/lib/zones";
-import { intervalsAuthorizeUrl } from "@/lib/intervals-oauth";
-import { createIntervalsOAuthState } from "@/lib/intervals-oauth.functions";
 import { NotificationsPrefs } from "@/components/NotificationsPrefs";
 import { TelegramSection } from "@/components/TelegramSection";
-import { deactivateMyAccount } from "@/lib/account.functions";
+import { Section, Field } from "@/components/perfil/Section";
+import { ZonesPreview } from "@/components/perfil/ZonesPreview";
+import { DeleteAccountSection } from "@/components/perfil/DeleteAccountSection";
+import { IntervalsConnection } from "@/components/perfil/IntervalsConnection";
+
 
 
 
