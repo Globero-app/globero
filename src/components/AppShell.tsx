@@ -20,6 +20,7 @@ import {
   TrendingUp,
   Sparkles,
   Bike,
+  BarChart3,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -37,6 +38,7 @@ const NAV = [
   { to: "/actividades", label: "Actividades", icon: Activity },
   { to: "/competiciones", label: "Competiciones", icon: Trophy },
   { to: "/progreso", label: "Progreso", icon: TrendingUp },
+  { to: "/semanas", label: "Resumen semanal", icon: BarChart3 },
   { to: "/calendario", label: "Calendario", icon: CalendarRange },
   { to: "/readiness", label: "Readiness", icon: HeartPulse },
   { to: "/mi-bici", label: "Mi Bici", icon: Bike },

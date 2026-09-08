@@ -17,6 +17,7 @@ import { Route as OfflineRouteImport } from './routes/offline'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
+import { Route as AuthenticatedSemanasRouteImport } from './routes/_authenticated/semanas'
 import { Route as AuthenticatedReadinessRouteImport } from './routes/_authenticated/readiness'
 import { Route as AuthenticatedProgresoRouteImport } from './routes/_authenticated/progreso'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
@@ -80,6 +81,11 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
   id: '/auth/',
   path: '/auth/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedSemanasRoute = AuthenticatedSemanasRouteImport.update({
+  id: '/semanas',
+  path: '/semanas',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedReadinessRoute = AuthenticatedReadinessRouteImport.update({
   id: '/readiness',
@@ -230,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/progreso': typeof AuthenticatedProgresoRoute
   '/readiness': typeof AuthenticatedReadinessRoute
+  '/semanas': typeof AuthenticatedSemanasRoute
   '/auth/': typeof AuthIndexRoute
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
@@ -263,6 +270,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/progreso': typeof AuthenticatedProgresoRoute
   '/readiness': typeof AuthenticatedReadinessRoute
+  '/semanas': typeof AuthenticatedSemanasRoute
   '/auth': typeof AuthIndexRoute
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
@@ -298,6 +306,7 @@ export interface FileRoutesById {
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/progreso': typeof AuthenticatedProgresoRoute
   '/_authenticated/readiness': typeof AuthenticatedReadinessRoute
+  '/_authenticated/semanas': typeof AuthenticatedSemanasRoute
   '/auth/': typeof AuthIndexRoute
   '/_authenticated/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/_authenticated/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
@@ -333,6 +342,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/progreso'
     | '/readiness'
+    | '/semanas'
     | '/auth/'
     | '/actividades/$id'
     | '/competiciones/$id'
@@ -366,6 +376,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/progreso'
     | '/readiness'
+    | '/semanas'
     | '/auth'
     | '/actividades/$id'
     | '/competiciones/$id'
@@ -400,6 +411,7 @@ export interface FileRouteTypes {
     | '/_authenticated/perfil'
     | '/_authenticated/progreso'
     | '/_authenticated/readiness'
+    | '/_authenticated/semanas'
     | '/auth/'
     | '/_authenticated/actividades/$id'
     | '/_authenticated/competiciones/$id'
@@ -495,6 +507,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/'
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/semanas': {
+      id: '/_authenticated/semanas'
+      path: '/semanas'
+      fullPath: '/semanas'
+      preLoaderRoute: typeof AuthenticatedSemanasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/readiness': {
       id: '/_authenticated/readiness'
@@ -678,6 +697,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedProgresoRoute: typeof AuthenticatedProgresoRoute
   AuthenticatedReadinessRoute: typeof AuthenticatedReadinessRoute
+  AuthenticatedSemanasRoute: typeof AuthenticatedSemanasRoute
   AuthenticatedActividadesIdRoute: typeof AuthenticatedActividadesIdRoute
   AuthenticatedCompeticionesIdRoute: typeof AuthenticatedCompeticionesIdRoute
   AuthenticatedActividadesIndexRoute: typeof AuthenticatedActividadesIndexRoute
@@ -695,6 +715,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedProgresoRoute: AuthenticatedProgresoRoute,
   AuthenticatedReadinessRoute: AuthenticatedReadinessRoute,
+  AuthenticatedSemanasRoute: AuthenticatedSemanasRoute,
   AuthenticatedActividadesIdRoute: AuthenticatedActividadesIdRoute,
   AuthenticatedCompeticionesIdRoute: AuthenticatedCompeticionesIdRoute,
   AuthenticatedActividadesIndexRoute: AuthenticatedActividadesIndexRoute,
