@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
 import { Bike, Plus, Trash2, Wrench, AlertTriangle, CheckCircle2, RotateCcw, Pencil } from "lucide-react";
+import { useRideKm, bikeTotalKm, componentUsedKm } from "@/lib/maintenance-alerts";
+import type { RideKm } from "@/lib/maintenance-calc";
 
 type BikeRow = {
   id: string;
@@ -12,6 +14,7 @@ type BikeRow = {
   model: string | null;
   bike_type: string | null;
   current_km: number;
+  km_base_date?: string | null;
   notes: string | null;
 };
 
@@ -59,6 +62,8 @@ export function BikesManager() {
     enabled: !!user,
   });
 
+  const ridesQ = useRideKm();
+
   const componentsQ = useQuery({
     queryKey: ["bike_components", user?.id],
     queryFn: async () => {
@@ -74,7 +79,7 @@ export function BikesManager() {
       if (b.id) {
         const { error } = await supabase.from("bikes").update({
           name: b.name, brand: b.brand, model: b.model, bike_type: b.bike_type,
-          current_km: b.current_km, notes: b.notes,
+          current_km: b.current_km, notes: b.notes, km_base_date: new Date().toISOString(),
         }).eq("id", b.id);
         if (error) throw error;
       } else {
@@ -89,6 +94,7 @@ export function BikesManager() {
     onSuccess: () => {
       toast.success("Bici guardada");
       qc.invalidateQueries({ queryKey: ["bikes"] });
+      qc.invalidateQueries({ queryKey: ["maintenance_alerts"] });
       setAddingBike(false); setEditingBike(null);
     },
     onError: (e: Error) => toast.error(e.message),
@@ -135,6 +141,7 @@ export function BikesManager() {
             key={bike.id}
             bike={bike}
             components={components.filter((c) => c.bike_id === bike.id)}
+            rides={ridesQ.data ?? []}
             isEditing={editingBike === bike.id}
             onEdit={() => setEditingBike(bike.id)}
             onCancelEdit={() => setEditingBike(null)}
@@ -181,9 +188,10 @@ function BikeForm({ initial, onCancel, onSave }: { initial?: Partial<BikeRow>; o
   );
 }
 
-function BikeCard({ bike, components, isEditing, onEdit, onCancelEdit, onSave, onDelete }: {
+function BikeCard({ bike, components, rides, isEditing, onEdit, onCancelEdit, onSave, onDelete }: {
   bike: BikeRow;
   components: ComponentRow[];
+  rides: RideKm[];
   isEditing: boolean;
   onEdit: () => void;
   onCancelEdit: () => void;
@@ -199,7 +207,7 @@ function BikeCard({ bike, components, isEditing, onEdit, onCancelEdit, onSave, o
       const { error } = await supabase.from("bike_components").insert({
         bike_id: bike.id, user_id: user!.id,
         component_type: c.component_type!, name: c.name ?? null,
-        install_km: c.install_km ?? bike.current_km, lifespan_km: c.lifespan_km ?? 3000,
+        install_km: c.install_km ?? totalKm, lifespan_km: c.lifespan_km ?? 3000,
         installed_at: c.installed_at ?? new Date().toISOString().slice(0, 10),
         notes: c.notes ?? null,
       });
@@ -216,7 +224,7 @@ function BikeCard({ bike, components, isEditing, onEdit, onCancelEdit, onSave, o
       const { error: e2 } = await supabase.from("bike_components").insert({
         bike_id: bike.id, user_id: user!.id,
         component_type: comp.component_type, name: comp.name,
-        install_km: bike.current_km, lifespan_km: comp.lifespan_km,
+        install_km: totalKm, lifespan_km: comp.lifespan_km,
         installed_at: new Date().toISOString().slice(0, 10),
       });
       if (e2) throw e2;
@@ -232,12 +240,10 @@ function BikeCard({ bike, components, isEditing, onEdit, onCancelEdit, onSave, o
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["bike_components"] }); },
   });
 
+  const totalKm = bikeTotalKm(bike, rides);
   const active = components.filter((c) => c.active);
   const history = components.filter((c) => !c.active);
-  const alerts = active.filter((c) => {
-    const used = bike.current_km - c.install_km;
-    return used >= c.lifespan_km * 0.85;
-  });
+  const alerts = active.filter((c) => componentUsedKm(bike, c, rides) >= c.lifespan_km * 0.85);
 
   if (isEditing) {
     return <BikeForm initial={bike} onCancel={onCancelEdit} onSave={onSave} />;
@@ -253,7 +259,7 @@ function BikeCard({ bike, components, isEditing, onEdit, onCancelEdit, onSave, o
             {bike.bike_type && <span className="text-[10px] uppercase font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">{bike.bike_type}</span>}
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {[bike.brand, bike.model].filter(Boolean).join(" · ") || "—"} · <strong className="text-foreground">{Math.round(bike.current_km).toLocaleString()} km</strong>
+            {[bike.brand, bike.model].filter(Boolean).join(" · ") || "—"} · <strong className="text-foreground">{Math.round(totalKm).toLocaleString()} km</strong>
           </p>
           {alerts.length > 0 && (
             <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2 py-1 w-fit">
@@ -278,7 +284,7 @@ function BikeCard({ bike, components, isEditing, onEdit, onCancelEdit, onSave, o
         </div>
 
         {addingComp && (
-          <ComponentForm bikeKm={bike.current_km} onCancel={() => setAddingComp(false)} onSave={(c) => saveComp.mutate(c)} />
+          <ComponentForm bikeKm={Math.round(totalKm)} onCancel={() => setAddingComp(false)} onSave={(c) => saveComp.mutate(c)} />
         )}
 
         {active.length === 0 && !addingComp && (
@@ -287,7 +293,7 @@ function BikeCard({ bike, components, isEditing, onEdit, onCancelEdit, onSave, o
 
         <div className="space-y-2">
           {active.map((c) => {
-            const used = Math.max(0, bike.current_km - c.install_km);
+            const used = componentUsedKm(bike, c, rides);
             const remaining = c.lifespan_km - used;
             const pct = Math.min(100, (used / c.lifespan_km) * 100);
             const status = remaining <= 0 ? "danger" : remaining <= c.lifespan_km * 0.15 ? "warn" : "ok";
