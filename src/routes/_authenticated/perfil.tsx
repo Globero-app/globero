@@ -5,15 +5,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
-import { disconnectIntervals, syncIntervalsZones, intervalsEstimateFtp, intervalsEstimateHr, intervalsSyncActivities } from "@/lib/intervals.functions";
-import { CheckCircle2, Link as LinkIcon, Unlink, Wrench, Wand2 } from "lucide-react";
+import { syncIntervalsZones, intervalsEstimateFtp, intervalsEstimateHr } from "@/lib/intervals.functions";
+import { Wand2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { computePowerZones, computeHrZones } from "@/lib/zones";
-import { intervalsAuthorizeUrl } from "@/lib/intervals-oauth";
-import { createIntervalsOAuthState } from "@/lib/intervals-oauth.functions";
 import { NotificationsPrefs } from "@/components/NotificationsPrefs";
 import { TelegramSection } from "@/components/TelegramSection";
-import { deactivateMyAccount } from "@/lib/account.functions";
+import { Section, Field } from "@/components/perfil/Section";
+import { ZonesPreview } from "@/components/perfil/ZonesPreview";
+import { DeleteAccountSection } from "@/components/perfil/DeleteAccountSection";
+import { IntervalsConnection } from "@/components/perfil/IntervalsConnection";
+
 
 
 
@@ -26,10 +27,8 @@ function PerfilPage() {
   const qc = useQueryClient();
   const estimateFtp = useServerFn(intervalsEstimateFtp);
   const estimateHr = useServerFn(intervalsEstimateHr);
-  const syncActs = useServerFn(intervalsSyncActivities);
-  const disconnectIcu = useServerFn(disconnectIntervals);
   const syncZonesIcu = useServerFn(syncIntervalsZones);
-  const createOAuthState = useServerFn(createIntervalsOAuthState);
+
 
   const profileQ = useQuery({
     queryKey: ["profile", user?.id],
@@ -249,54 +248,9 @@ function PerfilPage() {
 
 
         <Section title="Conexión Intervals.icu" className="lg:col-span-2">
-          {profileQ.data?.intervals_api_key ? (
-            <div className="space-y-3">
-            <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="size-5 text-emerald-600" />
-                <div>
-                  <p className="font-semibold text-emerald-800">Intervals.icu conectado</p>
-                  <p className="text-xs text-emerald-700">Atleta: {profileQ.data?.intervals_athlete_id}</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={async () => {
-                  await disconnectIcu({ data: undefined });
-                  toast.success("Intervals.icu desconectado");
-                  qc.invalidateQueries({ queryKey: ["profile"] });
-                }}
-                className="text-xs font-semibold text-destructive hover:underline flex items-center gap-1"
-              >
-                <Unlink className="size-3" /> Desconectar
-              </button>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Sincronización de zonas y umbrales (FTP, LTHR, FC máx) con Intervals.icu al guardar el perfil
-            </p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                Vincula tu cuenta de Intervals.icu de forma segura. Se te pedirá autorizar Globero IA en Intervals.icu y volverás automáticamente aquí.
-              </p>
-              <button
-                type="button"
-                onClick={async () => {
-                  try {
-                    const { state } = await createOAuthState();
-                    window.location.href = intervalsAuthorizeUrl(state);
-                  } catch (e: any) {
-                    toast.error(e?.message ?? "No se pudo iniciar la conexión");
-                  }
-                }}
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90"
-              >
-                <LinkIcon className="size-4" /> Conectar con Intervals.icu
-              </button>
-            </div>
-          )}
+          <IntervalsConnection profile={profileQ.data} />
         </Section>
+
 
         <Section title="Conectar Telegram" className="lg:col-span-2">
           <TelegramSection />
@@ -349,111 +303,3 @@ function PerfilPage() {
   );
 }
 
-function Section({ title, children, className = "" }: any) {
-  return (
-    <div className={`bg-surface border rounded-xl p-5 space-y-3 ${className}`}>
-      <h3 className="font-display text-lg font-bold uppercase tracking-tight">{title}</h3>
-      <div className="space-y-3">{children}</div>
-    </div>
-  );
-}
-function Field({ label, children }: any) {
-  return <label className="block"><span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">{label}</span><div className="mt-1">{children}</div></label>;
-}
-
-function ZonesPreview({
-  ftp,
-  lthr,
-  maxHr,
-  mode,
-  onModeChange,
-}: {
-  ftp: number | null;
-  lthr: number | null;
-  maxHr: number | null;
-  mode: string;
-  onModeChange: (m: "watts" | "hr") => void;
-}) {
-  const powerZones = computePowerZones(ftp);
-  const hrZones = computeHrZones(lthr, maxHr);
-  const activeMode: "watts" | "hr" = mode === "hr" ? "hr" : "watts";
-  const zones = activeMode === "hr" ? hrZones : powerZones;
-  if (!powerZones && !hrZones) return null;
-  const unit = activeMode === "hr" ? "bpm" : "W";
-  const ref = activeMode === "hr" ? (lthr || (maxHr ? Math.round(maxHr * 0.92) : null)) : ftp;
-  return (
-    <div className="mt-3 rounded-lg border bg-muted/30 p-3 space-y-1.5">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
-          {activeMode === "hr" ? "Zonas de FC (Friel)" : "Zonas de potencia (Coggan)"} · ref {ref ?? "—"} {unit}
-        </p>
-        <div className="inline-flex rounded-md border bg-surface p-0.5 text-[10px] font-semibold">
-          <button type="button" onClick={() => onModeChange("watts")} disabled={!powerZones} className={`px-2 py-0.5 rounded-sm disabled:opacity-40 ${activeMode === "watts" ? "bg-primary text-primary-foreground" : ""}`}>W</button>
-          <button type="button" onClick={() => onModeChange("hr")} disabled={!hrZones} className={`px-2 py-0.5 rounded-sm disabled:opacity-40 ${activeMode === "hr" ? "bg-primary text-primary-foreground" : ""}`}>FC</button>
-        </div>
-      </div>
-      {!zones && (
-        <p className="text-[11px] text-muted-foreground">
-          {activeMode === "hr" ? "Introduce tu FC máx o LTHR para ver las zonas por pulsaciones." : "Introduce tu FTP para ver las zonas de potencia."}
-        </p>
-      )}
-      {zones && (
-      <div className="grid grid-cols-1 gap-1 text-xs">
-        {zones.map((z) => (
-          <div key={z.key} className="flex items-center gap-2">
-            <span className="inline-block size-2.5 rounded-full shrink-0" style={{ background: z.color }} />
-            <span className="font-semibold truncate">{z.label}</span>
-            <span className="ml-auto font-mono tabular-nums">
-              {z.low}{z.high === Infinity ? "+" : `–${z.high}`} {unit}
-            </span>
-          </div>
-        ))}
-      </div>
-      )}
-    </div>
-  );
-}
-
-function DeleteAccountSection() {
-  const [confirming, setConfirming] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const deactivate = useServerFn(deactivateMyAccount);
-
-  const accept = async () => {
-    setLoading(true);
-    try {
-      await deactivate({ data: undefined });
-      await supabase.auth.signOut();
-      window.location.href = "/";
-    } catch (e: any) {
-      toast.error(e?.message || "No se ha podido eliminar el perfil");
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="mt-8 rounded-xl border border-destructive/30 bg-destructive/5 p-5">
-      <h3 className="font-display text-lg font-bold uppercase tracking-tight text-destructive">Eliminar perfil</h3>
-      <p className="mt-1 text-xs text-muted-foreground max-w-2xl">
-        Se eliminarán tus conexiones con Telegram e Intervals.icu y dejarán de crearse entrenamientos, informes y avisos.
-      </p>
-      {!confirming ? (
-        <button type="button" onClick={() => setConfirming(true)} className="mt-3 rounded-lg bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground">
-          Eliminar Perfil
-        </button>
-      ) : (
-        <div className="mt-3 space-y-3">
-          <p className="text-sm font-semibold">
-            ¿Seguro que quieres eliminar tu perfil? Una vez eliminado no podrás acceder a tus datos y todo tu progreso quedará eliminado.
-          </p>
-          <div className="flex gap-2">
-            <button type="button" onClick={() => setConfirming(false)} className="rounded-lg border px-4 py-2 text-sm font-semibold">Cancelar</button>
-            <button type="button" disabled={loading} onClick={accept} className="rounded-lg bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground disabled:opacity-50">
-              {loading ? "Eliminando…" : "Aceptar"}
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
