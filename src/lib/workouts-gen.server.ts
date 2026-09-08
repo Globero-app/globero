@@ -284,14 +284,29 @@ REGLAS METEOROLÓGICAS:
     blockFocus = FOCUS_ORDER[(prevIdx + 1) % 3]; // rota base → construcción → pico
   }
 
-  // ---- Métricas de carga y prescripción de la semana ----
+  // ---- Métricas de carga, ficha individual y prescripción de la semana ----
   const load = await buildTrainingLoad(supabase, userId, profile);
+  let athlete: AthleteProfile | null = null;
+  try {
+    athlete = await refreshAthleteProfile(supabase, userId, profile);
+  } catch (e) {
+    console.warn("[workouts-gen] athlete profile failed", e);
+  }
   const week = prescribeWeek(load, {
     sessions: effectiveCount,
     duration_minutes: input.duration_minutes,
     block_week_index: weekIndex,
     deload: blockFocus === "tapering",
+    personal: athlete
+      ? {
+          weekly_tss_ceiling: athlete.weekly_tss_ceiling,
+          tsb_recovery_threshold: athlete.tsb_recovery_threshold,
+          readiness_low_threshold: athlete.readiness_low_threshold,
+          deload_every_weeks: athlete.deload_every_weeks,
+        }
+      : null,
   });
+
   const loadBlock = loadPromptBlock(load, week);
   const blockBlock = `
 BLOQUE DE ENTRENAMIENTO: foco "${blockFocus}", semana ${weekIndex} de 4${weekIndex === 4 ? " (SEMANA DE DESCARGA)" : ""}.
