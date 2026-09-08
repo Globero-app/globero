@@ -10,6 +10,8 @@ import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getWeeklyStats } from "@/lib/weekly-stats.functions";
+import { getFtpTests } from "@/lib/ftp-tests.functions";
+import { FtpHistoryChart } from "@/components/FtpHistoryChart";
 
 export const Route = createFileRoute("/_authenticated/semanas")({
   component: SemanasPage,
