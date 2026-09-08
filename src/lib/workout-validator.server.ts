@@ -167,15 +167,20 @@ export function enforceWeeklyTss(
   }
 }
 
-/** Evita dos sesiones duras consecutivas: suaviza la segunda. */
-export function avoidBackToBackHard(items: Array<{ plan: any; tss: number; minutes: number; ctx: ValidateCtx; date: string | null }>): void {
+/** Evita sesiones duras demasiado juntas según los días de recuperación del ciclista. */
+export function avoidBackToBackHard(
+  items: Array<{ plan: any; tss: number; minutes: number; ctx: ValidateCtx; date: string | null }>,
+  minGapDays = 1,
+): void {
+  const gapMs = Math.max(1, Math.round(minGapDays)) * 86400000;
   const isHard = (i: { plan: any }) => (i.plan.steps as any[]).some((s) => (Number(s.zone) || 0) >= 4 && s.duration_type === "time" && s.duration_seconds >= 180);
   for (let i = 1; i < items.length; i++) {
     const prev = items[i - 1];
     const cur = items[i];
     if (!prev.date || !cur.date) continue;
-    const consecutive = (new Date(`${cur.date}T12:00:00Z`).getTime() - new Date(`${prev.date}T12:00:00Z`).getTime()) === 86400000;
-    if (!consecutive || !isHard(prev) || !isHard(cur)) continue;
+    const diff = new Date(`${cur.date}T12:00:00Z`).getTime() - new Date(`${prev.date}T12:00:00Z`).getTime();
+    const tooClose = diff <= gapMs;
+    if (!tooClose || !isHard(prev) || !isHard(cur)) continue;
     for (const s of cur.plan.steps as any[]) {
       if ((Number(s.zone) || 0) >= 4) {
         s.zone = 2;
@@ -183,8 +188,50 @@ export function avoidBackToBackHard(items: Array<{ plan: any; tss: number; minut
       }
     }
     const re = validateWorkout(cur.plan, cur.ctx);
-    cur.plan = { ...re.plan, softened_reason: "Suavizada para no encadenar dos días duros seguidos" };
+    cur.plan = { ...re.plan, softened_reason: `Suavizada: necesita ~${minGapDays} día(s) de recuperación entre sesiones duras` };
     cur.tss = re.tss;
     cur.minutes = re.minutes;
   }
 }
+
+/**
+ * Reparto polarizado: limita el tiempo total semanal en zona gris (Z3) a `maxGreyPct`
+ * y lo pasa a Z2, salvo en sesiones cuyo objetivo sea explícitamente tempo.
+ */
+export function enforcePolarized(
+  items: Array<{ plan: any; tss: number; minutes: number; ctx: ValidateCtx }>,
+  maxGreyPct = 20,
+): void {
+  const totalSec = items.reduce(
+    (a, i) => a + (i.plan.steps as any[]).reduce((b, s) => b + (Number(s.duration_seconds) || 0), 0),
+    0,
+  );
+  if (totalSec <= 0) return;
+  const greySec = () =>
+    items.reduce(
+      (a, i) =>
+        a + (i.plan.steps as any[]).reduce((b, s) => b + ((Number(s.zone) || 0) === 3 ? Number(s.duration_seconds) || 0 : 0), 0),
+      0,
+    );
+  const limit = (maxGreyPct / 100) * totalSec;
+  if (greySec() <= limit) return;
+
+  for (const it of items) {
+    if (greySec() <= limit) break;
+    const goal = String(it.plan?.session_goal ?? "").toLowerCase();
+    if (goal === "tempo" || goal === "fuerza_resistencia") continue;
+    let changed = false;
+    for (const s of it.plan.steps as any[]) {
+      if ((Number(s.zone) || 0) === 3) {
+        s.zone = 2;
+        changed = true;
+      }
+    }
+    if (!changed) continue;
+    const re = validateWorkout(it.plan, it.ctx);
+    it.plan = { ...re.plan, polarized_note: "Zona gris Z3 reducida a Z2 para mantener el reparto polarizado" };
+    it.tss = re.tss;
+    it.minutes = re.minutes;
+  }
+}
+
