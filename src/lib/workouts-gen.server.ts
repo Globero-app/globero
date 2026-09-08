@@ -330,6 +330,9 @@ PERFIL:
 
 ${profileBlock}
 
+${athletePromptBlock(athlete, cyclistType)}
+
+
 ${basisBlock}
 
 PETICIÓN:
