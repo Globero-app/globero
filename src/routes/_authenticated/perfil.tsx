@@ -14,6 +14,7 @@ import { Section, Field } from "@/components/perfil/Section";
 import { ZonesPreview } from "@/components/perfil/ZonesPreview";
 import { DeleteAccountSection } from "@/components/perfil/DeleteAccountSection";
 import { IntervalsConnection } from "@/components/perfil/IntervalsConnection";
+import { AthleteProfileSection } from "@/components/perfil/AthleteProfileSection";
 
 
 
@@ -216,6 +217,8 @@ function PerfilPage() {
             La IA sesgará la distribución de carga según tu perfil: más sprint/VO₂max para sprinters, umbral para rodadores, Z2 y subidas para escaladores, y aeróbico constante para contrarrelojistas.
           </p>
         </Section>
+
+        <AthleteProfileSection />
 
         <Section title="Meteorología">
           <Field label="Ciudad base para previsión">
