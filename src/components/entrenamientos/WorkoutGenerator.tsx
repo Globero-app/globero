@@ -322,14 +322,30 @@ export function WorkoutGenerator({ profile }: { profile: any }) {
         </p>
       </Field>
 
-      <button
-        disabled={generateMut.isPending || trainingDays.length === 0}
-        onClick={() => generateMut.mutate(undefined)}
-        className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50"
-      >
-        {generateMut.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
-        {generateMut.isPending ? "Generando con IA…" : hasCompetition ? "Generar plan para la competición" : "Generar con IA"}
-      </button>
+      <div className="flex flex-col sm:flex-row gap-2">
+        <button
+          disabled={generateMut.isPending || trainingDays.length === 0 || autoEnabled}
+          onClick={() => generateMut.mutate(undefined)}
+          className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50 w-full sm:w-auto"
+        >
+          {generateMut.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+          {generateMut.isPending ? "Generando con IA…" : hasCompetition ? "Generar plan para la competición" : "Generar con IA"}
+        </button>
+        {autoEnabled && (
+          <button
+            type="button"
+            onClick={() => {
+              if (!window.confirm("Si continúas se desactivará la creación automática de nuevos entrenamientos. Los de esta semana se mantienen, pero no se generarán más a partir del domingo. ¿Continuar?")) return;
+              setAutoEnabled(false);
+              void persistPrefs({ weekly_auto_enabled: false });
+              toast.success("Generación automática desactivada");
+            }}
+            className="inline-flex items-center justify-center gap-2 border-2 border-destructive/50 text-destructive px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-destructive/10 w-full sm:w-auto"
+          >
+            Cancelar Entrenamientos
+          </button>
+        )}
+      </div>
     </div>
   );
 }
