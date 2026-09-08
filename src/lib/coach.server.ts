@@ -149,7 +149,7 @@ export async function buildDailyBrief(supabase: any, userId: string) {
 }
 
 /** Evalúa reglas de fatiga/forma y devuelve las alertas activas de hoy. */
-export function evaluateAlerts(load: any, health: any[]): CoachAlert[] {
+export function evaluateAlerts(load: any, health: any[], todayISO?: string): CoachAlert[] {
   const alerts: CoachAlert[] = [];
   const tsb = Number(load?.tsb ?? 0);
 
@@ -169,7 +169,11 @@ export function evaluateAlerts(load: any, health: any[]): CoachAlert[] {
     });
   }
 
-  if (load?.ramp_pct != null && Number(load.ramp_pct) > 25) {
+  // La rampa solo se evalúa con la semana avanzada (viernes en adelante)
+  const dow = todayISO ? new Date(`${todayISO}T12:00:00Z`).getUTCDay() : 5;
+  const weekAdvanced = dow === 0 || dow >= 5;
+  if (weekAdvanced && load?.ramp_pct != null && Number(load.ramp_pct) > 25) {
+
     alerts.push({
       kind: "ramp_high",
       severity: "warning",
