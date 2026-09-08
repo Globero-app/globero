@@ -424,6 +424,45 @@ export type Database = {
         }
         Relationships: []
       }
+      ftp_tests: {
+        Row: {
+          avg_hr_20min: number | null
+          avg_watts_20min: number | null
+          created_at: string
+          ftp: number | null
+          id: string
+          lthr: number | null
+          notes: string | null
+          source: string
+          test_date: string
+          user_id: string
+        }
+        Insert: {
+          avg_hr_20min?: number | null
+          avg_watts_20min?: number | null
+          created_at?: string
+          ftp?: number | null
+          id?: string
+          lthr?: number | null
+          notes?: string | null
+          source?: string
+          test_date?: string
+          user_id: string
+        }
+        Update: {
+          avg_hr_20min?: number | null
+          avg_watts_20min?: number | null
+          created_at?: string
+          ftp?: number | null
+          id?: string
+          lthr?: number | null
+          notes?: string | null
+          source?: string
+          test_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       hrv_entries: {
         Row: {
           created_at: string
