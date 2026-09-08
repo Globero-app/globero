@@ -57,6 +57,7 @@ export function WorkoutGenerator({ profile }: { profile: any }) {
   const [nutritionEnabled, setNutritionEnabled] = useState(false);
   const [nutritionGoal, setNutritionGoal] = useState<"perdida_peso" | "mantenimiento" | "masa_muscular">("mantenimiento");
   const [targetBasis, setTargetBasis] = useState<"power" | "hr" | null>(null);
+  const [autoEnabled, setAutoEnabled] = useState<boolean>(profile?.weekly_auto_enabled ?? false);
 
   const competitions = useQuery({
     queryKey: ["competitions-future", user?.id],
