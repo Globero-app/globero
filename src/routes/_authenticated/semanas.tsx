@@ -33,6 +33,13 @@ function SemanasPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const fn = useServerFn(getWeeklyStats);
+  const ftpFn = useServerFn(getFtpTests);
+  const ftpQ = useQuery({
+    queryKey: ["ftp-tests", user?.id],
+    queryFn: () => ftpFn({ data: {} } as any),
+    enabled: !!user,
+    staleTime: 5 * 60_000,
+  });
   const sync = useServerFn(intervalsSyncActivities);
   const q = useQuery({
     queryKey: ["weekly-stats", user?.id],
@@ -113,6 +120,8 @@ function SemanasPage() {
               </ResponsiveContainer>
             </div>
           </section>
+
+          <FtpHistoryChart history={((ftpQ.data as any)?.items ?? []) as any} />
 
           <section className="bg-surface border rounded-xl p-4 sm:p-5">
             <h2 className="font-display text-lg font-bold uppercase">Detalle por semana</h2>
