@@ -27,10 +27,8 @@ function PerfilPage() {
   const qc = useQueryClient();
   const estimateFtp = useServerFn(intervalsEstimateFtp);
   const estimateHr = useServerFn(intervalsEstimateHr);
-  const syncActs = useServerFn(intervalsSyncActivities);
-  const disconnectIcu = useServerFn(disconnectIntervals);
   const syncZonesIcu = useServerFn(syncIntervalsZones);
-  const createOAuthState = useServerFn(createIntervalsOAuthState);
+
 
   const profileQ = useQuery({
     queryKey: ["profile", user?.id],
