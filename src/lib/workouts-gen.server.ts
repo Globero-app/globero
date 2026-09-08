@@ -25,12 +25,24 @@ const WorkoutSchema = {
     title: { type: "string", description: "Título largo descriptivo" },
     summary: { type: "string", description: "Resumen 2-3 frases del objetivo y estructura" },
     focus: { type: "string", enum: ["resistencia", "intervalos", "fuerza", "mixto"] },
+    session_goal: {
+      type: "string",
+      enum: ["vo2max", "umbral", "tempo", "resistencia", "neuromuscular", "fuerza_resistencia", "recuperacion"],
+      description: "Objetivo fisiológico principal de ESTA sesión (obligatorio, nunca mixto)",
+    },
+    energy_system: {
+      type: "string",
+      enum: ["aerobico", "umbral", "vo2", "anaerobico", "neuromuscular"],
+      description: "Sistema energético dominante de la sesión",
+    },
+    why: { type: "string", description: "Una frase: por qué esta sesión hoy para este ciclista" },
     estimated_tss: { type: "number" },
     scheduled_date: { type: "string", description: "Fecha planificada YYYY-MM-DD" },
     steps: { type: "array", items: StepSchema, minItems: 3 },
   },
-  required: ["name", "title", "summary", "focus", "steps"],
+  required: ["name", "title", "summary", "focus", "session_goal", "energy_system", "why", "steps"],
 };
+
 
 const PlanSchema = {
   type: "object",
@@ -82,7 +94,10 @@ const NUTRITION_TRAINING_RULES: Record<string, string> = {
 /** Núcleo de generación de entrenamientos (siempre plan MIXTO). Reutilizable por el cron semanal. */
 export async function generateWorkoutsCore(supabase: any, userId: string, input: GenCoreInput) {
   const { buildTrainingLoad, prescribeWeek, loadPromptBlock, weekStart } = await import("./training-load.server");
-  const { validateWorkout, enforceWeeklyTss, avoidBackToBackHard } = await import("./workout-validator.server");
+  const { validateWorkout, enforceWeeklyTss, avoidBackToBackHard, enforcePolarized } = await import("./workout-validator.server");
+  const { refreshAthleteProfile, athletePromptBlock, minutesForDay } = await import("./athlete-profile.server");
+  type AthleteProfile = Awaited<ReturnType<typeof refreshAthleteProfile>>;
+
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
   if (!profile) throw new Error("Perfil no encontrado");
@@ -272,14 +287,29 @@ REGLAS METEOROLÓGICAS:
     blockFocus = FOCUS_ORDER[(prevIdx + 1) % 3]; // rota base → construcción → pico
   }
 
-  // ---- Métricas de carga y prescripción de la semana ----
+  // ---- Métricas de carga, ficha individual y prescripción de la semana ----
   const load = await buildTrainingLoad(supabase, userId, profile);
+  let athlete: AthleteProfile | null = null;
+  try {
+    athlete = await refreshAthleteProfile(supabase, userId, profile);
+  } catch (e) {
+    console.warn("[workouts-gen] athlete profile failed", e);
+  }
   const week = prescribeWeek(load, {
     sessions: effectiveCount,
     duration_minutes: input.duration_minutes,
     block_week_index: weekIndex,
     deload: blockFocus === "tapering",
+    personal: athlete
+      ? {
+          weekly_tss_ceiling: athlete.weekly_tss_ceiling,
+          tsb_recovery_threshold: athlete.tsb_recovery_threshold,
+          readiness_low_threshold: athlete.readiness_low_threshold,
+          deload_every_weeks: athlete.deload_every_weeks,
+        }
+      : null,
   });
+
   const loadBlock = loadPromptBlock(load, week);
   const blockBlock = `
 BLOQUE DE ENTRENAMIENTO: foco "${blockFocus}", semana ${weekIndex} de 4${weekIndex === 4 ? " (SEMANA DE DESCARGA)" : ""}.
@@ -302,6 +332,9 @@ PERFIL:
 - Tipo de bici: ${input.bike_type}
 
 ${profileBlock}
+
+${athletePromptBlock(athlete, cyclistType)}
+
 
 ${basisBlock}
 
@@ -352,9 +385,10 @@ INSTRUCCIONES:
       lthr,
       maxHr,
       basis,
-      duration_minutes: input.duration_minutes,
+      duration_minutes: slot ? minutesForDay(athlete, slot.dow, input.duration_minutes) : input.duration_minutes,
       long_ride: isLong,
     };
+
     const v = validateWorkout(w, ctx);
     return {
       focus: w.focus ?? "mixto",
@@ -370,7 +404,9 @@ INSTRUCCIONES:
   });
 
   enforceWeeklyTss(items, week.target_tss);
-  avoidBackToBackHard(items);
+  avoidBackToBackHard(items, Math.max(1, Math.round(athlete?.recovery_days_after_hard ?? 1)));
+  enforcePolarized(items, week.mode === "recovery" ? 10 : 20);
+
 
   const rationaleBase = `Carga actual CTL ${load.ctl} / TSB ${load.tsb}${load.readiness_7d !== null ? ` · readiness 7d ${load.readiness_7d}/5` : ""} · semana ${week.mode} (${week.reason}) · bloque ${blockFocus} s${weekIndex}/4`;
 
@@ -380,6 +416,9 @@ INSTRUCCIONES:
     bike_type: input.bike_type,
     duration_minutes: it.minutes,
     planned_tss: it.tss,
+    session_goal: it.plan?.session_goal ?? null,
+    energy_system: it.plan?.energy_system ?? null,
+
     plan: {
       ...it.plan,
       target_basis: basis,

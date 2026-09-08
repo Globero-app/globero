@@ -77,6 +77,81 @@ export type Database = {
         }
         Relationships: []
       }
+      athlete_profile: {
+        Row: {
+          anaerobic_ratio: number | null
+          availability_minutes: Json
+          computed_at: string | null
+          created_at: string
+          deload_every_weeks: number | null
+          detected_type: string | null
+          indoor_tolerance: string
+          natural_cadence: number | null
+          peak_1m: number | null
+          peak_20m: number | null
+          peak_5m: number | null
+          peak_5s: number | null
+          preferred_hour: number | null
+          readiness_low_threshold: number | null
+          recovery_days_after_hard: number | null
+          session_bias: Json
+          terrain: string
+          tsb_recovery_threshold: number | null
+          updated_at: string
+          user_id: string
+          weekly_tss_ceiling: number | null
+          wkg_20m: number | null
+        }
+        Insert: {
+          anaerobic_ratio?: number | null
+          availability_minutes?: Json
+          computed_at?: string | null
+          created_at?: string
+          deload_every_weeks?: number | null
+          detected_type?: string | null
+          indoor_tolerance?: string
+          natural_cadence?: number | null
+          peak_1m?: number | null
+          peak_20m?: number | null
+          peak_5m?: number | null
+          peak_5s?: number | null
+          preferred_hour?: number | null
+          readiness_low_threshold?: number | null
+          recovery_days_after_hard?: number | null
+          session_bias?: Json
+          terrain?: string
+          tsb_recovery_threshold?: number | null
+          updated_at?: string
+          user_id: string
+          weekly_tss_ceiling?: number | null
+          wkg_20m?: number | null
+        }
+        Update: {
+          anaerobic_ratio?: number | null
+          availability_minutes?: Json
+          computed_at?: string | null
+          created_at?: string
+          deload_every_weeks?: number | null
+          detected_type?: string | null
+          indoor_tolerance?: string
+          natural_cadence?: number | null
+          peak_1m?: number | null
+          peak_20m?: number | null
+          peak_5m?: number | null
+          peak_5s?: number | null
+          preferred_hour?: number | null
+          readiness_low_threshold?: number | null
+          recovery_days_after_hard?: number | null
+          session_bias?: Json
+          terrain?: string
+          tsb_recovery_threshold?: number | null
+          updated_at?: string
+          user_id?: string
+          weekly_tss_ceiling?: number | null
+          wkg_20m?: number | null
+        }
+        Relationships: []
+      }
       bike_components: {
         Row: {
           active: boolean
@@ -1070,11 +1145,13 @@ export type Database = {
           compliance: number | null
           created_at: string
           duration_minutes: number
+          energy_system: string | null
           feedback_notes: string | null
           id: string
           plan: Json
           planned_tss: number | null
           rpe: number | null
+          session_goal: string | null
           status: string
           training_type: string
           updated_at: string
@@ -1088,11 +1165,13 @@ export type Database = {
           compliance?: number | null
           created_at?: string
           duration_minutes: number
+          energy_system?: string | null
           feedback_notes?: string | null
           id?: string
           plan: Json
           planned_tss?: number | null
           rpe?: number | null
+          session_goal?: string | null
           status?: string
           training_type: string
           updated_at?: string
@@ -1106,11 +1185,13 @@ export type Database = {
           compliance?: number | null
           created_at?: string
           duration_minutes?: number
+          energy_system?: string | null
           feedback_notes?: string | null
           id?: string
           plan?: Json
           planned_tss?: number | null
           rpe?: number | null
+          session_goal?: string | null
           status?: string
           training_type?: string
           updated_at?: string
