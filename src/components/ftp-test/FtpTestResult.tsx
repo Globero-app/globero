@@ -10,6 +10,7 @@ import { computePowerZones, computeHrZones, ftpFrom20Min, lthrFrom20Min } from "
 export function FtpTestResult({ profile, onRepeat }: { profile: any; onRepeat: () => void }) {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const saveTest = useServerFn(saveFtpTest);
   const [avgWatts, setAvgWatts] = useState("");
   const [avgHr, setAvgHr] = useState("");
   const [saved, setSaved] = useState<number | null>(null);
