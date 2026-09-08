@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useAuth } from "@/lib/use-auth";
+import { intervalsSyncActivities } from "@/lib/intervals.functions";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
@@ -25,8 +28,34 @@ export const Route = createFileRoute("/_authenticated/semanas")({
 const fmtWeek = (iso: string) => format(new Date(`${iso}T12:00:00Z`), "d MMM", { locale: es });
 
 function SemanasPage() {
+  const { user } = useAuth();
+  const qc = useQueryClient();
   const fn = useServerFn(getWeeklyStats);
-  const q = useQuery({ queryKey: ["weekly-stats"], queryFn: () => fn({ data: {} } as any), staleTime: 5 * 60_000 });
+  const sync = useServerFn(intervalsSyncActivities);
+  const q = useQuery({
+    queryKey: ["weekly-stats", user?.id],
+    queryFn: () => fn({ data: {} } as any),
+    enabled: !!user,
+    staleTime: 60_000,
+    refetchOnWindowFocus: true,
+  });
+
+  // Trae las sesiones reales subidas desde el ciclocomputador antes de mostrar el resumen (máx. 1 vez cada 10 min)
+  const syncedRef = useRef(false);
+  useEffect(() => {
+    if (!user || syncedRef.current) return;
+    const key = `intervals:lastSync:${user.id}`;
+    const last = Number(localStorage.getItem(key) ?? 0);
+    if (Date.now() - last < 10 * 60 * 1000) return;
+    syncedRef.current = true;
+    localStorage.setItem(key, String(Date.now()));
+    sync({ data: undefined } as any)
+      .then(() => {
+        qc.invalidateQueries({ queryKey: ["weekly-stats"] });
+        qc.invalidateQueries({ queryKey: ["intervals_activities"] });
+      })
+      .catch(() => {});
+  }, [user, sync, qc]);
   const d: any = q.data;
 
   const chart = (d?.weeks ?? []).map((w: any) => ({ ...w, label: fmtWeek(w.week_start) }));
