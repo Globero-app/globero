@@ -237,7 +237,7 @@ export function evaluateAlerts(load: any, health: any[], todayISO?: string): Coa
 /** Calcula, guarda y (opcionalmente) notifica las alertas del día. */
 export async function runCoachAlerts(supabase: any, userId: string, notify = false) {
   const { today, load, health, profile } = await loadContext(supabase, userId);
-  const alerts = evaluateAlerts(load, health);
+  const alerts = evaluateAlerts(load, health, today);
   if (!alerts.length) return { alerts: [] as CoachAlert[], notified: 0 };
 
   const rows = alerts.map((a) => ({
@@ -251,7 +251,19 @@ export async function runCoachAlerts(supabase: any, userId: string, notify = fal
   await supabase.from("coach_alerts").upsert(rows, { onConflict: "user_id,alert_date,kind" });
 
   let notified = 0;
-  const serious = alerts.filter((a) => a.severity !== "info");
+  let serious = alerts.filter((a) => a.severity !== "info");
+  if (notify && serious.length && (profile as any)?.notify_fatigue_alerts !== false) {
+    // No repetir la misma alerta si ya se registró en los últimos 7 días
+    const from7 = new Date(new Date(`${today}T12:00:00Z`).getTime() - 7 * 86400000).toISOString().slice(0, 10);
+    const { data: prev } = await supabase
+      .from("coach_alerts")
+      .select("kind")
+      .eq("user_id", userId)
+      .gte("alert_date", from7)
+      .lt("alert_date", today);
+    const seen = new Set((prev ?? []).map((r: any) => r.kind));
+    serious = serious.filter((a) => !seen.has(a.kind));
+  }
   if (notify && serious.length && (profile as any)?.notify_fatigue_alerts !== false) {
     const { notifyUser } = await import("./web-push.server");
     const top = serious[0]!;
@@ -263,6 +275,7 @@ export async function runCoachAlerts(supabase: any, userId: string, notify = fal
     });
     notified = 1;
   }
+
   return { alerts, notified };
 }
 
