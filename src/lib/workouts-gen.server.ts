@@ -382,7 +382,9 @@ INSTRUCCIONES:
   });
 
   enforceWeeklyTss(items, week.target_tss);
-  avoidBackToBackHard(items);
+  avoidBackToBackHard(items, Math.max(1, Math.round(athlete?.recovery_days_after_hard ?? 1)));
+  enforcePolarized(items, week.mode === "recovery" ? 10 : 20);
+
 
   const rationaleBase = `Carga actual CTL ${load.ctl} / TSB ${load.tsb}${load.readiness_7d !== null ? ` · readiness 7d ${load.readiness_7d}/5` : ""} · semana ${week.mode} (${week.reason}) · bloque ${blockFocus} s${weekIndex}/4`;
 
