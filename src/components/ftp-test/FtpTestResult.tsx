@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { saveFtpTest } from "@/lib/ftp-tests.functions";
 import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
 import { computePowerZones, computeHrZones, ftpFrom20Min, lthrFrom20Min } from "@/lib/zones";
@@ -9,6 +10,7 @@ import { computePowerZones, computeHrZones, ftpFrom20Min, lthrFrom20Min } from "
 export function FtpTestResult({ profile, onRepeat }: { profile: any; onRepeat: () => void }) {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const saveTest = useServerFn(saveFtpTest);
   const [avgWatts, setAvgWatts] = useState("");
   const [avgHr, setAvgHr] = useState("");
   const [saved, setSaved] = useState<number | null>(null);
@@ -35,13 +37,25 @@ export function FtpTestResult({ profile, onRepeat }: { profile: any; onRepeat: (
   const save = async () => {
     if (!user) { toast.error("Debes iniciar sesión"); return; }
     if (!estimatedFtp && !estimatedLthr) { toast.error("Introduce potencia media o FC media de los 20 min"); return; }
-    const payload: any = { id: user.id, email: user.email ?? "", ftp_test_completed_at: new Date().toISOString() };
-    if (estimatedFtp) payload.ftp = estimatedFtp;
-    if (estimatedLthr) payload.lthr = estimatedLthr;
-    const { error } = await supabase.from("profiles").upsert(payload, { onConflict: "id" });
-    if (error) return toast.error(error.message);
+    try {
+      await saveTest({
+        data: {
+          avg_watts_20min: Number(avgWatts) > 0 ? Number(avgWatts) : null,
+          avg_hr_20min: Number(avgHr) > 0 ? Number(avgHr) : null,
+          ftp: estimatedFtp,
+          lthr: estimatedLthr,
+          source: "manual",
+        },
+      } as any);
+    } catch (e: any) {
+      return toast.error(e?.message ?? "No se pudo guardar el test");
+    }
     setSaved(estimatedFtp ?? 0);
     qc.invalidateQueries({ queryKey: ["profile"] });
+    qc.invalidateQueries({ queryKey: ["ftp-tests"] });
+    qc.invalidateQueries({ queryKey: ["progress"] });
+    qc.invalidateQueries({ queryKey: ["threshold-status"] });
+    qc.invalidateQueries({ queryKey: ["athlete-profile"] });
     const parts = [
       estimatedFtp ? `FTP: ${estimatedFtp} W` : null,
       estimatedLthr ? `LTHR: ${estimatedLthr} bpm` : null,

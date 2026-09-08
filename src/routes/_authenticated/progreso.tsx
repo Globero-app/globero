@@ -11,6 +11,7 @@ import {
   BarChart, Bar,
 } from "recharts";
 import { ThresholdCard } from "@/components/ThresholdCard";
+import { FtpHistoryChart } from "@/components/FtpHistoryChart";
 
 export const Route = createFileRoute("/_authenticated/progreso")({
   component: ProgresoPage,
@@ -102,6 +103,8 @@ function ProgresoPage() {
               </ResponsiveContainer>
             </div>
           </section>
+
+          <FtpHistoryChart history={d.ftp_history ?? []} weightKg={d.weight_kg ?? null} />
 
           <section className="bg-surface border rounded-xl p-5">
             <h2 className="font-display text-lg font-bold uppercase">Carga semanal (TSS)</h2>

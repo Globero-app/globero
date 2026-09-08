@@ -213,6 +213,13 @@ export const intervalsImportFtpTest = createServerFn({ method: "POST" })
       .from("profiles")
       .update({ ftp, ftp_test_completed_at: new Date().toISOString() })
       .eq("id", userId);
+    await (supabase as any).from("ftp_tests").insert({
+      user_id: userId,
+      avg_watts_20min: Math.round(best20),
+      ftp,
+      source: "intervals",
+      test_date: String(row?.start_date ?? new Date().toISOString()).slice(0, 10),
+    });
 
     return {
       ftp,
