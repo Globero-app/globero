@@ -126,16 +126,21 @@ export const Route = createFileRoute("/api/public/hooks/readiness-push")({
             });
             notified++;
           } else if (key === "notify_maintenance_push") {
-            const [{ data: bikes }, { data: comps }] = await Promise.all([
-              supabaseAdmin.from("bikes").select("id, name, current_km").eq("user_id", u.id),
-              supabaseAdmin.from("bike_components").select("id, bike_id, component_type, name, install_km, lifespan_km, active").eq("user_id", u.id),
+            const { componentUsedKm } = await import("@/lib/maintenance-calc");
+            const [{ data: bikes }, { data: comps }, { data: acts }] = await Promise.all([
+              supabaseAdmin.from("bikes").select("id, name, current_km, km_base_date").eq("user_id", u.id),
+              supabaseAdmin.from("bike_components").select("id, bike_id, component_type, name, install_km, lifespan_km, installed_at, active").eq("user_id", u.id),
+              supabaseAdmin.from("intervals_activities").select("start_date, distance, type").eq("user_id", u.id).not("distance", "is", null).order("start_date", { ascending: false }).limit(2000),
             ]);
+            const rides = ((acts ?? []) as any[])
+              .filter((a) => a.start_date && String(a.type ?? "").toLowerCase().includes("ride"))
+              .map((a) => ({ date: a.start_date as string, km: Number(a.distance ?? 0) / 1000 }));
             const byBike = new Map((bikes ?? []).map((b: any) => [b.id, b]));
             const alerts = ((comps ?? []) as any[])
               .filter((c) => c.active && byBike.has(c.bike_id))
               .map((c) => {
                 const bike: any = byBike.get(c.bike_id);
-                const used = Math.max(0, Number(bike.current_km) - Number(c.install_km));
+                const used = componentUsedKm(bike, c, rides);
                 const remaining = Number(c.lifespan_km) - used;
                 const pct = Number(c.lifespan_km) > 0 ? (used / Number(c.lifespan_km)) * 100 : 0;
                 return { bikeName: bike.name, componentLabel: c.name ?? c.component_type, remaining, pct };
@@ -148,7 +153,7 @@ export const Route = createFileRoute("/api/public/hooks/readiness-push")({
               title: "🔧 Mantenimiento de material",
               body: `${top.bikeName} · ${top.componentLabel}: ${top.remaining <= 0 ? "vencido" : `quedan ${Math.round(top.remaining)} km`}${alerts.length > 1 ? ` (+${alerts.length - 1} más)` : ""}`,
               tag: `maintenance-${madridDate}`,
-              url: "/material",
+              url: "/mi-bici",
             });
             notified++;
           }
