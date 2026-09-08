@@ -212,6 +212,7 @@ export type Database = {
           created_at: string
           current_km: number
           id: string
+          km_base_date: string
           model: string | null
           name: string
           notes: string | null
@@ -224,6 +225,7 @@ export type Database = {
           created_at?: string
           current_km?: number
           id?: string
+          km_base_date?: string
           model?: string | null
           name: string
           notes?: string | null
@@ -236,6 +238,7 @@ export type Database = {
           created_at?: string
           current_km?: number
           id?: string
+          km_base_date?: string
           model?: string | null
           name?: string
           notes?: string | null

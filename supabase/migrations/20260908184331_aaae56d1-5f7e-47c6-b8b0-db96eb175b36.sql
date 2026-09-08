@@ -1,0 +1,1 @@
+ALTER TABLE public.bikes ADD COLUMN IF NOT EXISTS km_base_date timestamptz NOT NULL DEFAULT now();
