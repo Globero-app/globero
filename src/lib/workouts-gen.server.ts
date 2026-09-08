@@ -364,9 +364,10 @@ INSTRUCCIONES:
       lthr,
       maxHr,
       basis,
-      duration_minutes: input.duration_minutes,
+      duration_minutes: slot ? minutesForDay(athlete, slot.dow, input.duration_minutes) : input.duration_minutes,
       long_ride: isLong,
     };
+
     const v = validateWorkout(w, ctx);
     return {
       focus: w.focus ?? "mixto",
