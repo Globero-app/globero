@@ -46,6 +46,22 @@ export async function buildProgress(supabase: any, userId: string, profile: any)
   const maxHr: number | null = profile?.max_hr ?? null;
   const weight: number | null = profile?.weight_kg ? Number(profile.weight_kg) : null;
 
+  // Historial de tests de FTP (para marcar los saltos de umbral en las gráficas)
+  const { data: ftpTests } = await supabase
+    .from("ftp_tests")
+    .select("test_date,ftp,lthr,avg_watts_20min,source")
+    .eq("user_id", userId)
+    .gte("test_date", since365)
+    .order("test_date", { ascending: true })
+    .limit(50);
+  const ftp_history = ((ftpTests ?? []) as any[]).map((t) => ({
+    date: String(t.test_date),
+    ftp: t.ftp ?? null,
+    lthr: t.lthr ?? null,
+    avg_watts_20min: t.avg_watts_20min ? Number(t.avg_watts_20min) : null,
+    source: t.source ?? "manual",
+  }));
+
   const [{ data: acts }, { data: workouts }] = await Promise.all([
     supabase
       .from("intervals_activities")
@@ -241,6 +257,7 @@ export async function buildProgress(supabase: any, userId: string, profile: any)
     lthr,
     max_hr: maxHr,
     weight_kg: weight,
+    ftp_history,
   };
 }
 
