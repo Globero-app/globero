@@ -114,7 +114,7 @@ export function AthleteProfileSection() {
             <p className="text-[11px] text-muted-foreground">
               {d?.computed_at ? `Calculado el ${new Date(d.computed_at).toLocaleDateString("es-ES")} con tus propias actividades.` : "Se calculará automáticamente cuando tengas actividades y readiness suficientes."}
             </p>
-            <button type="button" className="btn-outline text-xs inline-flex items-center gap-1" disabled={busy} onClick={onRecompute}>
+            <button type="button" className="border px-3 py-1.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1 hover:bg-secondary" disabled={busy} onClick={onRecompute}>
               <RefreshCw className="size-3" /> Recalcular ahora
             </button>
           </div>
@@ -156,7 +156,7 @@ export function AthleteProfileSection() {
               </Field>
             </div>
 
-            <button type="button" className="btn-primary w-full sm:w-auto" disabled={busy} onClick={onSave}>
+            <button type="button" className="bg-primary text-primary-foreground px-6 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 w-full sm:w-auto" disabled={busy} onClick={onSave}>
               Guardar preferencias
             </button>
             <p className="text-[11px] text-muted-foreground">
