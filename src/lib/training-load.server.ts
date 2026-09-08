@@ -177,18 +177,23 @@ export async function buildTrainingLoad(supabase: any, userId: string, profile: 
   const daily: LoadPoint[] = [...dailyMap.entries()].map(([date, tss]) => ({ date, tss })).sort((a, b) => a.date.localeCompare(b.date));
   const { ctl, atl } = computeCtlAtl(daily, today);
 
-  // Carga por semana (últimas 6)
+  // Carga por semana (últimas 6, semanas de calendario continuas con relleno a 0)
   const weekMap = new Map<string, number>();
   for (const p of daily) weekMap.set(weekStart(p.date), (weekMap.get(weekStart(p.date)) ?? 0) + p.tss);
-  const weekly = [...weekMap.entries()]
-    .map(([week_start, tss]) => ({ week_start, tss: Math.round(tss) }))
-    .sort((a, b) => a.week_start.localeCompare(b.week_start))
-    .slice(-6);
+  const currentWeekStart = weekStart(today);
+  const weekly: Array<{ week_start: string; tss: number }> = [];
+  for (let i = 5; i >= 0; i--) {
+    const ws = isoDate(new Date(new Date(`${currentWeekStart}T12:00:00Z`).getTime() - i * 7 * DAY));
+    weekly.push({ week_start: ws, tss: Math.round(weekMap.get(ws) ?? 0) });
+  }
 
-  const last3 = weekly.slice(-4, -1); // 3 semanas completas previas a la actual
+  const last3 = weekly.slice(-4, -1); // 3 semanas de calendario previas a la actual
   const avg3 = last3.length ? last3.reduce((s, w) => s + w.tss, 0) / last3.length : 0;
-  const currentWeek = weekly.length ? weekly[weekly.length - 1].tss : 0;
-  const ramp_pct = avg3 > 0 ? Math.round(((currentWeek - avg3) / avg3) * 1000) / 10 : null;
+  const currentWeek = weekly[weekly.length - 1]!.tss;
+  // Solo tiene sentido hablar de rampa con una base previa suficiente y carga real esta semana
+  const ramp_pct =
+    avg3 >= 100 && currentWeek >= 50 ? Math.round(((currentWeek - avg3) / avg3) * 1000) / 10 : null;
+
 
   // Adherencia 28 días sobre entrenos planificados con fecha pasada
   const from28 = isoDate(new Date(new Date(`${today}T12:00:00Z`).getTime() - 28 * DAY));
