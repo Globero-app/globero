@@ -28,7 +28,7 @@ function EntrenamientosPage() {
   const profile = useQuery({
     queryKey: ["profile-ftp", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("ftp,max_hr,lthr,zones_display_mode,intervals_athlete_id,weekly_training_days,weekly_long_ride_day,weekly_target_basis,nutrition_plan_enabled,nutrition_goal").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("ftp,max_hr,lthr,zones_display_mode,intervals_athlete_id,weekly_training_days,weekly_long_ride_day,weekly_target_basis,nutrition_plan_enabled,nutrition_goal,weekly_auto_enabled").eq("id", user!.id).maybeSingle();
       return data;
     },
     enabled: !!user,
@@ -71,7 +71,7 @@ function EntrenamientosPage() {
     <div className="space-y-8">
       <div>
         <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">Plan personalizado</p>
-        <h1 className="font-display text-4xl font-bold uppercase tracking-tight">Entrenamientos</h1>
+        <h1 className="font-display text-2xl sm:text-4xl font-bold uppercase tracking-tight">Entrenamientos</h1>
       </div>
 
       <TrainingLoadCard />
@@ -116,7 +116,7 @@ function EntrenamientosPage() {
           const list = groups[tab];
           return (
             <>
-              <div className="flex gap-1 rounded-lg border bg-surface p-1 w-fit">
+              <div className="flex gap-1 rounded-lg border bg-surface p-1 w-full sm:w-fit overflow-x-auto">
                 {([
                   ["semana", "Esta semana"],
                   ["proximas", "Próximas"],
@@ -126,7 +126,7 @@ function EntrenamientosPage() {
                     key={key}
                     type="button"
                     onClick={() => setTab(key)}
-                    className={`px-3 py-1.5 rounded-md text-xs font-semibold transition ${tab === key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"}`}
+                    className={`flex-1 sm:flex-none whitespace-nowrap px-2.5 sm:px-3 py-1.5 rounded-md text-[11px] sm:text-xs font-semibold transition ${tab === key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"}`}
                   >
                     {label} ({groups[key].length})
                   </button>

@@ -57,6 +57,7 @@ export function WorkoutGenerator({ profile }: { profile: any }) {
   const [nutritionEnabled, setNutritionEnabled] = useState(false);
   const [nutritionGoal, setNutritionGoal] = useState<"perdida_peso" | "mantenimiento" | "masa_muscular">("mantenimiento");
   const [targetBasis, setTargetBasis] = useState<"power" | "hr" | null>(null);
+  const [autoEnabled, setAutoEnabled] = useState<boolean>(profile?.weekly_auto_enabled ?? false);
 
   const competitions = useQuery({
     queryKey: ["competitions-future", user?.id],
@@ -88,6 +89,7 @@ export function WorkoutGenerator({ profile }: { profile: any }) {
     setTargetBasis(basis);
     setNutritionEnabled(nutrition);
     setNutritionGoal(goal);
+    setAutoEnabled(!!p.weekly_auto_enabled);
     if (days.length) {
       setTrainingDays(days);
       setLongRideDay(nextLong);
@@ -129,6 +131,8 @@ export function WorkoutGenerator({ profile }: { profile: any }) {
   const generateMut = useMutation({
     mutationFn: (opts?: { replace_pending?: boolean }) => gen({ data: { bike_type: bikeType, duration_minutes: duration, competition_id: competitionId || null, target_basis: effectiveBasis, training_days: trainingDays, long_ride_day: longRideDay, nutrition_enabled: nutritionEnabled, nutrition_goal: nutritionEnabled ? nutritionGoal : null, replace_pending: !!opts?.replace_pending, ...(competitionId ? { max_count: 90 } : {}) } }),
     onSuccess: async (inserted: any) => {
+      setAutoEnabled(true);
+      void persistPrefs({ weekly_auto_enabled: true });
       setSavedDays({ days: trainingDays, long: longRideDay, nutrition: nutritionEnabled, goal: nutritionGoal, basis: effectiveBasis });
       const n = Array.isArray(inserted) ? inserted.length : trainingDays.length;
       toast.success(hasCompetition ? `Plan para tu competición creado: ${n} entrenamientos` : `${n} entrenamiento${n > 1 ? "s" : ""} generado${n > 1 ? "s" : ""}`);
@@ -151,7 +155,7 @@ export function WorkoutGenerator({ profile }: { profile: any }) {
   });
 
   return (
-    <div className="bg-surface border rounded-xl p-5 space-y-4">
+    <div className="bg-surface border rounded-xl p-4 sm:p-5 space-y-4">
       <h2 className="font-display text-lg font-bold uppercase">Generar nuevos entrenamientos</h2>
 
       {competitions.data && competitions.data.length > 0 && (
@@ -318,14 +322,30 @@ export function WorkoutGenerator({ profile }: { profile: any }) {
         </p>
       </Field>
 
-      <button
-        disabled={generateMut.isPending || trainingDays.length === 0}
-        onClick={() => generateMut.mutate(undefined)}
-        className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50"
-      >
-        {generateMut.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
-        {generateMut.isPending ? "Generando con IA…" : hasCompetition ? "Generar plan para la competición" : "Generar con IA"}
-      </button>
+      <div className="flex flex-col sm:flex-row gap-2">
+        <button
+          disabled={generateMut.isPending || trainingDays.length === 0 || autoEnabled}
+          onClick={() => generateMut.mutate(undefined)}
+          className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50 w-full sm:w-auto"
+        >
+          {generateMut.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+          {generateMut.isPending ? "Generando con IA…" : hasCompetition ? "Generar plan para la competición" : "Generar con IA"}
+        </button>
+        {autoEnabled && (
+          <button
+            type="button"
+            onClick={() => {
+              if (!window.confirm("Si continúas se desactivará la creación automática de nuevos entrenamientos. Los de esta semana se mantienen, pero no se generarán más a partir del domingo. ¿Continuar?")) return;
+              setAutoEnabled(false);
+              void persistPrefs({ weekly_auto_enabled: false });
+              toast.success("Generación automática desactivada");
+            }}
+            className="inline-flex items-center justify-center gap-2 border-2 border-destructive/50 text-destructive px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-destructive/10 w-full sm:w-auto"
+          >
+            Cancelar Entrenamientos
+          </button>
+        )}
+      </div>
     </div>
   );
 }

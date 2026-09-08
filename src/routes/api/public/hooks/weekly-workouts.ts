@@ -24,7 +24,7 @@ export const Route = createFileRoute("/api/public/hooks/weekly-workouts")({
           new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", hour: "2-digit", hour12: false }).format(now),
         );
         const url = new URL(request.url);
-        if (url.searchParams.get("force") !== "1" && madridHour !== 21) {
+        if (url.searchParams.get("force") !== "1" && madridHour !== 23 && madridHour !== 0) {
           return new Response(JSON.stringify({ ok: true, skipped: true, hour: madridHour }), { headers: { "content-type": "application/json" } });
         }
 
