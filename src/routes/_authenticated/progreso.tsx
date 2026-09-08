@@ -11,6 +11,7 @@ import {
   BarChart, Bar,
 } from "recharts";
 import { ThresholdCard } from "@/components/ThresholdCard";
+import { FtpHistoryChart } from "@/components/FtpHistoryChart";
 
 export const Route = createFileRoute("/_authenticated/progreso")({
   component: ProgresoPage,
