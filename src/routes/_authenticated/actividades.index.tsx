@@ -65,6 +65,7 @@ function ActividadesPage() {
       .then(() => {
         qc.invalidateQueries({ queryKey: ["intervals_activities"] });
         qc.invalidateQueries({ queryKey: ["activity-matches"] });
+        qc.invalidateQueries({ queryKey: ["weekly-stats"] });
       })
       .catch(() => {});
   }, [user, profile.data?.intervals_api_key, sync, qc]);
