@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useAuth } from "@/lib/use-auth";
+import { intervalsSyncActivities } from "@/lib/intervals.functions";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
