@@ -131,6 +131,8 @@ export function WorkoutGenerator({ profile }: { profile: any }) {
   const generateMut = useMutation({
     mutationFn: (opts?: { replace_pending?: boolean }) => gen({ data: { bike_type: bikeType, duration_minutes: duration, competition_id: competitionId || null, target_basis: effectiveBasis, training_days: trainingDays, long_ride_day: longRideDay, nutrition_enabled: nutritionEnabled, nutrition_goal: nutritionEnabled ? nutritionGoal : null, replace_pending: !!opts?.replace_pending, ...(competitionId ? { max_count: 90 } : {}) } }),
     onSuccess: async (inserted: any) => {
+      setAutoEnabled(true);
+      void persistPrefs({ weekly_auto_enabled: true });
       setSavedDays({ days: trainingDays, long: longRideDay, nutrition: nutritionEnabled, goal: nutritionGoal, basis: effectiveBasis });
       const n = Array.isArray(inserted) ? inserted.length : trainingDays.length;
       toast.success(hasCompetition ? `Plan para tu competición creado: ${n} entrenamientos` : `${n} entrenamiento${n > 1 ? "s" : ""} generado${n > 1 ? "s" : ""}`);
