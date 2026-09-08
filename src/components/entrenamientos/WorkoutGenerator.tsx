@@ -155,7 +155,7 @@ export function WorkoutGenerator({ profile }: { profile: any }) {
   });
 
   return (
-    <div className="bg-surface border rounded-xl p-5 space-y-4">
+    <div className="bg-surface border rounded-xl p-4 sm:p-5 space-y-4">
       <h2 className="font-display text-lg font-bold uppercase">Generar nuevos entrenamientos</h2>
 
       {competitions.data && competitions.data.length > 0 && (

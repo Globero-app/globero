@@ -71,7 +71,7 @@ function EntrenamientosPage() {
     <div className="space-y-8">
       <div>
         <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">Plan personalizado</p>
-        <h1 className="font-display text-4xl font-bold uppercase tracking-tight">Entrenamientos</h1>
+        <h1 className="font-display text-2xl sm:text-4xl font-bold uppercase tracking-tight">Entrenamientos</h1>
       </div>
 
       <TrainingLoadCard />
