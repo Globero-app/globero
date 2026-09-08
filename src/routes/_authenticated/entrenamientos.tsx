@@ -28,7 +28,7 @@ function EntrenamientosPage() {
   const profile = useQuery({
     queryKey: ["profile-ftp", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("ftp,max_hr,lthr,zones_display_mode,intervals_athlete_id,weekly_training_days,weekly_long_ride_day,weekly_target_basis,nutrition_plan_enabled,nutrition_goal").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("ftp,max_hr,lthr,zones_display_mode,intervals_athlete_id,weekly_training_days,weekly_long_ride_day,weekly_target_basis,nutrition_plan_enabled,nutrition_goal,weekly_auto_enabled").eq("id", user!.id).maybeSingle();
       return data;
     },
     enabled: !!user,
