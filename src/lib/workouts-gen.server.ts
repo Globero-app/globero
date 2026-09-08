@@ -25,12 +25,24 @@ const WorkoutSchema = {
     title: { type: "string", description: "Título largo descriptivo" },
     summary: { type: "string", description: "Resumen 2-3 frases del objetivo y estructura" },
     focus: { type: "string", enum: ["resistencia", "intervalos", "fuerza", "mixto"] },
+    session_goal: {
+      type: "string",
+      enum: ["vo2max", "umbral", "tempo", "resistencia", "neuromuscular", "fuerza_resistencia", "recuperacion"],
+      description: "Objetivo fisiológico principal de ESTA sesión (obligatorio, nunca mixto)",
+    },
+    energy_system: {
+      type: "string",
+      enum: ["aerobico", "umbral", "vo2", "anaerobico", "neuromuscular"],
+      description: "Sistema energético dominante de la sesión",
+    },
+    why: { type: "string", description: "Una frase: por qué esta sesión hoy para este ciclista" },
     estimated_tss: { type: "number" },
     scheduled_date: { type: "string", description: "Fecha planificada YYYY-MM-DD" },
     steps: { type: "array", items: StepSchema, minItems: 3 },
   },
-  required: ["name", "title", "summary", "focus", "steps"],
+  required: ["name", "title", "summary", "focus", "session_goal", "energy_system", "why", "steps"],
 };
+
 
 const PlanSchema = {
   type: "object",
