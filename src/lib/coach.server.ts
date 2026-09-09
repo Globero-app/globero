@@ -290,6 +290,13 @@ export async function sendDailyBrief(supabase: any, userId: string): Promise<boo
       tag: `daily-brief-${brief.date}`,
       url: "/app",
     });
+    // Justo después de la sesión del día: aviso meteorológico si procede.
+    try {
+      const { sendDailyWeatherAlert } = await import("./weather-alerts.server");
+      await sendDailyWeatherAlert(supabase, userId, brief.date);
+    } catch (e) {
+      console.error("[coach] weather alert", e);
+    }
     return true;
   } catch (e) {
     console.error("[coach] daily brief", e);
