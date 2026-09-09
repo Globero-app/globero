@@ -55,7 +55,7 @@ export async function resolveUserLocation(
       lat: Number(profile.location_lat),
       lon: Number(profile.location_lon),
       label,
-      tokens: label.split(",").map((p) => norm(p)).filter(Boolean),
+      tokens: areaTokens(label.split(",")),
     };
   }
 
@@ -84,7 +84,7 @@ export async function resolveUserLocation(
     lat: r.latitude,
     lon: r.longitude,
     label,
-    tokens: [r.name, r.admin3, r.admin2, r.admin1].filter(Boolean).map((t: string) => norm(t)),
+    tokens: areaTokens([r.name, r.admin3, r.admin2, r.admin1]),
   };
 }
 
