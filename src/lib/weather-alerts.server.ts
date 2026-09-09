@@ -21,6 +21,25 @@ function norm(s: string): string {
     .trim();
 }
 
+const STOP = new Set([
+  "provincia", "de", "del", "la", "el", "los", "las", "y", "comunidad", "autonoma",
+  "region", "departamento", "ciudad", "foral", "principado", "islas",
+]);
+
+/** Tokens de zona: nombre completo normalizado + palabras significativas. */
+function areaTokens(names: (string | null | undefined)[]): string[] {
+  const out = new Set<string>();
+  for (const n of names) {
+    if (!n) continue;
+    const full = norm(n);
+    if (full.length >= 4) out.add(full);
+    for (const w of full.split(" ")) {
+      if (w.length >= 4 && !STOP.has(w)) out.add(w);
+    }
+  }
+  return [...out];
+}
+
 /** Resuelve ciudad + país a coordenadas, cacheando el resultado en profiles. */
 export async function resolveUserLocation(
   supabase: any,
