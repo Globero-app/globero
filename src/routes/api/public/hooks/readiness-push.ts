@@ -81,16 +81,21 @@ export const Route = createFileRoute("/api/public/hooks/readiness-push")({
         }
 
         // ── Slots 1..n: notificaciones adicionales, en orden fijo ─────────
-        const ORDER = ["notify_daily_brief", "notify_prerace_push", "notify_maintenance_push", "notify_fatigue_alerts"] as const;
+        const ORDER = ["notify_daily_brief", "notify_weather_alerts", "notify_prerace_push", "notify_maintenance_push", "notify_fatigue_alerts"] as const;
         let sent = 0;
         let notified = 0;
 
         for (const u of users as any[]) {
-          const active = ORDER.filter((k) => u[k]);
+          // El aviso meteorológico ya se envía junto al resumen diario.
+          const active = ORDER.filter((k) => u[k] && !(k === "notify_weather_alerts" && u.notify_daily_brief));
           const key = active[slot - 1];
           if (!key) continue;
 
-          if (key === "notify_daily_brief") {
+          if (key === "notify_weather_alerts") {
+            const { sendDailyWeatherAlert } = await import("@/lib/weather-alerts.server");
+            const ok = await sendDailyWeatherAlert(supabaseAdmin, u.id, madridDate);
+            if (ok) { sent += 1; notified++; }
+          } else if (key === "notify_daily_brief") {
             const { sendDailyBrief } = await import("@/lib/coach.server");
             const ok = await sendDailyBrief(supabaseAdmin, u.id);
             if (ok) { sent += 1; notified++; }
