@@ -15,6 +15,8 @@ import { ZonesPreview } from "@/components/perfil/ZonesPreview";
 import { DeleteAccountSection } from "@/components/perfil/DeleteAccountSection";
 import { IntervalsConnection } from "@/components/perfil/IntervalsConnection";
 import { AthleteProfileSection } from "@/components/perfil/AthleteProfileSection";
+import { WeatherStatus } from "@/components/perfil/WeatherStatus";
+import { COUNTRIES } from "@/lib/countries";
 
 
 
@@ -221,9 +223,19 @@ function PerfilPage() {
         <AthleteProfileSection />
 
         <Section title="Meteorología">
-          <Field label="Ciudad base para previsión">
-            <input className="input" placeholder="Madrid, Barcelona, Sevilla…" value={form.location_city ?? ""} onChange={(e) => setForm({ ...form, location_city: e.target.value })} />
-          </Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Ciudad base para previsión">
+              <input className="input" placeholder="Madrid, Barcelona, Sevilla…" value={form.location_city ?? ""} onChange={(e) => setForm({ ...form, location_city: e.target.value })} />
+            </Field>
+            <Field label="País">
+              <select className="input" value={form.country ?? "ES"} onChange={(e) => setForm({ ...form, country: e.target.value })}>
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>{c.name}</option>
+                ))}
+              </select>
+            </Field>
+          </div>
+          <WeatherStatus city={profileQ.data?.location_city} />
           <div className="grid grid-cols-2 gap-3">
             <Field label="Umbral de viento (km/h)">
               <input type="number" min={10} max={60} className="input" value={form.weather_wind_threshold_kmh ?? 25} onChange={(e) => setForm({ ...form, weather_wind_threshold_kmh: e.target.value })} />
@@ -237,8 +249,16 @@ function PerfilPage() {
               <span>Sugerir rodillo en mal tiempo</span>
             </label>
           </div>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.notify_weather_alerts ?? true}
+              onChange={(e) => setForm({ ...form, notify_weather_alerts: e.target.checked })}
+            />
+            <span>Avisarme cada mañana si hay alerta o mal tiempo</span>
+          </label>
           <p className="text-[11px] text-muted-foreground">
-            Si indicas una ciudad, la IA consultará la previsión para cada día de entreno y ajustará o sugerirá rodillo ante lluvia intensa, viento muy fuerte o temperaturas extremas.
+            El aviso llega justo después del resumen de la sesión del día, por app y/o Telegram. Incluye los avisos oficiales vigentes (amarillo, naranja o rojo) por lluvias, inundaciones, viento, tormenta o temperaturas extremas, además de la previsión de tu localidad.
           </p>
         </Section>
 
