@@ -75,8 +75,14 @@ function PerfilPage() {
       strengths: form.strengths || null,
       weaknesses: form.weaknesses || null,
       location_city: form.location_city || null,
+      country: form.country || "ES",
       weather_auto_indoor: form.weather_auto_indoor ?? true,
       weather_wind_threshold_kmh: form.weather_wind_threshold_kmh != null && form.weather_wind_threshold_kmh !== "" ? Number(form.weather_wind_threshold_kmh) : 25,
+      notify_weather_alerts: form.notify_weather_alerts ?? true,
+      // Fuerza volver a localizar si cambia la población o el país
+      ...(form.location_city !== profileQ.data?.location_city || (form.country || "ES") !== profileQ.data?.country
+        ? { location_lat: null, location_lon: null, location_resolved: null }
+        : {}),
 
       dietary_preferences: form.dietary_preferences,
       readiness_push_enabled: form.readiness_push_enabled ?? true,
