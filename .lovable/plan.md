@@ -1,41 +1,23 @@
-# Ficha individual del ciclista visible y editable en Perfil
+# Aviso meteorológico diario junto al entreno del día
 
-Hoy la ficha individual ya se calcula sola (tipo real según la curva de potencia, techo de carga semanal, umbrales de frescura y readiness, días de recuperación) pero el ciclista no la ve ni puede ajustar sus preferencias. Este cambio la saca a la pantalla de Perfil, por usuario y sin afectar a nadie más.
+## Qué pasa hoy
 
-## Qué verá el ciclista
+La meteorología solo se consulta **una vez por semana**, cuando la IA genera los entrenamientos (domingo). Después no se vuelve a mirar el tiempo: el aviso de cada mañana con la sesión del día no incluye ninguna comprobación meteorológica, por eso ayer/hoy no llegó ningún aviso pese a la alerta por inundaciones.
 
-Nuevo apartado "Mi ficha de entrenamiento" en Perfil, con dos partes:
+Además, la búsqueda de la población se hace solo por nombre y sin país. Tu perfil tiene "Sentmenat" y el campo país está vacío, así que la búsqueda puede caer en una localidad distinta con nombre parecido. Y solo se miran datos de previsión (lluvia, viento, temperatura); no se consultan los avisos oficiales, que es lo que marca una alerta por inundaciones.
 
-**1. Lo que la app calcula sola (solo lectura)**
-- Tipo de ciclista detectado por su curva de potencia (sprinter, rodador, escalador, contrarrelojista) junto al que él declaró.
-- Sus mejores potencias de 5 s, 1 min, 5 min y 20 min, con los W/kg de 20 min.
-- Techo de carga semanal que ya ha completado con buen cumplimiento.
-- Umbrales personales de frescura y de readiness bajo.
-- Días que tarda en recuperar tras una sesión dura y cada cuántas semanas le toca descarga.
-- Cumplimiento medio por tipo de sesión, cuando hay datos suficientes.
-- Fecha del último recálculo y botón "Recalcular ahora".
-- Si aún no hay datos suficientes, cada dato muestra "aún sin datos" en lugar de un número inventado.
+## Qué haré
 
-**2. Lo que el ciclista ajusta (editable y guardado)**
-- Minutos disponibles para cada día de la semana (lunes a domingo); en blanco significa usar la duración objetivo general.
-- Hora habitual de entreno.
-- Tolerancia al rodillo: baja, media o alta.
-- Terreno disponible: llano, montaña o mixto.
-- Cadencia natural.
+1. **Comprobación meteorológica cada mañana**, dentro del mismo envío que ya te manda la sesión del día: primero la sesión, e inmediatamente después el aviso del tiempo si procede (app y/o Telegram, según tu perfil).
+2. **Avisos oficiales**: además de la previsión, se consultarán los avisos oficiales vigentes para tu zona (nivel amarillo/naranja/rojo por lluvia, viento, tormenta, calor/frío). Si hay aviso naranja o rojo, se recomienda directamente rodillo o suspender la salida.
+3. **Localización correcta**: la búsqueda de la población usará el país del perfil, y guardaré las coordenadas encontradas junto al nombre resuelto para que puedas ver qué localidad se ha detectado. En Perfil se mostrará "Detectado: Sentmenat, España" y, si no encaja, podrás corregirlo.
+4. **Sin duplicados**: un solo aviso al día por usuario, y no se envía nada si las condiciones son buenas.
+5. **Rellenar el país** de los perfiles existentes que estén vacíos, para no repetir el fallo de localización.
 
-Al guardar, esas preferencias se aplican a los siguientes entrenamientos generados (duración de cada sesión según el día, uso de rodillo y terreno), sin regenerar los ya creados.
+## Detalle técnico
 
-## Aislamiento entre usuarios
-
-Cada ficha pertenece a un único usuario: leer, guardar y recalcular solo afecta a su propia fila y requiere estar identificado. No hay ninguna vista ni acción que toque las fichas de otros ciclistas.
-
-## Detalles técnicos
-
-- Nuevo `src/lib/athlete-profile.functions.ts` con tres server functions con `requireSupabaseAuth`:
-  - `getAthleteProfile` — lee la fila de `athlete_profile` del usuario.
-  - `saveAthletePreferences` — valida con Zod (`availability_minutes` 0-360 por día, `preferred_hour` 0-23, `indoor_tolerance` baja/media/alta, `terrain` llano/montaña/mixto, `natural_cadence` 50-120) y hace upsert por `user_id`; nunca escribe los campos derivados.
-  - `recomputeAthleteProfile` — llama a `refreshAthleteProfile` (import dinámico dentro del handler) con `context.supabase` y `context.userId`.
-- Nuevo `src/components/perfil/AthleteProfileSection.tsx`: React Query con `queryKey ['athlete-profile', user?.id]`, formulario de preferencias y panel de lectura; patrón auth-safe ya usado en el proyecto (esperar sesión, `enabled` por `user?.id`, sin reintentos sin sesión).
-- `src/routes/_authenticated/perfil.tsx`: se añade la nueva `<Section>` tras "Perfil ciclista"; el resto del archivo no cambia.
-- Sin migración: `athlete_profile` ya existe con RLS por `auth.uid()` y GRANTs.
-- `refreshAthleteProfile` ya conserva las preferencias existentes al recalcular, así que guardar y recalcular no se pisan.
+- Nuevo `src/lib/weather-alerts.server.ts`: resuelve ciudad+país a lat/lon (Open-Meteo Geocoding con `country_code`), consulta previsión del día y avisos oficiales de MeteoAlarm (feed CAP por país/región) y devuelve `{ level, headline, indoor, message }`.
+- Cachear en `profiles` las coordenadas resueltas (`location_lat`, `location_lon`, `location_resolved`) mediante migración; evita geocodificar cada día.
+- Enganche en el hook diario existente (`src/routes/api/public/hooks/readiness-push.ts` / `src/lib/coach.server.ts`), enviando el aviso meteorológico como segundo mensaje tras el resumen del día, con dedupe diario vía `notification_log`.
+- Reutilizar `adviseForWorkout` para los umbrales del usuario (viento, lluvia, temperatura) y combinarlo con el nivel del aviso oficial (naranja/rojo prevalece).
+- `src/components/perfil/...` en la sección Meteorología: mostrar la localidad detectada y el estado actual de avisos.
