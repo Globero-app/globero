@@ -34,7 +34,7 @@ export const Route = createFileRoute("/api/public/hooks/readiness-push")({
 
         const { data: users, error } = await supabaseAdmin
           .from("profiles")
-          .select("id, full_name, readiness_push_enabled, notify_training_push, notify_prerace_push, notify_maintenance_push, notify_daily_brief, notify_fatigue_alerts")
+          .select("id, full_name, readiness_push_enabled, notify_training_push, notify_prerace_push, notify_maintenance_push, notify_daily_brief, notify_fatigue_alerts, notify_weather_alerts")
           .eq("readiness_push_hour", madridHour)
           .is("deactivated_at", null);
         if (error) {
