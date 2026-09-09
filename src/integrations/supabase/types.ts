@@ -678,6 +678,9 @@ export type Database = {
           intervals_token_expires_at: string | null
           linking_code: string | null
           location_city: string | null
+          location_lat: number | null
+          location_lon: number | null
+          location_resolved: string | null
           lthr: number | null
           max_hr: number | null
           notify_channel: string
@@ -688,6 +691,7 @@ export type Database = {
           notify_prerace_push: boolean
           notify_strava_push: boolean
           notify_training_push: boolean
+          notify_weather_alerts: boolean
           nutrition_focus: string
           nutrition_goal: string
           nutrition_plan_enabled: boolean
@@ -739,6 +743,9 @@ export type Database = {
           intervals_token_expires_at?: string | null
           linking_code?: string | null
           location_city?: string | null
+          location_lat?: number | null
+          location_lon?: number | null
+          location_resolved?: string | null
           lthr?: number | null
           max_hr?: number | null
           notify_channel?: string
@@ -749,6 +756,7 @@ export type Database = {
           notify_prerace_push?: boolean
           notify_strava_push?: boolean
           notify_training_push?: boolean
+          notify_weather_alerts?: boolean
           nutrition_focus?: string
           nutrition_goal?: string
           nutrition_plan_enabled?: boolean
@@ -800,6 +808,9 @@ export type Database = {
           intervals_token_expires_at?: string | null
           linking_code?: string | null
           location_city?: string | null
+          location_lat?: number | null
+          location_lon?: number | null
+          location_resolved?: string | null
           lthr?: number | null
           max_hr?: number | null
           notify_channel?: string
@@ -810,6 +821,7 @@ export type Database = {
           notify_prerace_push?: boolean
           notify_strava_push?: boolean
           notify_training_push?: boolean
+          notify_weather_alerts?: boolean
           nutrition_focus?: string
           nutrition_goal?: string
           nutrition_plan_enabled?: boolean
