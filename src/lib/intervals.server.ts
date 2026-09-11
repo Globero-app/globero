@@ -186,7 +186,7 @@ function eventBody(workout: any, doc: string, date: string) {
   return {
     start_date_local: `${date}T00:00:00`,
     category: "WORKOUT",
-    type: "Ride",
+    type: indoor ? "VirtualRide" : "Ride",
     indoor,
     name: workout.plan?.title ?? workout.plan?.name ?? "Entrenamiento",
     description: doc,
