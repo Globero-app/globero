@@ -20,7 +20,7 @@ export function RaceWeatherCard({ competition }: { competition: any }) {
   const hasTrack = ((competition.track_points as any[] | null) ?? []).length > 0;
 
   const daysAway = differenceInCalendarDays(new Date(competition.date), new Date());
-  const inRange = daysAway >= 0 && daysAway <= 16;
+  const inRange = daysAway >= 0 && daysAway <= 3;
 
   const mut = useMutation({
     mutationFn: async () => fetchFn({ data: { competitionId: competition.id } }),
@@ -36,7 +36,7 @@ export function RaceWeatherCard({ competition }: { competition: any }) {
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div>
           <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary">Clima e hidratación</p>
-          <h2 className="font-display text-xl font-bold uppercase">Previsión del día de carrera</h2>
+          <h2 className="font-display text-xl font-bold uppercase">Previsión para la ruta</h2>
         </div>
         <button
           onClick={() => mut.mutate()}
@@ -50,15 +50,15 @@ export function RaceWeatherCard({ competition }: { competition: any }) {
 
       {!hasTrack && (
         <p className="text-xs text-muted-foreground border border-dashed rounded-lg p-4">
-          Sube el GPX de la competición para localizar la ruta y consultar el clima previsto.
+          Sube el GPX de la ruta para localizarla y consultar el clima previsto.
         </p>
       )}
       {hasTrack && !inRange && !forecast && (
         <p className="text-xs text-muted-foreground border border-dashed rounded-lg p-4 flex items-start gap-2">
           <AlertTriangle className="size-4 text-amber-500 shrink-0 mt-0.5" />
           {daysAway < 0
-            ? "Esta competición ya ha pasado."
-            : "La previsión meteorológica solo está disponible cuando faltan 16 días o menos."}
+            ? "Esta ruta ya ha pasado."
+            : "La previsión puede no ser correcta con tanta antelación: solo está disponible desde 3 días antes hasta el mismo día de la ruta."}
         </p>
       )}
 

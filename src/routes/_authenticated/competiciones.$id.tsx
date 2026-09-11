@@ -207,7 +207,8 @@ function CompetitionDetail() {
           )}
         </div>
 
-        {/* Menu pre-carrera */}
+        {/* Menu pre-carrera (solo competiciones) */}
+        {c.intensity === "competicion" && (
         <div className="bg-surface border rounded-xl p-5 space-y-4">
           <div className="flex justify-between items-center">
             <h2 className="font-display text-xl font-bold uppercase">Menú Pre-Carrera</h2>
@@ -248,6 +249,7 @@ function CompetitionDetail() {
             </div>
           )}
         </div>
+        )}
       </div>
 
       <RaceWeatherCard competition={c} />
