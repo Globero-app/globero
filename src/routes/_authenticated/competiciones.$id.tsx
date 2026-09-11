@@ -116,9 +116,17 @@ function CompetitionDetail() {
     qc.invalidateQueries({ queryKey: ["competition", id] });
   };
 
-  const downloadGpx = () => {
+  const downloadGpx = async () => {
     if (!c.gpx_data || !wpts.length) { toast.error("Sube un GPX y genera el plan primero"); return; }
-    const newGpx = buildGpxWithWaypoints(c.gpx_data, points, wpts.map((w: any) => ({ km: w.km, label: w.label })), c.name);
+    let newGpx = buildGpxWithWaypoints(c.gpx_data, points, wpts.map((w: any) => ({ km: w.km, label: w.label })), c.name);
+    try {
+      const { addWaterWaypointsToGpx } = await import("@/utils/gpxWaterFinder");
+      const res = await addWaterWaypointsToGpx(newGpx, points);
+      newGpx = res.xml;
+      toast.success(res.count ? `${res.count} fuentes de agua añadidas` : "Sin fuentes de agua cercanas");
+    } catch {
+      toast.warning("No se pudieron buscar fuentes de agua");
+    }
     const blob = new Blob([newGpx], { type: "application/gpx+xml" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = `${c.name}_nutricion.gpx`; a.click();
