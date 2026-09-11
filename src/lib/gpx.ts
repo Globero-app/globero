@@ -3,8 +3,8 @@
 export interface TrackPoint { lat: number; lon: number; ele?: number; time?: string; }
 
 export function parseGpx(xml: string): { points: TrackPoint[]; name?: string } {
-  const parser = typeof DOMParser !== "undefined" ? new DOMParser() : null;
-  if (!parser) return { points: [] };
+  if (typeof DOMParser === "undefined") return { points: [] };
+  const parser = new DOMParser();
   const doc = parser.parseFromString(xml, "application/xml");
   const trkpts = Array.from(doc.getElementsByTagName("trkpt"));
   const points: TrackPoint[] = trkpts.map((pt) => {
