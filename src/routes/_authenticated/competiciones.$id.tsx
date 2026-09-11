@@ -66,6 +66,12 @@ function CompetitionDetail() {
   const c = comp.data;
   const points = (c.track_points as any[] | null) ?? [];
   const wpts = (c.waypoints as any[] | null) ?? [];
+  const storedWaterSources = Array.isArray((c.nutrition_plan as any)?.waterSources)
+    ? (c.nutrition_plan as any).waterSources as WaterSource[]
+    : [];
+  const hasStoredWaterSearch = Array.isArray((c.nutrition_plan as any)?.waterSources);
+  const displayedWaterSources = waterSearchComplete ? waterSources : storedWaterSources;
+  const hasCompletedWaterSearch = waterSearchComplete || hasStoredWaterSearch;
 
   const handleGpxUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -111,28 +117,28 @@ function CompetitionDetail() {
         return { ...w, lat: p?.lat ?? 0, lon: p?.lon ?? 0 };
       });
 
+      let nearbyWaterSources: WaterSource[] = [];
+      try {
+        const { fetchWaterSources, filterNearTrack } = await import("@/utils/gpxWaterFinder");
+        const found = await fetchWaterSources(simplified);
+        nearbyWaterSources = filterNearTrack(found, simplified, 200);
+      } catch {
+        toast.warning("No se pudieron buscar fuentes de agua");
+      }
+
       const { error } = await supabase.from("competitions").update({
         gpx_data: text,
         gpx_filename: file.name,
         track_points: simplified as any,
         waypoints: waypointsWithCoords as any,
-        nutrition_plan: { total: plan.totalCarbs, perHour: plan.perHour, durationH: plan.durationH } as any,
+        nutrition_plan: { total: plan.totalCarbs, perHour: plan.perHour, durationH: plan.durationH, waterSources: nearbyWaterSources } as any,
         distance_km: stats.distance_km,
         elevation_m: stats.elevation_m,
         name: c.name || name || file.name,
       }).eq("id", id);
       if (error) throw error;
-
-      try {
-        const { fetchWaterSources, filterNearTrack } = await import("@/utils/gpxWaterFinder");
-        const found = await fetchWaterSources(simplified);
-        setWaterSources(filterNearTrack(found, simplified, 200));
-      } catch {
-        setWaterSources([]);
-        toast.warning("No se pudieron buscar fuentes de agua");
-      } finally {
-        setWaterSearchComplete(true);
-      }
+      setWaterSources(nearbyWaterSources);
+      setWaterSearchComplete(true);
 
       toast.success("GPX procesado");
       await qc.invalidateQueries({ queryKey: ["competition", id] });
@@ -149,10 +155,10 @@ function CompetitionDetail() {
     let newGpx = buildGpxWithWaypoints(c.gpx_data, points, wpts.map((w: any) => ({ km: w.km, label: w.label })), c.name);
     try {
       const { addWaterWaypointsToGpx } = await import("@/utils/gpxWaterFinder");
-      let sourceCount = waterSources.length;
-      if (waterSearchComplete) {
+      let sourceCount = displayedWaterSources.length;
+      if (hasCompletedWaterSearch) {
         const { injectWaterWaypoints } = await import("@/utils/gpxWaterFinder");
-        newGpx = injectWaterWaypoints(newGpx, waterSources);
+        newGpx = injectWaterWaypoints(newGpx, displayedWaterSources);
       } else {
         const res = await addWaterWaypointsToGpx(newGpx, points, 200);
         newGpx = res.xml;
@@ -217,13 +223,13 @@ function CompetitionDetail() {
             <input ref={gpxInputRef} type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml" className="sr-only" onChange={handleGpxUpload} />
           </div>
           {points.length > 0 ? (
-            <GpxMap points={points} waypoints={wpts.map((w: any) => ({ lat: w.lat, lon: w.lon, label: w.label }))} waterSources={waterSources} />
+            <GpxMap points={points} waypoints={wpts.map((w: any) => ({ lat: w.lat, lon: w.lon, label: w.label }))} waterSources={displayedWaterSources} />
           ) : (
             <div className="border-2 border-dashed rounded-xl p-12 text-center text-sm text-muted-foreground">
               Sube un archivo .gpx con el track de la competición
             </div>
           )}
-          {waterSearchComplete && waterSources.length === 0 && (
+          {hasCompletedWaterSearch && displayedWaterSources.length === 0 && (
             <p className="text-sm text-muted-foreground">No se han encontrado fuentes de agua cercanas a menos de 200m a lo largo de la ruta indicada</p>
           )}
           {np && (
