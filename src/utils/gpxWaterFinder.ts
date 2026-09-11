@@ -55,8 +55,8 @@ out body;`;
     .map((el: any) => ({ lat: el.lat, lon: el.lon, name: el.tags?.name as string | undefined }));
 }
 
-/** Mantiene solo las fuentes a menos de maxMeters del track. */
-export function filterNearTrack(sources: WaterSource[], track: LatLon[], maxMeters = 150): WaterSource[] {
+/** Mantiene solo las fuentes a menos de 200m del track. */
+export function filterNearTrack(sources: WaterSource[], track: LatLon[], maxMeters = 200): WaterSource[] {
   return sources.filter((s) => {
     for (const p of track) {
       if (haversineMeters(s, p) <= maxMeters) return true;
@@ -88,8 +88,8 @@ export function injectWaterWaypoints(gpxXml: string, sources: WaterSource[]): st
 }
 
 /** Flujo completo: busca, filtra e inyecta las fuentes de agua en el GPX. */
-export async function addWaterWaypointsToGpx(gpxXml: string, track: LatLon[], maxMeters = 150) {
+export async function addWaterWaypointsToGpx(gpxXml: string, track: LatLon[], maxMeters = 200) {
   const found = await fetchWaterSources(track);
   const near = filterNearTrack(found, track, maxMeters);
-  return { xml: injectWaterWaypoints(gpxXml, near), count: near.length };
+  return { xml: injectWaterWaypoints(gpxXml, near), count: near.length, sources: near };
 }
