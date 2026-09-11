@@ -2,17 +2,19 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { generateMenu, swapRecipe } from "@/lib/ai.functions";
 import { parseGpx, simplifyTrack, trackStats, buildGpxWithWaypoints, pointAtKm } from "@/lib/gpx";
 import { planRaceNutrition, dailyMacros } from "@/lib/carbs";
 import { GpxMap } from "@/components/GpxMap";
+import type { WaterSource } from "@/utils/gpxWaterFinder";
 import { RaceWeatherCard } from "@/components/RaceWeatherCard";
 import { Upload, Download, ChefHat, Sparkles, ArrowLeft, RefreshCcw, FileDown, X, Eye } from "lucide-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -45,6 +47,10 @@ function CompetitionDetail() {
   const [generating, setGenerating] = useState(false);
   const [swapping, setSwapping] = useState<string | null>(null);
   const [viewRecipe, setViewRecipe] = useState<any | null>(null);
+  const [waterSources, setWaterSources] = useState<WaterSource[]>([]);
+  const [waterSearchComplete, setWaterSearchComplete] = useState(false);
+  const [processingGpx, setProcessingGpx] = useState(false);
+  const gpxInputRef = useRef<HTMLInputElement>(null);
 
   if (comp.isLoading || !comp.data) return (
     <div className="space-y-6 animate-fade-in">
@@ -64,56 +70,78 @@ function CompetitionDetail() {
   const handleGpxUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const text = await file.text();
-    const { points: pts, name } = parseGpx(text);
-    if (pts.length < 2) { toast.error("GPX inválido"); return; }
-    const stats = trackStats(pts);
-    const simplified = simplifyTrack(pts, 800);
+    setProcessingGpx(true);
+    setWaterSearchComplete(false);
+    try {
+      const text = await file.text();
+      const { points: pts, name } = parseGpx(text);
+      if (pts.length < 2) { toast.error("GPX inválido"); return; }
+      const stats = trackStats(pts);
+      const simplified = simplifyTrack(pts, 800);
 
     // Fitness score: horas de Intervals.icu últimas 4 semanas → 0-100
-    let fitness_score: number | undefined;
-    if (user) {
-      const since = new Date(Date.now() - 28 * 86400_000).toISOString();
-      const { data: acts } = await supabase
-        .from("intervals_activities")
-        .select("moving_time")
-        .eq("user_id", user.id)
-        .gte("start_date", since);
-      if (acts && acts.length) {
-        const hours = acts.reduce((s: number, a: any) => s + (a.moving_time ?? 0), 0) / 3600;
-        fitness_score = Math.min(100, Math.round(hours * 4)); // 25h/mes → 100
+      let fitness_score: number | undefined;
+      if (user) {
+        const since = new Date(Date.now() - 28 * 86400_000).toISOString();
+        const { data: acts } = await supabase
+          .from("intervals_activities")
+          .select("moving_time")
+          .eq("user_id", user.id)
+          .gte("start_date", since);
+        if (acts && acts.length) {
+          const hours = acts.reduce((s: number, a: any) => s + (a.moving_time ?? 0), 0) / 3600;
+          fitness_score = Math.min(100, Math.round(hours * 4)); // 25h/mes → 100
+        }
       }
-    }
 
     // Plan de nutrición adaptativo (perfil + Intervals.icu + perfil altimétrico)
-    const plan = planRaceNutrition(
-      {
-        weight_kg: profile.data?.weight_kg ?? 70,
-        ftp: profile.data?.ftp ?? undefined,
-        age: profile.data?.age ?? undefined,
-        fitness_score,
-      },
-      { distance_km: stats.distance_km, elevation_m: stats.elevation_m, intensity: c.intensity as any, duration_hours: c.duration_hours ?? undefined },
-      { km_interval: 15, minute_interval: 30, track: simplified }
-    );
+      const plan = planRaceNutrition(
+        {
+          weight_kg: profile.data?.weight_kg ?? 70,
+          ftp: profile.data?.ftp ?? undefined,
+          age: profile.data?.age ?? undefined,
+          fitness_score,
+        },
+        { distance_km: stats.distance_km, elevation_m: stats.elevation_m, intensity: c.intensity as any, duration_hours: c.duration_hours ?? undefined },
+        { km_interval: 15, minute_interval: 30, track: simplified }
+      );
 
-    const waypointsWithCoords = plan.waypoints.map((w) => {
-      const p = pointAtKm(simplified, w.km);
-      return { ...w, lat: p?.lat ?? 0, lon: p?.lon ?? 0 };
-    });
+      const waypointsWithCoords = plan.waypoints.map((w) => {
+        const p = pointAtKm(simplified, w.km);
+        return { ...w, lat: p?.lat ?? 0, lon: p?.lon ?? 0 };
+      });
 
-    await supabase.from("competitions").update({
-      gpx_data: text,
-      gpx_filename: file.name,
-      track_points: simplified as any,
-      waypoints: waypointsWithCoords as any,
-      nutrition_plan: { total: plan.totalCarbs, perHour: plan.perHour, durationH: plan.durationH } as any,
-      distance_km: stats.distance_km,
-      elevation_m: stats.elevation_m,
-      name: c.name || name || file.name,
-    }).eq("id", id);
-    toast.success("GPX procesado");
-    qc.invalidateQueries({ queryKey: ["competition", id] });
+      const { error } = await supabase.from("competitions").update({
+        gpx_data: text,
+        gpx_filename: file.name,
+        track_points: simplified as any,
+        waypoints: waypointsWithCoords as any,
+        nutrition_plan: { total: plan.totalCarbs, perHour: plan.perHour, durationH: plan.durationH } as any,
+        distance_km: stats.distance_km,
+        elevation_m: stats.elevation_m,
+        name: c.name || name || file.name,
+      }).eq("id", id);
+      if (error) throw error;
+
+      try {
+        const { fetchWaterSources, filterNearTrack } = await import("@/utils/gpxWaterFinder");
+        const found = await fetchWaterSources(simplified);
+        setWaterSources(filterNearTrack(found, simplified, 200));
+      } catch {
+        setWaterSources([]);
+        toast.warning("No se pudieron buscar fuentes de agua");
+      } finally {
+        setWaterSearchComplete(true);
+      }
+
+      toast.success("GPX procesado");
+      await qc.invalidateQueries({ queryKey: ["competition", id] });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo procesar el GPX");
+    } finally {
+      setProcessingGpx(false);
+      e.target.value = "";
+    }
   };
 
   const downloadGpx = async () => {
@@ -121,9 +149,17 @@ function CompetitionDetail() {
     let newGpx = buildGpxWithWaypoints(c.gpx_data, points, wpts.map((w: any) => ({ km: w.km, label: w.label })), c.name);
     try {
       const { addWaterWaypointsToGpx } = await import("@/utils/gpxWaterFinder");
-      const res = await addWaterWaypointsToGpx(newGpx, points);
-      newGpx = res.xml;
-      toast.success(res.count ? `${res.count} fuentes de agua añadidas` : "Sin fuentes de agua cercanas");
+      if (waterSearchComplete) {
+        const { injectWaterWaypoints } = await import("@/utils/gpxWaterFinder");
+        newGpx = injectWaterWaypoints(newGpx, waterSources);
+      } else {
+        const res = await addWaterWaypointsToGpx(newGpx, points, 200);
+        newGpx = res.xml;
+        setWaterSources(res.sources);
+        setWaterSearchComplete(true);
+      }
+      const count = waterSearchComplete ? waterSources.length : (await import("@/utils/gpxWaterFinder")).filterNearTrack([], points, 200).length;
+      toast.success(count ? `${count} fuentes de agua añadidas` : "Sin fuentes de agua cercanas");
     } catch {
       toast.warning("No se pudieron buscar fuentes de agua");
     }
@@ -174,17 +210,20 @@ function CompetitionDetail() {
         <div className="bg-surface border rounded-xl p-5 space-y-4">
           <div className="flex justify-between items-center">
             <h2 className="font-display text-xl font-bold uppercase">Track GPX &amp; Nutrición</h2>
-            <label className="cursor-pointer inline-flex items-center gap-2 bg-accent text-accent-foreground px-3 py-1.5 rounded-lg text-xs font-semibold">
-              <Upload className="size-3.5" /> Subir GPX
-              <input type="file" accept=".gpx" className="hidden" onChange={handleGpxUpload} />
-            </label>
+            <Button type="button" variant="secondary" size="sm" disabled={processingGpx} onClick={() => gpxInputRef.current?.click()}>
+              <Upload className="size-3.5" /> {processingGpx ? "Procesando…" : "Subir GPX"}
+            </Button>
+            <input ref={gpxInputRef} type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml" className="sr-only" onChange={handleGpxUpload} />
           </div>
           {points.length > 0 ? (
-            <GpxMap points={points} waypoints={wpts.map((w: any) => ({ lat: w.lat, lon: w.lon, label: w.label }))} />
+            <GpxMap points={points} waypoints={wpts.map((w: any) => ({ lat: w.lat, lon: w.lon, label: w.label }))} waterSources={waterSources} />
           ) : (
             <div className="border-2 border-dashed rounded-xl p-12 text-center text-sm text-muted-foreground">
               Sube un archivo .gpx con el track de la competición
             </div>
+          )}
+          {waterSearchComplete && waterSources.length === 0 && (
+            <p className="text-sm text-muted-foreground">No se han encontrado fuentes de agua cercanas a menos de 200m a lo largo de la ruta indicada</p>
           )}
           {np && (
             <div className="border-t pt-4">
