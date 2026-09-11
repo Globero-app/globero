@@ -17,11 +17,14 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    optimizeDeps: {
+      include: ["@tanstack/react-router"],
+    },
     plugins: [
       VitePWA({
         registerType: "autoUpdate",
         injectRegister: null,
-        devOptions: { enabled: true, type: "module", navigateFallback: "/offline" },
+        devOptions: { enabled: false },
         filename: "sw.js",
         manifest: {
           name: "Globero",
@@ -61,7 +64,7 @@ export default defineConfig({
             {
               // Same-origin hashed assets.
               urlPattern: ({ url, sameOrigin }) =>
-                sameOrigin && /\.(?:js|css|woff2?)$/.test(url.pathname),
+                sameOrigin && url.pathname.startsWith("/assets/") && /\.(?:js|css|woff2?)$/.test(url.pathname),
               handler: "CacheFirst",
               options: {
                 cacheName: "static-assets",

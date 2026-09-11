@@ -102,6 +102,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   const themeInit = `(function(){try{var t=localStorage.getItem('sb-theme')||'system';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;if(d)r.classList.add('dark');r.style.colorScheme=d?'dark':'light';}catch(e){}})();`;
+  const previewCacheCleanup = `(function(){try{if(!location.hostname.endsWith('.lovableproject.com')||!('serviceWorker' in navigator)||sessionStorage.getItem('globero-preview-sw-cleaned'))return;sessionStorage.setItem('globero-preview-sw-cleaned','1');Promise.all([navigator.serviceWorker.getRegistrations().then(function(rs){return Promise.all(rs.map(function(r){return r.unregister();}));}),'caches' in window?caches.keys().then(function(keys){return Promise.all(keys.map(function(k){return caches.delete(k);}));}):Promise.resolve()]).then(function(){location.reload();});}catch(e){}})();`;
   // La sesión se guarda en el navegador por dominio: globero.app y
   // www.globero.app tienen almacenamientos distintos. Forzamos un único
   // dominio canónico para que la sesión sobreviva a las publicaciones.
@@ -111,6 +112,7 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
         <script dangerouslySetInnerHTML={{ __html: canonicalHost }} />
+        <script dangerouslySetInnerHTML={{ __html: previewCacheCleanup }} />
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
       <body>
