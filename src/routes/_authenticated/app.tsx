@@ -251,7 +251,7 @@ function Dashboard() {
       {/* Competitions list */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-2xl font-bold uppercase tracking-tight">Tus competiciones</h2>
+          <h2 className="font-display text-2xl font-bold uppercase tracking-tight">Salidas programadas</h2>
           <Link to="/competiciones" className="text-xs font-medium text-primary hover:underline flex items-center gap-1">
             <Plus className="size-4" /> Nueva
           </Link>
@@ -271,9 +271,9 @@ function Dashboard() {
           </div>
         ) : (comps.data?.length ?? 0) === 0 ? (
           <div className="border-2 border-dashed rounded-xl p-12 text-center">
-            <p className="text-sm text-muted-foreground mb-3">No tienes competiciones aún.</p>
+            <p className="text-sm text-muted-foreground mb-3">No existen salidas creadas.</p>
             <Link to="/competiciones" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold">
-              <Plus className="size-4" /> Crear primera competición
+              <Plus className="size-4" /> Crear primera ruta
             </Link>
           </div>
         ) : (
