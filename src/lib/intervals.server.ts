@@ -240,7 +240,21 @@ export async function intervalsUpdateActivity(
   activityId: string,
   fields: { rpe?: number; feel?: number },
 ) {
-  await call(creds, `/activities/${activityId}`, { method: "PUT", body: JSON.stringify(fields) });
+  const body: Record<string, number> = {};
+  if (typeof fields.rpe === "number") {
+    body.icu_rpe = fields.rpe;
+    body.perceived_exertion = fields.rpe;
+  }
+  if (typeof fields.feel === "number") body.feel = fields.feel;
+  const res = await fetch(`${BASE}/activity/${activityId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Authorization: intervalsAuthHeader(creds) },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Intervals.icu ${res.status}: ${text.slice(0, 200)}`);
+  }
 }
 
 /** Lee credenciales del perfil; null si no está conectado */

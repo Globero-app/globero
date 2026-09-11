@@ -135,17 +135,8 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
   for (const a of activities) {
     const actId = String(a.id);
     if (linked.has(actId)) {
-      // Ya asignada (p. ej. por la sincronización con Intervals): pide RPE e informe si faltan.
+      // Ya asignada: solo se pide RPE/sensaciones. El informe se genera al valorarla.
       await askFeedback(a);
-      const wk0 = workoutByActivity.get(actId);
-      if (wk0 && !((wk0.plan as any)?.report)) {
-        try {
-          const { generateAndNotifyWorkoutReport } = await import("./workout-report.server");
-          await generateAndNotifyWorkoutReport(admin, userId, wk0.id);
-        } catch (e) {
-          console.error("[activity-detect] report", e);
-        }
-      }
       continue;
     }
     const day = String(a.start_date).slice(0, 10);
@@ -195,8 +186,6 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
               { onConflict: "user_id,activity_id" },
             );
           await askFeedback(a);
-          const { generateAndNotifyWorkoutReport } = await import("./workout-report.server");
-          await generateAndNotifyWorkoutReport(admin, userId, wk.id);
         } catch (e) {
           console.error("[activity-detect] auto-link", e);
         }
