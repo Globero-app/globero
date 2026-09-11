@@ -17,6 +17,9 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    optimizeDeps: {
+      include: ["@tanstack/react-router"],
+    },
     plugins: [
       VitePWA({
         registerType: "autoUpdate",
