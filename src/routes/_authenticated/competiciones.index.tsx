@@ -39,7 +39,7 @@ function CompetitionsPage() {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">Calendario</p>
-          <h1 className="font-display text-4xl font-bold uppercase tracking-tight">Competiciones</h1>
+          <h1 className="font-display text-4xl font-bold uppercase tracking-tight">Rutas</h1>
         </div>
         <button onClick={() => { setEditing(null); setOpen(true); }} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold">
           <Plus className="size-4" /> Nueva
