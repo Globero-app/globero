@@ -39,7 +39,7 @@ function CompetitionsPage() {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">Calendario</p>
-          <h1 className="font-display text-4xl font-bold uppercase tracking-tight">Competiciones</h1>
+          <h1 className="font-display text-4xl font-bold uppercase tracking-tight">Rutas</h1>
         </div>
         <button onClick={() => { setEditing(null); setOpen(true); }} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold">
           <Plus className="size-4" /> Nueva
@@ -71,7 +71,7 @@ function CompetitionsPage() {
         ))}
         {comps.data?.length === 0 && (
           <div className="md:col-span-2 xl:col-span-3 border-2 border-dashed rounded-xl p-12 text-center">
-            <p className="text-sm text-muted-foreground">Sin competiciones todavía.</p>
+            <p className="text-sm text-muted-foreground">Sin rutas todavía.</p>
           </div>
         )}
       </div>
@@ -115,7 +115,7 @@ function CompetitionForm({ initial, onClose, onSaved }: any) {
     <div className="fixed inset-0 z-50 bg-black/50 grid place-items-center p-4">
       <form onSubmit={submit} className="bg-background rounded-xl border w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between">
-          <h2 className="font-display text-2xl font-bold uppercase">{initial ? "Editar" : "Nueva"} competición</h2>
+          <h2 className="font-display text-2xl font-bold uppercase">{initial ? "Editar" : "Nueva"} ruta</h2>
           <button type="button" onClick={onClose} className="p-1"><X className="size-5" /></button>
         </div>
         <Field label="Nombre"><input required className="input" value={f.name} onChange={(e) => setF({...f, name: e.target.value})} /></Field>
@@ -126,9 +126,6 @@ function CompetitionForm({ initial, onClose, onSaved }: any) {
               <option value="carretera">Carretera</option>
               <option value="gravel">Gravel</option>
               <option value="mtb">MTB</option>
-              <option value="ciclocross">Ciclocross</option>
-              <option value="contrarreloj">Contrarreloj</option>
-              <option value="salida larga">Salida larga</option>
             </select>
           </Field>
         </div>
@@ -136,16 +133,17 @@ function CompetitionForm({ initial, onClose, onSaved }: any) {
           <Field label="Distancia (km)"><input required type="number" step="0.1" className="input" value={f.distance_km} onChange={(e) => setF({...f, distance_km: e.target.value})} /></Field>
           <Field label="Desnivel acumulado (m)"><input required type="number" className="input" value={f.elevation_m} onChange={(e) => setF({...f, elevation_m: e.target.value})} /></Field>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 items-end">
           <Field label="Duración estimada (h)"><input type="number" step="0.1" className="input" value={f.duration_hours ?? ""} onChange={(e) => setF({...f, duration_hours: e.target.value})} /></Field>
-          <Field label="Intensidad">
-            <select className="input" value={f.intensity} onChange={(e) => setF({...f, intensity: e.target.value})}>
-              <option value="baja">Baja</option>
-              <option value="media">Media</option>
-              <option value="alta">Alta</option>
-              <option value="competicion">Competición</option>
-            </select>
-          </Field>
+          <label className="flex items-center gap-2 pb-2 cursor-pointer">
+            <input
+              type="checkbox"
+              className="size-4 accent-[var(--primary)]"
+              checked={f.intensity === "competicion"}
+              onChange={(e) => setF({...f, intensity: e.target.checked ? "competicion" : "media"})}
+            />
+            <span className="text-sm font-medium">Es una competición</span>
+          </label>
         </div>
         <Field label="Notas"><textarea className="input min-h-[60px]" value={f.notes ?? ""} onChange={(e) => setF({...f, notes: e.target.value})} /></Field>
         <div className="flex gap-2 justify-end">

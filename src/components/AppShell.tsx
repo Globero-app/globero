@@ -36,7 +36,7 @@ const NAV = [
   { to: "/entrenamientos", label: "Entrenamientos", icon: Dumbbell },
   { to: "/menus", label: "Nutrición", icon: UtensilsCrossed },
   { to: "/actividades", label: "Actividades", icon: Activity },
-  { to: "/competiciones", label: "Competiciones", icon: Trophy },
+  { to: "/competiciones", label: "Rutas", icon: Trophy },
   { to: "/progreso", label: "Progreso", icon: TrendingUp },
   { to: "/semanas", label: "Resumen semanal", icon: BarChart3 },
   { to: "/calendario", label: "Calendario", icon: CalendarRange },
