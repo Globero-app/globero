@@ -65,6 +65,35 @@ export function filterNearTrack(sources: WaterSource[], track: LatLon[], maxMete
   });
 }
 
+/** Espaciado de fuentes según el tipo de ruta: carretera cada 30km (±5), gravel/MTB cada 15km (±3). Máx. 3 por tramo. */
+export function filterByRouteSpacing(sources: WaterSource[], track: LatLon[], bikeType?: string): WaterSource[] {
+  if (!sources.length || track.length < 2) return sources;
+  const road = bikeType === "carretera";
+  const intervalKm = road ? 30 : 15;
+  const toleranceKm = road ? 5 : 3;
+  const cum: number[] = [0];
+  for (let i = 1; i < track.length; i++) cum[i] = cum[i - 1] + haversineMeters(track[i - 1], track[i]) / 1000;
+  const totalKm = cum[cum.length - 1];
+  const enriched = sources.map((s) => {
+    let best = Infinity;
+    let km = 0;
+    for (let i = 0; i < track.length; i++) {
+      const d = haversineMeters(s, track[i]);
+      if (d < best) { best = d; km = cum[i]; }
+    }
+    return { s, km, dist: best };
+  });
+  const keep: WaterSource[] = [];
+  for (let target = intervalKm; target - toleranceKm <= totalKm; target += intervalKm) {
+    const bucket = enriched
+      .filter((e) => Math.abs(e.km - target) <= toleranceKm)
+      .sort((a, b) => a.dist - b.dist)
+      .slice(0, 3);
+    bucket.forEach((e) => { if (!keep.includes(e.s)) keep.push(e.s); });
+  }
+  return keep;
+}
+
 function escapeXml(s: string): string {
   return s.replace(/[<>&"']/g, (c) =>
     c === "<" ? "&lt;" : c === ">" ? "&gt;" : c === "&" ? "&amp;" : c === '"' ? "&quot;" : "&apos;"
