@@ -55,7 +55,7 @@ out body;`;
     .map((el: any) => ({ lat: el.lat, lon: el.lon, name: el.tags?.name as string | undefined }));
 }
 
-/** Mantiene solo las fuentes a menos de maxMeters del track. */
+/** Mantiene solo las fuentes a menos de 200m del track. */
 export function filterNearTrack(sources: WaterSource[], track: LatLon[], maxMeters = 200): WaterSource[] {
   return sources.filter((s) => {
     for (const p of track) {
