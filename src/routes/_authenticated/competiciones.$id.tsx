@@ -163,11 +163,10 @@ function CompetitionDetail() {
         const res = await addWaterWaypointsToGpx(newGpx, points, 200);
         const { filterByRouteSpacing, injectWaterWaypoints: injectSpaced } = await import("@/utils/gpxWaterFinder");
         const spaced = filterByRouteSpacing(res.sources, points, c.type);
-        newGpx = newGpx.replace(/<gpx([^>]*)>/, (m) => m); // sin cambios aquí
         newGpx = injectSpaced(buildGpxWithWaypoints(c.gpx_data, points, wpts.map((w: any) => ({ km: w.km, label: w.label })), c.name), spaced);
         setWaterSources(spaced);
         setWaterSearchComplete(true);
-        sourceCount = res.count;
+        sourceCount = spaced.length;
       }
       toast.success(sourceCount ? `${sourceCount} fuentes de agua añadidas` : "Sin fuentes de agua cercanas");
     } catch {
