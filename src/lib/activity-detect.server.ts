@@ -186,8 +186,6 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
               { onConflict: "user_id,activity_id" },
             );
           await askFeedback(a);
-          const { generateAndNotifyWorkoutReport } = await import("./workout-report.server");
-          await generateAndNotifyWorkoutReport(admin, userId, wk.id);
         } catch (e) {
           console.error("[activity-detect] auto-link", e);
         }
