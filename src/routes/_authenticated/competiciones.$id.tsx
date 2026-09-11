@@ -149,6 +149,7 @@ function CompetitionDetail() {
     let newGpx = buildGpxWithWaypoints(c.gpx_data, points, wpts.map((w: any) => ({ km: w.km, label: w.label })), c.name);
     try {
       const { addWaterWaypointsToGpx } = await import("@/utils/gpxWaterFinder");
+      let sourceCount = waterSources.length;
       if (waterSearchComplete) {
         const { injectWaterWaypoints } = await import("@/utils/gpxWaterFinder");
         newGpx = injectWaterWaypoints(newGpx, waterSources);
@@ -157,9 +158,9 @@ function CompetitionDetail() {
         newGpx = res.xml;
         setWaterSources(res.sources);
         setWaterSearchComplete(true);
+        sourceCount = res.count;
       }
-      const count = waterSearchComplete ? waterSources.length : (await import("@/utils/gpxWaterFinder")).filterNearTrack([], points, 200).length;
-      toast.success(count ? `${count} fuentes de agua añadidas` : "Sin fuentes de agua cercanas");
+      toast.success(sourceCount ? `${sourceCount} fuentes de agua añadidas` : "Sin fuentes de agua cercanas");
     } catch {
       toast.warning("No se pudieron buscar fuentes de agua");
     }
