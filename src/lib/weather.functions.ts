@@ -38,8 +38,8 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
     const race = new Date(comp.date);
     race.setHours(0, 0, 0, 0);
     const diffDays = Math.round((race.getTime() - today.getTime()) / 86400000);
-    if (diffDays < 0) throw new Error("La competición ya ha pasado");
-    if (diffDays > 16) throw new Error("La previsión solo está disponible dentro de 16 días");
+    if (diffDays < 0) throw new Error("La ruta ya ha pasado");
+    if (diffDays > 3) throw new Error("La previsión solo está disponible desde 3 días antes de la ruta");
 
     const params = new URLSearchParams({
       latitude: lat.toFixed(4),
