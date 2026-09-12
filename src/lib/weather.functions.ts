@@ -49,7 +49,13 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
       start_date: comp.date,
       end_date: comp.date,
     });
-    const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`);
+    const url = `https://api.open-meteo.com/v1/forecast?${params.toString()}`;
+    let res = await fetch(url);
+    for (let i = 0; i < 3 && res.status === 429; i++) {
+      await new Promise((r) => setTimeout(r, 2000 * (i + 1)));
+      res = await fetch(url);
+    }
+    if (res.status === 429) throw new Error("El servicio meteorológico está saturado. Inténtalo de nuevo en un minuto.");
     if (!res.ok) throw new Error(`Open-Meteo ${res.status}`);
     const json = (await res.json()) as { daily: OMDaily };
     const d = json.daily;
