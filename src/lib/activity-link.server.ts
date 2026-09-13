@@ -51,6 +51,19 @@ export async function linkWorkoutActivity(
     }
   }
 
+  // Al asignar: borrar el evento planificado en Intervals.icu para no duplicar
+  if (accept && plan.intervals_event_id) {
+    try {
+      const { removeWorkoutEvent } = await import("./intervals.server");
+      await removeWorkoutEvent(supabase, userId, { plan: { intervals_event_id: plan.intervals_event_id } });
+    } catch (e) {
+      console.error("[activity-link] delete planned event", e);
+    }
+    plan.intervals_event_id = null;
+    plan.intervals_unlinked_at = new Date().toISOString();
+    update.plan = plan;
+  }
+
   const { error } = await supabase.from("workouts").update(update).eq("id", workoutId).eq("user_id", userId);
   if (error) throw new Error(error.message);
 
@@ -58,7 +71,11 @@ export async function linkWorkoutActivity(
     const title = String(plan.title ?? plan.name ?? "").trim();
     if (title) {
       const { renameIntervalsActivity } = await import("./intervals-activities.server");
-      void renameIntervalsActivity(supabase, userId, activityId, title);
+      try {
+        await renameIntervalsActivity(supabase, userId, activityId, title);
+      } catch (e) {
+        console.error("[activity-link] rename", e);
+      }
     }
   }
   return { ok: true, completed: accept };
