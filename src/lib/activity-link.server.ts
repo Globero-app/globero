@@ -51,6 +51,19 @@ export async function linkWorkoutActivity(
     }
   }
 
+  // Al asignar: borrar el evento planificado en Intervals.icu para no duplicar
+  if (accept && plan.intervals_event_id) {
+    try {
+      const { removeWorkoutEvent } = await import("./intervals.server");
+      await removeWorkoutEvent(supabase, userId, { plan: { intervals_event_id: plan.intervals_event_id } });
+    } catch (e) {
+      console.error("[activity-link] delete planned event", e);
+    }
+    plan.intervals_event_id = null;
+    plan.intervals_unlinked_at = new Date().toISOString();
+    update.plan = plan;
+  }
+
   const { error } = await supabase.from("workouts").update(update).eq("id", workoutId).eq("user_id", userId);
   if (error) throw new Error(error.message);
 
@@ -58,7 +71,36 @@ export async function linkWorkoutActivity(
     const title = String(plan.title ?? plan.name ?? "").trim();
     if (title) {
       const { renameIntervalsActivity } = await import("./intervals-activities.server");
-      void renameIntervalsActivity(supabase, userId, activityId, title);
+      try {
+        await renameIntervalsActivity(supabase, userId, activityId, title);
+      } catch (e) {
+        console.error("[activity-link] rename", e);
+      }
+    }
+  }
+
+  // Si la valoración (RPE/sensaciones) ya se hizo antes de asignar, generar el informe ahora
+  if (accept) {
+    try {
+      const { data: fb } = await supabase
+        .from("daily_activities")
+        .select("rpe, feel, feedback_completed")
+        .eq("user_id", userId)
+        .eq("activity_id", String(activityId))
+        .maybeSingle();
+      if (fb?.feedback_completed) {
+        if (fb.rpe) {
+          await supabase
+            .from("workouts")
+            .update({ rpe: Math.max(1, Math.min(5, Math.round(Number(fb.rpe) / 2))) })
+            .eq("id", workoutId)
+            .eq("user_id", userId);
+        }
+        const { generateAndNotifyWorkoutReport } = await import("./workout-report.server");
+        await generateAndNotifyWorkoutReport(supabase, userId, workoutId);
+      }
+    } catch (e) {
+      console.error("[activity-link] report", e);
     }
   }
   return { ok: true, completed: accept };
