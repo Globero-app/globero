@@ -86,7 +86,10 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
       .gte("date", sinceDay),
   ]);
 
-  const activities: any[] = aRes.data ?? [];
+  // Descarta registros STRAVA sin datos reales (no disponibles vía API de Intervals)
+  const activities: any[] = (aRes.data ?? []).filter(
+    (a: any) => a.type && Number(a.moving_time ?? 0) > 0,
+  );
   if (!activities.length) return out;
 
   const linked = new Set<string>();
