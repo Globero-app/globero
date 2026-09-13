@@ -78,6 +78,31 @@ export async function linkWorkoutActivity(
       }
     }
   }
+
+  // Si la valoración (RPE/sensaciones) ya se hizo antes de asignar, generar el informe ahora
+  if (accept) {
+    try {
+      const { data: fb } = await supabase
+        .from("daily_activities")
+        .select("rpe, feel, feedback_completed")
+        .eq("user_id", userId)
+        .eq("activity_id", String(activityId))
+        .maybeSingle();
+      if (fb?.feedback_completed) {
+        if (fb.rpe) {
+          await supabase
+            .from("workouts")
+            .update({ rpe: Math.max(1, Math.min(5, Math.round(Number(fb.rpe) / 2))) })
+            .eq("id", workoutId)
+            .eq("user_id", userId);
+        }
+        const { generateAndNotifyWorkoutReport } = await import("./workout-report.server");
+        await generateAndNotifyWorkoutReport(supabase, userId, workoutId);
+      }
+    } catch (e) {
+      console.error("[activity-link] report", e);
+    }
+  }
   return { ok: true, completed: accept };
 }
 
