@@ -76,6 +76,8 @@ export type GenCoreInput = {
   long_ride_day?: number | null;
   /** Fecha base: se planifica a partir del día siguiente. */
   from?: Date;
+  /** Fecha límite (inclusive) YYYY-MM-DD: no se planifica más allá. */
+  until?: string | null;
   /** Tope de sesiones (por defecto, tantas como días de entreno). */
   max_count?: number;
   /** Objetivo del plan nutricional para adaptar los entrenamientos. */
