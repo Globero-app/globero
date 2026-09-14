@@ -3,7 +3,7 @@
 
 import { estimatePlanTss, madridTodayISO } from "./training-load.server";
 
-export type AdjustMode = { minutes?: number | null; easier?: boolean };
+export type AdjustMode = { minutes?: number | null; easier?: boolean; harder?: boolean };
 
 const KEEP_FULL = new Set(["warmup", "cooldown"]);
 
@@ -53,6 +53,23 @@ export function adjustPlan(plan: any, mode: AdjustMode, refs: { ftp: number | nu
       }
     }
     notes.push("Intensidad reducida (bloques duros a ritmo tempo/Z2)");
+  }
+
+  // 3) Más caña: sube un escalón los bloques de trabajo
+  if (mode.harder) {
+    for (const s of steps) {
+      if (s.intensity === "active") s.intensity = "interval";
+      const low = Number(s.target_low) || 0;
+      const high = Number(s.target_high) || 0;
+      if (s.target === "power" && low > 0) {
+        s.target_low = Math.round(low * 1.08);
+        s.target_high = Math.round(high * 1.08);
+      } else if (s.target === "hr" && low > 0) {
+        s.target_low = Math.round(low * 1.04);
+        s.target_high = Math.round(high * 1.04);
+      }
+    }
+    notes.push("Intensidad aumentada (bloques de trabajo más exigentes)");
   }
 
   const minutes = Math.round(steps.reduce((a, s) => a + (Number(s.duration_seconds) || 0), 0) / 60);

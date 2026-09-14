@@ -320,12 +320,57 @@ BLOQUE DE ENTRENAMIENTO: foco "${blockFocus}", semana ${weekIndex} de 4${weekInd
 - base: volumen aeróbico y fuerza específica · construccion: umbral y tempo · pico: VO₂ e intensidad específica de competición · tapering: volumen bajo, intensidad breve.`;
 
 
+  // ---- Biblioteca de sesiones con progresión personal ----
+  const { SESSION_LIBRARY, progressionLevel, libraryPromptBlock } = await import("./session-library");
+  const { data: goalRows } = await supabase
+    .from("workouts")
+    .select("session_goal")
+    .eq("user_id", userId)
+    .eq("status", "completed")
+    .not("session_goal", "is", null)
+    .limit(300);
+  const goalCounts: Record<string, number> = {};
+  for (const r of (goalRows ?? []) as any[]) {
+    const g = String(r.session_goal);
+    goalCounts[g] = (goalCounts[g] ?? 0) + 1;
+  }
+  const levels: Record<string, number> = {};
+  for (const g of Object.keys(SESSION_LIBRARY)) levels[g] = progressionLevel(goalCounts[g] ?? 0);
+  const libraryBlock = libraryPromptBlock(levels as any);
+
+  // ---- Test de forma periódico ----
+  const { data: lastTest } = await supabase
+    .from("ftp_tests")
+    .select("test_date")
+    .eq("user_id", userId)
+    .order("test_date", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const lastTestISO: string | null = lastTest?.test_date ?? (profile.ftp_test_completed_at ? String(profile.ftp_test_completed_at).slice(0, 10) : null);
+  const weeksSinceTest = lastTestISO
+    ? Math.floor((new Date(`${planWeekStart}T12:00:00Z`).getTime() - new Date(`${lastTestISO}T12:00:00Z`).getTime()) / (7 * 86400000))
+    : 99;
+  const needsTest = weeksSinceTest >= 8 && week.mode !== "recovery" && blockFocus !== "tapering" && effectiveCount >= 2;
+  const testBlock = needsTest
+    ? `
+TEST DE FORMA (obligatorio esta semana): han pasado ${weeksSinceTest === 99 ? "más de 8" : weeksSinceTest} semanas desde el último test.
+- Convierte la SEGUNDA sesión de la semana en un test de umbral: calentamiento progresivo de 20 min, 5 min de activación, 20 min ALL-OUT sostenidos (session_goal="umbral") y vuelta a la calma.
+- Indica claramente en el título "Test 20 min" y en el summary que el resultado servirá para actualizar el FTP.`
+    : "";
+
+  const longRideStructure: Record<string, string> = {
+    base: "rodaje continuo en Z2 con 2-3 bloques de 10 min de cadencia baja (55-60 rpm) en la parte central",
+    construccion: "Z2 con 3 bloques de 15 min en tempo (Z3) repartidos en la segunda mitad",
+    pico: "Z2 con 3-4 subidas o bloques de 8-10 min en Z4 en el último tercio, simulando el perfil de la competición",
+    tapering: "Z2 continuo y corto, con 3-4 aceleraciones de 1 min para mantener sensaciones",
+  };
+
   const scheduleBlock = `
 
 CALENDARIO OBLIGATORIO (días elegidos por el ciclista: ${chosenDays.map((d) => DAY_NAMES[d]).join(", ")}):
 ${schedule.map((s, i) => `- Sesión ${i + 1}: ${s.date} (${DAY_NAMES[s.dow]})${longDay !== null && s.dow === longDay ? " → TIRADA LARGA" : ""}`).join("\n")}
 - Devuelve EXACTAMENTE ${effectiveCount} entrenamientos, EN ESTE MISMO ORDEN, y pon en cada uno "scheduled_date" con la fecha indicada.
-${longDay !== null ? `- Las sesiones marcadas como TIRADA LARGA (${DAY_NAMES[longDay]}) deben ser rodajes largos de resistencia: duración claramente superior al resto (1.5-2.5x la duración objetivo), predominio Z2 y sin series intensas. Indícalo en el título y en el summary.` : ""}
+${longDay !== null ? `- Las sesiones marcadas como TIRADA LARGA (${DAY_NAMES[longDay]}) duran 1.5-2.5x la duración objetivo y tienen estructura propia según el bloque "${blockFocus}": ${longRideStructure[blockFocus] ?? longRideStructure.base}. Indícalo en el título y en el summary.` : ""}
 - Reparte carga y recuperación entre sesiones consecutivas teniendo en cuenta los días reales del calendario.`;
 
   const prompt = `Eres un entrenador profesional de ciclismo. Diseña ${effectiveCount} entrenamiento(s) MIXTOS personalizados para este ciclista.
@@ -350,6 +395,8 @@ ${input.nutrition_goal && NUTRITION_TRAINING_RULES[input.nutrition_goal] ? `\nPL
 ${competitionBlock}
 ${blockBlock}
 ${loadBlock}
+${libraryBlock}
+${testBlock}
 ${scheduleBlock}
 ${weatherBlock}
 

@@ -16,7 +16,7 @@ export async function buildWorkoutReport(
 ): Promise<{ text: string; title: string } | null> {
   const { data: w } = await supabase
     .from("workouts")
-    .select("id,plan,planned_tss,actual_tss,actual_if,compliance,duration_minutes,bike_type,rpe")
+    .select("id,plan,planned_tss,actual_tss,actual_if,compliance,duration_minutes,bike_type,rpe,session_goal,completed_at")
     .eq("id", workoutId)
     .eq("user_id", userId)
     .maybeSingle();
@@ -110,12 +110,57 @@ export async function buildWorkoutReport(
   if (block) facts.push(`Fase actual: ${block.focus} (semana ${block.week_index})`);
   if (readiness?.score) facts.push(`Readiness del día: ${readiness.score}/5`);
 
+  // ---- Comparativa con la última sesión del mismo objetivo y eficiencia ----
+  const ef = Number(act.average_watts) && Number(act.average_heartrate)
+    ? Number(act.average_watts) / Number(act.average_heartrate)
+    : null;
+  if (ef) facts.push(`Eficiencia (W/ppm) de esta sesión: ${ef.toFixed(2)}`);
+
+  if ((w as any).session_goal) {
+    const { data: prevList } = await supabase
+      .from("workouts")
+      .select("id,plan,actual_tss,duration_minutes,rpe,completed_at")
+      .eq("user_id", userId)
+      .eq("status", "completed")
+      .eq("session_goal", (w as any).session_goal)
+      .neq("id", workoutId)
+      .order("completed_at", { ascending: false })
+      .limit(5);
+    const prevIds = ((prevList ?? []) as any[])
+      .map((p) => p.plan?.intervals_activity_id ?? p.plan?.strava_activity_id)
+      .filter(Boolean)
+      .map(String);
+    if (prevIds.length) {
+      const { data: prevActs } = await supabase
+        .from("intervals_activities")
+        .select("id,start_date,average_watts,average_heartrate,icu_training_load,moving_time")
+        .eq("user_id", userId)
+        .in("id", prevIds)
+        .order("start_date", { ascending: false })
+        .limit(1);
+      const pa: any = prevActs?.[0] ?? null;
+      if (pa) {
+        const prevEf = Number(pa.average_watts) && Number(pa.average_heartrate)
+          ? Number(pa.average_watts) / Number(pa.average_heartrate)
+          : null;
+        facts.push(
+          `Última sesión del mismo objetivo (${(w as any).session_goal}, ${String(pa.start_date ?? "").slice(0, 10)}): ${pa.average_watts ? `${Math.round(Number(pa.average_watts))} W` : "sin potencia"}${pa.average_heartrate ? ` a ${Math.round(Number(pa.average_heartrate))} ppm` : ""}${prevEf ? ` · eficiencia ${prevEf.toFixed(2)} W/ppm` : ""}`,
+        );
+        if (ef && prevEf) {
+          const diff = ((ef - prevEf) / prevEf) * 100;
+          facts.push(`Variación de eficiencia frente a esa sesión: ${diff >= 0 ? "+" : ""}${diff.toFixed(1)}% (positivo = misma potencia con menos pulsaciones)`);
+        }
+      }
+    }
+  }
+
   const system = `Eres el entrenador de ciclismo del usuario. Escribe un informe BREVE en español comparando lo planificado con lo ejecutado.
 Formato exacto (sin markdown, sin emojis, sin negritas):
 Línea 1: "He completado el análisis del entrenamiento planificado "<título>" del <DD/MM>."
 Línea "Cumplimiento: <una o dos frases>."
 Un párrafo corto (máx. 4 frases) con las desviaciones relevantes (duración, intensidad/IF, carga, RPE real vs esperado).
 Bloque "Detalles adicionales:" con 2-4 viñetas que empiecen por "- " y solo con datos disponibles.
+Si hay datos de la última sesión del mismo objetivo, incluye una frase comparándolas (mejor/peor eficiencia, misma potencia con menos pulsaciones).
 Párrafo final (máx. 3 frases) con la conclusión en el contexto de la fase de entrenamiento, TSB y readiness.
 Nunca inventes datos que no aparezcan. Máximo 200 palabras en total.`;
 

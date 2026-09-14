@@ -22,6 +22,7 @@ export function WorkoutCard({
   onDelete,
   onTrainer,
   onOutdoor,
+  onQuick,
 }: {
   w: any;
   ftp: number;
@@ -30,7 +31,9 @@ export function WorkoutCard({
   onDelete: () => void;
   onTrainer: () => Promise<void>;
   onOutdoor: () => Promise<void>;
+  onQuick?: (action: "easier" | "harder" | "shorter" | "skip") => Promise<void>;
 }) {
+  const [quick, setQuick] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [showRpe, setShowRpe] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -177,6 +180,32 @@ export function WorkoutCard({
             </button>
           </div>
         </div>
+
+        {!completed && w.status !== "skipped" && onQuick && (
+          <div className="border-t px-4 py-2 flex flex-wrap gap-2">
+            {([
+              ["skip", "Hoy no puedo"],
+              ["shorter", "Menos tiempo"],
+              ["easier", "Más suave"],
+              ["harder", "Más caña"],
+            ] as const).map(([k, label]) => (
+              <button
+                key={k}
+                disabled={quick !== null}
+                onClick={async () => {
+                  if (k === "skip" && !confirm("¿Marcar este entreno como no realizado? Te propondremos reubicarlo en un día libre de esta semana.")) return;
+                  setQuick(k);
+                  try { await onQuick(k); }
+                  catch (e: any) { toast.error(e?.message ?? "No se ha podido ajustar"); }
+                  finally { setQuick(null); }
+                }}
+                className="text-[11px] font-semibold px-2.5 py-1 rounded-md border hover:bg-secondary disabled:opacity-50"
+              >
+                {quick === k ? "…" : label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {showRpe && !completed && (
           <div className="border-t bg-secondary/40 p-4 space-y-3">
