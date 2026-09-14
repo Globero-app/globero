@@ -53,7 +53,7 @@ const PlanSchema = {
 const DAY_NAMES = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
 /** Genera las próximas fechas (YYYY-MM-DD) que caen en los días permitidos, empezando mañana (o desde `from`). */
-export function buildSchedule(days: number[], count: number, maxDate?: string, from?: Date): { date: string; dow: number }[] {
+export function buildSchedule(days: number[], count: number, maxDate?: string, from?: Date, fromISO?: string): { date: string; dow: number }[] {
   const allowed = new Set(days);
   const out: { date: string; dow: number }[] = [];
   const cursor = from ? new Date(from) : new Date();
