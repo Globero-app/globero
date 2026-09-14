@@ -62,6 +62,12 @@ export const Route = createFileRoute("/api/public/hooks/weekly-workouts")({
               training_days: days,
               long_ride_day: (u as any).weekly_long_ride_day ?? null,
               max_count: days.length,
+              until: (() => {
+                const base = new Date(`${madrid}T12:00:00Z`);
+                const dow = base.getUTCDay(); // domingo = 0
+                const toNextSunday = dow === 0 ? 7 : 7 - dow + 7;
+                return new Date(base.getTime() + toNextSunday * 86400000).toISOString().slice(0, 10);
+              })(),
               nutrition_goal: (u as any).nutrition_plan_enabled ? ((u as any).nutrition_goal ?? "mantenimiento") : null,
             });
 

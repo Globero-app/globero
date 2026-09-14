@@ -76,6 +76,8 @@ export type GenCoreInput = {
   long_ride_day?: number | null;
   /** Fecha base: se planifica a partir del día siguiente. */
   from?: Date;
+  /** Fecha límite (inclusive) YYYY-MM-DD: no se planifica más allá. */
+  until?: string | null;
   /** Tope de sesiones (por defecto, tantas como días de entreno). */
   max_count?: number;
   /** Objetivo del plan nutricional para adaptar los entrenamientos. */
@@ -198,7 +200,9 @@ PERIODIZACIÓN OBLIGATORIA:
 
   const chosenDays = input.training_days.slice().sort((a, b) => a - b);
   const maxCount = input.max_count ?? chosenDays.length;
-  const schedule = buildSchedule(chosenDays, maxCount, competition?.date ?? undefined, input.from);
+  const limits = [competition?.date, input.until].filter(Boolean) as string[];
+  const maxDate = limits.length ? limits.sort()[0] : undefined;
+  const schedule = buildSchedule(chosenDays, maxCount, maxDate, input.from);
   if (!schedule.length) throw new Error("No hay días de entrenamiento disponibles");
   const effectiveCount = schedule.length;
   const longDay = input.long_ride_day ?? null;
