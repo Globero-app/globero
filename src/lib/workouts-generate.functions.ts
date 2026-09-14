@@ -62,6 +62,25 @@ export const generateWorkouts = createServerFn({ method: "POST" })
       }
     }
 
+    // Ventana: sólo la semana en curso (hasta el domingo). Si ya no quedan días
+    // de entreno esta semana, se planifica la semana siguiente completa.
+    const { madridTodayISO, weekStart, isoDate } = await import("./training-load.server");
+    const todayISO = madridTodayISO();
+    const monday = weekStart(todayISO);
+    const addDays = (iso: string, n: number) => isoDate(new Date(new Date(`${iso}T12:00:00Z`).getTime() + n * 86400000));
+    let sunday = addDays(monday, 6);
+    let fromISO = todayISO;
+    const remaining = (() => {
+      for (let d = addDays(todayISO, 1); d <= sunday; d = addDays(d, 1)) {
+        if (data.training_days.includes(new Date(`${d}T12:00:00Z`).getUTCDay())) return true;
+      }
+      return false;
+    })();
+    if (!remaining) {
+      fromISO = sunday;
+      sunday = addDays(sunday, 7);
+    }
+
     const inserted = await generateWorkoutsCore(supabase, userId, {
       bike_type: data.bike_type,
       duration_minutes: data.duration_minutes,
@@ -70,6 +89,8 @@ export const generateWorkouts = createServerFn({ method: "POST" })
       training_days: data.training_days,
       long_ride_day: data.long_ride_day ?? null,
       max_count: data.max_count,
+      from: new Date(`${fromISO}T12:00:00Z`),
+      until: sunday,
       nutrition_goal: data.nutrition_enabled ? (data.nutrition_goal ?? "mantenimiento") : null,
     });
 
