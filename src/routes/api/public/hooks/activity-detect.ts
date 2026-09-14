@@ -59,6 +59,12 @@ export const Route = createFileRoute("/api/public/hooks/activity-detect")({
               if (madridHour === 20 && u.notify_training_push) {
                 if (await remindPendingWorkout(supabaseAdmin, u.id, todayISO)) reminded++;
               }
+              try {
+                const { maybeGenerateNextWeekEarly } = await import("@/lib/next-week-gen.server");
+                await maybeGenerateNextWeekEarly(supabaseAdmin, u.id);
+              } catch (e) {
+                console.error("[activity-detect] next-week", e);
+              }
             } catch (e) {
               console.error("[activity-detect] user", u.id, e);
             }
