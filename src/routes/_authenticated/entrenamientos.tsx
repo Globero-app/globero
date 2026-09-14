@@ -11,6 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TrainingLoadCard, ThresholdsSection } from "@/components/entrenamientos/TrainingLoadCard";
 import { WorkoutCard } from "@/components/entrenamientos/WorkoutCard";
 import { WorkoutGenerator } from "@/components/entrenamientos/WorkoutGenerator";
+import { RescheduleProposals } from "@/components/entrenamientos/RescheduleProposals";
+import { quickAdjustWorkout } from "@/lib/workout-actions.functions";
 
 export const Route = createFileRoute("/_authenticated/entrenamientos")({
   component: EntrenamientosPage,
@@ -23,6 +25,7 @@ function EntrenamientosPage() {
   const del = useServerFn(deleteWorkout);
   const toTrainer = useServerFn(convertWorkoutToTrainer);
   const toOutdoor = useServerFn(revertWorkoutToOutdoor);
+  const quick = useServerFn(quickAdjustWorkout);
   const [tab, setTab] = useState<"semana" | "proximas" | "historial">("semana");
 
   const profile = useQuery({
@@ -76,6 +79,8 @@ function EntrenamientosPage() {
 
       <TrainingLoadCard />
       <ThresholdsSection />
+
+      <RescheduleProposals />
 
       <WorkoutGenerator profile={profile.data} />
 
@@ -165,6 +170,17 @@ function EntrenamientosPage() {
                         ? "Entrenamiento adaptado a rodillo y actualizado en Intervals.icu"
                         : "Entrenamiento adaptado a rodillo",
                     );
+                    qc.invalidateQueries({ queryKey: ["workouts"] });
+                    qc.invalidateQueries({ queryKey: ["calendar"] });
+                  }}
+                  onQuick={async (action) => {
+                    const r: any = await quick({ data: { workout_id: w.id, action } });
+                    if (action === "skip") {
+                      toast.success(r?.proposed_date ? "Marcado como no realizado. Te proponemos un día libre para reubicarlo." : "Marcado como no realizado. La semana se ha recortado manteniendo las sesiones clave.");
+                      qc.invalidateQueries({ queryKey: ["reschedule-proposals"] });
+                    } else {
+                      toast.success(`Sesión ajustada a ${r?.minutes} min`);
+                    }
                     qc.invalidateQueries({ queryKey: ["workouts"] });
                     qc.invalidateQueries({ queryKey: ["calendar"] });
                   }}

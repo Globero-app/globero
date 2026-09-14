@@ -16,7 +16,7 @@ export async function buildWeeklySummaryText(supabase: any, userId: string) {
 
   const { data: workouts } = await supabase
     .from("workouts")
-    .select("status,plan,planned_tss,actual_tss,compliance,duration_minutes,rpe")
+    .select("status,plan,planned_tss,actual_tss,compliance,duration_minutes,rpe,session_goal")
     .eq("user_id", userId)
     .limit(300);
 
@@ -57,6 +57,19 @@ export async function buildWeeklySummaryText(supabase: any, userId: string) {
   if (next.length) {
     lines.push(`Próxima semana: ${next.length} sesiones · ${Math.round(nextMinutes / 60 * 10) / 10} h · ${Math.round(nextTss)} TSS objetivo.`);
   }
+  // Distribución de intensidad real vs objetivo 80/20
+  const HARD = new Set(["vo2max", "umbral", "neuromuscular"]);
+  const doneMin = done.reduce((a, w) => a + (Number(w.duration_minutes) || 0), 0);
+  if (doneMin > 0) {
+    const hardMin = done
+      .filter((w) => HARD.has(String(w.session_goal ?? "")))
+      .reduce((a, w) => a + (Number(w.duration_minutes) || 0), 0);
+    const hardPct = Math.round((hardMin / doneMin) * 100);
+    const easyPct = 100 - hardPct;
+    const verdict = hardPct > 30 ? " (demasiada intensidad, añade rodaje suave)" : hardPct < 10 ? " (poca intensidad, falta calidad)" : " (equilibrio correcto)";
+    lines.push(`Intensidad: ${easyPct}% suave / ${hardPct}% duro frente al objetivo 80/20${verdict}.`);
+  }
+
   if (comp) lines.push(`${comp.name} en ${daysToComp} días.`);
   if (load.readiness_7d != null) lines.push(`Readiness 7d: ${load.readiness_7d}/5 (${load.readiness_trend}).`);
 
