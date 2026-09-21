@@ -48,6 +48,12 @@ function ProgresoPage() {
     atlProjected: p.projected || p.date === d?.projection_start ? p.atl : null,
     tsbProjected: p.projected || p.date === d?.projection_start ? p.tsb : null,
   }));
+  const projectionStartLabel = d?.projection_start
+    ? format(new Date(`${d.projection_start}T12:00:00Z`), "d MMM", { locale: es })
+    : undefined;
+  const projectionEndLabel = d?.projection_end
+    ? format(new Date(`${d.projection_end}T12:00:00Z`), "d MMM", { locale: es })
+    : undefined;
 
   const weeklyData = (d?.weekly ?? []).map((w: any) => ({
     ...w,
@@ -112,8 +118,8 @@ function ProgresoPage() {
                     }}
                   />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <ReferenceArea x1={d.projection_start} x2={d.projection_end} fill="var(--muted)" fillOpacity={0.45} ifOverflow="extendDomain" />
-                  <ReferenceLine x={d.projection_start} stroke="var(--foreground)" strokeDasharray="3 3" label={{ value: "Hoy", position: "insideTopRight", fontSize: 10, fill: "var(--muted-foreground)" }} />
+                  <ReferenceArea x1={projectionStartLabel} x2={projectionEndLabel} fill="var(--muted)" fillOpacity={0.45} ifOverflow="extendDomain" />
+                  <ReferenceLine x={projectionStartLabel} stroke="var(--foreground)" strokeDasharray="3 3" label={{ value: "Hoy", position: "insideTopRight", fontSize: 10, fill: "var(--muted-foreground)" }} />
                   <ReferenceLine y={0} stroke="var(--border)" />
                   <Line type="monotone" dataKey="ctlReal" name="Fitness (CTL)" stroke="var(--chart-2)" dot={false} strokeWidth={2.25} connectNulls={false} />
                   <Line type="monotone" dataKey="atlReal" name="Fatiga (ATL)" stroke="var(--destructive)" dot={false} strokeWidth={1.75} connectNulls={false} />
