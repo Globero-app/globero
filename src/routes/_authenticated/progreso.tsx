@@ -7,7 +7,7 @@ import { TrendingUp, Zap, Mountain, Route as RouteIcon } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import {
-  ResponsiveContainer, ComposedChart, Area, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend,
+  ResponsiveContainer, ComposedChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend, ReferenceArea, ReferenceLine,
   BarChart, Bar,
 } from "recharts";
 import { ThresholdCard } from "@/components/ThresholdCard";
@@ -41,6 +41,12 @@ function ProgresoPage() {
   const chartData = (d?.series ?? []).map((p: any) => ({
     ...p,
     label: format(new Date(`${p.date}T12:00:00Z`), "d MMM", { locale: es }),
+    ctlReal: p.projected ? null : p.ctl,
+    atlReal: p.projected ? null : p.atl,
+    tsbReal: p.projected ? null : p.tsb,
+    ctlProjected: p.projected || p.date === d?.projection_start ? p.ctl : null,
+    atlProjected: p.projected || p.date === d?.projection_start ? p.atl : null,
+    tsbProjected: p.projected || p.date === d?.projection_start ? p.tsb : null,
   }));
 
   const weeklyData = (d?.weekly ?? []).map((w: any) => ({
@@ -81,27 +87,46 @@ function ProgresoPage() {
             <Kpi label="Actividades" value={d.records.activities_12m} sub="últimos 12 meses" />
           </div>
 
-          <section className="bg-surface border rounded-xl p-5">
+          <section className="bg-surface border rounded-xl p-4 sm:p-5">
             <h2 className="font-display text-lg font-bold uppercase flex items-center gap-2">
-              <TrendingUp className="size-4 text-primary" /> Curva de forma (últimos 6 meses)
+              <TrendingUp className="size-4 text-primary" /> PMC · Gestión del rendimiento
             </h2>
             <p className="text-xs text-muted-foreground mt-1">
-              CTL = fitness acumulado · ATL = fatiga reciente · TSB = frescura (CTL − ATL). Por encima de +5 llegas fresco; por debajo de −25 estás muy cargado.
+              Histórico de 6 meses y proyección de 6 semanas según tus entrenamientos planificados. La zona sombreada es la previsión.
             </p>
-            <div className="h-72 mt-4 -ml-4">
+            <div className="h-80 mt-4 -ml-5 sm:-ml-4">
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                  <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={Math.max(1, Math.floor(chartData.length / 8))} />
                   <YAxis tick={{ fontSize: 10 }} />
-                  <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
+                  <Tooltip
+                    contentStyle={{ fontSize: 12, borderRadius: 8 }}
+                    labelFormatter={(_label, payload) => {
+                      const point = payload?.[0]?.payload;
+                      return point ? `${format(new Date(`${point.date}T12:00:00Z`), "d 'de' MMMM", { locale: es })}${point.projected ? " · Proyección" : ""}` : "";
+                    }}
+                    formatter={(value: any, name: any, item: any) => {
+                      const labels: Record<string, string> = { ctlReal: "Fitness (CTL)", atlReal: "Fatiga (ATL)", tsbReal: "Forma (TSB)", ctlProjected: "Fitness (CTL)", atlProjected: "Fatiga (ATL)", tsbProjected: "Forma (TSB)" };
+                      return [value, labels[item?.dataKey] ?? name];
+                    }}
+                  />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Area type="monotone" dataKey="tsb" name="Forma (TSB)" stroke="#0ea5e9" fill="#0ea5e9" fillOpacity={0.15} />
-                  <Line type="monotone" dataKey="ctl" name="Fitness (CTL)" stroke="#22c55e" dot={false} strokeWidth={2} />
-                  <Line type="monotone" dataKey="atl" name="Fatiga (ATL)" stroke="#ef4444" dot={false} strokeWidth={1.5} />
+                  <ReferenceArea x1={d.projection_start} x2={d.projection_end} fill="var(--muted)" fillOpacity={0.45} ifOverflow="extendDomain" />
+                  <ReferenceLine x={d.projection_start} stroke="var(--foreground)" strokeDasharray="3 3" label={{ value: "Hoy", position: "insideTopRight", fontSize: 10, fill: "var(--muted-foreground)" }} />
+                  <ReferenceLine y={0} stroke="var(--border)" />
+                  <Line type="monotone" dataKey="ctlReal" name="Fitness (CTL)" stroke="var(--chart-2)" dot={false} strokeWidth={2.25} connectNulls={false} />
+                  <Line type="monotone" dataKey="atlReal" name="Fatiga (ATL)" stroke="var(--destructive)" dot={false} strokeWidth={1.75} connectNulls={false} />
+                  <Line type="monotone" dataKey="tsbReal" name="Forma (TSB)" stroke="var(--chart-3)" dot={false} strokeWidth={1.75} connectNulls={false} />
+                  <Line type="monotone" dataKey="ctlProjected" name="Fitness proyectado" stroke="var(--chart-2)" strokeDasharray="6 4" dot={false} strokeWidth={2.25} connectNulls={false} legendType="none" />
+                  <Line type="monotone" dataKey="atlProjected" name="Fatiga proyectada" stroke="var(--destructive)" strokeDasharray="6 4" dot={false} strokeWidth={1.75} connectNulls={false} legendType="none" />
+                  <Line type="monotone" dataKey="tsbProjected" name="Forma proyectada" stroke="var(--chart-3)" strokeDasharray="6 4" dot={false} strokeWidth={1.75} connectNulls={false} legendType="none" />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
+            <p className="text-[11px] text-muted-foreground mt-2">
+              CTL = fitness acumulado (42 días) · ATL = fatiga reciente (7 días) · TSB = forma (CTL − ATL).
+            </p>
           </section>
 
           <FtpHistoryChart history={d.ftp_history ?? []} weightKg={d.weight_kg ?? null} />
