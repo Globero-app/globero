@@ -186,7 +186,14 @@ export async function generateAndNotifyWorkoutReport(
   workoutId: string,
 ): Promise<boolean> {
   try {
-    const report = await buildWorkoutReport(supabase, userId, workoutId);
+    let report: { text: string; title: string } | null = null;
+    try {
+      const { processFtpTestWorkout } = await import("./ftp-test-auto.server");
+      report = await processFtpTestWorkout(supabase, userId, workoutId);
+    } catch (e) {
+      console.error("[workout-report] ftp-test", e);
+    }
+    if (!report) report = await buildWorkoutReport(supabase, userId, workoutId);
     if (!report) return false;
 
     const { data: w } = await supabase
