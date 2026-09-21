@@ -76,7 +76,14 @@ export async function linkWorkoutActivity(
       } catch (e) {
         console.error("[activity-link] rename", e);
       }
+      try {
+        const { renameStravaActivity } = await import("./strava.server");
+        await renameStravaActivity(supabase, userId, activityId, title);
+      } catch (e) {
+        console.error("[activity-link] strava rename", e);
+      }
     }
+
   }
 
   // Si la valoración (RPE/sensaciones) ya se hizo antes de asignar, generar el informe ahora
