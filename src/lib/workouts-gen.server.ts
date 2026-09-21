@@ -501,6 +501,7 @@ INSTRUCCIONES:
         reason: it.advice.reason,
         note: it.advice.note,
       } : null,
+      is_ftp_test: needsTest && idx === testIndex,
     },
     status: "pending",
   }));
