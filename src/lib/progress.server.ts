@@ -17,6 +17,7 @@ export interface ProgressPoint {
   ctl: number;
   atl: number;
   tsb: number;
+  projected?: boolean;
 }
 
 export interface PowerPr {
@@ -40,6 +41,8 @@ export async function buildProgress(supabase: any, userId: string, profile: any)
   const today = madridTodayISO();
   const todayMs = new Date(`${today}T12:00:00Z`).getTime();
   const since365 = isoDate(new Date(todayMs - 365 * DAY));
+  const projectionDays = 42;
+  const projectionEnd = isoDate(new Date(todayMs + projectionDays * DAY));
 
   const ftp: number | null = profile?.ftp ?? null;
   const lthr: number | null = profile?.lthr ?? null;
@@ -74,7 +77,7 @@ export async function buildProgress(supabase: any, userId: string, profile: any)
       .from("workouts")
       .select("status,plan,completed_at,planned_tss,actual_tss,duration_minutes,compliance")
       .eq("user_id", userId)
-      .limit(400),
+      .limit(1000),
   ]);
 
   const activities = (acts ?? []) as any[];
@@ -114,6 +117,32 @@ export async function buildProgress(supabase: any, userId: string, profile: any)
       ctl: Math.round(ctl * 10) / 10,
       atl: Math.round(atl * 10) / 10,
       tsb: Math.round((ctl - atl) * 10) / 10,
+    });
+  }
+
+  // ── Proyección PMC (6 semanas) ─────────────────────────────────────
+  const plannedDailyMap = new Map<string, number>();
+  for (const w of (workouts ?? []) as any[]) {
+    if (w.status === "completed" || w.status === "skipped") continue;
+    const date = String(w.plan?.scheduled_date ?? "").slice(0, 10);
+    if (!date || date <= today || date > projectionEnd) continue;
+    const tss = Number(w.planned_tss) || estimatePlanTss(w.plan, ftp, lthr, maxHr, w.duration_minutes);
+    plannedDailyMap.set(date, (plannedDailyMap.get(date) ?? 0) + tss);
+  }
+  const current = series[series.length - 1];
+  if (current) current.projected = false;
+  for (let offset = 1; offset <= projectionDays; offset++) {
+    const date = isoDate(new Date(todayMs + offset * DAY));
+    const tss = plannedDailyMap.get(date) ?? 0;
+    ctl += (tss - ctl) * kC;
+    atl += (tss - atl) * kA;
+    series.push({
+      date,
+      tss,
+      ctl: Math.round(ctl * 10) / 10,
+      atl: Math.round(atl * 10) / 10,
+      tsb: Math.round((ctl - atl) * 10) / 10,
+      projected: true,
     });
   }
 
@@ -235,17 +264,19 @@ export async function buildProgress(supabase: any, userId: string, profile: any)
     null,
   );
 
-  const last = series[series.length - 1];
+  const todayPoint = series.find((point) => point.date === today);
   return {
-    series: series.slice(-180),
+    series: series.slice(-(180 + projectionDays)),
+    projection_start: today,
+    projection_end: projectionEnd,
     weekly,
     adherence,
     zones,
     readiness_weekly: readinessWeekly,
 
     prs,
-    current: last ? { ctl: last.ctl, atl: last.atl, tsb: last.tsb } : { ctl: 0, atl: 0, tsb: 0 },
-    ctl_30d_ago: series[series.length - 31]?.ctl ?? null,
+    current: todayPoint ? { ctl: todayPoint.ctl, atl: todayPoint.atl, tsb: todayPoint.tsb } : { ctl: 0, atl: 0, tsb: 0 },
+    ctl_30d_ago: series.find((point) => point.date === isoDate(new Date(todayMs - 30 * DAY)))?.ctl ?? null,
     records: {
       longest_km: longest ? Math.round(Number(longest.distance) / 100) / 10 : null,
       longest_name: longest?.name ?? null,
