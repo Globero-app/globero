@@ -11,6 +11,7 @@ import {
 import { describeStepZone } from "@/lib/zones";
 import { downloadFit, type FitWorkout, type FitWorkoutStep } from "@/lib/fit-writer";
 import { downloadZwo, type ZwoWorkout, type ZwoStep } from "@/lib/zwo-writer";
+import { WorkoutIntervalsChart } from "./WorkoutIntervalsChart";
 
 export type ZoneRefs = { ftp: number | null; lthr: number | null; maxHr: number | null };
 
@@ -105,7 +106,7 @@ export function WorkoutCard({
               {plan.scheduled_date && ` · 📅 ${format(new Date(plan.scheduled_date), "d MMM", { locale: es })}`}
               {completed && w.completed_at && ` · Completado ${format(new Date(w.completed_at), "d MMM", { locale: es })}${w.rpe != null ? ` · RPE ${w.rpe}/5` : ""}`}
             </p>
-            <ZoneBar steps={plan.steps} refs={refs} />
+            <WorkoutIntervalsChart steps={plan.steps} refs={refs} />
             {plan.competition_name && <p className="text-[11px] font-mono uppercase text-primary mt-0.5">🏁 {plan.competition_name}</p>}
             {plan.summary && <p className="text-sm mt-2">{plan.summary}</p>}
             {plan.rationale && <p className="text-[11px] text-muted-foreground mt-1.5">🧠 {plan.rationale}</p>}
@@ -293,6 +294,7 @@ export function WorkoutCard({
 
           <div className="space-y-3 mt-2">
             {plan.summary && <p className="text-sm text-muted-foreground">{plan.summary}</p>}
+            <WorkoutIntervalsChart steps={plan.steps} refs={refs} expanded />
             <h4 className="text-xs font-mono uppercase text-muted-foreground tracking-wider">Estructura completa</h4>
             <div className="space-y-2">
               {(plan.steps ?? []).map((s: any, i: number) => (
@@ -367,38 +369,6 @@ export function WorkoutCard({
         </DialogContent>
       </Dialog>
     </>
-  );
-}
-
-/** Barra visual de la estructura de la sesión, coloreada por zona (tipo Intervals.icu). */
-function ZoneBar({ steps, refs }: { steps: any[] | undefined; refs: ZoneRefs }) {
-  if (!Array.isArray(steps) || !steps.length) return null;
-  const segs = steps
-    .map((s) => {
-      const sec = Number(s.duration_seconds) || 0;
-      if (sec <= 0) return null;
-      const z = describeStepZone(s, refs);
-      const fallback: Record<string, string> = {
-        warmup: "#94a3b8", recovery: "#94a3b8", rest: "#cbd5e1", cooldown: "#94a3b8",
-        active: "#22c55e", interval: "#ef4444",
-      };
-      const color = z?.zone.color ?? fallback[s.intensity] ?? "#22c55e";
-      const label = z ? z.zone.label.split(" · ")[0] : (s.intensity ?? "");
-      return { sec, color, name: s.name ?? "", label };
-    })
-    .filter(Boolean) as Array<{ sec: number; color: string; name: string; label: string }>;
-  if (!segs.length) return null;
-  const total = segs.reduce((a, s) => a + s.sec, 0);
-  return (
-    <div className="mt-2 flex h-2.5 w-full max-w-md overflow-hidden rounded-full bg-secondary" title="Estructura por zonas">
-      {segs.map((s, i) => (
-        <div
-          key={i}
-          style={{ width: `${(s.sec / total) * 100}%`, backgroundColor: s.color }}
-          title={`${s.name} · ${s.label} · ${Math.round(s.sec / 60)} min`}
-        />
-      ))}
-    </div>
   );
 }
 
