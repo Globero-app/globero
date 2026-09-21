@@ -84,7 +84,7 @@ export const Route = createFileRoute("/auth/strava/callback")({
         const { error } = await supabaseAdmin
           .from("profiles")
           .update({
-            strava_athlete_id: token.athlete?.id != null ? String(token.athlete.id) : null,
+            strava_athlete_id: token.athlete?.id != null ? Number(token.athlete.id) : null,
             strava_access_token: token.access_token,
             strava_refresh_token: token.refresh_token ?? null,
             strava_token_expires_at: token.expires_at ? new Date(token.expires_at * 1000).toISOString() : null,
