@@ -14,6 +14,8 @@ import { Section, Field } from "@/components/perfil/Section";
 import { ZonesPreview } from "@/components/perfil/ZonesPreview";
 import { DeleteAccountSection } from "@/components/perfil/DeleteAccountSection";
 import { IntervalsConnection } from "@/components/perfil/IntervalsConnection";
+import { StravaConnection } from "@/components/perfil/StravaConnection";
+
 import { AthleteProfileSection } from "@/components/perfil/AthleteProfileSection";
 import { WeatherStatus } from "@/components/perfil/WeatherStatus";
 import { COUNTRIES } from "@/lib/countries";
@@ -45,16 +47,28 @@ function PerfilPage() {
   const [form, setForm] = useState<any>({});
   useEffect(() => { if (profileQ.data) setForm(profileQ.data); }, [profileQ.data]);
   useEffect(() => {
-    const status = new URLSearchParams(window.location.search).get("intervals");
-    if (!status) return;
-    if (status === "success") {
-      toast.success("¡Cuenta de Intervals.icu conectada correctamente!");
-      qc.invalidateQueries({ queryKey: ["profile"] });
-    } else {
-      toast.error("No se pudo vincular Intervals.icu");
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get("intervals");
+    const strava = params.get("strava");
+    if (status) {
+      if (status === "success") {
+        toast.success("¡Cuenta de Intervals.icu conectada correctamente!");
+        qc.invalidateQueries({ queryKey: ["profile"] });
+      } else {
+        toast.error("No se pudo vincular Intervals.icu");
+      }
     }
-    window.history.replaceState({}, "", window.location.pathname);
+    if (strava) {
+      if (strava === "success") {
+        toast.success("¡Cuenta de Strava conectada correctamente!");
+        qc.invalidateQueries({ queryKey: ["profile"] });
+      } else {
+        toast.error("No se pudo vincular Strava");
+      }
+    }
+    if (status || strava) window.history.replaceState({}, "", window.location.pathname);
   }, [qc]);
+
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -279,6 +293,11 @@ function PerfilPage() {
         <Section title="Conexión Intervals.icu" className="lg:col-span-2">
           <IntervalsConnection profile={profileQ.data} />
         </Section>
+
+        <Section title="Conexión Strava" className="lg:col-span-2">
+          <StravaConnection profile={profileQ.data} />
+        </Section>
+
 
 
         <Section title="Conectar Telegram" className="lg:col-span-2">
