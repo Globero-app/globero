@@ -468,7 +468,7 @@ INSTRUCCIONES:
 
   const rationaleBase = `Carga actual CTL ${load.ctl} / TSB ${load.tsb}${load.readiness_7d !== null ? ` · readiness 7d ${load.readiness_7d}/5` : ""} · semana ${week.mode} (${week.reason}) · bloque ${blockFocus} s${weekIndex}/4`;
 
-  const rows = items.map((it) => ({
+  const rows = items.map((it, idx) => ({
     user_id: userId,
     training_type: it.focus,
     bike_type: input.bike_type,
