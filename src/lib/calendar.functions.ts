@@ -95,11 +95,23 @@ export const rescheduleWorkout = createServerFn({ method: "POST" })
     if (e1) throw new Error(e1.message);
     if (!w) throw new Error("Entrenamiento no encontrado");
     const plan = { ...((w.plan as Record<string, unknown>) ?? {}), scheduled_date: data.scheduled_date };
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from("workouts")
       .update({ plan, updated_at: new Date().toISOString() })
       .eq("id", data.workout_id)
-      .eq("user_id", userId);
+      .eq("user_id", userId)
+      .select()
+      .maybeSingle();
     if (error) throw new Error(error.message);
-    return { ok: true, workout_id: data.workout_id, scheduled_date: data.scheduled_date };
+
+    let synced = false;
+    if (updated) {
+      try {
+        const { syncWorkoutEvent } = await import("./intervals.server");
+        await syncWorkoutEvent(supabase, userId, updated);
+        synced = true;
+      } catch { /* noop */ }
+    }
+    return { ok: true, workout_id: data.workout_id, scheduled_date: data.scheduled_date, synced };
+
   });

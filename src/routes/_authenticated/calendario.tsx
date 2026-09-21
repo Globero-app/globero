@@ -83,7 +83,10 @@ function CalendarioPage() {
       if (ctx?.prev) qc.setQueryData(ctx.key, ctx.prev);
       toast.error(e.message);
     },
-    onSuccess: () => toast.success("Entrenamiento reprogramado"),
+    onSuccess: (r: any) =>
+      r?.synced
+        ? toast.success("Entrenamiento reprogramado y actualizado en Intervals.icu")
+        : toast.warning("Entrenamiento reprogramado, pero no se pudo actualizar en Intervals.icu"),
     onSettled: () => qc.invalidateQueries({ queryKey: ["calendar"] }),
   });
 
