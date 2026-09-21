@@ -350,12 +350,19 @@ BLOQUE DE ENTRENAMIENTO: foco "${blockFocus}", semana ${weekIndex} de 4${weekInd
   const weeksSinceTest = lastTestISO
     ? Math.floor((new Date(`${planWeekStart}T12:00:00Z`).getTime() - new Date(`${lastTestISO}T12:00:00Z`).getTime()) / (7 * 86400000))
     : 99;
-  const needsTest = weeksSinceTest >= 8 && week.mode !== "recovery" && blockFocus !== "tapering" && effectiveCount >= 2;
+  const { count: prevWorkoutCount } = await supabase
+    .from("workouts")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId);
+  const isFirstGeneration = !lastTestISO && !(prevWorkoutCount ?? 0);
+  const needsTest =
+    (isFirstGeneration || weeksSinceTest >= 6) && week.mode !== "recovery" && blockFocus !== "tapering";
+  const testIndex = effectiveCount >= 2 ? 1 : 0;
   const testBlock = needsTest
     ? `
-TEST DE FORMA (obligatorio esta semana): han pasado ${weeksSinceTest === 99 ? "más de 8" : weeksSinceTest} semanas desde el último test.
-- Convierte la SEGUNDA sesión de la semana en un test de umbral: calentamiento progresivo de 20 min, 5 min de activación, 20 min ALL-OUT sostenidos (session_goal="umbral") y vuelta a la calma.
-- Indica claramente en el título "Test 20 min" y en el summary que el resultado servirá para actualizar el FTP.`
+TEST DE FTP (obligatorio esta semana): ${isFirstGeneration ? "es la primera semana de entrenamientos y hay que conocer sus umbrales." : `han pasado ${weeksSinceTest === 99 ? "más de 6" : weeksSinceTest} semanas desde el último test.`}
+- Convierte la ${testIndex === 0 ? "PRIMERA" : "SEGUNDA"} sesión de la semana en un test de umbral: calentamiento progresivo de 20 min, 5 min de activación, 20 min ALL-OUT sostenidos (session_goal="umbral") y vuelta a la calma.
+- Indica claramente en el título "Test FTP 20 min" y en el summary que el resultado servirá para actualizar el FTP, el umbral de FC y las zonas.`
     : "";
 
   const longRideStructure: Record<string, string> = {
