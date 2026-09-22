@@ -341,7 +341,10 @@ REGLAS METEOROLÓGICAS:
     .eq("user_id", userId);
   const isFirstGeneration = !lastTestISO && !(prevWorkoutCount ?? 0);
   const needsTest =
-    (isFirstGeneration || weeksSinceTest >= 6) && week.mode !== "recovery" && blockFocus !== "tapering";
+    (isFirstGeneration || weeksSinceTest >= 6) &&
+    week.mode !== "recovery" &&
+    !periodization.is_deload &&
+    blockFocus !== "tapering";
   const testIndex = effectiveCount >= 2 ? 1 : 0;
   const testBlock = needsTest
     ? `
