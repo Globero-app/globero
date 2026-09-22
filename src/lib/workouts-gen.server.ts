@@ -454,7 +454,7 @@ INSTRUCCIONES:
   enforcePolarized(items, week.mode === "recovery" ? 10 : 20);
 
 
-  const rationaleBase = `Carga actual CTL ${load.ctl} / TSB ${load.tsb}${load.readiness_7d !== null ? ` · readiness 7d ${load.readiness_7d}/5` : ""} · semana ${week.mode} (${week.reason}) · bloque ${blockFocus} s${weekIndex}/4`;
+  const rationaleBase = `Carga actual CTL ${load.ctl} / TSB ${load.tsb}${load.readiness_7d !== null ? ` · readiness 7d ${load.readiness_7d}/5` : ""} · semana ${week.mode} (${week.reason}) · bloque ${blockFocus} s${weekIndex}/${periodization.block_length}${periodization.is_deload ? " (descarga)" : ""}`;
 
   const rows = items.map((it, idx) => ({
     user_id: userId,
@@ -474,6 +474,8 @@ INSTRUCCIONES:
       long_ride: it.isLong,
       block_focus: blockFocus,
       block_week: weekIndex,
+      block_length: periodization.block_length,
+      block_deload: periodization.is_deload,
       week_mode: week.mode,
       week_target_tss: week.target_tss,
       rationale: `${rationaleBase} · TSS previsto ${it.tss}`,
@@ -508,7 +510,7 @@ INSTRUCCIONES:
   } else {
     await supabase.from("training_blocks").insert({
       user_id: userId,
-      start_date: planWeekStart,
+      start_date: periodization.block_start,
       focus: blockFocus,
       week_index: weekIndex,
       target_tss: totalTss,
