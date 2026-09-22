@@ -311,6 +311,12 @@ export function prescribeWeek(load: TrainingLoadSummary, opts: {
     reasons.push("progresión estándar sobre la media de las 3 semanas previas");
   }
 
+  const pf = Number(opts.progression_factor);
+  if (Number.isFinite(pf) && pf > 0 && mode !== "recovery") {
+    factor = pf * (factor / 1.06);
+    reasons.push(`sobrecarga progresiva del bloque (x${pf.toFixed(2)})`);
+  }
+
   let target = Math.round(base * factor);
   // Techo personal: nunca por encima de lo que ya ha completado bien (+8%)
   if (ceiling && mode !== "recovery" && target > ceiling * 1.08) {
