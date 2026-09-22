@@ -302,9 +302,7 @@ REGLAS METEOROLÓGICAS:
   });
 
   const loadBlock = loadPromptBlock(load, week);
-  const blockBlock = `
-BLOQUE DE ENTRENAMIENTO: foco "${blockFocus}", semana ${weekIndex} de 4${weekIndex === 4 ? " (SEMANA DE DESCARGA)" : ""}.
-- base: volumen aeróbico y fuerza específica · construccion: umbral y tempo · pico: VO₂ e intensidad específica de competición · tapering: volumen bajo, intensidad breve.`;
+  const blockBlock = periodization.prompt_block;
 
 
   // ---- Biblioteca de sesiones con progresión personal ----
