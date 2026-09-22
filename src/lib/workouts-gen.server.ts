@@ -267,29 +267,15 @@ REGLAS METEOROLÓGICAS:
     .limit(1)
     .maybeSingle();
 
-  const FOCUS_ORDER = ["base", "construccion", "pico", "descarga"];
-  let blockRow: any = lastBlock ?? null;
-  let weekIndex = 1;
-  if (blockRow && blockRow.start_date) {
-    const diffWeeks = Math.round(
-      (new Date(`${planWeekStart}T12:00:00Z`).getTime() - new Date(`${weekStart(blockRow.start_date)}T12:00:00Z`).getTime()) / (7 * 86400000),
-    );
-    weekIndex = diffWeeks >= 0 && diffWeeks <= 3 ? diffWeeks + 1 : 1;
-    if (diffWeeks < 0 || diffWeeks > 3) blockRow = null;
-  }
-
-  // Foco del bloque: anclado a la competición si existe
-  let blockFocus = blockRow?.focus ?? "base";
-  if (competition) {
-    const weeksToRace = Math.max(
-      0,
-      Math.round((new Date(`${competition.date}T12:00:00Z`).getTime() - new Date(`${planWeekStart}T12:00:00Z`).getTime()) / (7 * 86400000)),
-    );
-    blockFocus = weeksToRace <= 1 ? "tapering" : weeksToRace <= 3 ? "pico" : weeksToRace <= 8 ? "construccion" : "base";
-  } else if (!blockRow) {
-    const prevIdx = FOCUS_ORDER.indexOf(lastBlock?.focus ?? "base");
-    blockFocus = FOCUS_ORDER[(prevIdx + 1) % 3]; // rota base → construcción → pico
-  }
+  const { resolvePeriodization } = await import("./periodization.server");
+  const periodization = resolvePeriodization({
+    plan_week_start: planWeekStart,
+    last_block: lastBlock ?? null,
+    competition_date: competition?.date ?? null,
+  });
+  const blockFocus = periodization.focus;
+  const weekIndex = periodization.week_index;
+  const blockRow: any = lastBlock && weekIndex > 1 && lastBlock.focus === blockFocus ? lastBlock : null;
 
   // ---- Métricas de carga, ficha individual y prescripción de la semana ----
   const load = await buildTrainingLoad(supabase, userId, profile);
