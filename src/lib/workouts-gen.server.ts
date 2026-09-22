@@ -267,29 +267,15 @@ REGLAS METEOROLÓGICAS:
     .limit(1)
     .maybeSingle();
 
-  const FOCUS_ORDER = ["base", "construccion", "pico", "descarga"];
-  let blockRow: any = lastBlock ?? null;
-  let weekIndex = 1;
-  if (blockRow && blockRow.start_date) {
-    const diffWeeks = Math.round(
-      (new Date(`${planWeekStart}T12:00:00Z`).getTime() - new Date(`${weekStart(blockRow.start_date)}T12:00:00Z`).getTime()) / (7 * 86400000),
-    );
-    weekIndex = diffWeeks >= 0 && diffWeeks <= 3 ? diffWeeks + 1 : 1;
-    if (diffWeeks < 0 || diffWeeks > 3) blockRow = null;
-  }
-
-  // Foco del bloque: anclado a la competición si existe
-  let blockFocus = blockRow?.focus ?? "base";
-  if (competition) {
-    const weeksToRace = Math.max(
-      0,
-      Math.round((new Date(`${competition.date}T12:00:00Z`).getTime() - new Date(`${planWeekStart}T12:00:00Z`).getTime()) / (7 * 86400000)),
-    );
-    blockFocus = weeksToRace <= 1 ? "tapering" : weeksToRace <= 3 ? "pico" : weeksToRace <= 8 ? "construccion" : "base";
-  } else if (!blockRow) {
-    const prevIdx = FOCUS_ORDER.indexOf(lastBlock?.focus ?? "base");
-    blockFocus = FOCUS_ORDER[(prevIdx + 1) % 3]; // rota base → construcción → pico
-  }
+  const { resolvePeriodization } = await import("./periodization.server");
+  const periodization = resolvePeriodization({
+    plan_week_start: planWeekStart,
+    last_block: lastBlock ?? null,
+    competition_date: competition?.date ?? null,
+  });
+  const blockFocus = periodization.focus;
+  const weekIndex = periodization.week_index;
+  const blockRow: any = lastBlock && weekIndex > 1 && lastBlock.focus === blockFocus ? lastBlock : null;
 
   // ---- Métricas de carga, ficha individual y prescripción de la semana ----
   const load = await buildTrainingLoad(supabase, userId, profile);
@@ -303,7 +289,8 @@ REGLAS METEOROLÓGICAS:
     sessions: effectiveCount,
     duration_minutes: input.duration_minutes,
     block_week_index: weekIndex,
-    deload: blockFocus === "tapering",
+    deload: periodization.is_deload || blockFocus === "tapering",
+    progression_factor: periodization.progression_factor,
     personal: athlete
       ? {
           weekly_tss_ceiling: athlete.weekly_tss_ceiling,
@@ -315,9 +302,7 @@ REGLAS METEOROLÓGICAS:
   });
 
   const loadBlock = loadPromptBlock(load, week);
-  const blockBlock = `
-BLOQUE DE ENTRENAMIENTO: foco "${blockFocus}", semana ${weekIndex} de 4${weekIndex === 4 ? " (SEMANA DE DESCARGA)" : ""}.
-- base: volumen aeróbico y fuerza específica · construccion: umbral y tempo · pico: VO₂ e intensidad específica de competición · tapering: volumen bajo, intensidad breve.`;
+  const blockBlock = periodization.prompt_block;
 
 
   // ---- Biblioteca de sesiones con progresión personal ----
@@ -356,7 +341,10 @@ BLOQUE DE ENTRENAMIENTO: foco "${blockFocus}", semana ${weekIndex} de 4${weekInd
     .eq("user_id", userId);
   const isFirstGeneration = !lastTestISO && !(prevWorkoutCount ?? 0);
   const needsTest =
-    (isFirstGeneration || weeksSinceTest >= 6) && week.mode !== "recovery" && blockFocus !== "tapering";
+    (isFirstGeneration || weeksSinceTest >= 6) &&
+    week.mode !== "recovery" &&
+    !periodization.is_deload &&
+    blockFocus !== "tapering";
   const testIndex = effectiveCount >= 2 ? 1 : 0;
   const testBlock = needsTest
     ? `
@@ -466,7 +454,7 @@ INSTRUCCIONES:
   enforcePolarized(items, week.mode === "recovery" ? 10 : 20);
 
 
-  const rationaleBase = `Carga actual CTL ${load.ctl} / TSB ${load.tsb}${load.readiness_7d !== null ? ` · readiness 7d ${load.readiness_7d}/5` : ""} · semana ${week.mode} (${week.reason}) · bloque ${blockFocus} s${weekIndex}/4`;
+  const rationaleBase = `Carga actual CTL ${load.ctl} / TSB ${load.tsb}${load.readiness_7d !== null ? ` · readiness 7d ${load.readiness_7d}/5` : ""} · semana ${week.mode} (${week.reason}) · bloque ${blockFocus} s${weekIndex}/${periodization.block_length}${periodization.is_deload ? " (descarga)" : ""}`;
 
   const rows = items.map((it, idx) => ({
     user_id: userId,
@@ -486,6 +474,8 @@ INSTRUCCIONES:
       long_ride: it.isLong,
       block_focus: blockFocus,
       block_week: weekIndex,
+      block_length: periodization.block_length,
+      block_deload: periodization.is_deload,
       week_mode: week.mode,
       week_target_tss: week.target_tss,
       rationale: `${rationaleBase} · TSS previsto ${it.tss}`,
@@ -520,7 +510,7 @@ INSTRUCCIONES:
   } else {
     await supabase.from("training_blocks").insert({
       user_id: userId,
-      start_date: planWeekStart,
+      start_date: periodization.block_start,
       focus: blockFocus,
       week_index: weekIndex,
       target_tss: totalTss,

@@ -254,6 +254,8 @@ export function prescribeWeek(load: TrainingLoadSummary, opts: {
   duration_minutes: number;
   block_week_index?: number; // 1..4 (4 = descarga)
   deload?: boolean;
+  /** Multiplicador de sobrecarga progresiva del bloque (periodización). */
+  progression_factor?: number;
   /** Umbrales personales del ciclista (ficha individual). */
   personal?: {
     weekly_tss_ceiling?: number | null;
@@ -307,6 +309,12 @@ export function prescribeWeek(load: TrainingLoadSummary, opts: {
     reasons.push(`RPE medio bajo (${load.avg_rpe}/5): margen para progresar`);
   } else {
     reasons.push("progresión estándar sobre la media de las 3 semanas previas");
+  }
+
+  const pf = Number(opts.progression_factor);
+  if (Number.isFinite(pf) && pf > 0 && mode !== "recovery") {
+    factor = pf * (factor / 1.06);
+    reasons.push(`sobrecarga progresiva del bloque (x${pf.toFixed(2)})`);
   }
 
   let target = Math.round(base * factor);
