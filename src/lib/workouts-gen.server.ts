@@ -289,7 +289,8 @@ REGLAS METEOROLÓGICAS:
     sessions: effectiveCount,
     duration_minutes: input.duration_minutes,
     block_week_index: weekIndex,
-    deload: blockFocus === "tapering",
+    deload: periodization.is_deload || blockFocus === "tapering",
+    progression_factor: periodization.progression_factor,
     personal: athlete
       ? {
           weekly_tss_ceiling: athlete.weekly_tss_ceiling,
