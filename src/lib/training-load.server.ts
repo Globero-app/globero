@@ -254,6 +254,8 @@ export function prescribeWeek(load: TrainingLoadSummary, opts: {
   duration_minutes: number;
   block_week_index?: number; // 1..4 (4 = descarga)
   deload?: boolean;
+  /** Multiplicador de sobrecarga progresiva del bloque (periodización). */
+  progression_factor?: number;
   /** Umbrales personales del ciclista (ficha individual). */
   personal?: {
     weekly_tss_ceiling?: number | null;
