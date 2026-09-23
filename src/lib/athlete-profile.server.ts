@@ -293,6 +293,7 @@ FICHA INDIVIDUAL (calculada con SUS datos, no la inventes):
 - Tipo declarado: ${declaredType} · Tipo detectado por su curva de potencia: ${ap.detected_type ?? "aún sin datos"}
 - Potencias de referencia: 5s ${ap.peak_5s ?? "n/a"}W · 1min ${ap.peak_1m ?? "n/a"}W · 5min ${ap.peak_5m ?? "n/a"}W · 20min ${ap.peak_20m ?? "n/a"}W${ap.wkg_20m ? ` (${ap.wkg_20m} W/kg)` : ""}
 - Ratio anaeróbico (1min/20min): ${ap.anaerobic_ratio ?? "n/a"}
+${pdBlock}
 - Disponibilidad real por día: ${avail || "no indicada (usa la duración objetivo)"}
 - Terreno disponible: ${ap.terrain} · Tolerancia al rodillo: ${ap.indoor_tolerance}${ap.natural_cadence ? ` · Cadencia natural: ${ap.natural_cadence} rpm` : ""}
 - Techo de carga semanal que ya ha completado: ${ap.weekly_tss_ceiling ?? "sin datos"} TSS
