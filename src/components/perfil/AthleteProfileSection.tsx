@@ -104,6 +104,9 @@ export function AthleteProfileSection() {
             <Stat label="20 min" value={d?.peak_20m ? `${d.peak_20m} W${d.wkg_20m ? ` · ${d.wkg_20m} W/kg` : ""}` : "aún sin datos"} />
             <Stat label="5 min" value={d?.peak_5m ? `${d.peak_5m} W` : "aún sin datos"} />
             <Stat label="1 min / 5 s" value={d?.peak_1m || d?.peak_5s ? `${d?.peak_1m ?? "—"} / ${d?.peak_5s ?? "—"} W` : "aún sin datos"} />
+            <Stat label="Potencia crítica (CP)" value={d?.cp_watts ? `${d.cp_watts} W` : "aún sin datos"} />
+            <Stat label="W' (reserva anaeróbica)" value={d?.w_prime_kj ? `${d.w_prime_kj} kJ` : "aún sin datos"} />
+            <Stat label="FRC" value={d?.frc_kj ? `${d.frc_kj} kJ` : "aún sin datos"} />
             <Stat label="Techo carga semanal" value={d?.weekly_tss_ceiling ? `${d.weekly_tss_ceiling} TSS` : "aún sin datos"} />
             <Stat label="Umbral de frescura" value={d?.tsb_recovery_threshold != null ? `TSB ${d.tsb_recovery_threshold}` : "aún sin datos"} />
             <Stat label="Readiness bajo" value={d?.readiness_low_threshold != null ? `${d.readiness_low_threshold}/5` : "aún sin datos"} />

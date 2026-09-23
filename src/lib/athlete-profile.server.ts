@@ -3,6 +3,7 @@
    Solo servidor. */
 
 import { weekStart, isoDate, madridTodayISO } from "./training-load.server";
+import { fitPowerDuration, predictedPower, pdProfileLabel } from "./power-duration";
 
 const DAY = 86400000;
 
@@ -21,6 +22,16 @@ export interface AthleteProfile {
   peak_20m: number | null;
   wkg_20m: number | null;
   anaerobic_ratio: number | null;
+  /** Potencia crítica (W) del modelo potencia-duración */
+  cp_watts: number | null;
+  /** W' en kJ */
+  w_prime_kj: number | null;
+  /** FRC en kJ */
+  frc_kj: number | null;
+  /** curva PD usada en el ajuste */
+  pd_curve: { seconds: number; watts: number }[] | null;
+  /** R² del ajuste */
+  pd_fit_quality: number | null;
   weekly_tss_ceiling: number | null;
   tsb_recovery_threshold: number | null;
   readiness_low_threshold: number | null;
@@ -43,6 +54,11 @@ const DEFAULTS = {
   peak_20m: null,
   wkg_20m: null,
   anaerobic_ratio: null,
+  cp_watts: null,
+  w_prime_kj: null,
+  frc_kj: null,
+  pd_curve: null,
+  pd_fit_quality: null,
   weekly_tss_ceiling: null,
   tsb_recovery_threshold: null,
   readiness_low_threshold: null,
@@ -127,6 +143,16 @@ export async function refreshAthleteProfile(supabase: any, userId: string, profi
   const p20m = best(1200);
   const weight = Number(profile?.weight_kg) || null;
   const derived = deriveType({ p5s, p1m, p5m, p20m });
+
+  // ---- Modelo potencia-duración: CP, W' y FRC con sus mejores esfuerzos ----
+  const curveBest = new Map<number, number>();
+  for (const p of (peaks ?? []) as any[]) {
+    const s = Number(p.duration_seconds);
+    const w = Number(p.watts);
+    if (!Number.isFinite(s) || s <= 0 || !Number.isFinite(w) || w <= 0) continue;
+    if (!curveBest.has(s) || w > curveBest.get(s)!) curveBest.set(s, w);
+  }
+  const pd = fitPowerDuration([...curveBest.entries()].map(([seconds, watts]) => ({ seconds, watts })));
 
   // ---- Techo de carga semanal personal: mejores semanas realmente completadas ----
   const weekTss = new Map<string, number>();
@@ -215,6 +241,11 @@ export async function refreshAthleteProfile(supabase: any, userId: string, profi
     peak_20m: p20m,
     wkg_20m: p20m && weight ? Math.round((p20m / weight) * 100) / 100 : null,
     anaerobic_ratio: derived.anaerobic_ratio,
+    cp_watts: pd.cp,
+    w_prime_kj: pd.w_prime_kj,
+    frc_kj: pd.frc_kj,
+    pd_curve: pd.points.length ? pd.points : null,
+    pd_fit_quality: pd.r2,
     weekly_tss_ceiling: ceiling,
     tsb_recovery_threshold: tsbThreshold,
     readiness_low_threshold: readinessLow,
@@ -249,11 +280,20 @@ export function athletePromptBlock(ap: AthleteProfile | null, declaredType: stri
   const bias = Object.entries(ap.session_bias ?? {})
     .map(([g, c]) => `${g}: ${c}% de cumplimiento`)
     .join(" · ");
+  const cp = ap.cp_watts;
+  const wp = ap.w_prime_kj;
+  const pdBlock = cp && wp
+    ? `- Modelo potencia-duración: CP ${cp} W · W' ${wp} kJ${ap.frc_kj ? ` · FRC ${ap.frc_kj} kJ` : ""}${ap.pd_fit_quality != null ? ` (ajuste R²=${ap.pd_fit_quality})` : ""}.
+- Potencias sostenibles predichas por su modelo: 3min ${predictedPower(cp, wp, 180)}W · 5min ${predictedPower(cp, wp, 300)}W · 8min ${predictedPower(cp, wp, 480)}W · 20min ${predictedPower(cp, wp, 1200)}W. USA ESTOS VALORES como referencia real para prescribir los targets de intervalos, por encima de porcentajes teóricos del FTP.
+- Presupuesto anaeróbico por sesión: la suma de (potencia - CP) × duración de todos los intervalos por encima de CP no debe superar ${Math.round(wp * 2.2 * 10) / 10} kJ (≈2,2 × W'); si la supera, reduce repeticiones.
+- Perfil según el modelo: ${pdProfileLabel(cp, wp, null) ?? "equilibrado"}${wp >= 22 ? " → tolera bien repeticiones cortas y muy intensas" : wp <= 14 ? " → prioriza intervalos largos cerca de CP en lugar de esfuerzos muy supramáximos" : ""}.`
+    : "- Modelo potencia-duración: aún sin datos suficientes (necesita esfuerzos máximos de 3 a 20 min).";
   return `
 FICHA INDIVIDUAL (calculada con SUS datos, no la inventes):
 - Tipo declarado: ${declaredType} · Tipo detectado por su curva de potencia: ${ap.detected_type ?? "aún sin datos"}
 - Potencias de referencia: 5s ${ap.peak_5s ?? "n/a"}W · 1min ${ap.peak_1m ?? "n/a"}W · 5min ${ap.peak_5m ?? "n/a"}W · 20min ${ap.peak_20m ?? "n/a"}W${ap.wkg_20m ? ` (${ap.wkg_20m} W/kg)` : ""}
 - Ratio anaeróbico (1min/20min): ${ap.anaerobic_ratio ?? "n/a"}
+${pdBlock}
 - Disponibilidad real por día: ${avail || "no indicada (usa la duración objetivo)"}
 - Terreno disponible: ${ap.terrain} · Tolerancia al rodillo: ${ap.indoor_tolerance}${ap.natural_cadence ? ` · Cadencia natural: ${ap.natural_cadence} rpm` : ""}
 - Techo de carga semanal que ya ha completado: ${ap.weekly_tss_ceiling ?? "sin datos"} TSS

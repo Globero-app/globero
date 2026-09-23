@@ -82,11 +82,15 @@ export type Database = {
           anaerobic_ratio: number | null
           availability_minutes: Json
           computed_at: string | null
+          cp_watts: number | null
           created_at: string
           deload_every_weeks: number | null
           detected_type: string | null
+          frc_kj: number | null
           indoor_tolerance: string
           natural_cadence: number | null
+          pd_curve: Json | null
+          pd_fit_quality: number | null
           peak_1m: number | null
           peak_20m: number | null
           peak_5m: number | null
@@ -99,6 +103,7 @@ export type Database = {
           tsb_recovery_threshold: number | null
           updated_at: string
           user_id: string
+          w_prime_kj: number | null
           weekly_tss_ceiling: number | null
           wkg_20m: number | null
         }
@@ -106,11 +111,15 @@ export type Database = {
           anaerobic_ratio?: number | null
           availability_minutes?: Json
           computed_at?: string | null
+          cp_watts?: number | null
           created_at?: string
           deload_every_weeks?: number | null
           detected_type?: string | null
+          frc_kj?: number | null
           indoor_tolerance?: string
           natural_cadence?: number | null
+          pd_curve?: Json | null
+          pd_fit_quality?: number | null
           peak_1m?: number | null
           peak_20m?: number | null
           peak_5m?: number | null
@@ -123,6 +132,7 @@ export type Database = {
           tsb_recovery_threshold?: number | null
           updated_at?: string
           user_id: string
+          w_prime_kj?: number | null
           weekly_tss_ceiling?: number | null
           wkg_20m?: number | null
         }
@@ -130,11 +140,15 @@ export type Database = {
           anaerobic_ratio?: number | null
           availability_minutes?: Json
           computed_at?: string | null
+          cp_watts?: number | null
           created_at?: string
           deload_every_weeks?: number | null
           detected_type?: string | null
+          frc_kj?: number | null
           indoor_tolerance?: string
           natural_cadence?: number | null
+          pd_curve?: Json | null
+          pd_fit_quality?: number | null
           peak_1m?: number | null
           peak_20m?: number | null
           peak_5m?: number | null
@@ -147,6 +161,7 @@ export type Database = {
           tsb_recovery_threshold?: number | null
           updated_at?: string
           user_id?: string
+          w_prime_kj?: number | null
           weekly_tss_ceiling?: number | null
           wkg_20m?: number | null
         }
