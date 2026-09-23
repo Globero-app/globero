@@ -204,6 +204,19 @@ export async function generateAndNotifyWorkoutReport(
       .maybeSingle();
     const plan: any = { ...(((w?.plan as any) ?? {}) as Record<string, unknown>) };
     plan.report = { text: report.text, created_at: new Date().toISOString() };
+
+    let gamiText = "";
+    try {
+      const { buildGamification, gamificationText } = await import("./gamification.server");
+      const g = await buildGamification(supabase, userId, workoutId);
+      if (g) {
+        plan.gamification = g;
+        gamiText = gamificationText(g);
+      }
+    } catch (e) {
+      console.error("[workout-report] gamification", e);
+    }
+
     await supabase
       .from("workouts")
       .update({ plan, updated_at: new Date().toISOString() })
