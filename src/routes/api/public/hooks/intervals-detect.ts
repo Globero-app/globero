@@ -4,15 +4,15 @@ import { createFileRoute } from "@tanstack/react-router";
  * Cron cada 30 min. Detecta actividades de hoy en Intervals.icu y envía push
  * para pedir feedback (RPE/Feel).
  *
- * Auth: header `apikey` debe coincidir con SUPABASE_PUBLISHABLE_KEY.
+ * Auth: header `x-cron-secret` debe coincidir con CRON_SECRET.
  */
 export const Route = createFileRoute("/api/public/hooks/intervals-detect")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apikey = request.headers.get("apikey") ?? request.headers.get("x-api-key");
-        const expected = process.env.SUPABASE_PUBLISHABLE_KEY;
-        if (!expected || apikey !== expected) return new Response("Unauthorized", { status: 401 });
+        const provided = request.headers.get("x-cron-secret") ?? "";
+        const expected = process.env.CRON_SECRET ?? "";
+        if (!expected || provided !== expected) return new Response("Unauthorized", { status: 401 });
 
         const today = new Intl.DateTimeFormat("en-CA", {
           timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit",

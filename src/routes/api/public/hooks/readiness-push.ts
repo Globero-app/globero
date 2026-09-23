@@ -6,15 +6,15 @@ import { createFileRoute } from "@tanstack/react-router";
  *  - minuto 5-9  → 1ª notificación adicional activada
  *  - minuto 10-14 → 2ª notificación adicional… (escalonadas cada 5 min)
  *
- * Auth: header `apikey` debe coincidir con SUPABASE_PUBLISHABLE_KEY.
+ * Auth: header `x-cron-secret` debe coincidir con CRON_SECRET.
  */
 export const Route = createFileRoute("/api/public/hooks/readiness-push")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apikey = request.headers.get("apikey") ?? request.headers.get("x-api-key");
-        const expected = process.env.SUPABASE_PUBLISHABLE_KEY;
-        if (!expected || apikey !== expected) {
+        const provided = request.headers.get("x-cron-secret") ?? "";
+        const expected = process.env.CRON_SECRET ?? "";
+        if (!expected || provided !== expected) {
           return new Response("Unauthorized", { status: 401 });
         }
 

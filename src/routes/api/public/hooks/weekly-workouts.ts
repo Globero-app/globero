@@ -5,15 +5,15 @@ import { createFileRoute } from "@tanstack/react-router";
  * de la semana siguiente para cada usuario con generación automática activada,
  * según sus días de entreno, su día de tirada larga y su progreso previo.
  *
- * Auth: header `apikey` debe coincidir con SUPABASE_PUBLISHABLE_KEY.
+ * Auth: header `x-cron-secret` debe coincidir con CRON_SECRET.
  */
 export const Route = createFileRoute("/api/public/hooks/weekly-workouts")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apikey = request.headers.get("apikey") ?? request.headers.get("x-api-key");
-        const expected = process.env.SUPABASE_PUBLISHABLE_KEY;
-        if (!expected || apikey !== expected) return new Response("Unauthorized", { status: 401 });
+        const provided = request.headers.get("x-cron-secret") ?? "";
+        const expected = process.env.CRON_SECRET ?? "";
+        if (!expected || provided !== expected) return new Response("Unauthorized", { status: 401 });
 
         const now = new Date();
         const madrid = new Intl.DateTimeFormat("en-CA", {

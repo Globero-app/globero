@@ -3,15 +3,15 @@ import { createFileRoute } from "@tanstack/react-router";
 /**
  * Cron cada 15 min: detecta actividades nuevas en Intervals.icu, asigna las de alta confianza
  * y avisa por push/Telegram del resto. A las 20:xx (Madrid) recuerda entrenos pendientes.
- * Auth: header `apikey` = SUPABASE_PUBLISHABLE_KEY.
+ * Auth: header `x-cron-secret` = CRON_SECRET.
  */
 export const Route = createFileRoute("/api/public/hooks/activity-detect")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apikey = request.headers.get("apikey") ?? request.headers.get("x-api-key");
-        const expected = process.env.SUPABASE_PUBLISHABLE_KEY;
-        if (!expected || apikey !== expected) return new Response("Unauthorized", { status: 401 });
+        const provided = request.headers.get("x-cron-secret") ?? "";
+        const expected = process.env.CRON_SECRET ?? "";
+        if (!expected || provided !== expected) return new Response("Unauthorized", { status: 401 });
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { acquireJobLock, releaseJobLock, detectAndAssign, remindPendingWorkout } = await import(
