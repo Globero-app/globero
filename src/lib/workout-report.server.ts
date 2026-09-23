@@ -235,7 +235,7 @@ export async function generateAndNotifyWorkoutReport(
     if ((channel === "telegram" || channel === "both") && chatId) {
       try {
         const { telegramSend } = await import("./telegram.server");
-        await telegramSend(chatId, `📊 Informe del entrenamiento\n\n${report.text}`);
+        await telegramSend(chatId, `📊 Informe del entrenamiento\n\n${report.text}${gamiText ? `\n\n${gamiText}` : ""}`);
       } catch (e) {
         console.error("[workout-report] telegram", e);
       }

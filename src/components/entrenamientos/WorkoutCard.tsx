@@ -366,6 +366,7 @@ export function WorkoutCard({
             </DialogDescription>
           </DialogHeader>
           <p className="text-sm whitespace-pre-line leading-relaxed">{plan.report?.text}</p>
+          {plan.gamification && <GamificationBlock g={plan.gamification} />}
         </DialogContent>
       </Dialog>
     </>
