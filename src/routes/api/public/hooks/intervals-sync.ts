@@ -10,9 +10,8 @@ export const Route = createFileRoute("/api/public/hooks/intervals-sync")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const provided = request.headers.get("x-cron-secret") ?? "";
-        const expected = process.env.CRON_SECRET ?? "";
-        if (!expected || provided !== expected) return new Response("Unauthorized", { status: 401 });
+        const { verifyCronRequest } = await import("@/lib/cron-auth.server");
+        if (!(await verifyCronRequest(request))) return new Response("Unauthorized", { status: 401 });
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { reconcileIntervalsEvents } = await import("@/lib/intervals-pull.server");

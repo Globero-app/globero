@@ -373,6 +373,24 @@ export type Database = {
         }
         Relationships: []
       }
+      cron_auth: {
+        Row: {
+          created_at: string
+          id: number
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          token: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          token?: string
+        }
+        Relationships: []
+      }
       daily_activities: {
         Row: {
           activity_id: string
