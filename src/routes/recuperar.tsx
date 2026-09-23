@@ -1,8 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { emailExists } from "@/lib/account.functions";
 import { BrandLogo } from "@/components/BrandLogo";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -23,7 +21,6 @@ export const Route = createFileRoute("/recuperar")({
 });
 
 function RecoverPage() {
-  const check = useServerFn(emailExists);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
