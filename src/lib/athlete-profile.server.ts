@@ -280,6 +280,14 @@ export function athletePromptBlock(ap: AthleteProfile | null, declaredType: stri
   const bias = Object.entries(ap.session_bias ?? {})
     .map(([g, c]) => `${g}: ${c}% de cumplimiento`)
     .join(" · ");
+  const cp = ap.cp_watts;
+  const wp = ap.w_prime_kj;
+  const pdBlock = cp && wp
+    ? `- Modelo potencia-duración: CP ${cp} W · W' ${wp} kJ${ap.frc_kj ? ` · FRC ${ap.frc_kj} kJ` : ""}${ap.pd_fit_quality != null ? ` (ajuste R²=${ap.pd_fit_quality})` : ""}.
+- Potencias sostenibles predichas por su modelo: 3min ${predictedPower(cp, wp, 180)}W · 5min ${predictedPower(cp, wp, 300)}W · 8min ${predictedPower(cp, wp, 480)}W · 20min ${predictedPower(cp, wp, 1200)}W. USA ESTOS VALORES como referencia real para prescribir los targets de intervalos, por encima de porcentajes teóricos del FTP.
+- Presupuesto anaeróbico por sesión: la suma de (potencia - CP) × duración de todos los intervalos por encima de CP no debe superar ${Math.round(wp * 2.2 * 10) / 10} kJ (≈2,2 × W'); si la supera, reduce repeticiones.
+- Perfil según el modelo: ${pdProfileLabel(cp, wp, null) ?? "equilibrado"}${wp >= 22 ? " → tolera bien repeticiones cortas y muy intensas" : wp <= 14 ? " → prioriza intervalos largos cerca de CP en lugar de esfuerzos muy supramáximos" : ""}.`
+    : "- Modelo potencia-duración: aún sin datos suficientes (necesita esfuerzos máximos de 3 a 20 min).";
   return `
 FICHA INDIVIDUAL (calculada con SUS datos, no la inventes):
 - Tipo declarado: ${declaredType} · Tipo detectado por su curva de potencia: ${ap.detected_type ?? "aún sin datos"}
