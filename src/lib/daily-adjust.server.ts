@@ -300,11 +300,13 @@ export async function adjustTodayByReadiness(supabase: any, userId: string, toda
   await notify(
     supabase,
     userId,
-    "🔻 Sesión de hoy suavizada",
-    `${score ? `Readiness ${score}/5` : `Frescura baja (TSB ${Math.round(tsb)})`}: hoy bajamos intensidad a ${res.minutes} min. La carga se reparte en el resto de la semana.`,
+    toRecovery ? "🛌 Hoy toca recuperación activa" : "🔻 Sesión de hoy suavizada",
+    toRecovery
+      ? `${causa}: cambiamos el entreno por un rodaje muy suave en Z1 de ${res.minutes} min. La carga se reparte en el resto de la semana.`
+      : `${causa}: hoy bajamos intensidad (${res.minutes} min). La carga se reparte en el resto de la semana.`,
   );
 
-  return { adjusted: true, minutes: res.minutes };
+  return { adjusted: true, minutes: res.minutes, level: toRecovery ? "recuperacion" : "suave", hrv };
 }
 
 /** Detecta FTP desfasado a partir de la curva de potencia reciente. */
