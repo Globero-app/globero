@@ -239,21 +239,42 @@ export async function adjustTodayByReadiness(supabase: any, userId: string, toda
   let load: any = null;
   try { load = await buildTrainingLoad(supabase, userId, profile); } catch { /* opcional */ }
 
+  let hrv: HrvStatus = { value: null, baseline: null, sd: null, deviationPct: null, level: "unknown" };
+  try { hrv = await evaluateHrv(supabase, userId, todayISO); } catch { /* opcional */ }
+
   const score = Number(readiness?.score ?? 0);
   const tsb = Number(load?.tsb ?? 0);
-  const veryLow = score === 1;
-  const low = score === 2 || (score > 0 && score <= 3 && tsb <= -25) || (!score && tsb <= -30);
-  if (!veryLow && !low) return { adjusted: false, reason: "sin_cambios" };
+  const hrvLow = hrv.level === "low";
+  const hrvVeryLow = hrv.level === "very_low";
 
-  const res = adjustPlan(
-    plan,
-    { easier: true, minutes: veryLow ? Math.min(w.duration_minutes, 45) : null },
-    { ftp: profile?.ftp ?? null, lthr: (profile as any)?.lthr ?? null, maxHr: (profile as any)?.max_hr ?? null },
-  );
+  // Nivel 2: recuperación activa en Z1 (fatiga aguda o VFC muy alterada)
+  const toRecovery =
+    score === 1 ||
+    hrvVeryLow ||
+    (hrvLow && (score === 2 || (score > 0 && score <= 3 && tsb <= -20) || tsb <= -30));
+  // Nivel 1: misma sesión pero más suave
+  const toEasier =
+    !toRecovery &&
+    (score === 2 || (score > 0 && score <= 3 && tsb <= -25) || (!score && tsb <= -30) || hrvLow);
+
+  if (!toRecovery && !toEasier) return { adjusted: false, reason: "sin_cambios", hrv };
+
+  const refs = { ftp: profile?.ftp ?? null, lthr: (profile as any)?.lthr ?? null, maxHr: (profile as any)?.max_hr ?? null };
+  const res = toRecovery
+    ? buildRecoveryPlan(plan, Math.min(Number(w.duration_minutes) || 45, 45), refs)
+    : adjustPlan(plan, { easier: true, minutes: null }, refs);
+
+  const hrvTxt =
+    hrv.level === "very_low" || hrv.level === "low"
+      ? `VFC ${hrv.value} vs base ${hrv.baseline}${hrv.deviationPct != null ? ` (${hrv.deviationPct}%)` : ""}`
+      : "";
+  const causa = [score ? `readiness ${score}/5` : "", hrvTxt, `TSB ${Math.round(tsb)}`].filter(Boolean).join(" · ");
   const newPlan = {
     ...res.plan,
     daily_adjust_date: todayISO,
-    rationale: `${plan.rationale ?? ""} · Ajuste automático de hoy: ${score ? `readiness ${score}/5` : `TSB ${Math.round(tsb)}`}`.trim(),
+    daily_adjust_level: toRecovery ? "recuperacion" : "suave",
+    hrv_status: hrv,
+    rationale: `${plan.rationale ?? ""} · Ajuste automático de hoy: ${causa}`.trim(),
   };
 
   const { data: updated } = await supabase
