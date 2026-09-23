@@ -84,6 +84,47 @@ export function adjustPlan(plan: any, mode: AdjustMode, refs: { ftp: number | nu
   return { plan: newPlan, minutes, tss, notes };
 }
 
+/** Sustituye la sesión por un rodaje muy suave en Z1 (descanso activo). */
+export function buildRecoveryPlan(
+  plan: any,
+  minutes: number,
+  refs: { ftp: number | null; lthr: number | null; maxHr: number | null },
+) {
+  const total = Math.max(20, Math.min(60, Math.round(minutes)));
+  const warm = Math.round(total * 0.2) * 60;
+  const cool = Math.round(total * 0.2) * 60;
+  const main = Math.max(300, total * 60 - warm - cool);
+
+  const ftp = Number(refs.ftp) || 0;
+  const maxHr = Number(refs.maxHr) || 0;
+  const useHr = !ftp && maxHr > 0;
+  const band = (loPct: number, hiPct: number) =>
+    useHr
+      ? { target: "hr", target_low: Math.round(maxHr * loPct), target_high: Math.round(maxHr * hiPct) }
+      : ftp
+        ? { target: "power", target_low: Math.round(ftp * loPct), target_high: Math.round(ftp * hiPct) }
+        : { target: "rpe", target_low: 2, target_high: 3 };
+
+  const steps = [
+    { name: "Activación suave", intensity: "warmup", duration_seconds: warm, ...band(0.45, 0.55), cadence: "85-95 rpm" },
+    { name: "Rodaje Z1 (descanso activo)", intensity: "recovery", duration_seconds: main, ...band(0.5, 0.58), cadence: "90-95 rpm, sin forzar" },
+    { name: "Vuelta a la calma", intensity: "cooldown", duration_seconds: cool, ...band(0.4, 0.5), cadence: "libre" },
+  ];
+
+  const newPlan = {
+    ...plan,
+    title: "Recuperación activa (Z1)",
+    session_goal: "recuperacion",
+    energy_system: "aerobico_ligero",
+    steps,
+    adjusted_at: new Date().toISOString(),
+    adjust_notes: "Sesión cambiada a recuperación activa en Z1",
+    summary: `Rodaje muy suave de ${total} min en Z1 para favorecer la recuperación. Sin intervalos ni esfuerzos.`,
+  };
+  const tss = estimatePlanTss(newPlan, refs.ftp, refs.lthr, refs.maxHr, total);
+  return { plan: newPlan, minutes: total, tss };
+}
+
 /** Devuelve la sesión pendiente de hoy (si existe). */
 export async function todayWorkout(supabase: any, userId: string) {
   const today = madridTodayISO();

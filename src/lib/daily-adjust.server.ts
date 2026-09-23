@@ -169,9 +169,55 @@ export async function skipWorkoutNow(supabase: any, userId: string, w: any) {
   return { ok: true, skipped: true, proposed_date: free, rebalanced };
 }
 
-/** Suaviza (o permite recuperar) la sesión de hoy según readiness y frescura. */
+export interface HrvStatus {
+  value: number | null;
+  baseline: number | null;
+  sd: number | null;
+  deviationPct: number | null;
+  level: "ok" | "low" | "very_low" | "unknown";
+}
+
+/** Compara la VFC de hoy con la línea base propia del ciclista (media ± SD de 42 días). */
+export async function evaluateHrv(supabase: any, userId: string, todayISO = madridTodayISO()): Promise<HrvStatus> {
+  const unknown: HrvStatus = { value: null, baseline: null, sd: null, deviationPct: null, level: "unknown" };
+  const { data } = await supabase
+    .from("hrv_entries")
+    .select("entry_date,value")
+    .eq("user_id", userId)
+    .gte("entry_date", addDays(todayISO, -42))
+    .lte("entry_date", todayISO)
+    .order("entry_date", { ascending: false })
+    .limit(60);
+
+  const rows = ((data ?? []) as any[])
+    .map((r) => ({ date: String(r.entry_date), value: Number(r.value) }))
+    .filter((r) => Number.isFinite(r.value) && r.value > 0);
+  if (!rows.length) return unknown;
+
+  const todayRow = rows.find((r) => r.date === todayISO) ?? rows.find((r) => r.date === addDays(todayISO, -1));
+  const base = rows.filter((r) => r.date !== todayRow?.date);
+  if (!todayRow || base.length < 7) return { ...unknown, value: todayRow?.value ?? null };
+
+  const mean = base.reduce((a, b) => a + b.value, 0) / base.length;
+  const sd = Math.sqrt(base.reduce((a, b) => a + (b.value - mean) ** 2, 0) / base.length);
+  const deviationPct = mean > 0 ? Math.round(((todayRow.value - mean) / mean) * 1000) / 10 : null;
+
+  let level: HrvStatus["level"] = "ok";
+  if (todayRow.value < mean - 2 * sd || (deviationPct !== null && deviationPct <= -15)) level = "very_low";
+  else if (todayRow.value < mean - sd || (deviationPct !== null && deviationPct <= -8)) level = "low";
+
+  return {
+    value: todayRow.value,
+    baseline: Math.round(mean),
+    sd: Math.round(sd * 10) / 10,
+    deviationPct,
+    level,
+  };
+}
+
+/** Suaviza, convierte en recuperación o mantiene la sesión de hoy según VFC, readiness y frescura. */
 export async function adjustTodayByReadiness(supabase: any, userId: string, todayISO = madridTodayISO()) {
-  const { todayWorkout, adjustPlan } = await import("./adjust.server");
+  const { todayWorkout, adjustPlan, buildRecoveryPlan } = await import("./adjust.server");
   const w = await todayWorkout(supabase, userId);
   if (!w) return { adjusted: false, reason: "sin_sesion" };
   const plan: any = w.plan ?? {};
@@ -193,21 +239,42 @@ export async function adjustTodayByReadiness(supabase: any, userId: string, toda
   let load: any = null;
   try { load = await buildTrainingLoad(supabase, userId, profile); } catch { /* opcional */ }
 
+  let hrv: HrvStatus = { value: null, baseline: null, sd: null, deviationPct: null, level: "unknown" };
+  try { hrv = await evaluateHrv(supabase, userId, todayISO); } catch { /* opcional */ }
+
   const score = Number(readiness?.score ?? 0);
   const tsb = Number(load?.tsb ?? 0);
-  const veryLow = score === 1;
-  const low = score === 2 || (score > 0 && score <= 3 && tsb <= -25) || (!score && tsb <= -30);
-  if (!veryLow && !low) return { adjusted: false, reason: "sin_cambios" };
+  const hrvLow = hrv.level === "low";
+  const hrvVeryLow = hrv.level === "very_low";
 
-  const res = adjustPlan(
-    plan,
-    { easier: true, minutes: veryLow ? Math.min(w.duration_minutes, 45) : null },
-    { ftp: profile?.ftp ?? null, lthr: (profile as any)?.lthr ?? null, maxHr: (profile as any)?.max_hr ?? null },
-  );
+  // Nivel 2: recuperación activa en Z1 (fatiga aguda o VFC muy alterada)
+  const toRecovery =
+    score === 1 ||
+    hrvVeryLow ||
+    (hrvLow && (score === 2 || (score > 0 && score <= 3 && tsb <= -20) || tsb <= -30));
+  // Nivel 1: misma sesión pero más suave
+  const toEasier =
+    !toRecovery &&
+    (score === 2 || (score > 0 && score <= 3 && tsb <= -25) || (!score && tsb <= -30) || hrvLow);
+
+  if (!toRecovery && !toEasier) return { adjusted: false, reason: "sin_cambios", hrv };
+
+  const refs = { ftp: profile?.ftp ?? null, lthr: (profile as any)?.lthr ?? null, maxHr: (profile as any)?.max_hr ?? null };
+  const res = toRecovery
+    ? buildRecoveryPlan(plan, Math.min(Number(w.duration_minutes) || 45, 45), refs)
+    : adjustPlan(plan, { easier: true, minutes: null }, refs);
+
+  const hrvTxt =
+    hrv.level === "very_low" || hrv.level === "low"
+      ? `VFC ${hrv.value} vs base ${hrv.baseline}${hrv.deviationPct != null ? ` (${hrv.deviationPct}%)` : ""}`
+      : "";
+  const causa = [score ? `readiness ${score}/5` : "", hrvTxt, `TSB ${Math.round(tsb)}`].filter(Boolean).join(" · ");
   const newPlan = {
     ...res.plan,
     daily_adjust_date: todayISO,
-    rationale: `${plan.rationale ?? ""} · Ajuste automático de hoy: ${score ? `readiness ${score}/5` : `TSB ${Math.round(tsb)}`}`.trim(),
+    daily_adjust_level: toRecovery ? "recuperacion" : "suave",
+    hrv_status: hrv,
+    rationale: `${plan.rationale ?? ""} · Ajuste automático de hoy: ${causa}`.trim(),
   };
 
   const { data: updated } = await supabase
@@ -233,11 +300,13 @@ export async function adjustTodayByReadiness(supabase: any, userId: string, toda
   await notify(
     supabase,
     userId,
-    "🔻 Sesión de hoy suavizada",
-    `${score ? `Readiness ${score}/5` : `Frescura baja (TSB ${Math.round(tsb)})`}: hoy bajamos intensidad a ${res.minutes} min. La carga se reparte en el resto de la semana.`,
+    toRecovery ? "🛌 Hoy toca recuperación activa" : "🔻 Sesión de hoy suavizada",
+    toRecovery
+      ? `${causa}: cambiamos el entreno por un rodaje muy suave en Z1 de ${res.minutes} min. La carga se reparte en el resto de la semana.`
+      : `${causa}: hoy bajamos intensidad (${res.minutes} min). La carga se reparte en el resto de la semana.`,
   );
 
-  return { adjusted: true, minutes: res.minutes };
+  return { adjusted: true, minutes: res.minutes, level: toRecovery ? "recuperacion" : "suave", hrv };
 }
 
 /** Detecta FTP desfasado a partir de la curva de potencia reciente. */
