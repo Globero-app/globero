@@ -3,6 +3,7 @@
    Solo servidor. */
 
 import { weekStart, isoDate, madridTodayISO } from "./training-load.server";
+import { fitPowerDuration, predictedPower, pdProfileLabel } from "./power-duration";
 
 const DAY = 86400000;
 
@@ -142,6 +143,16 @@ export async function refreshAthleteProfile(supabase: any, userId: string, profi
   const p20m = best(1200);
   const weight = Number(profile?.weight_kg) || null;
   const derived = deriveType({ p5s, p1m, p5m, p20m });
+
+  // ---- Modelo potencia-duración: CP, W' y FRC con sus mejores esfuerzos ----
+  const curveBest = new Map<number, number>();
+  for (const p of (peaks ?? []) as any[]) {
+    const s = Number(p.duration_seconds);
+    const w = Number(p.watts);
+    if (!Number.isFinite(s) || s <= 0 || !Number.isFinite(w) || w <= 0) continue;
+    if (!curveBest.has(s) || w > curveBest.get(s)!) curveBest.set(s, w);
+  }
+  const pd = fitPowerDuration([...curveBest.entries()].map(([seconds, watts]) => ({ seconds, watts })));
 
   // ---- Techo de carga semanal personal: mejores semanas realmente completadas ----
   const weekTss = new Map<string, number>();
