@@ -169,9 +169,55 @@ export async function skipWorkoutNow(supabase: any, userId: string, w: any) {
   return { ok: true, skipped: true, proposed_date: free, rebalanced };
 }
 
-/** Suaviza (o permite recuperar) la sesión de hoy según readiness y frescura. */
+export interface HrvStatus {
+  value: number | null;
+  baseline: number | null;
+  sd: number | null;
+  deviationPct: number | null;
+  level: "ok" | "low" | "very_low" | "unknown";
+}
+
+/** Compara la VFC de hoy con la línea base propia del ciclista (media ± SD de 42 días). */
+export async function evaluateHrv(supabase: any, userId: string, todayISO = madridTodayISO()): Promise<HrvStatus> {
+  const unknown: HrvStatus = { value: null, baseline: null, sd: null, deviationPct: null, level: "unknown" };
+  const { data } = await supabase
+    .from("hrv_entries")
+    .select("entry_date,value")
+    .eq("user_id", userId)
+    .gte("entry_date", addDays(todayISO, -42))
+    .lte("entry_date", todayISO)
+    .order("entry_date", { ascending: false })
+    .limit(60);
+
+  const rows = ((data ?? []) as any[])
+    .map((r) => ({ date: String(r.entry_date), value: Number(r.value) }))
+    .filter((r) => Number.isFinite(r.value) && r.value > 0);
+  if (!rows.length) return unknown;
+
+  const todayRow = rows.find((r) => r.date === todayISO) ?? rows.find((r) => r.date === addDays(todayISO, -1));
+  const base = rows.filter((r) => r.date !== todayRow?.date);
+  if (!todayRow || base.length < 7) return { ...unknown, value: todayRow?.value ?? null };
+
+  const mean = base.reduce((a, b) => a + b.value, 0) / base.length;
+  const sd = Math.sqrt(base.reduce((a, b) => a + (b.value - mean) ** 2, 0) / base.length);
+  const deviationPct = mean > 0 ? Math.round(((todayRow.value - mean) / mean) * 1000) / 10 : null;
+
+  let level: HrvStatus["level"] = "ok";
+  if (todayRow.value < mean - 2 * sd || (deviationPct !== null && deviationPct <= -15)) level = "very_low";
+  else if (todayRow.value < mean - sd || (deviationPct !== null && deviationPct <= -8)) level = "low";
+
+  return {
+    value: todayRow.value,
+    baseline: Math.round(mean),
+    sd: Math.round(sd * 10) / 10,
+    deviationPct,
+    level,
+  };
+}
+
+/** Suaviza, convierte en recuperación o mantiene la sesión de hoy según VFC, readiness y frescura. */
 export async function adjustTodayByReadiness(supabase: any, userId: string, todayISO = madridTodayISO()) {
-  const { todayWorkout, adjustPlan } = await import("./adjust.server");
+  const { todayWorkout, adjustPlan, buildRecoveryPlan } = await import("./adjust.server");
   const w = await todayWorkout(supabase, userId);
   if (!w) return { adjusted: false, reason: "sin_sesion" };
   const plan: any = w.plan ?? {};
