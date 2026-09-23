@@ -373,6 +373,55 @@ export function WorkoutCard({
   );
 }
 
+function GamificationBlock({ g }: { g: any }) {
+  const pct = g?.compliance?.percent as number | null;
+  const records: any[] = g?.records ?? [];
+  const badges: any[] = g?.badges ?? [];
+  return (
+    <div className="mt-4 space-y-3 border-t pt-3">
+      {pct != null && (
+        <div>
+          <div className="flex items-baseline justify-between">
+            <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Cumplimiento del entreno</p>
+            <p className="font-display text-lg font-bold">{pct}%</p>
+          </div>
+          <div className="h-2 rounded-full bg-secondary overflow-hidden mt-1">
+            <div className="h-full bg-primary rounded-full" style={{ width: `${Math.min(100, Math.max(0, pct))}%` }} />
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1">{g.compliance.label}</p>
+        </div>
+      )}
+
+      {records.length > 0 && (
+        <div>
+          <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1">Récords de la temporada</p>
+          <div className="grid grid-cols-2 gap-2">
+            {records.map((r) => (
+              <div key={r.seconds} className="rounded-lg bg-amber-100/60 border border-amber-300/60 px-2 py-1.5">
+                <p className="text-[10px] uppercase font-semibold text-amber-800">🏆 {r.label}</p>
+                <p className="font-display text-sm font-bold">{r.watts} W{r.gain ? <span className="text-[11px] font-normal"> (+{r.gain})</span> : null}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {badges.length > 0 && (
+        <div>
+          <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1">Insignias</p>
+          <div className="flex flex-wrap gap-1.5">
+            {badges.map((b, i) => (
+              <span key={i} title={b.detail} className="text-[11px] rounded-full border bg-secondary px-2 py-1">
+                {b.emoji} {b.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function formatDuration(sec: number) {
   if (!sec) return "—";
   const m = Math.floor(sec / 60);
