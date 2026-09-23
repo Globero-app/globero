@@ -21,6 +21,16 @@ export interface AthleteProfile {
   peak_20m: number | null;
   wkg_20m: number | null;
   anaerobic_ratio: number | null;
+  /** Potencia crítica (W) del modelo potencia-duración */
+  cp_watts: number | null;
+  /** W' en kJ */
+  w_prime_kj: number | null;
+  /** FRC en kJ */
+  frc_kj: number | null;
+  /** curva PD usada en el ajuste */
+  pd_curve: { seconds: number; watts: number }[] | null;
+  /** R² del ajuste */
+  pd_fit_quality: number | null;
   weekly_tss_ceiling: number | null;
   tsb_recovery_threshold: number | null;
   readiness_low_threshold: number | null;
