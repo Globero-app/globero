@@ -12,9 +12,9 @@ export const Route = createFileRoute("/api/public/hooks/readiness-push")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apikey = request.headers.get("apikey") ?? request.headers.get("x-api-key");
-        const expected = process.env.SUPABASE_PUBLISHABLE_KEY;
-        if (!expected || apikey !== expected) {
+        const provided = request.headers.get("x-cron-secret") ?? "";
+        const expected = process.env.CRON_SECRET ?? "";
+        if (!expected || provided !== expected) {
           return new Response("Unauthorized", { status: 401 });
         }
 

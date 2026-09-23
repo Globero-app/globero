@@ -22,7 +22,8 @@ export const generateTelegramCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const code = `sb${Math.random().toString(36).slice(2, 8)}${Date.now().toString(36).slice(-4)}`;
+    const bytes = crypto.getRandomValues(new Uint8Array(24));
+    const code = `sb${Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("")}`;
     const { error } = await supabase
       .from("profiles")
       .update({ linking_code: code, telegram_chat_id: null })

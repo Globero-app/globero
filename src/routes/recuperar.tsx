@@ -34,11 +34,6 @@ function RecoverPage() {
     if (!parsed.success) return toast.error("Email no válido");
     setLoading(true);
     try {
-      const { exists } = await check({ data: { email: parsed.data } });
-      if (!exists) {
-        toast.error("Este email no pertenece a ningún usuario activo");
-        return;
-      }
       const { error } = await supabase.auth.resetPasswordForEmail(parsed.data, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
