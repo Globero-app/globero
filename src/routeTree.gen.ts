@@ -32,7 +32,6 @@ import { Route as AuthenticatedCompeticionesIndexRouteImport } from './routes/_a
 import { Route as AuthenticatedActividadesIndexRouteImport } from './routes/_authenticated/actividades.index'
 import { Route as AuthStravaCallbackRouteImport } from './routes/auth/strava/callback'
 import { Route as AuthIntervalsCallbackRouteImport } from './routes/auth/intervals/callback'
-import { Route as ApiPublicSetupAdminRouteImport } from './routes/api/public/setup-admin'
 import { Route as AuthenticatedCompeticionesIdRouteImport } from './routes/_authenticated/competiciones.$id'
 import { Route as AuthenticatedActividadesIdRouteImport } from './routes/_authenticated/actividades.$id'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -162,11 +161,6 @@ const AuthIntervalsCallbackRoute = AuthIntervalsCallbackRouteImport.update({
   path: '/auth/intervals/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicSetupAdminRoute = ApiPublicSetupAdminRouteImport.update({
-  id: '/api/public/setup-admin',
-  path: '/api/public/setup-admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedCompeticionesIdRoute =
   AuthenticatedCompeticionesIdRouteImport.update({
     id: '/competiciones/$id',
@@ -253,7 +247,6 @@ export interface FileRoutesByFullPath {
   '/auth/': typeof AuthIndexRoute
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
-  '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
   '/auth/intervals/callback': typeof AuthIntervalsCallbackRoute
   '/auth/strava/callback': typeof AuthStravaCallbackRoute
   '/actividades/': typeof AuthenticatedActividadesIndexRoute
@@ -289,7 +282,6 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthIndexRoute
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
-  '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
   '/auth/intervals/callback': typeof AuthIntervalsCallbackRoute
   '/auth/strava/callback': typeof AuthStravaCallbackRoute
   '/actividades': typeof AuthenticatedActividadesIndexRoute
@@ -327,7 +319,6 @@ export interface FileRoutesById {
   '/auth/': typeof AuthIndexRoute
   '/_authenticated/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/_authenticated/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
-  '/api/public/setup-admin': typeof ApiPublicSetupAdminRoute
   '/auth/intervals/callback': typeof AuthIntervalsCallbackRoute
   '/auth/strava/callback': typeof AuthStravaCallbackRoute
   '/_authenticated/actividades/': typeof AuthenticatedActividadesIndexRoute
@@ -365,7 +356,6 @@ export interface FileRouteTypes {
     | '/auth/'
     | '/actividades/$id'
     | '/competiciones/$id'
-    | '/api/public/setup-admin'
     | '/auth/intervals/callback'
     | '/auth/strava/callback'
     | '/actividades/'
@@ -401,7 +391,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/actividades/$id'
     | '/competiciones/$id'
-    | '/api/public/setup-admin'
     | '/auth/intervals/callback'
     | '/auth/strava/callback'
     | '/actividades'
@@ -438,7 +427,6 @@ export interface FileRouteTypes {
     | '/auth/'
     | '/_authenticated/actividades/$id'
     | '/_authenticated/competiciones/$id'
-    | '/api/public/setup-admin'
     | '/auth/intervals/callback'
     | '/auth/strava/callback'
     | '/_authenticated/actividades/'
@@ -463,7 +451,6 @@ export interface RootRouteChildren {
   RegistroRoute: typeof RegistroRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   AuthIndexRoute: typeof AuthIndexRoute
-  ApiPublicSetupAdminRoute: typeof ApiPublicSetupAdminRoute
   AuthIntervalsCallbackRoute: typeof AuthIntervalsCallbackRoute
   AuthStravaCallbackRoute: typeof AuthStravaCallbackRoute
   ApiPublicHooksActivityDetectRoute: typeof ApiPublicHooksActivityDetectRoute
@@ -640,13 +627,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIntervalsCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/setup-admin': {
-      id: '/api/public/setup-admin'
-      path: '/api/public/setup-admin'
-      fullPath: '/api/public/setup-admin'
-      preLoaderRoute: typeof ApiPublicSetupAdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/competiciones/$id': {
       id: '/_authenticated/competiciones/$id'
       path: '/competiciones/$id'
@@ -775,7 +755,6 @@ const rootRouteChildren: RootRouteChildren = {
   RegistroRoute: RegistroRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   AuthIndexRoute: AuthIndexRoute,
-  ApiPublicSetupAdminRoute: ApiPublicSetupAdminRoute,
   AuthIntervalsCallbackRoute: AuthIntervalsCallbackRoute,
   AuthStravaCallbackRoute: AuthStravaCallbackRoute,
   ApiPublicHooksActivityDetectRoute: ApiPublicHooksActivityDetectRoute,
