@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n";import { createFileRoute, Link } from "@tanstack/react-router";
+import { tr, activeLang } from "@/lib/i18n";import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
@@ -11,7 +11,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from
 "recharts";
 import { format, eachDayOfInterval } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 
 export const Route = createFileRoute("/_authenticated/actividades/")({
   component: ActividadesPage
@@ -128,7 +128,7 @@ function ActividadesPage() {
             <div className="min-w-0">
               <p className="font-semibold truncate">{a.name}</p>
               <p className="text-xs text-muted-foreground">
-                {a.start_date && format(new Date(a.start_date), "d MMM yyyy · HH:mm", { locale: es })} · {a.type}
+                {a.start_date && format(new Date(a.start_date), "d MMM yyyy · HH:mm", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })} · {a.type}
               </p>
             </div>
             <div className="flex items-center gap-6 text-xs">
@@ -174,7 +174,7 @@ function buildCtlAtl(acts: any[]) {
     ctl = ctl + (tss - ctl) * (1 - Math.exp(-1 / 42));
     atl = atl + (tss - atl) * (1 - Math.exp(-1 / 7));
     result.push({
-      label: format(day, "d MMM", { locale: es }),
+      label: format(day, "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] }),
       carga: Math.round(ctl),
       fatiga: Math.round(atl),
       tsb: Math.round(ctl - atl)

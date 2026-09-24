@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n";import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { tr, activeLang } from "@/lib/i18n";import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/use-auth";
 import { generateWeeklyNutrition } from "@/lib/nutrition.functions";
 import { ChefHat, ChevronRight, Loader2, Sparkles } from "lucide-react";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/menus")({
@@ -142,7 +142,7 @@ function MenusPage() {
             <button onClick={() => setOpen(isOpen ? null : w.id)} className="w-full text-left p-5 flex items-center justify-between gap-3">
               <div>
                 <p className="text-[10px] font-mono uppercase tracking-widest text-primary"> {tr("Semana del")} 
-                  {format(new Date(`${w.week_start}T12:00:00Z`), "d MMM yyyy", { locale: es })}
+                  {format(new Date(`${w.week_start}T12:00:00Z`), "d MMM yyyy", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}
                 </p>
                 <h3 className="font-display text-xl font-bold uppercase mt-0.5">
                   {GOALS.find((g) => g.value === w.goal)?.label ?? w.goal}
@@ -211,7 +211,7 @@ function MenusPage() {
                 onClick={() => navigate({ to: "/competiciones/$id", params: { id: c.id } })}
                 className="text-left bg-surface border rounded-xl p-5 hover:border-primary/50 transition-colors">
                 
-                  <p className="text-[10px] font-mono uppercase tracking-widest text-primary">{format(new Date(c.date), "d MMM yyyy", { locale: es })}</p>
+                  <p className="text-[10px] font-mono uppercase tracking-widest text-primary">{format(new Date(c.date), "d MMM yyyy", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}</p>
                   <h3 className="font-display text-xl font-bold uppercase mt-0.5">{c.name}</h3>
                   <p className="text-xs text-muted-foreground mt-1">{m.dias.length} {tr("días ·")} {c.distance_km} {tr("km")}</p>
                   <div className="mt-4 grid grid-cols-2 gap-2">

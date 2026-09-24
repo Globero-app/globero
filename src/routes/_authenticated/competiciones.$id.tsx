@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n";import { createFileRoute, Link } from "@tanstack/react-router";
+import { tr, activeLang } from "@/lib/i18n";import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
@@ -17,7 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 
 export const Route = createFileRoute("/_authenticated/competiciones/$id")({
   component: CompetitionDetail
@@ -207,7 +207,7 @@ function CompetitionDetail() {
         <Link to="/competiciones" className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1 mb-2">
           <ArrowLeft className="size-3" /> {tr("Volver")} 
         </Link>
-        <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary">{format(new Date(c.date), "d 'de' MMMM yyyy", { locale: es })}</p>
+        <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary">{format(new Date(c.date), "d 'de' MMMM yyyy", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}</p>
         <h1 className="font-display text-4xl font-bold uppercase tracking-tight">{c.name}</h1>
         <div className="flex gap-4 mt-2 text-sm text-muted-foreground">
           <span>{c.distance_km} {tr("km")}</span><span>+{c.elevation_m} {tr("m")}</span><span className="capitalize">{c.type}</span><span className="capitalize">{tr("Intensidad")} {c.intensity}</span>

@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n";import { createFileRoute, Link } from "@tanstack/react-router";
+import { tr, activeLang } from "@/lib/i18n";import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
@@ -9,7 +9,7 @@ import { getFtpTestStatus } from "@/lib/diag.functions";
 import { Trophy, Flame, Bike, ChevronRight, Plus, Trash2, Activity, Timer, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MaintenanceAlertsBanner } from "@/components/MaintenanceAlertsBanner";
 import { AdjustTodayCard } from "@/components/AdjustTodayCard";
@@ -193,7 +193,7 @@ function Dashboard() {
                 <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-accent-foreground/60 flex items-center gap-2">
                   <Timer className="size-3.5 text-primary" /> {tr("Cuenta atrás")} 
             </p>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-primary">{format(new Date(next.date), "d MMM", { locale: es })}</span>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-primary">{format(new Date(next.date), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}</span>
               </div>
               <p className="font-display text-3xl font-bold uppercase tracking-tight truncate">{next.name}</p>
               <p className="font-display text-5xl font-bold mt-2">
@@ -283,7 +283,7 @@ function Dashboard() {
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="min-w-0">
                     <p className="text-[10px] font-mono uppercase tracking-widest text-primary">
-                      {format(new Date(c.date), "d MMM yyyy", { locale: es })}
+                      {format(new Date(c.date), "d MMM yyyy", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}
                     </p>
                     <h3 className="font-display text-xl font-bold uppercase truncate mt-0.5">{c.name}</h3>
                   </div>

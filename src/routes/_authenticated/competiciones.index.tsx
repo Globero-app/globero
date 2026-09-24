@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n";import { createFileRoute, Link } from "@tanstack/react-router";
+import { tr, activeLang } from "@/lib/i18n";import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
@@ -6,7 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Plus, Trash2, ChevronRight, Pencil, X } from "lucide-react";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 
 export const Route = createFileRoute("/_authenticated/competiciones/")({
   component: CompetitionsPage
@@ -51,7 +51,7 @@ function CompetitionsPage() {
         <div key={c.id} className="bg-surface border rounded-xl p-5 group hover:border-primary/50 transition-colors">
             <div className="flex justify-between gap-2 mb-3">
               <div className="min-w-0">
-                <p className="text-[10px] font-mono uppercase tracking-widest text-primary">{format(new Date(c.date), "d MMM yyyy", { locale: es })}</p>
+                <p className="text-[10px] font-mono uppercase tracking-widest text-primary">{format(new Date(c.date), "d MMM yyyy", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}</p>
                 <h3 className="font-display text-xl font-bold uppercase truncate mt-0.5">{c.name}</h3>
               </div>
               <div className="flex gap-1">

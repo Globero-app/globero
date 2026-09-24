@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n";import { createFileRoute, Link } from "@tanstack/react-router";
+import { tr, activeLang } from "@/lib/i18n";import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,7 +16,7 @@ import {
 "recharts";
 import { ArrowLeft, ExternalLink, Activity, Zap, Heart, Gauge, Target, CheckCircle2, XCircle } from "lucide-react";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 
 export const Route = createFileRoute("/_authenticated/actividades/$id")({
   component: ActivityDetailPage
@@ -134,7 +134,7 @@ function ActivityDetailPage() {
             <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">{activity.sport_type ?? activity.type}</p>
             <h1 className="font-display text-3xl md:text-4xl font-bold uppercase tracking-tight truncate">{activity.name}</h1>
             <p className="text-xs text-muted-foreground mt-1">
-              {activity.start_date && format(new Date(activity.start_date), "EEEE d MMM yyyy · HH:mm", { locale: es })}
+              {activity.start_date && format(new Date(activity.start_date), "EEEE d MMM yyyy · HH:mm", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}
             </p>
           </div>
           <a href={`https://intervals.icu/activities/${activity.id}`} target="_blank" rel="noopener"

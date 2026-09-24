@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n";import { useState, useEffect } from "react";
+import { tr, activeLang } from "@/lib/i18n";import { useState, useEffect } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +8,7 @@ import { uploadWorkoutsToIntervals } from "@/lib/intervals.functions";
 import { Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 
 export const BIKE_OPTIONS = [
 { value: "carretera", label: "Carretera" },
@@ -164,7 +164,7 @@ export function WorkoutGenerator({ profile }: {profile: any;}) {
             <option value="">{tr("— Sin competición (entrenamiento libre) —")}</option>
             {competitions.data.map((c: any) =>
           <option key={c.id} value={c.id}>
-                {c.name} · {format(new Date(c.date), "d MMM yyyy", { locale: es })}
+                {c.name} · {format(new Date(c.date), "d MMM yyyy", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}
               </option>
           )}
           </select>

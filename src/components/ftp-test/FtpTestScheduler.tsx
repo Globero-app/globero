@@ -1,10 +1,10 @@
-import { tr } from "@/lib/i18n";import { useState } from "react";
+import { tr, activeLang } from "@/lib/i18n";import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { CalendarPlus } from "lucide-react";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { scheduleFtpTest } from "@/lib/workouts.functions";
 
 export function FtpTestScheduler({ profile }: {profile: any;}) {
@@ -21,8 +21,8 @@ export function FtpTestScheduler({ profile }: {profile: any;}) {
       const r: any = await scheduleTest({ data: { date: testDate, basis: testBasis } });
       toast.success(
         r.intervals_synced ?
-        `Test añadido al calendario el ${format(new Date(testDate + "T00:00:00"), "d MMM yyyy", { locale: es })} y subido a Intervals.icu` :
-        `Test añadido al calendario el ${format(new Date(testDate + "T00:00:00"), "d MMM yyyy", { locale: es })}`
+        `Test añadido al calendario el ${format(new Date(testDate + "T00:00:00"), "d MMM yyyy", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })} y subido a Intervals.icu` :
+        `Test añadido al calendario el ${format(new Date(testDate + "T00:00:00"), "d MMM yyyy", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}`
       );
       qc.invalidateQueries({ queryKey: ["calendar"] });
       qc.invalidateQueries({ queryKey: ["workouts"] });

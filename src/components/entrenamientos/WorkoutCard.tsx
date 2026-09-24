@@ -1,7 +1,7 @@
-import { tr } from "@/lib/i18n";import { useState } from "react";
+import { tr, activeLang } from "@/lib/i18n";import { useState } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 import {
   Download, CheckCircle2, Trash2, Loader2, ChevronDown, Eye, FileDown, Home, Bike, CloudRain, Sun, FileText } from
 "lucide-react";
@@ -103,8 +103,8 @@ export function WorkoutCard({
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               {w.duration_minutes} {tr("min ·")} {plan.steps?.length ?? 0} {tr("bloques")} 
-              {plan.scheduled_date && ` · 📅 ${format(new Date(plan.scheduled_date), "d MMM", { locale: es })}`}
-              {completed && w.completed_at && ` · Completado ${format(new Date(w.completed_at), "d MMM", { locale: es })}${w.rpe != null ? ` · RPE ${w.rpe}/5` : ""}`}
+              {plan.scheduled_date && ` · 📅 ${format(new Date(plan.scheduled_date), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}`}
+              {completed && w.completed_at && ` · Completado ${format(new Date(w.completed_at), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}${w.rpe != null ? ` · RPE ${w.rpe}/5` : ""}`}
             </p>
             <WorkoutIntervalsChart steps={plan.steps} refs={refs} />
             {plan.competition_name && <p className="text-[11px] font-mono uppercase text-primary mt-0.5">🏁 {plan.competition_name}</p>}
@@ -362,7 +362,7 @@ export function WorkoutCard({
             <DialogTitle className="font-display text-xl uppercase">{tr("Informe del entrenamiento")}</DialogTitle>
             <DialogDescription>
               {plan.title ?? plan.name ?? "Entrenamiento"}
-              {plan.report?.created_at && ` · ${format(new Date(plan.report.created_at), "d MMM HH:mm", { locale: es })}`}
+              {plan.report?.created_at && ` · ${format(new Date(plan.report.created_at), "d MMM HH:mm", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}`}
             </DialogDescription>
           </DialogHeader>
           <p className="text-sm whitespace-pre-line leading-relaxed">{plan.report?.text}</p>

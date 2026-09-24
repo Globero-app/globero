@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n";
+import { tr, activeLang } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -6,7 +6,7 @@ import { getProgress, getThresholdStatus, getPowerCurve } from "@/lib/progress.f
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingUp, Zap, Mountain, Route as RouteIcon } from "lucide-react";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 import {
   ResponsiveContainer, ComposedChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend, ReferenceArea, ReferenceLine,
   BarChart, Bar } from
@@ -41,7 +41,7 @@ function ProgresoPage() {
 
   const chartData = (d?.series ?? []).map((p: any) => ({
     ...p,
-    label: format(new Date(`${p.date}T12:00:00Z`), "d MMM", { locale: es }),
+    label: format(new Date(`${p.date}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] }),
     ctlReal: p.projected ? null : p.ctl,
     atlReal: p.projected ? null : p.atl,
     tsbReal: p.projected ? null : p.tsb,
@@ -50,25 +50,25 @@ function ProgresoPage() {
     tsbProjected: p.projected || p.date === d?.projection_start ? p.tsb : null
   }));
   const projectionStartLabel = d?.projection_start ?
-  format(new Date(`${d.projection_start}T12:00:00Z`), "d MMM", { locale: es }) :
+  format(new Date(`${d.projection_start}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] }) :
   undefined;
   const projectionEndLabel = d?.projection_end ?
-  format(new Date(`${d.projection_end}T12:00:00Z`), "d MMM", { locale: es }) :
+  format(new Date(`${d.projection_end}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] }) :
   undefined;
 
   const weeklyData = (d?.weekly ?? []).map((w: any) => ({
     ...w,
-    label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: es })
+    label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })
   }));
 
   const adherenceData = (d?.adherence ?? []).map((w: any) => ({
     ...w,
-    label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: es })
+    label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })
   }));
 
   const readinessData = (d?.readiness_weekly ?? []).map((w: any) => ({
     ...w,
-    label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: es })
+    label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })
   }));
 
 
@@ -111,7 +111,7 @@ function ProgresoPage() {
                   contentStyle={{ fontSize: 12, borderRadius: 8 }}
                   labelFormatter={(_label, payload) => {
                     const point = payload?.[0]?.payload;
-                    return point ? `${format(new Date(`${point.date}T12:00:00Z`), "d 'de' MMMM", { locale: es })}${point.projected ? " · Proyección" : ""}` : "";
+                    return point ? `${format(new Date(`${point.date}T12:00:00Z`), "d 'de' MMMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}${point.projected ? " · Proyección" : ""}` : "";
                   }}
                   formatter={(value: any, name: any, item: any) => {
                     const labels: Record<string, string> = { ctlReal: tr("Fitness (CTL)"), atlReal: tr("Fatiga (ATL)"), tsbReal: tr("Forma (TSB)"), ctlProjected: tr("Fitness (CTL)"), atlProjected: tr("Fatiga (ATL)"), tsbProjected: tr("Forma (TSB)") };

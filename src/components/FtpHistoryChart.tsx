@@ -1,6 +1,6 @@
-import { tr } from "@/lib/i18n";import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
+import { tr, activeLang } from "@/lib/i18n";import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { Gauge } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
@@ -15,7 +15,7 @@ export interface FtpTestPoint {
 export function FtpHistoryChart({ history, weightKg }: {history: FtpTestPoint[];weightKg?: number | null;}) {
   const data = (history ?? []).map((t) => ({
     ...t,
-    label: format(new Date(`${t.date}T12:00:00Z`), "d MMM", { locale: es })
+    label: format(new Date(`${t.date}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })
   }));
 
   const last = data[data.length - 1];

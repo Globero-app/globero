@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n";import { createFileRoute } from "@tanstack/react-router";
+import { tr, activeLang } from "@/lib/i18n";import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -8,7 +8,7 @@ import {
   ChevronLeft, ChevronRight, CalendarDays, Download, Trophy, Dumbbell, Activity, CalendarRange } from
 "lucide-react";
 import { addDays, addMonths, endOfMonth, endOfWeek, format, isSameMonth, startOfMonth, startOfWeek, isToday } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -117,8 +117,8 @@ function CalendarioPage() {
   };
 
   const title = view === "month" ?
-  format(cursor, "LLLL yyyy", { locale: es }) :
-  `${format(range.gridStart, "d MMM", { locale: es })} – ${format(range.gridEnd, "d MMM yyyy", { locale: es })}`;
+  format(cursor, "LLLL yyyy", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] }) :
+  `${format(range.gridStart, "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })} – ${format(range.gridEnd, "d MMM yyyy", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}`;
 
   const shift = (dir: -1 | 1) => setCursor((c) => view === "month" ? addMonths(c, dir) : addDays(c, dir * 7));
 
@@ -258,7 +258,7 @@ function CalendarioPage() {
                   {selected.title}
                 </DialogTitle>
                 <DialogDescription>
-                  {KIND_STYLES[selected.kind].label} · {format(new Date(selected.date + "T00:00:00"), "EEEE d MMMM yyyy", { locale: es })}
+                  {KIND_STYLES[selected.kind].label} · {format(new Date(selected.date + "T00:00:00"), "EEEE d MMMM yyyy", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}
                 </DialogDescription>
               </DialogHeader>
               {selected.subtitle && <p className="text-sm text-muted-foreground">{selected.subtitle}</p>}

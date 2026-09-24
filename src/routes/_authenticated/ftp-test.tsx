@@ -1,11 +1,11 @@
-import { tr } from "@/lib/i18n";import { createFileRoute } from "@tanstack/react-router";
+import { tr, activeLang } from "@/lib/i18n";import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { Gauge, CheckCheck } from "lucide-react";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { FtpTestDownloads } from "@/components/ftp-test/FtpTestDownloads";
 import { FtpTestScheduler } from "@/components/ftp-test/FtpTestScheduler";
 import { FtpTestImport } from "@/components/ftp-test/FtpTestImport";
@@ -45,7 +45,7 @@ function FtpTestPage() {
         </p>
         {profile?.ftp_test_completed_at &&
         <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
-            <CheckCheck className="size-4" /> {tr("Último test realizado el")} {format(new Date(profile.ftp_test_completed_at), "d MMM yyyy", { locale: es })}
+            <CheckCheck className="size-4" /> {tr("Último test realizado el")} {format(new Date(profile.ftp_test_completed_at), "d MMM yyyy", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}
           </p>
         }
       </div>

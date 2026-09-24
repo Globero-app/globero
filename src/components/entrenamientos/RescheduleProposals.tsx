@@ -1,8 +1,8 @@
-import { tr } from "@/lib/i18n";import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { tr, activeLang } from "@/lib/i18n";import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { toast } from "sonner";
 import { CalendarClock } from "lucide-react";
 import { listRescheduleProposals, resolveReschedule } from "@/lib/workout-actions.functions";
@@ -37,7 +37,7 @@ export function RescheduleProposals() {
     }
   };
 
-  const fmt = (d: string) => format(new Date(`${d}T12:00:00Z`), "EEEE d MMM", { locale: es });
+  const fmt = (d: string) => format(new Date(`${d}T12:00:00Z`), "EEEE d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] });
 
   return (
     <div className="space-y-3">

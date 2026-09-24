@@ -1,11 +1,11 @@
-import { tr } from "@/lib/i18n";import { useState } from "react";
+import { tr, activeLang } from "@/lib/i18n";import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getActivityMatches, linkActivityToTarget, type ActivityMatch } from "@/lib/activity-match.functions";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Activity, Trophy, Dumbbell } from "lucide-react";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/use-auth";
 
@@ -65,7 +65,7 @@ export function ActivityMatchPrompt({ enabled = true }: {enabled?: boolean;}) {
 
           </DialogTitle>
           <DialogDescription>
-            {format(new Date(match.date + "T00:00:00"), "EEEE d MMMM yyyy", { locale: es })}
+            {format(new Date(match.date + "T00:00:00"), "EEEE d MMMM yyyy", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}
           </DialogDescription>
         </DialogHeader>
 

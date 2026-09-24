@@ -1,11 +1,11 @@
-import { tr } from "@/lib/i18n";import { createFileRoute } from "@tanstack/react-router";
+import { tr, activeLang } from "@/lib/i18n";import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/use-auth";
 import { intervalsSyncActivities } from "@/lib/intervals.functions";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_authenticated/semanas")({
   })
 });
 
-const fmtWeek = (iso: string) => format(new Date(`${iso}T12:00:00Z`), "d MMM", { locale: es });
+const fmtWeek = (iso: string) => format(new Date(`${iso}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] });
 
 function SemanasPage() {
   const { user } = useAuth();

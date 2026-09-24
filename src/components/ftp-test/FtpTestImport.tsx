@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n";import { useState } from "react";
+import { tr, activeLang } from "@/lib/i18n";import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
 import { Bike, CheckCheck } from "lucide-react";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { intervalsImportFtpTest, markFtpTestCompleted } from "@/lib/intervals.functions";
 
 export function FtpTestImport({ icuConnected, onImported }: {icuConnected: boolean;onImported: (ftp: number) => void;}) {
@@ -76,7 +76,7 @@ export function FtpTestImport({ icuConnected, onImported }: {icuConnected: boole
                   <div className="min-w-0">
                     <p className="font-semibold text-sm truncate">{a.name}</p>
                     <p className="text-[11px] text-muted-foreground font-mono">
-                      {format(new Date(a.start_date), "d MMM yyyy · HH:mm", { locale: es })} · {Math.round((a.moving_time ?? 0) / 60)} {tr("min · media")} {Math.round(a.average_watts)} {tr("W")} 
+                      {format(new Date(a.start_date), "d MMM yyyy · HH:mm", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })} · {Math.round((a.moving_time ?? 0) / 60)} {tr("min · media")} {Math.round(a.average_watts)} {tr("W")} 
               </p>
                   </div>
                   <button
