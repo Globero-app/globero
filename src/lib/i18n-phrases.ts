@@ -5322,6 +5322,15 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Failed",
     "Fehlgeschlagen"
   ],
+  "Proyección": ["Projecció", "Projection", "Projection", "Prognose"],
+  "TSS esta semana": ["TSS aquesta setmana", "TSS cette semaine", "TSS this week", "TSS diese Woche"],
+  "Readiness 7 días": ["Readiness 7 dies", "Forme sur 7 jours", "7-day readiness", "Tagesform über 7 Tage"],
+  "LTHR (ppm)": ["LTHR (ppm)", "LTHR (bpm)", "LTHR (bpm)", "LTHR (bpm)"],
+  "Base": ["Base", "Base", "Base", "Grundlage"],
+  "Construcción": ["Construcció", "Construction", "Build", "Aufbau"],
+  "Pico": ["Pic", "Pic", "Peak", "Höhepunkt"],
+  "Tapering": ["Afinament", "Affûtage", "Tapering", "Tapering"],
+  "Descarga": ["Descàrrega", "Récupération", "Deload", "Entlastung"],
   "✓ Guardado en tu perfil. La IA usará estas zonas al generar entrenamientos.": [
     "Això és del que parlo. La IA usarà aquestes àrees generant entrenament.",
     "C'est de ça que je parle. L'AI utilisera ces domaines en créant une formation.",
