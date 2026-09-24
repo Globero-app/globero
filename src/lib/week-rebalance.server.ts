@@ -42,8 +42,8 @@ export async function rebalanceWeekCore(
   });
   if (!inWeek.length) return { changed: false, reason: "no_quedan_sesiones", workouts: [] };
 
-  const target = Number((inWeek[0].plan as any)?.week_target_tss) || null;
-  if (!target || target <= 0) return { changed: false, reason: "sin_objetivo_semanal", workouts: [] };
+  const weekTarget = Number((inWeek[0].plan as any)?.week_target_tss) || null;
+  if (!weekTarget || weekTarget <= 0) return { changed: false, reason: "sin_objetivo_semanal", workouts: [] };
 
   const { estimatePlanTss } = await import("./training-load.server");
   const { data: profile } = await supabase
@@ -55,6 +55,20 @@ export async function rebalanceWeekCore(
   const lthr = (profile as any)?.lthr ?? null;
   const maxHr = (profile as any)?.max_hr ?? null;
 
+  // Carga ya realizada esta semana (TSS real) se descuenta del objetivo
+  const { data: doneRows } = await supabase
+    .from("workouts")
+    .select("actual_tss,planned_tss,plan,completed_at")
+    .eq("user_id", userId)
+    .eq("status", "completed");
+  const done = (doneRows ?? [])
+    .filter((w: any) => {
+      const d = (w.plan as any)?.scheduled_date ?? w.completed_at?.slice(0, 10);
+      return d && d >= from && d <= to;
+    })
+    .reduce((a: number, w: any) => a + (Number(w.actual_tss) || Number(w.planned_tss) || 0), 0);
+  const target = Math.max(weekTarget * 0.3, weekTarget - done);
+
   const current = inWeek.map((w: any) => ({
     w,
     tss: Number(w.planned_tss) || estimatePlanTss(w.plan, ftp, lthr, maxHr, w.duration_minutes),
@@ -62,7 +76,6 @@ export async function rebalanceWeekCore(
   const sum = current.reduce((a: number, c: { tss: number }) => a + c.tss, 0);
   if (sum <= 0) return { changed: false, reason: "sin_carga", workouts: [] };
 
-  // Sesiones ya hechas/planificadas de la semana que no se tocan también cuentan
   const factor = Math.min(1.35, Math.max(0.7, target / sum));
   if (Math.abs(factor - 1) < 0.05) return { changed: false, reason: "ya_equilibrada", workouts: [] };
 
