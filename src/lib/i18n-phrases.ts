@@ -4375,10 +4375,10 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Lohn"
   ],
   "Vatios medios": [
-    "preu mitjà",
-    "Prix moyens",
-    "Average prices",
-    "Durchschnittspreise"
+    "Watts mitjans",
+    "Puissance moyenne",
+    "Average watts",
+    "Durchschnittliche Watt"
   ],
   "Ve a una competición y pulsa \"Generar Menú Pre-Carrera\".": [
     "Anar a una competició i premsa \"El menú Pro-Carer.\"",

@@ -96,6 +96,7 @@ const NUTRITION_TRAINING_RULES: Record<string, string> = {
 /** Núcleo de generación de entrenamientos (siempre plan MIXTO). Reutilizable por el cron semanal. */
 export async function generateWorkoutsCore(supabase: any, userId: string, input: GenCoreInput) {
   const { buildTrainingLoad, prescribeWeek, loadPromptBlock, weekStart } = await import("./training-load.server");
+  const { getUserLang, langInstruction } = await import("./user-lang.server");
   const { validateWorkout, enforceWeeklyTss, avoidBackToBackHard, enforcePolarized } = await import("./workout-validator.server");
   const { refreshAthleteProfile, athletePromptBlock, minutesForDay } = await import("./athlete-profile.server");
   type AthleteProfile = Awaited<ReturnType<typeof refreshAthleteProfile>>;
@@ -103,6 +104,7 @@ export async function generateWorkoutsCore(supabase: any, userId: string, input:
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
   if (!profile) throw new Error("Perfil no encontrado");
+  const userLang = await getUserLang(userId);
   const outputLanguage = langInstruction(userLang);
 
 
@@ -302,8 +304,6 @@ REGLAS METEOROLÓGICAS:
       : null,
   });
 
-  const { getUserLang, langInstruction } = await import("./user-lang.server");
-  const userLang = await getUserLang(userId);
   const loadBlock = loadPromptBlock(load, week, userLang);
   const blockBlock = periodization.prompt_block;
 
