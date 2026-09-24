@@ -1,5 +1,41 @@
 /* Traducciones por frase original en castellano: [ca, fr, en, de]. */
 export const PHRASES: Record<string, [string, string, string, string]> = {
+  "% FTP": [
+    "FTP%",
+    "FTP%",
+    "FTP%",
+    "FTP %"
+  ],
+  "% del FTP estimado.": [
+    "% de l' FTP estimat.",
+    "Pourcentage de FTP estimé.",
+    "% of FTP estimated.",
+    "% der geschätzten FTP."
+  ],
+  "% · W": [
+    "% N",
+    "% N",
+    "% N",
+    "% N"
+  ],
+  "(Europa/Madrid)": [
+    "(Europa / Madrid)",
+    "(Europa / Madrid)",
+    "(Europa / Madrid)",
+    "(Europa / Madrid)"
+  ],
+  "(hoy": [
+    "(dia",
+    "(aujourd'hui",
+    "(today",
+    "(heute)"
+  ],
+  "(no funciona en Chrome iOS).": [
+    "(no funciona a Chrome iOS).",
+    "(ne fonctionne pas à Chrome iOS).",
+    "(doesn't work at Chrome iOS).",
+    "(funktioniert nicht bei Chrome iOS)."
+  ],
   "(resistencia, intervalos y fuerza) y se crea uno por cada día marcado. Cada domingo a las 21:00 la IA generará automáticamente los entrenamientos de la semana siguiente según estos días y tu progreso.": [
     "(finalització, intervals i força) i es crea un per cada dia marcat. Cada diumenge als 21: 00 A.A. generarà automàticament entrenament durant la setmana següent, com a dia i el vostre progrés.",
     "(endurance, intervalles et force) et un est créé pour chaque jour marqué. Chaque dimanche à 21h00 A.A. générera automatiquement l'entraînement pour la semaine suivante comme ces jours et votre progression.",
@@ -12,11 +48,41 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     ". Each Sunday will be automatically adapted with training from next week.",
     "Jeder Sonntag wird automatisch mit dem Training ab nächster Woche angepasst."
   ],
+  ". Se actualiza cada domingo.": [
+    "És la data cada diumenge.",
+    "C'est à jour tous les dimanches.",
+    ". It's up to date every Sunday.",
+    "Es ist jeden Sonntag auf dem neuesten Stand."
+  ],
+  ".FIT": [
+    ". FIT",
+    "FIT",
+    ". FIT",
+    ". FIT"
+  ],
+  ".ZWO": [
+    "T'ho prometo.",
+    "ZWO",
+    ". ZWO",
+    "ZWO"
+  ],
+  ".fit": [
+    ".fit",
+    "Adapté",
+    ".fit",
+    ".fit"
+  ],
   ".fit descargado. Copíalo a tu ciclocomputador (Garmin, Wahoo).": [
     "S' ha descarregat. Copia això al teu ordinador (Garm, Wahoo).",
     ".fit téléchargé. Copiez-le sur votre ordinateur (Garm, Wahoo).",
     ".fit downloaded. Copy that to your computer (Garm, Wahoo).",
     ".fit heruntergeladen. Kopieren Sie das auf Ihren Computer (Garm, Wahoo)."
+  ],
+  ".zwo": [
+    ".zwo",
+    ".zwo",
+    ".zwo",
+    ".zwo"
   ],
   ".zwo descargado. Súbelo a Zwift o TrainingPeaks.": [
     "T'he descarregat. Porteu-lo a Zwift o a l'entrenament Petaks.",
@@ -30,11 +96,29 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "1 = very easy · 5 = impossible to finish",
     "1 = sehr einfach · 5 = unmöglich zu beenden"
   ],
+  "1 min / 5 s": [
+    "1 min / 5 s",
+    "1 min / 5 s",
+    "1 min / 5 s",
+    "1 min / 5 s"
+  ],
+  "20 min": [
+    "20 min",
+    "20 min",
+    "20 min",
+    "20 min."
+  ],
   "42 días": [
     "42 dies",
     "42 jours",
     "42 days",
     "42 Tage"
+  ],
+  "5 min": [
+    "5 mins",
+    "5 min",
+    "5 min",
+    "5 min."
   ],
   "7 días": [
     "7 dies",
@@ -47,6 +131,36 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Ouvrir le menu",
     "Open the menu",
     "Öffnen Sie das Menü"
+  ],
+  "Abre esta web en": [
+    "Obre aquesta web a",
+    "Ouvrez ce web à",
+    "Open this web at",
+    "Öffnen Sie dieses Web bei"
+  ],
+  "Abrir en Telegram": [
+    "Obre a Telegram",
+    "Ouvert à Telegram",
+    "Open at Telegram",
+    "Offen bei Telegram"
+  ],
+  "Accede a tu panel del equipo.": [
+    "Accedeix al panell d'equip.",
+    "Accédez à votre équipe.",
+    "Access your team panel.",
+    "Greifen Sie auf Ihr Team Panel zu."
+  ],
+  "Acceder": [
+    "Accés",
+    "Accès",
+    "Access",
+    "Zugang"
+  ],
+  "Activar push del servidor": [
+    "Activa l' activació del servidor",
+    "Activer la poussée du serveur",
+    "Activate server push",
+    "Server Push aktivieren"
   ],
   "Actividades": [
     "Activitats",
@@ -66,11 +180,29 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Administration",
     "Verwaltung"
   ],
+  "Ahora no": [
+    "Ara no.",
+    "Pas maintenant.",
+    "Not now.",
+    "Nicht jetzt."
+  ],
+  "Ajustar hoy": [
+    "Plega avui",
+    "Plier aujourd'hui",
+    "Fold today",
+    "Falte heute"
+  ],
   "Al detectar un entreno realizado, se renombra la actividad en Strava con el nombre del entreno y se añade debajo \"atleta de https://globero.app/\".": [
     "L'activitat a Strava amb el nom del tren està renomerada i afegida sota \"https: // worldro.app /\"",
     "L'activité à Strava avec le nom du train est renommée et ajoutée sous \"https athlète: / / globero.app /\"",
     "The activity at Strava with the name of the train is renomerated and added under \"https athlete: / / globero.app /\"",
     "Die Aktivität in Strava mit dem Namen des Zuges wird umbenannt und unter \"https athlete: / / globero.app /\" hinzugefügt."
+  ],
+  "Alta": [
+    "Alta",
+    "Élevé",
+    "High",
+    "hoch"
   ],
   "Altura (cm)": [
     "Alçada (cm)",
@@ -84,6 +216,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Analyzing your day...",
     "Den Tag analysieren..."
   ],
+  "Anterior": [
+    "Anterior",
+    "Précédent",
+    "Prev",
+    "Prev"
+  ],
+  "Anton": [
+    "Anton",
+    "Anton",
+    "Anton",
+    "Anton"
+  ],
   "Archivo → Añadir al Dock": [
     "Fitxer Manveen Add a Acoblament",
     "Fichier → Ajouter au dock",
@@ -95,6 +239,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Il s'est entraîné une autre journée pour la reprogrammer.",
     "He's been training another day to reprogram it.",
     "Er hat einen weiteren Tag trainiert, um es neu zu programmieren."
+  ],
+  "Atleta:": [
+    "Athte:",
+    "Athlète :",
+    "Athlete:",
+    "Athlet:"
+  ],
+  "Auto": [
+    "Auto",
+    "Automatique",
+    "Auto",
+    "Auto"
   ],
   "Avisarme cada mañana si hay alerta o mal tiempo": [
     "Avisa'm cada matí si hi ha alerta o mal temps",
@@ -186,6 +342,78 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "No registered bikes yet",
     "Noch keine registrierten Fahrräder"
   ],
+  "Backend": [
+    "Dorsal",
+    "Moteur",
+    "Backend",
+    "Backend"
+  ],
+  "Baja": [
+    "Baixa",
+    "Faible",
+    "Low",
+    "niedrig"
+  ],
+  "Bajar": [
+    "Baixa",
+    "Descendez",
+    "Go down",
+    "Geh runter"
+  ],
+  "Barlow Condensed": [
+    "Barlow Condemed",
+    "Barlow condamné",
+    "Barlow Condemned",
+    "Barlow verurteilt"
+  ],
+  "Basado en": [
+    "Basat en",
+    "Sur la base",
+    "Based on",
+    "Basierend auf"
+  ],
+  "Base de prescripción de la IA": [
+    "Una base de prescripció",
+    "Une base de prescription",
+    "A prescription base",
+    "Eine Rezeptbasis"
+  ],
+  "Base del test": [
+    "Prova la base",
+    "Base d ' essai",
+    "Test base",
+    "Testbasis"
+  ],
+  "Bebas Neue": [
+    "Nadons Neue",
+    "Bébés neus",
+    "Neue babies",
+    "Neue Babys"
+  ],
+  "Bidones 500 ml": [
+    "Bidons 500 ml",
+    "Bidons 500 ml",
+    "Bidons 500 ml",
+    "Bidons 500 ml"
+  ],
+  "Bike": [
+    "BikeCity name (optional, probably does not need a translation)",
+    "Vélo",
+    "Bike",
+    "Fahrrad"
+  ],
+  "Bloque": [
+    "Bloqueja",
+    "Bloc",
+    "Block",
+    "Block"
+  ],
+  "CHO": [
+    "CHO",
+    "CHO",
+    "CHO",
+    "CHO"
+  ],
   "CTL = fitness acumulado (42 días) · ATL = fatiga reciente (7 días) · TSB = forma (CTL − ATL).": [
     "CTL = fitness acumulat (42 dies) · ATL = fatiga recent (7 dies) · TSB = forma (CTL − ATL).",
     "CTL = forme accumulée (42 jours) · ATL = fatigue récente (7 jours) · TSB = fraîcheur (CTL − ATL).",
@@ -203,6 +431,24 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Chaque jour, vous obtiendrez une Push vous demandant comment vous vous sentez (1 Rien préparé · 2 Marche à la retraite · 3 Formation à la retraite · 4 Formation à la retraite · 5 Donner autant). L'IV adaptera la formation de cette journée à votre réponse et si vous répondez 1, vous serez suggéré de la supprimer.",
     "Each day you will get a Push wondering how you feel (1 Nothing prepared · 2 Retirement walk · 3 Retiring training · 4 Retiring training · 5 Give as much). The IA will adapt that day's training to your answer and if you answer 1, you will be suggested to remove it.",
     "Jeden Tag werden Sie sich fragen, wie Sie sich fühlen (1 Nichts vorbereitet · 2 Ruhestandsspaziergang · 3 Ruhestandstraining · 4 Ruhestandstraining · 5 Geben Sie so viel). Die IA wird das Training an diesem Tag an Ihre Antwort anpassen und wenn Sie 1 antworten, werden Sie vorgeschlagen, es zu entfernen."
+  ],
+  "Cada test actualiza tus zonas y la IA planifica los siguientes entrenamientos con el nuevo umbral.": [
+    "Cada prova actualitza les vostres zones i la IA planeja l'entrenament següent amb el nou llindar.",
+    "Chaque test met à jour vos zones et IA prévoit la formation suivante avec le nouveau seuil.",
+    "Each test updates your zones and IA plans the following training with the new threshold.",
+    "Jeder Test aktualisiert Ihre Zonen und IA plant das folgende Training mit dem neuen Schwellenwert."
+  ],
+  "Cadencia": [
+    "Cadena",
+    "Chaîne",
+    "Chain",
+    "Kette"
+  ],
+  "Cadencia natural (rpm)": [
+    "Relació natural (rpm)",
+    "Rapport naturel (rpm)",
+    "Natural ratio (rpm)",
+    "Natürliches Verhältnis (rpm)"
   ],
   "Calendario": [
     "Calendari",
@@ -222,6 +468,30 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Consolidated schedule",
     "Konsolidierter Zeitplan"
   ],
+  "Cambiar": [
+    "Canvia",
+    "Changement",
+    "Change",
+    "Änderung"
+  ],
+  "Cambiar a rodillo": [
+    "Canvia a Roller",
+    "Passer au rouleau",
+    "Switch to roller",
+    "Umstellung auf Rolle"
+  ],
+  "Cambiar en": [
+    "Canvia",
+    "Changement",
+    "Change",
+    "Änderung"
+  ],
+  "Cambiar tema": [
+    "Canvia el tema",
+    "Changer de sujet",
+    "Change topic",
+    "Änderungsthema"
+  ],
   "Cancelar": [
     "Cancel· la",
     "Annuler",
@@ -239,6 +509,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Chargement",
     "Loading",
     "Beladung"
+  ],
+  "Carga (CTL)": [
+    "Carregant (TL)",
+    "Chargement (CTL)",
+    "Loading (CTL)",
+    "Beladung (CTL)"
+  ],
+  "Carga (TSS)": [
+    "S' està carregant (TS)",
+    "Chargement (TSS)",
+    "Loading (TSS)",
+    "Beladung (TSS)"
   ],
   "Carga semanal (TSS)": [
     "Càrrega setmanal (TSS)",
@@ -282,6 +564,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Loading...",
     "Beladung..."
   ],
+  "Carretera": [
+    "Camí",
+    "Route",
+    "Road",
+    "Straße"
+  ],
   "Cerrar": [
     "Tanca",
     "Fermer",
@@ -300,11 +588,65 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Home city for forecast",
     "Heimatort für die Vorhersage"
   ],
+  "Clave": [
+    "Clau",
+    "Clé",
+    "Key",
+    "Schlüssel"
+  ],
   "Clima e hidratación": [
     "Clima i hidratació",
     "Climat et hydratation",
     "Climate and hydration",
     "Klima und Hydratation"
+  ],
+  "Close": [
+    "Tanca",
+    "Fermer",
+    "Close",
+    "Schließen"
+  ],
+  "Coach IA": [
+    "Entrenador IA",
+    "Coach IA",
+    "Coach IA",
+    "Reisebus IA"
+  ],
+  "Colaboradores": [
+    "Col· laboració",
+    "Collaborateurs",
+    "Collaborators",
+    "Mitarbeiter"
+  ],
+  "Color de acento": [
+    "Color d' entrada",
+    "Couleur d'entrée",
+    "Input color",
+    "Eingangsfarbe"
+  ],
+  "Color de botones": [
+    "Color dels botons",
+    "Couleur des boutons",
+    "Color of buttons",
+    "Farbe der Buttons"
+  ],
+  "Color primario": [
+    "Color primari",
+    "Couleur primaire",
+    "Primary color",
+    "Primärfarbe"
+  ],
+  "Compartir": [
+    "Comparteix",
+    "Partager",
+    "Share",
+    "Anteil"
+  ],
+  "Competiciones": [
+    "competència",
+    "Concours",
+    "Competitions",
+    "Wettbewerbe"
   ],
   "Competición eliminada": [
     "Es retira",
@@ -312,11 +654,47 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Retirement",
     "Ruhestand"
   ],
+  "Competición objetivo (opcional)": [
+    "competència de destí (opcional)",
+    "Concours cible (facultatif)",
+    "Target (optional) competition",
+    "Zielwettbewerb (fakultativ)"
+  ],
+  "Compite.": [
+    "Compita.",
+    "Complètement.",
+    "Compite.",
+    "Compite."
+  ],
+  "Completado": [
+    "Completat",
+    "Achevé",
+    "Completed",
+    "Abgeschlossen"
+  ],
   "Componente añadido": [
     "S' ha afegit un component",
     "Composante ajoutée",
     "Added component",
     "Zusatzkomponente"
+  ],
+  "Componentes activos": [
+    "Components actius",
+    "Composantes actives",
+    "Active components",
+    "Aktive Komponenten"
+  ],
+  "Conecta Intervals.icu en tu": [
+    "Connecta els intervals. u a la vostra",
+    "Connectez Intervals.icu à votre",
+    "Connect Intervals.icu to your",
+    "Verbinden Sie Intervals.icu mit Ihrem"
+  ],
+  "Conecta Strava para que tus salidas aparezcan con el nombre del entrenamiento realizado.": [
+    "Connecta Strava per tal que les vostres sortides apareguin amb el nom de l' entrenament realitzat.",
+    "Connectez Strava pour que vos sorties apparaissent avec le nom de la formation effectuée.",
+    "Connect Strava so that your exits appear with the name of the training performed.",
+    "Verbinden Sie Strava, damit Ihre Ausgänge mit dem Namen des durchgeführten Trainings angezeigt werden."
   ],
   "Conecta tu cuenta Intervals.icu desde el Perfil para ver tus actividades y gráficos.": [
     "Connecteu el vostre compte Interval.icu del perfil per veure les vostres activitats i gràfics.",
@@ -390,11 +768,23 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Password",
     "Passwort"
   ],
+  "Contraseña (mín. 8)": [
+    "Contrasenya (min. 8)",
+    "Mot de passe (min. 8)",
+    "Password (min. 8)",
+    "Passwort (min. 8)"
+  ],
   "Contraseña actualizada": [
     "S' ha actualitzat la contrasenya",
     "Mot de passe mis à jour",
     "Password updated",
     "Password aktualisiert"
+  ],
+  "Crear": [
+    "Crea",
+    "Créer",
+    "Create",
+    "Schaffen"
   ],
   "Crear cuenta": [
     "Crea compte",
@@ -414,11 +804,29 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Countdown",
     "Countdown"
   ],
+  "Cumplimiento": [
+    "Composició",
+    "Conformité",
+    "Compliance",
+    "Einhaltung der Vorschriften"
+  ],
   "Cumplimiento %": [
     "Compliment %",
     "Réalisation %",
     "Compliance %",
     "Erfüllung %"
+  ],
+  "Cumplimiento del entreno": [
+    "Exercici d' entrenament",
+    "Résultats de la formation",
+    "Training performance",
+    "Ausbildungsleistung"
+  ],
+  "Curva de potencia (mean-max)": [
+    "Corba d' energia (manee- max)",
+    "Courbe de puissance (moyenne-max)",
+    "Power curve (mean-max)",
+    "Leistungskurve (Mittelwert-max)"
   ],
   "Curva de potencia (mean-max, 12 meses)": [
     "Corba de potència (mean-max, 12 mesos)",
@@ -431,6 +839,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Code généré",
     "Code generated",
     "Erzeugter Code"
+  ],
+  "Date de alta": [
+    "Data de publicació",
+    "Date de sortie",
+    "Release date",
+    "Veröffentlichungsdatum"
+  ],
+  "Date de alta para acceder a Globero IA.": [
+    "Es retira per aconseguir accés a Globetro IA.",
+    "Retraite pour avoir accès à Globero IA.",
+    "Retirement to gain access to Globero IA.",
+    "Ruhestand, um Zugang zu Globero IA zu erhalten."
   ],
   "Datos personales": [
     "Dades personals",
@@ -455,6 +875,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Points faibles à travailler",
     "Weaknesses to work on",
     "Schwächen zum Trainieren"
+  ],
+  "Desactivar": [
+    "No es pot determinar",
+    "Impossible",
+    "Unable",
+    "unfähig"
+  ],
+  "Descarga el bloque completo (calentamiento + 20 min all-out + vuelta a la calma) para hacerlo en Zwift, TrainingPeaks o tu ciclocomputador (Garmin / Wahoo).": [
+    "Descarrega el bloc complet (guerrant + 20 min tot a fora + per a calmar) per a fer- ho a Zwift, entrenamentPeaks o ordinador (Garm / Wahoo).",
+    "Téléchargez le bloc complet (chauffage + 20 min de tout-tout + retour au calme) pour le faire à Zwift, TrainingPeaks ou votre ordinateur (Garm / Wahoo).",
+    "Download the complete block (warming + 20 min all-out + back to calm) to do so at Zwift, TrainingPeaks or your computer (Garm / Wahoo).",
+    "Laden Sie den kompletten Block (Erwärmung + 20 min all-out + zurück zur Ruhe) herunter, um dies bei Zwift, TrainingPeaks oder Ihrem Computer (Garm / Wahoo) zu tun."
   ],
   "Descargar .FIT": [
     "Descarregar. FIT",
@@ -492,6 +924,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Download Test",
     "Download Test"
   ],
+  "Descartar aviso": [
+    "Descarrega la notificació",
+    "Décharge l'avis",
+    "Unload notice",
+    "Entlademeldung"
+  ],
   "Desconectar": [
     "No connectat",
     "Déconnecter",
@@ -503,6 +941,24 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Débit",
     "Flow",
     "Durchfluss"
+  ],
+  "Desnivel acumulado (m)": [
+    "Nivell acumulatiu (m)",
+    "Niveau cumulé (m)",
+    "Cumulative level (m)",
+    "Kumulativer Wert (m)"
+  ],
+  "Detalle por semana": [
+    "Detall per setmana",
+    "Détail par semaine",
+    "Detail per week",
+    "Detail pro Woche"
+  ],
+  "Displays the mobile sidebar.": [
+    "Mostra la barra lateral del mòbil.",
+    "Affiche la barre latérale mobile.",
+    "Displays the mobile sidebar.",
+    "Zeigt die mobile Sidebar an."
   ],
   "Disponible sin conexión": [
     "Disponible sense connexió",
@@ -516,11 +972,41 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Distance",
     "Entfernung"
   ],
+  "Distancia (km)": [
+    "Distància (km)",
+    "Distance (km)",
+    "Distance (km)",
+    "Entfernung (km)"
+  ],
   "Dosis ajustadas por perfil, forma (Intervals.icu últimas 4 semanas) y perfil altimétrico.": [
     "Una dosi en forma de perfil, forma (última 4 setmanes de intervals. u) i un perfil alt.",
     "Dose ajustée par profil, forme (dernières 4 semaines d'intervalles.icu) et profil élevé.",
     "Fitted dose by profile, shape (last 4 weeks intervals.icu) and high profile.",
     "Angepasste Dosis nach Profil, Form (letzte 4 Wochen intervals.icu) und hohem Profil."
+  ],
+  "Dur": [
+    "Dur",
+    "Durée",
+    "Dur",
+    "Dauer"
+  ],
+  "Duración": [
+    "Durada",
+    "Durée",
+    "Duration",
+    "Dauer"
+  ],
+  "Duración estimada (h)": [
+    "Durada estimada (h)",
+    "Durée estimée (h)",
+    "Estimated duration (h)",
+    "Geschätzte Dauer (h)"
+  ],
+  "Día de la tirada larga": [
+    "Dia llarg de retir",
+    "Longue journée de retraite",
+    "Long Retirement Day",
+    "Langer Ruhestandstag"
   ],
   "Día del test": [
     "Prova el dia",
@@ -528,11 +1014,35 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Test Day",
     "Testtag"
   ],
+  "Días que puedes entrenar": [
+    "Dies que pots entrenar",
+    "Jours où vous pouvez vous entraîner",
+    "Days you can train",
+    "Tage, die Sie trainieren können"
+  ],
   "Edad": [
     "Edat",
     "Âge",
     "Age",
     "Alter"
+  ],
+  "Editar": [
+    "Edita",
+    "Modifier",
+    "Edit",
+    "Edit"
+  ],
+  "Ej. Canyon roja": [
+    "Ej. Red Canyó",
+    "Ej. Canyon rouge",
+    "Ej. Red Canyon",
+    "Ej. Red Canyon"
+  ],
+  "Ej. Shimano Ultegra": [
+    "Ej. Shimano Ultegra",
+    "Ej. Shimano Ultegra",
+    "Ej. Shimano Ultegra",
+    "Ej Shimano Ultegra"
   ],
   "Ej: barritas pesadas, salí muy rápido, faltó agua entre KM 40-60…": [
     "Ej: bars de forta intensitat, vaig sortir molt ràpidament, li falta aigua entre el KM 40-60...",
@@ -540,11 +1050,29 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Ej: heavy bars, I came out very quickly, lacks water between KM 40-60...",
     "Ej: schwere Balken, ich kam sehr schnell heraus, es fehlt Wasser zwischen KM 40-60..."
   ],
+  "Ej: geles cada 30min, plato de pasta la noche antes, salida conservadora…": [
+    "Ej: gels cada 30mins, plat de pasta abans, sortida conservadora...",
+    "Ej: gels toutes les 30 min, assiette de pâtes la veille, sortie conservatrice...",
+    "Ej: gels every 30min, plate of pasta the night before, conservative exit...",
+    "Ej: Gels alle 30min, Teller Pasta in der Nacht zuvor, konservativer Ausstieg..."
+  ],
   "El aviso llega justo después del resumen de la sesión del día, por app y/o Telegram. Incluye los avisos oficiales vigentes (amarillo, naranja o rojo) por lluvias, inundaciones, viento, tormenta o temperaturas extremas, además de la previsión de tu localidad.": [
     "L'avís arriba just després del resum de la sessió del dia, per l'app i/o Telegram. Inclou els avisos oficials vigents (groc, taronja o vermell) per pluja, inundacions, vent, tempesta o temperatures extremes, a més de la previsió de la teva localitat.",
     "L'alerte arrive juste après le résumé de la séance du jour, via l'app et/ou Telegram. Elle inclut les vigilances officielles en cours (jaune, orange ou rouge) pour pluie, inondations, vent, orage ou températures extrêmes, ainsi que la météo de ta ville.",
     "The alert arrives right after the day's session summary, via the app and/or Telegram. It includes current official warnings (yellow, orange or red) for rain, floods, wind, storms or extreme temperatures, plus your local forecast.",
     "Die Warnung kommt direkt nach der Zusammenfassung der Tageseinheit, per App und/oder Telegram. Sie enthält aktuelle amtliche Warnungen (gelb, orange oder rot) zu Regen, Hochwasser, Wind, Gewitter oder Extremtemperaturen sowie die Vorhersage für deinen Ort."
+  ],
+  "El plan encontrado no tiene intervalos de potencia comparables.": [
+    "El pla no té intervals de potència comparables.",
+    "Le plan trouvé n'a pas d'intervalle de puissance comparable.",
+    "The plan found has no comparable power intervals.",
+    "Der Plan weist keine vergleichbaren Leistungsintervalle auf."
+  ],
+  "Elige": [
+    "Tria",
+    "Choisir",
+    "Choose",
+    "Wählen"
   ],
   "Elige el día en el que quieres hacer el test y en qué base quieres realizarlo. Se creará en tu calendario y, si tienes Intervals.icu conectado, se subirá automáticamente a ese día.": [
     "Tria el dia que vulguis fer la prova i com dur-la a terme. Es crearà en el vostre calendari i, si teniu intervals. icu connectat, arribarà automàticament aquest dia.",
@@ -606,11 +1134,23 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Resent confirmation email",
     "Bestätigungs-E-Mail senden"
   ],
+  "Email enviado": [
+    "Enviat per correu",
+    "Courriel envoyé",
+    "Email sent",
+    "E-Mail"
+  ],
   "Email no válido": [
     "Correu no vàlid",
     "Courriel non valide",
     "Unvalid Email",
     "Ungültige E-Mail"
+  ],
+  "En Chrome o Edge, busca el icono": [
+    "A Chrome o Edge, busqueu la icona",
+    "Sur Chrome ou Edge, recherchez l'icône",
+    "At Chrome or Edge, look for the icon",
+    "Bei Chrome oder Edge suchen Sie nach dem Icon"
   ],
   "En Safari macOS: menú": [
     "En el menú Safari macOS:",
@@ -623,6 +1163,30 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Une fois que vous avez à nouveau un réseau, l'application synchronisera automatiquement les modifications en suspens et rechargera les dernières données.",
     "Once you have a network again, the app will automatically sync outstanding changes and reload the latest data.",
     "Sobald sie wieder ein netzwerk haben, synchronisiert die app automatisch ausstehende Änderungen und lädt die neuesten daten neu."
+  ],
+  "Energía": [
+    "Energia",
+    "Énergie",
+    "Energy",
+    "Energie"
+  ],
+  "Energía durante la carrera": [
+    "Energia durant la cursa",
+    "L'énergie pendant la course",
+    "Energy during the race",
+    "Energie im Rennen"
+  ],
+  "Enlace web (opcional)": [
+    "Enllaç web (opcional)",
+    "Lien Web (facultatif)",
+    "Web link (optional)",
+    "Weblink (fakultativ)"
+  ],
+  "Entrena.": [
+    "Exercici.",
+    "Formation.",
+    "Training.",
+    "Ausbildung."
   ],
   "Entrenamiento de hoy eliminado también de Intervals.icu": [
     "L'entrenament d'avui també s'ha eliminat de Interval.iciu",
@@ -696,6 +1260,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Climber",
     "Bergfahrer"
   ],
+  "Escribe al bot para consultar o adaptar tu entreno de hoy.": [
+    "Escriu al robot per consultar o adaptar el teu entrenament avui.",
+    "Écrivez au bot pour consulter ou adapter votre formation aujourd'hui.",
+    "Write to the bot to consult or adapt your training today.",
+    "Schreiben Sie an den Bot, um Ihr Training noch heute zu konsultieren oder anzupassen."
+  ],
   "Estado de forma": [
     "Estat",
     "État",
@@ -726,6 +1296,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Automatically estimate FTP from your Intervals.icu activities",
     "FTP automatisch aus deinen Intervals.icu-Aktivitäten schätzen"
   ],
+  "Estructura completa": [
+    "Estructura completa",
+    "Structure complète",
+    "Full structure",
+    "Vollständige Struktur"
+  ],
+  "Estructura del entrenamiento": [
+    "Estructura de l' entrenament",
+    "Structure de formation",
+    "Training structure",
+    "Ausbildungsstruktur"
+  ],
   "Estás viendo la app dentro del editor. Para instalarla, abre la URL publicada directamente en el navegador de tu móvil:": [
     "Estàs veient l'aplicació dins l'editor. Per a instal· lar- lo, obriu l' URL publicat directament al vostre navegador mòbil:",
     "Vous regardez l'application dans l'éditeur. Pour l'installer, ouvrez l'URL publiée directement sur votre navigateur mobile :",
@@ -738,11 +1320,53 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Trend",
     "Verlauf"
   ],
+  "Exportar .ics": [
+    "Exporta els ics",
+    "Exportation",
+    "Export .ics",
+    "Export .ics"
+  ],
+  "FC": [
+    "FC",
+    "F",
+    "FC",
+    "FC"
+  ],
+  "FC (bpm)": [
+    "FC (bpm)",
+    "FC (bpm)",
+    "FC (bpm)",
+    "FC (bpm)"
+  ],
+  "FC media 20 min (bpm, opcional)": [
+    "FC vol dir 20 min (bpm, opcional)",
+    "FC moyenne 20 min (bpm, facultatif)",
+    "FC mean 20 min (bpm, optional)",
+    "FC-Mittelwert 20 min (bpm, fakultativ)"
+  ],
   "FC máx (bpm)": [
     "FC màx (bpm)",
     "FC max (bpm)",
     "Max HR (bpm)",
     "Max. HF (bpm)"
+  ],
+  "FRC": [
+    "FRC",
+    "FRC",
+    "FRC",
+    "FRC"
+  ],
+  "FTP (W)": [
+    "FTP (W)",
+    "FTP (W)",
+    "FTP (W)",
+    "FTP (W)"
+  ],
+  "FTP estimado (95%)": [
+    "FTP estimat (95%)",
+    "Estimation du FTP (95 %)",
+    "Estimated FTP (95%)",
+    "Geschätzter FTP (95 %)"
   ],
   "Fase actual": [
     "fase actual",
@@ -761,6 +1385,24 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Fatigue projetée",
     "Projected fatigue",
     "Prognostizierte Ermüdung"
+  ],
+  "Fecha": [
+    "Data",
+    "Date",
+    "Date",
+    "Datum"
+  ],
+  "Fecha del test": [
+    "Data de prova",
+    "Date de l'essai",
+    "Test date",
+    "Prüfdatum"
+  ],
+  "Fecha instalación": [
+    "Data d' instal· lació",
+    "Date d'installation",
+    "Installation date",
+    "Installationsdatum"
   ],
   "Feedback guardado. La IA lo usará en próximos planes.": [
     "Comentaris desats. Els faré servir en els propers plans.",
@@ -822,6 +1464,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Fresh",
     "Frisch"
   ],
+  "Fuente cuerpo": [
+    "Font del cos",
+    "Source corporelle",
+    "Body source",
+    "Körperquelle"
+  ],
+  "Fuente display": [
+    "Visualització d' origen",
+    "Affichage des sources",
+    "Source display",
+    "Quellenanzeige"
+  ],
   "Funcionó": [
     "Ha funcionat.",
     "Ça a marché.",
@@ -833,6 +1487,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "GPX non valide",
     "Invalid GPX",
     "Ungültige GPX"
+  ],
+  "Garmin / Wahoo / Edge →": [
+    "Garm / Wahoo / Edge eka",
+    "Garm / Wahoo / Edge →",
+    "Garm / Wahoo / Edge →",
+    "Garm / Wahoo / Edge"
   ],
   "Genera tu menú personalizado con IA.": [
     "Genera el vostre menú personalitzat amb IA.",
@@ -858,11 +1518,77 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Generate code",
     "Code generieren"
   ],
+  "Generar entrenamientos →": [
+    "Genera l' entrenament Manveen",
+    "Générer la formation →",
+    "Generate training →",
+    "Generieren Sie Training →"
+  ],
+  "Generar nuevos entrenamientos": [
+    "Genera un nou entrenament",
+    "Générer une nouvelle formation",
+    "Generate new training",
+    "Neues Training generieren"
+  ],
+  "Generar plan nutricional": [
+    "Genera un pla nutricional",
+    "Générer un plan nutritionnel",
+    "Generate nutritional plan",
+    "Ernährungsplan erstellen"
+  ],
   "Gestión del equipo": [
     "Gestió de l' equip",
     "Gestion du matériel",
     "Equipment management",
     "Ausrüstungsmanagement"
+  ],
+  "Gestión del ritmo": [
+    "Gestió de peces",
+    "Gestion des voies",
+    "Track management",
+    "Gleismanagement"
+  ],
+  "Global": [
+    "Valor global",
+    "Généralités",
+    "Overall",
+    "Insgesamt"
+  ],
+  "Globero IA": [
+    "Globus IA",
+    "Le Globe IA",
+    "Globe IA",
+    "Globus IA"
+  ],
+  "Globero — Plataforma de IA para ciclistas": [
+    "Globus - Una plataforma pels cícistes",
+    "Globe - Une plateforme pour les cyclistes",
+    "Globe - A Platform for Cyclists",
+    "Globe - Eine Plattform für Radfahrer"
+  ],
+  "Go to next page": [
+    "Vés a la pàgina següent",
+    "Aller à la page suivante",
+    "Go to next page",
+    "Gehe zur nächsten Seite"
+  ],
+  "Go to previous page": [
+    "Vés a la pàgina anterior",
+    "Aller à la page précédente",
+    "Go to previous page",
+    "Gehen Sie zur vorherigen Seite"
+  ],
+  "Grasa": [
+    "Fat",
+    "Graisses",
+    "Fat",
+    "Fett"
+  ],
+  "Gravel": [
+    "Greul",
+    "Gravel",
+    "Gravel",
+    "Kies"
   ],
   "Guardar": [
     "Desa",
@@ -894,6 +1620,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Save preferences",
     "Präferenzen speichern"
   ],
+  "Hacer el test de 20 min →": [
+    "Fes la prova de 20 mins",
+    "Faire la 20 min → Test",
+    "Do the 20 min → Test",
+    "Machen Sie die 20 min → Test"
+  ],
   "Has cambiado tu configuración de entrenamiento (días, plan nutricional o base de prescripción). Se ha guardado para las próximas semanas. ¿Quieres regenerar los entrenamientos pendientes con la nueva configuración?": [
     "Heu canviat la configuració d' entrenament (dias, plans nutricionals o prescripció). L'han salvat durant les pròximes setmanes. Voleu regenerar un entrenament excepcional amb la nova configuració?",
     "Vous avez modifié votre configuration de formation (jours, plan nutritionnel ou ordonnance). Ça a été sauvé pendant quelques semaines. Voulez-vous régénérer une formation exceptionnelle avec la nouvelle configuration ?",
@@ -906,17 +1638,47 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "I have read and accept the",
     "Ich habe gelesen und akzeptiere die"
   ],
+  "Hidratación": [
+    "Hidration",
+    "Hydratation",
+    "Hydration",
+    "Hydratation"
+  ],
+  "Historial (": [
+    "Historial (",
+    "Historique (",
+    "History (",
+    "Geschichte ()"
+  ],
   "Histórico de 6 meses y proyección de 6 semanas según tus entrenamientos planificados. La zona sombreada es la previsión.": [
     "Històric de 6 mesos i projecció de 6 setmanes segons els entrenaments planificats. La zona ombrejada és la previsió.",
     "Historique de 6 mois et projection sur 6 semaines selon tes entraînements planifiés. La zone ombrée est la prévision.",
     "6-month history and 6-week projection based on your planned workouts. The shaded area is the forecast.",
     "6 Monate Verlauf und 6 Wochen Prognose anhand deiner geplanten Trainings. Der schattierte Bereich ist die Prognose."
   ],
+  "Hola,": [
+    "Ei.",
+    "Bonjour.",
+    "Hey.",
+    "Hey."
+  ],
   "Hora del Push (Europa / España peninsular)": [
     "Hora del Push (Europa / Espanya peninsular)",
     "Heure de la notification (Europe / Espagne)",
     "Push time (Europe / mainland Spain)",
     "Push-Uhrzeit (Europa / Festland-Spanien)"
+  ],
+  "Hora habitual": [
+    "Temps regular",
+    "Heure régulière",
+    "Regular time",
+    "Regelmäßige Zeit"
+  ],
+  "Horas": [
+    "Hores",
+    "Heures",
+    "Hours",
+    "Stunden"
   ],
   "Hoy": [
     "Avui",
@@ -942,6 +1704,30 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Today:",
     "Heute:"
   ],
+  "Humedad": [
+    "Wet",
+    "Mouille",
+    "Wet",
+    "Nass"
+  ],
+  "Icono (lucide)": [
+    "Icona (llucide)",
+    "Icône (lucide)",
+    "Icon (lucide)",
+    "Icon (Luzid)"
+  ],
+  "Informe del entrenamiento": [
+    "Informe d' entrenament",
+    "Rapport sur la formation",
+    "Training report",
+    "Ausbildungsbericht"
+  ],
+  "Ingredientes": [
+    "Ingredients",
+    "Ingrédients",
+    "Ingredients",
+    "Zutaten"
+  ],
   "Inicia sesión": [
     "accés",
     "login",
@@ -954,17 +1740,89 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "To login",
     "Zum Login"
   ],
+  "Inicio": [
+    "Inici",
+    "Sommaire",
+    "Home",
+    "Zuhause"
+  ],
+  "Insignias": [
+    "Insignaitalyprovince. kgm",
+    "Insignes",
+    "Insignia",
+    "Insignien"
+  ],
+  "Instalado a": [
+    "imposat a",
+    "Création",
+    "Established to",
+    "Gegründet bis"
+  ],
+  "Instalar": [
+    "Instal· la",
+    "Installer",
+    "Install",
+    "Installieren"
+  ],
+  "Instalar Globero": [
+    "Instal· la Globeero",
+    "Installer Globero",
+    "Install Globero",
+    "Installieren Sie Globero"
+  ],
+  "Instalar Globero…": [
+    "Instal· la Globeero...",
+    "Installer Globero...",
+    "Install Globero...",
+    "Globero installieren..."
+  ],
   "Instalar aplicación": [
     "Instal· la aplicació",
     "Installer l'application",
     "Install Application",
     "Installieren Sie Anwendung"
   ],
+  "Intensidad": [
+    "Intensitat",
+    "Intensité",
+    "Intensity",
+    "Intensität"
+  ],
+  "Inter": [
+    "Inter",
+    "Autres",
+    "Inter",
+    "Interessiert"
+  ],
+  "Intervalos detectados": [
+    "Detectes",
+    "Détecte",
+    "Detects",
+    "Detektoren"
+  ],
+  "Intervalos por zonas": [
+    "Interval d' àrea",
+    "Intervalles de surface",
+    "Area intervales",
+    "Flächenintervalle"
+  ],
+  "Intervals.icu conectado": [
+    "Intervals. iu connectat",
+    "Intervalles.icu connecté",
+    "Intervals.icu connected",
+    "Intervals.icu verbunden"
+  ],
   "Introduce la potencia media de los 20 min all-out (dato de tu ciclocomputador / plato). Si no tienes potenciómetro, apunta la FC media como referencia.": [
     "Introduïu el poder de la 20 min- out (des del vostre ordinador / plat). Si no tens potent idiòmetre, posa la mitjana de FC com a referència.",
     "Entrez la puissance moyenne de l'ensemble de 20 min (données de votre ordinateur / plaque). Si vous n'avez pas de potentiomètre, mettez le FC moyen comme référence.",
     "Enter the mean power of the 20 min all-out (data from your computer / plate). If you have no potentiometer, put the mean FC as a reference.",
     "Geben Sie die mittlere Leistung des 20-Minuten-Allout ein (Daten von Ihrem Computer / Ihrer Platte). Wenn Sie kein Potentiometer haben, geben Sie den mittleren FC als Referenz an."
+  ],
+  "Introduce tu email y te enviaremos un enlace.": [
+    "Introduïu el vostre correu electrònic i us enviarem un enllaç.",
+    "Entrez votre courriel et nous vous enverrons un lien.",
+    "Enter your email and we will send you a link.",
+    "Geben Sie Ihre E-Mail ein und wir senden Ihnen einen Link."
   ],
   "Ir a Competiciones": [
     "Vés a la competència",
@@ -978,11 +1836,59 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Go to Profile",
     "Gehen Sie zum Profil"
   ],
+  "Ir al login": [
+    "Vés a la sessió",
+    "Aller à la connexion",
+    "Go to login",
+    "Gehen Sie zum Login"
+  ],
+  "KM": [
+    "KM",
+    "KM",
+    "KM",
+    "KM"
+  ],
+  "Kcal": [
+    "Kcal",
+    "Kcal",
+    "Kcal",
+    "Kcal"
+  ],
+  "Kilómetros": [
+    "Quilòmetres",
+    "Kilométrages",
+    "Kilometers",
+    "Kilometer"
+  ],
+  "Kilómetros acumulados": [
+    "km acumulat",
+    "km cumulé",
+    "Cumulated km",
+    "Kumulierte km"
+  ],
   "Kilómetros y horas por semana": [
     "Quilòmetres i hores per setmana",
     "Kilométrages et heures par semaine",
     "Kilometers and hours per week",
     "Kilometer und Stunden pro Woche"
+  ],
+  "Km": [
+    "Kmunit description in lists",
+    "Km",
+    "Km",
+    "Km"
+  ],
+  "Km bici al instalar": [
+    "Bcicle km en instal· lar",
+    "Vélo km pendant l'installation",
+    "Bicycle km while installing",
+    "Fahrradkilometer bei der Installation"
+  ],
+  "LTHR estimado (95% FC media)": [
+    "THRT (95% vol dir FC)",
+    "Estimation de la HRTL (moyenne à 95 %)",
+    "Estimated LTHR (95% mean FC)",
+    "Geschätzte LTHR (95 % mittlere FC)"
   ],
   "La IA adaptará los entrenamientos a tu objetivo y creará los menús de la semana en la pantalla": [
     "La IA s'adaptarà al vostre objectiu i crearà els menús de la setmana a la pantalla",
@@ -1026,11 +1932,71 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Passwords don't match",
     "Passwörter passen nicht zusammen"
   ],
+  "Lato": [
+    "Diryazerbaijan. kgm",
+    "Produits laitiers",
+    "Dairy",
+    "Milchprodukte"
+  ],
+  "Llamadas IA": [
+    "Trucades IA",
+    "Appels IA",
+    "IA calls",
+    "IA-Aufrufe"
+  ],
+  "Llamadas a la IA": [
+    "Crida a IA",
+    "Appel à l'IV",
+    "Call to IA",
+    "Aufruf an IA"
+  ],
+  "Llano": [
+    "Terra",
+    "Sol",
+    "Ground",
+    "Boden"
+  ],
+  "Los archivos": [
+    "Els arxius",
+    "Les archives",
+    "The archives",
+    "Die Archive"
+  ],
+  "Los entrenamientos son siempre": [
+    "L' entrenament sempre és",
+    "La formation est toujours",
+    "Training are always",
+    "Training ist immer"
+  ],
+  "Los logos aparecen en el footer de toda la app, en orden ascendente.": [
+    "Els logos apareixen en el Foter de tota l'app, en ordre ascendent.",
+    "Les logos apparaissent dans le Foter de toute l'application, en ordre ascendant.",
+    "The logos appear in the Foter of the whole app, in ascending order.",
+    "Die Logos erscheinen im Foter der gesamten App in aufsteigender Reihenfolge."
+  ],
+  "Líquido": [
+    "Líquid",
+    "Liquide",
+    "Liquid",
+    "Flüssig"
+  ],
   "Madrid, Barcelona, Sevilla…": [
     "Madrid, Barcelona, Girona…",
     "Paris, Lyon, Toulouse…",
     "London, Madrid, Girona…",
     "Berlin, München, Köln…"
+  ],
+  "Mantenerlo": [
+    "Mantén-lo",
+    "Gardez-le",
+    "Keep him",
+    "Halten Sie ihn"
+  ],
+  "Mantenerlo igualmente": [
+    "Queda-t'ho bé.",
+    "Gardez-le aussi.",
+    "Keep it as well.",
+    "Behalten Sie es auch."
   ],
   "Mantenimiento pendiente": [
     "Manteniment excepcional",
@@ -1038,11 +2004,59 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Maintenance outstanding",
     "Ausstehende Instandhaltung"
   ],
+  "Marca": [
+    "Vano",
+    "Ventilateur",
+    "Fan",
+    "Fan"
+  ],
+  "Marcar como realizado": [
+    "Marcat com a realitzada",
+    "Marqué comme exécuté",
+    "Marked as performed",
+    "Wie ausgeführt gekennzeichnet"
+  ],
+  "Marcar como realizado sin actualizar FTP": [
+    "Marcat com s' ha fet sense actualitzar l' FTP",
+    "Marqué comme exécuté sans mise à jour FTP",
+    "Marked as performed without FTP update",
+    "Markiert als durchgeführt ohne FTP-Update"
+  ],
+  "Marcar como sustituido": [
+    "Marca com a reemplaçat",
+    "Cadran remplacé",
+    "Dial as replaced",
+    "Dial wie ersetzt"
+  ],
+  "Marcar completado": [
+    "S' ha completat el març",
+    "Mars terminé",
+    "March complete",
+    "März vollständig"
+  ],
+  "Marcar test como realizado": [
+    "Prova com a realitzada",
+    "Essai effectué",
+    "Test as performed",
+    "Prüfung wie durchgeführt"
+  ],
   "Masculino": [
     "Masculí",
     "Homme",
     "Male",
     "Männlich"
+  ],
+  "Material y mantenimiento": [
+    "Materials i manteniment",
+    "Matériaux et entretien",
+    "Materials and maintenance",
+    "Material und Instandhaltung"
+  ],
+  "Media": [
+    "Mitjana",
+    "Moyenne",
+    "Average",
+    "Durchschnitt"
   ],
   "Mejor potencia media sostenida por cada duración. Se calcula a partir de los streams de Intervals.icu tras sincronizar.": [
     "Millor potència mitjana sostinguda per a cada durada. Es calcula a partir dels streams d'Intervals.icu després de sincronitzar.",
@@ -1080,17 +2094,41 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Pre-race menus",
     "Pre-Rennmenüs"
   ],
+  "Mes": [
+    "Mes",
+    "Mois",
+    "Month",
+    "Monat"
+  ],
   "Meteorología": [
     "Meteorologia",
     "Météo",
     "Weather",
     "Wetter"
   ],
+  "Mi Bici": [
+    "El meu Bici",
+    "Mon Bici",
+    "My Bici",
+    "Mein Bici"
+  ],
+  "Mi ficha de entrenamiento": [
+    "La meva targeta d'entrenament",
+    "Ma carte de formation",
+    "My training card",
+    "Meine Trainingskarte"
+  ],
   "Miguel García": [
     "Miguel García",
     "Annexe",
     "Miguel García",
     "Miguel García"
+  ],
+  "Minuto": [
+    "Minut",
+    "Minute",
+    "Minute",
+    "Minute"
   ],
   "Minutos": [
     "Minuts",
@@ -1104,11 +2142,23 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Minute available per day (vacuum = default duration)",
     "Minute pro Tag verfügbar (Vakuum = Standarddauer)"
   ],
+  "Mixto": [
+    "Conjunt",
+    "Ensemble",
+    "Joint",
+    "Gemeinsam"
+  ],
   "Mixto / sin definir": [
     "Mixt / sense definir",
     "Polyvalent / non défini",
     "All-rounder / undefined",
     "Allrounder / unbestimmt"
+  ],
+  "Modelo": [
+    "Model",
+    "Modèle",
+    "Model",
+    "Modell"
   ],
   "Modo competición": [
     "Mode de competència",
@@ -1121,6 +2171,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Montagne",
     "Mountain",
     "Bergberg"
+  ],
+  "More": [
+    "Més",
+    "Plus",
+    "More",
+    "Mehr"
+  ],
+  "More pages": [
+    "Més pàgines",
+    "Autres pages",
+    "More pages",
+    "Mehr Seiten"
   ],
   "Muy fatigado": [
     "Molt fatigat",
@@ -1146,11 +2208,35 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Minimum 8 characters",
     "Mindestens 8 Zeichen"
   ],
+  "NP": [
+    "NP",
+    "NP",
+    "NP",
+    "NP"
+  ],
   "Necesitas tener el Push del servidor activado (arriba, en Notificaciones). El aviso solo se envía si aún no has respondido el Readiness del día.": [
     "Cal tenir el Push del servidor activat (a dalt, a Notificacions). L'avís només s'envia si encara no has respost el Readiness del dia.",
     "Les notifications serveur doivent être activées (plus haut, dans Notifications). L'alerte n'est envoyée que si tu n'as pas encore répondu à la forme du jour.",
     "Server push must be enabled (above, in Notifications). The reminder is only sent if you haven't answered today's Readiness yet.",
     "Server-Push muss aktiviert sein (oben unter Benachrichtigungen). Die Erinnerung kommt nur, wenn du die heutige Tagesform noch nicht beantwortet hast."
+  ],
+  "Next": [
+    "Següent",
+    "Suivant",
+    "Next",
+    "Nächster Artikel"
+  ],
+  "Next slide": [
+    "Següent diapositiva",
+    "Diapositive suivante",
+    "Next slide",
+    "Nächster Slide"
+  ],
+  "No": [
+    "No",
+    "Numéro",
+    "No",
+    "Nein"
   ],
   "No detectado": [
     "Sense detectar",
@@ -1242,11 +2328,47 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Do not show again",
     "Nicht wieder zeigen"
   ],
+  "No, recorta la semana": [
+    "No, talla la setmana",
+    "Non, coupe la semaine.",
+    "No, cut the week",
+    "Nein, schneiden Sie die Woche"
+  ],
+  "Nombre": [
+    "Nom",
+    "Dénomination",
+    "Name",
+    "Name"
+  ],
+  "Nombre *": [
+    "Nom *",
+    "Nom *",
+    "Name *",
+    "Name *"
+  ],
+  "Nombre / detalle (opcional)": [
+    "Nom / detalls (opcional)",
+    "Nom / détails (facultatif)",
+    "Name / details (optional)",
+    "Name/Angaben (fakultativ)"
+  ],
   "Nombre completo": [
     "Nom complet",
     "Nom complet",
     "Full name",
     "Vollständiger Name"
+  ],
+  "Nombre del equipo": [
+    "Nom de l' equip",
+    "Nom de l'équipement",
+    "Name of equipment",
+    "Name der Ausrüstung"
+  ],
+  "Nombre y Apellido": [
+    "Nom i nom",
+    "Nom et dénomination",
+    "Name and name",
+    "Name und Name"
   ],
   "Notas": [
     "Notes",
@@ -1259,6 +2381,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Notes (facultatives)",
     "Notes (optional)",
     "Anmerkungen (fakultativ)"
+  ],
+  "Notas adicionales": [
+    "Notes addicionals",
+    "Notes complémentaires",
+    "Additional notes",
+    "Zusätzliche Anmerkungen"
   ],
   "Notas opcionales (sensaciones, dolor, condiciones…)": [
     "Notes opcionals (condients, dolor, condicions...)",
@@ -1338,11 +2466,41 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Onboarding · Guided Test",
     "Onboarding · Geführter Test"
   ],
+  "Open Sans": [
+    "Open Sans",
+    "Ouvrir Sans",
+    "Open Sans",
+    "Offene Sans"
+  ],
+  "Orden": [
+    "Ordre",
+    "Ordre",
+    "Order",
+    "Bestellung"
+  ],
+  "Oswald": [
+    "Oswald",
+    "Oswald",
+    "Oswald",
+    "Oswald"
+  ],
   "PMC · Gestión del rendimiento": [
     "PMC · Gestió del rendiment",
     "PMC · Gestion de la performance",
     "PMC · Performance management",
     "PMC · Leistungsmanagement"
+  ],
+  "Panel del ciclista": [
+    "Plafó cíclista",
+    "Panneau cyclique",
+    "Cyclist Panel",
+    "Radfahrerpanel"
+  ],
+  "Paso": [
+    "Passa",
+    "Passer",
+    "Pass",
+    "Pass"
   ],
   "Patrocinador actualizado": [
     "S'ha actualitzat el patrocinador",
@@ -1355,6 +2513,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Auteur supplémentaire",
     "Additional sponsor",
     "Zusätzlicher Sponsor"
+  ],
+  "Pausa": [
+    "Rhea",
+    "Rhéa",
+    "Rhea",
+    "Rhea"
   ],
   "País": [
     "País",
@@ -1374,11 +2538,23 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Profile saved",
     "Profil gespeichert"
   ],
+  "Performance Manager": [
+    "Gestor de rendiment",
+    "Gestionnaire de performance",
+    "Performance Manager",
+    "Leistungsmanager"
+  ],
   "Permiso bloqueado. Actívalo en los ajustes del navegador.": [
     "El préstec està bloquejat. Actua amb els arranjaments del navegador.",
     "Le prêt est bloqué. Agissez avec les paramètres du navigateur.",
     "Loan's blocked. Act with the browser settings.",
     "Der Kredit ist blockiert. Handeln Sie mit den Browsereinstellungen."
+  ],
+  "Permitir notificaciones": [
+    "Permet notificacions",
+    "Autoriser les notifications",
+    "Allow notifications",
+    "Notifizierungen zulassen"
   ],
   "Peso (kg)": [
     "Pes (kg)",
@@ -1386,11 +2562,65 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Weight (kg)",
     "Gewicht (kg)"
   ],
+  "Piernas": [
+    "Legins",
+    "Jambes",
+    "Legs",
+    "Beine"
+  ],
+  "Plan de carga": [
+    "S' està carregant el pla",
+    "Plan de chargement",
+    "Loading plan",
+    "Ladeplan"
+  ],
   "Plan de hidratación ajustado al clima": [
     "Planificació d'hidratació al clima",
     "Plan d'hydratation adapté au climat",
     "Climate-adjusted hydration plan",
     "Klimabereinigter Hydratationsplan"
+  ],
+  "Plan en carrera": [
+    "Planificació d' inserció",
+    "Plan de carrière",
+    "Career plan",
+    "Karriereplan"
+  ],
+  "Plan nutricional": [
+    "Planificació d' acceleració",
+    "Plan nutritionnel",
+    "Nutrition plan",
+    "Ernährungsplan"
+  ],
+  "Plan nutricional semanal": [
+    "Planificació nutricional setmanal",
+    "Plan nutritionnel hebdomadaire",
+    "Weekly nutritional plan",
+    "Wöchentlicher Ernährungsplan"
+  ],
+  "Plan:": [
+    "Pla:",
+    "Plan :",
+    "Plan:",
+    "Plan:"
+  ],
+  "Planes nutricionales": [
+    "Planificació de plans",
+    "Plans nutritionnels",
+    "Nutrition plans",
+    "Ernährungspläne"
+  ],
+  "Planificado vs Realizado": [
+    "Planificat contra realitzat",
+    "Prévus et réalisés",
+    "Scheduled vs. Realized",
+    "Geplant vs. realisiert"
+  ],
+  "Plataforma de IA para ciclistas.": [
+    "Una plataforma per motoristes.",
+    "Une plateforme pour les motards.",
+    "A platform for bikers.",
+    "Eine Plattform für Biker."
   ],
   "Plataforma de IA para ciclistas: planificación nutricional con IA, análisis de Intervals.icu y planes GPX con waypoints de carbohidratos.": [
     "Una plataforma per a cyclistes: Planificació nutricional amb intervals A, intervals. Anàlisis i plans de GPX amb punts de comunicació carbohidrats.",
@@ -1404,6 +2634,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Privacy policy",
     "Datenschutzpolitik"
   ],
+  "Post-carrera": [
+    "Post-trace",
+    "Après la course",
+    "Post-race",
+    "Nach dem Rennen"
+  ],
   "Potencia": [
     "Potència",
     "Puissance",
@@ -1416,6 +2652,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Power (FTP)",
     "Leistung (FTP)"
   ],
+  "Potencia crítica (CP)": [
+    "Potència crític (poc)",
+    "Puissance critique (PL)",
+    "Critical Power (PL)",
+    "Kritische Leistung (PL)"
+  ],
   "Potencia media": [
     "Potència mitjana",
     "Puissance moyenne",
@@ -1427,6 +2669,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Puissance moyenne 20 min (W)",
     "Average power 20 min (W)",
     "Mittlere Leistung 20 min (W)"
+  ],
+  "Precipitación": [
+    "Proporció",
+    "Propitation",
+    "Propitation",
+    "Propagation"
   ],
   "Preferencias / intolerancias": [
     "Preferències / intoleràncies",
@@ -1446,6 +2694,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Prescribed vs completed",
     "Geplant vs. absolviert"
   ],
+  "Previous": [
+    "Anterior",
+    "Précédent",
+    "Previous",
+    "Früher"
+  ],
+  "Previous slide": [
+    "Diapositiva prèvia",
+    "Diapo précédent",
+    "Previous slide",
+    "Vorherige Artikel"
+  ],
   "Previsión actualizada": [
     "Planificació actualitzada",
     "Calendrier actualisé",
@@ -1458,11 +2718,29 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Projected route",
     "Voraussichtliche Route"
   ],
+  "Programar": [
+    "Programació",
+    "Programmation",
+    "Programming",
+    "Programmierung"
+  ],
+  "Programar test": [
+    "Prova de programació",
+    "Essai de programmation",
+    "Programming Test",
+    "Programmierungstest"
+  ],
   "Progreso": [
     "Progrés",
     "Progrès",
     "Progress",
     "Fortschritt"
+  ],
+  "Prot.": [
+    "Prot.",
+    "Prot.",
+    "Prot.",
+    "Prot."
   ],
   "Protocolo clásico Coggan: 20 min a máximo esfuerzo sostenible. FTP ≈ 95% de la potencia media de esos 20 min.": [
     "Protocol clàssic Coggan: 20 min al màxim esforç sostenible. FTP  95% de la mitjana d'aquest 20 min.",
@@ -1470,11 +2748,53 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Classic protocol Coggan: 20 min to maximum sustainable effort. FTP ∞ 95% of the mean power of that 20 min.",
     "Klassisches Protokoll Coggan: 20 min bis maximaler nachhaltiger Aufwand. FTP ∞ 95% der mittleren Leistung dieser 20 min."
   ],
+  "Próxima cita": [
+    "Propera data",
+    "Prochaine date",
+    "Next date",
+    "Nächster Termin"
+  ],
+  "Pulsaciones": [
+    "Prem",
+    "Appuyez sur",
+    "Press",
+    "Presse"
+  ],
+  "Push del servidor": [
+    "Premeu el servidor",
+    "Pousser le serveur",
+    "Server push",
+    "Server Push"
+  ],
+  "Quedan": [
+    "Ja està.",
+    "C'est ça.",
+    "That's it.",
+    "Das ist es."
+  ],
+  "Quiero un plan nutricional": [
+    "Tinc un pla nutricional.",
+    "J'ai un plan nutritionnel.",
+    "I have a nutritional plan.",
+    "Ich habe einen Ernährungsplan."
+  ],
+  "RPE (1-10)": [
+    "RPE (1-10)",
+    "RPE (1-10)",
+    "RPE (1-10)",
+    "RPE (1-10)"
+  ],
   "Readiness": [
     "De lectura",
     "État de préparation",
     "Readiness",
     "Bereitschaft"
+  ],
+  "Readiness bajo": [
+    "Baixa la lectura",
+    "Disponibilité faible",
+    "Readiness low",
+    "Geringe Bereitschaft"
   ],
   "Readiness de hoy": [
     "Llegit avui",
@@ -1494,6 +2814,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Weekly average readiness",
     "Wöchentliche Durchschnitts-Tagesform"
   ],
+  "Realizado:": [
+    "Realitzat:",
+    "Réalisation :",
+    "Realized:",
+    "Realisiert:"
+  ],
+  "Recalcular ahora": [
+    "Recalcula ara",
+    "recalculer maintenant",
+    "recalculate now",
+    "Jetzt neu berechnen"
+  ],
   "Recalcular sesión": [
     "Retractora la sessió",
     "Session rétractable",
@@ -1511,6 +2843,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Recevoir une notification quotidienne de forme",
     "Receive daily Readiness push",
     "Tägliche Tagesform-Push erhalten"
+  ],
+  "Recupera.": [
+    "Retrave.",
+    "Rétractez.",
+    "Retract.",
+    "Retract."
+  ],
+  "Recuperación": [
+    "Recobriment",
+    "Récupération",
+    "Recovery",
+    "Erholung"
   ],
   "Recuperar contraseña": [
     "Torna a recuperar la contrasenya",
@@ -1530,6 +2874,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Check your bikes and wear components. Upgrade the mileage and you will get alerts when you play change pieces.",
     "Überprüfen Sie Ihre Fahrräder und Verschleißkomponenten. Aktualisieren Sie die Kilometerzahl und Sie erhalten Warnungen, wenn Sie Wechselstücke spielen."
   ],
+  "Reiniciar": [
+    "Reinicia",
+    "Redémarrer",
+    "Reboot",
+    "Reboot"
+  ],
   "Reintentar": [
     "Reintenta",
     "Réessayer",
@@ -1542,11 +2892,23 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Repeat Password",
     "Passwort wiederholen"
   ],
+  "Repetir test": [
+    "Prova de repetició",
+    "Essai répété",
+    "Repeat Test",
+    "Wiederholtest"
+  ],
   "Requiere conexión": [
     "Requereix connexió",
     "Nécessite une connexion",
     "Requires connection",
     "Erfordert Verbindung"
+  ],
+  "Respuesta de la IA": [
+    "Una resposta",
+    "Réponse",
+    "A response",
+    "Eine Antwort"
   ],
   "Resultado": [
     "Cometes",
@@ -1554,17 +2916,53 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Outcome",
     "Ergebnis"
   ],
+  "Resumen semanal": [
+    "Informe setmanal",
+    "Rapport hebdomadaire",
+    "Weekly report",
+    "Wochenbericht"
+  ],
+  "Revisa tu correo": [
+    "Comproveu el vostre correu electrònic",
+    "Vérifiez votre email",
+    "Check your email",
+    "Überprüfen Sie Ihre E-Mail"
+  ],
   "Riesgo térmico": [
     "Risc tèrmic",
     "Risque thermique",
     "Thermal risk",
     "Thermisches Risiko"
   ],
+  "Ritmo": [
+    "Rhythm",
+    "Rythme",
+    "Rhythm",
+    "Rhythmus"
+  ],
+  "Roboto": [
+    "Robot",
+    "Robot",
+    "Robot",
+    "Roboter"
+  ],
   "Rodador": [
     "Rodador",
     "Rouleur",
     "Rouleur",
     "Rouleur"
+  ],
+  "Rol": [
+    "Funció",
+    "Rôle",
+    "Role",
+    "Rolle"
+  ],
+  "Rutas": [
+    "RoadsDescription",
+    "Routes",
+    "Roads",
+    "Straßen"
   ],
   "Récords de la temporada": [
     "Enregistraments de la temporada",
@@ -1578,11 +2976,47 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Power records (12 months)",
     "Leistungsrekorde (12 Monate)"
   ],
+  "Safari": [
+    "Safari",
+    "Safari",
+    "Safari",
+    "Safari"
+  ],
+  "Sales por bidón": [
+    "Vénen amb un tambor.",
+    "Ils sortent avec un tambour.",
+    "They come out with a drum.",
+    "Sie kommen mit einer Trommel heraus."
+  ],
   "Salida más larga ·": [
     "Sortida llarga",
     "Sortie plus longue ·",
     "Longer output ·",
     "Längere Leistung ·"
+  ],
+  "Salidas": [
+    "Sortida",
+    "Produits",
+    "Outputs",
+    "Outputs"
+  ],
+  "Salidas programadas": [
+    "Sortida planificada",
+    "Départs prévus",
+    "Scheduled departures",
+    "Geplante Abfahrten"
+  ],
+  "Saltar fase": [
+    "Salt de fase",
+    "Phase de saut",
+    "Jump phase",
+    "Sprungphase"
+  ],
+  "Se aplica a las notificaciones marcadas abajo.": [
+    "S' aplica a les notificacions llistades a sota.",
+    "Elle s'applique aux notifications énumérées ci-dessous.",
+    "It applies to the notifications listed below.",
+    "Sie gilt für die nachstehend aufgeführten Mitteilungen."
   ],
   "Se aplican a los próximos entrenamientos que se generen. Solo afectan a tu cuenta.": [
     "S'aplica a la següent formació que es generen. Només afecten el teu compte.",
@@ -1626,6 +3060,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Select how you feel today",
     "Wählen Sie, wie Sie sich heute fühlen"
   ],
+  "Selecciona la actividad de Intervals.icu donde hiciste el test. Calcularemos el mejor esfuerzo de 20 min y actualizaremos tu FTP y zonas.": [
+    "Seleccioneu l' activitat de Interval.icau on heu fet la prova. Anem a esbrinar el millor esforç de 20 min i actualitzar les vostres zones FTP i FTP.",
+    "Sélectionnez l'activité d'Intervals.icu où vous avez fait le test. Nous allons trouver le meilleur 20 min d'effort et mettre à jour votre FTP et vos zones.",
+    "Select Intervals.icu's activity where you did the test. We'll figure out the best 20 min effort and update your FTP and zones.",
+    "Wählen Sie die Aktivität von Intervals.icu aus, bei der Sie den Test durchgeführt haben. Wir werden den besten 20-minütigen Aufwand herausfinden und Ihr FTP und Ihre Zonen aktualisieren."
+  ],
   "Selecciona tu país": [
     "Seleccioneu el vostre país",
     "Sélectionnez votre pays",
@@ -1644,6 +3084,24 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "week",
     "Woche"
   ],
+  "Sensaciones (1-5)": [
+    "Sensació (1- 5)",
+    "Sensation (1-5)",
+    "Feeling (1-5)",
+    "Gefühl (1-5)"
+  ],
+  "Sensación de piernas": [
+    "Sensació de cames",
+    "Sensation de jambes",
+    "Feeling of legs",
+    "Gefühl der Beine"
+  ],
+  "Sensación máx.": [
+    "Mare.",
+    "Sensation de mât.",
+    "Mast feeling.",
+    "Mastgefühl."
+  ],
   "Sexo": [
     "Sexe",
     "Sexe",
@@ -1661,6 +3119,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Si vous ne voyez pas l'option, naviguez un peu sur l'application et essayez à nouveau - le navigateur s'activera après quelques secondes d'utilisation.",
     "If you don't see the option, navigate the app a little and try again - the browser will enable after a few seconds of use.",
     "Wenn Sie die Option nicht sehen, navigieren Sie ein wenig in der App und versuchen Sie es erneut - der Browser wird nach wenigen Sekunden aktiviert."
+  ],
+  "Sidebar": [
+    "Barra lateral",
+    "Barre latérale",
+    "Sidebar",
+    "Seitenleiste"
   ],
   "Siguiente": [
     "Següent",
@@ -1716,11 +3180,47 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Zone and threshold synchronization (FTP, LTHR, max FC) with Intervals.icu while saving profile",
     "Zonen- und Schwellensynchronisation (FTP, LTHR, max FC) mit Intervallen. icu beim Speichern des Profils"
   ],
+  "Sincronizar": [
+    "Sincronització",
+    "synchronisation",
+    "sync",
+    "Sync"
+  ],
+  "Sodio": [
+    "Sodi",
+    "Sodium",
+    "Sodium",
+    "Natrium"
+  ],
+  "Solicitar nuevo enlace": [
+    "Sol· licita un enllaç nou",
+    "Demander un nouveau lien",
+    "Request new link",
+    "Neuen Link anfordern"
+  ],
   "Sprint, llano, larga distancia…": [
     "Esprint, pla, llarga distància…",
     "Sprint, plat, longue distance…",
     "Sprint, flats, long distance…",
     "Sprint, Flachstück, Langstrecke…"
+  ],
+  "Sprinter": [
+    "Sprinter",
+    "Sprinter",
+    "Sprinter",
+    "Sprinter"
+  ],
+  "Strava conectado": [
+    "Strava connectat",
+    "Strava connecté",
+    "Strava connected",
+    "Strava verbunden"
+  ],
+  "Sube el GPX de la ruta para localizarla y consultar el clima previsto.": [
+    "Van pujar el Gpx des de la ruta a trobar i comprovar el clima.",
+    "Remontez le Gpx de la route pour trouver et vérifier le climat.",
+    "Fan up the Gpx from the route to find and check the climate.",
+    "Auffächern des Gpx von der Route, um das Klima zu finden und zu überprüfen."
   ],
   "Sube un archivo .gpx con el track de la competición": [
     "Registre d' un fitxer .gpx amb la pista de competència",
@@ -1758,6 +3258,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Suggest indoor trainer in bad weather",
     "Bei schlechtem Wetter Rollentrainer vorschlagen"
   ],
+  "Sustituir ya (": [
+    "Substitueix (",
+    "Remplacer (",
+    "Replace (",
+    "Ersetzen ("
+  ],
+  "System": [
+    "Sistema",
+    "Système",
+    "System",
+    "System"
+  ],
   "Sí": [
     "Sí",
     "Oui",
@@ -1794,6 +3306,48 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Planned TSS",
     "Geplanter TSS"
   ],
+  "TSS real": [
+    "TS real",
+    "TSS réel",
+    "Real TSS",
+    "Echtes TSS"
+  ],
+  "Te hemos enviado un email a": [
+    "Hem enviat un correu electrònic a",
+    "Nous avons envoyé un email à",
+    "We have sent an email to",
+    "Wir haben eine E-Mail an"
+  ],
+  "Te hemos enviado un enlace a": [
+    "T'hem enviat un enllaç a",
+    "Nous vous avons envoyé un lien vers",
+    "We have sent you a link to",
+    "Wir haben Ihnen einen Link zu"
+  ],
+  "Techo carga semanal": [
+    "Càrrega setmanal",
+    "Plaque de chargement hebdomadaire",
+    "Weekly load plate",
+    "Wöchentliche Ladeplatte"
+  ],
+  "Telegram conectado": [
+    "Telegram connectat",
+    "Télégramme connecté",
+    "Telegram connected",
+    "Telegramm verbunden"
+  ],
+  "Tengo menos tiempo": [
+    "Tinc menys temps.",
+    "J'ai moins de temps.",
+    "I have less time.",
+    "Ich habe weniger Zeit."
+  ],
+  "Terreno disponible": [
+    "Terra disponible",
+    "Base disponible",
+    "Ground available",
+    "Boden verfügbar"
+  ],
   "Test de FTP 20 min": [
     "FTP Prova 20 mins",
     "FTP Essai 20 min",
@@ -1805,6 +3359,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Essai marqué tel quel.",
     "Test marked as performed.",
     "Prüfung als durchgeführt gekennzeichnet."
+  ],
+  "Tests de FTP": [
+    "Proves FTP",
+    "Essais FTP",
+    "FTP Tests",
+    "FTP-Tests"
+  ],
+  "Texto": [
+    "Text",
+    "Texte",
+    "Text",
+    "Text"
   ],
   "Tiempo": [
     "Temps",
@@ -1836,17 +3402,65 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Type",
     "Typ"
   ],
+  "Tipo de bicicleta": [
+    "Tipus de moto",
+    "Type de vélo",
+    "Type of bike",
+    "Art des Fahrrads"
+  ],
   "Tipo de ciclista": [
     "Tipus de ciclista",
     "Type de cycliste",
     "Cyclist type",
     "Fahrertyp"
   ],
+  "Tipo detectado": [
+    "Tipus detectat",
+    "Type détecté",
+    "Detected type",
+    "Erfasster Typ"
+  ],
+  "Toca": [
+    "Toch",
+    "Toucher",
+    "Touch",
+    "Berührung"
+  ],
   "Toca el botón": [
     "Toca el botó",
     "Appuyez sur le bouton",
     "Touch the button",
     "Berühren Sie den Button"
+  ],
+  "Toggle Sidebar": [
+    "Commuta la barra lateral",
+    "Basculer la barre latérale",
+    "Toggle Sidebar",
+    "Toggle Sidebar"
+  ],
+  "Tokens IA": [
+    "Token IA",
+    "Jetons IA",
+    "Tokens IA",
+    "Token IA"
+  ],
+  "Tokens consumidos": [
+    "Els tòners consumits",
+    "Tokens consommés",
+    "Tokens consumed",
+    "Verwendete Token"
+  ],
+  "Tolerancia al rodillo": [
+    "tolerància posterior",
+    "Tolérance des bobines",
+    "Reel tolerance",
+    "Walzentoleranz"
+  ],
+  "Totales de todos los usuarios desde el": [
+    "Total de tots els usuaris de",
+    "Total de tous les utilisateurs",
+    "Total of all users from",
+    "Insgesamt alle Nutzer von"
   ],
   "Track GPX & Nutrición": [
     "Track Gpx i Nutrition",
@@ -1890,17 +3504,41 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Title",
     "Titel"
   ],
+  "URL del logo (https://...)": [
+    "URL del logotip (https: //...)",
+    "URL du logo (https: / /...)",
+    "logo URL (https: / /...)",
+    "Logo-URL (https: / /...)"
+  ],
   "Umbral FC / LTHR (bpm)": [
     "Llindar FC / LTHR (bpm)",
     "Seuil FC / LTHR (bpm)",
     "HR threshold / LTHR (bpm)",
     "HF-Schwelle / LTHR (bpm)"
   ],
+  "Umbral de frescura": [
+    "morat fresc",
+    "Violet frais",
+    "Fresh purple",
+    "Frischlila"
+  ],
   "Umbral de viento (km/h)": [
     "Llindar de vent (km/h)",
     "Seuil de vent (km/h)",
     "Wind threshold (km/h)",
     "Windschwelle (km/h)"
+  ],
+  "Umbrales actualizados": [
+    "Llindars actualitzats",
+    "Seuils actualisés",
+    "Updated thresholds",
+    "Aktualisierte Schwellenwerte"
+  ],
+  "Umbrales desactualizados": [
+    "Llindars sense data",
+    "Seuils non datés",
+    "Undate thresholds",
+    "Undatschwellen"
   ],
   "Usuario": [
     "Usuari",
@@ -1914,11 +3552,29 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "User created",
     "Benutzer erstellt"
   ],
+  "Valoración global": [
+    "Valoració global",
+    "Évaluation globale",
+    "Overall valuation",
+    "Gesamtbewertung"
+  ],
   "Valoración guardada": [
     "Valor desat",
     "Valeur enregistrée",
     "Value saved",
     "Gesparter Wert"
+  ],
+  "Vatios": [
+    "Wage",
+    "Salaire",
+    "Wage",
+    "Lohn"
+  ],
+  "Vatios medios": [
+    "preu mitjà",
+    "Prix moyens",
+    "Average prices",
+    "Durchschnittspreise"
   ],
   "Ve a una competición y pulsa \"Generar Menú Pre-Carrera\".": [
     "Anar a una competició i premsa \"El menú Pro-Carer.\"",
@@ -1931,6 +3587,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Végan, intolérance au lactose, sans gluten…",
     "Vegan, lactose intolerant, gluten-free…",
     "Vegan, laktoseintolerant, glutenfrei…"
+  ],
+  "Ver": [
+    "Veure",
+    "Voir",
+    "See",
+    "Siehe"
   ],
   "Ver Receta": [
     "Mireu recepta",
@@ -1986,11 +3648,47 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "See and download. FIT",
     "Sehen und herunterladen. FIT"
   ],
+  "Vida útil estimada (km)": [
+    "Vida útil estimada (km)",
+    "Durée de vie utile estimée (km)",
+    "Estimated useful life (km)",
+    "Geschätzte Nutzungsdauer (km)"
+  ],
+  "Viento máx.": [
+    "Màxim vent.",
+    "Vent maximum.",
+    "Maximum wind.",
+    "Maximaler Wind."
+  ],
   "Vincula tu cuenta de Intervals.icu de forma segura. Se te pedirá autorizar Globero IA en Intervals.icu y volverás automáticamente aquí.": [
     "Plegar els teus intervals. Un compte segur. Se us demanarà que autoritzi el Globeero IA a Interval. icu i tornarà automàticament.",
     "Pliez votre compte Intervals.icu en toute sécurité. On vous demandera d'autoriser Globero IA à Intervals. icu et reviendra ici automatiquement.",
     "Fold your intervals.icu account safely. You will be asked to authorize Globero IA at Intervals.icu and will come back here automatically.",
     "Falten Sie Ihr interval.icu-Konto sicher. Sie werden gebeten, Globero IA bei Intervals zu autorisieren. Icu und wird automatisch hierher zurückkehren."
+  ],
+  "Vinculando tu cuenta de Intervals.icu…": [
+    "Omplir els teus intervals.",
+    "Remplir votre compte Intervals.icu...",
+    "Filling your intervals.icu account...",
+    "Füllen Sie Ihr intervals.icu Konto..."
+  ],
+  "Vinculando tu cuenta de Strava…": [
+    "Omplir el teu compte d'estrava...",
+    "Remplir votre compte Strava...",
+    "Filling your Strava account...",
+    "Füllen Sie Ihr Strava-Konto ..."
+  ],
+  "Visible": [
+    "Visible",
+    "Visibilité",
+    "Visible",
+    "Sichtbar"
+  ],
+  "Volumen": [
+    "Volum",
+    "Volume",
+    "Volume",
+    "Volumen"
   ],
   "Volver": [
     "Enrere",
@@ -2022,11 +3720,41 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Back to login",
     "Zurück zum Login"
   ],
+  "W": [
+    "W",
+    "W",
+    "W",
+    "W"
+  ],
+  "W' (reserva anaeróbica)": [
+    "Reserva '(anaerbic)",
+    "W '(réserve anaérobie)",
+    "W '(anaerobic reserve)",
+    "W ' (anaerobe Reserve)"
+  ],
+  "W/kg": [
+    "W / kg",
+    "W/kg",
+    "W / kg",
+    "W/kg"
+  ],
+  "Ya has respondido hoy:": [
+    "Heu respost avui:",
+    "Vous avez répondu aujourd'hui :",
+    "You have responded today:",
+    "Sie haben heute geantwortet:"
+  ],
   "Zonas sincronizadas con Intervals.icu": [
     "Zones sincronitzades amb Intervals.icu",
     "Zones synchronisées avec Intervals.icu",
     "Zones synced with Intervals.icu",
     "Zonen mit Intervals.icu synchronisiert"
+  ],
+  "activo": [
+    "Actius",
+    "Actifs",
+    "Assets",
+    "Vermögenswerte"
   ],
   "al límite": [
     "al límit",
@@ -2040,11 +3768,71 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "care",
     "Pflege"
   ],
+  "bloque": [
+    "bloc",
+    "bloc",
+    "block",
+    "Block"
+  ],
+  "bloqueado": [
+    "Bloquejada",
+    "bloqué",
+    "blocked",
+    "blockiert"
+  ],
+  "bloques": [
+    "blocs",
+    "blocs",
+    "blocks",
+    "Blöcke"
+  ],
+  "bloques ·": [
+    "blocs",
+    "blocs",
+    "blocks",
+    "Blöcke"
+  ],
+  "bpm": [
+    "bpm",
+    "bpm",
+    "bpm",
+    "bpm"
+  ],
+  "breadcrumb": [
+    "Bumbmba",
+    "chapelure",
+    "breadcrumb",
+    "Brotkrume"
+  ],
+  "componente": [
+    "component",
+    "composante",
+    "component",
+    "Komponente"
+  ],
+  "cumplimiento (": [
+    "Compatibilitat (",
+    "conformité (",
+    "compliance (",
+    "Compliance"
+  ],
+  "de Chrome o Edge.": [
+    "Des de Chrome o Edge.",
+    "de Chrome ou Edge.",
+    "from Chrome or Edge.",
+    "von Chrome oder Edge."
+  ],
   "de ese día?": [
     "Aquell dia?",
     "Ce jour-là ?",
     "That day?",
     "An diesem Tag?"
+  ],
+  "del mes.": [
+    "Del mes.",
+    "Du mois.",
+    "Of the month.",
+    "des Monats."
   ],
   "días ·": [
     "dies",
@@ -2058,17 +3846,233 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "in 30 days",
     "in 30 Tagen"
   ],
+  "en la barra de direcciones.": [
+    "a la barra d' adreces.",
+    "à la barre d'adresse.",
+    "at the address bar.",
+    "an der Adressleiste."
+  ],
+  "en la barra inferior.": [
+    "a la barra inferior.",
+    "dans la barre inférieure.",
+    "at the bottom bar.",
+    "am unteren Balken."
+  ],
+  "eventos": [
+    "esdeveniments",
+    "événements",
+    "events",
+    "Ereignisse"
+  ],
+  "g": [
+    "g",
+    "g",
+    "g",
+    "g"
+  ],
+  "g CH": [
+    "g CH",
+    "g CH",
+    "g CH",
+    "g CH"
+  ],
+  "g CHO ·": [
+    "g",
+    "g",
+    "g",
+    "g"
+  ],
+  "g prot.": [
+    "g prot.",
+    "- Oui.",
+    "g prot.",
+    "g prot."
+  ],
+  "g total ·": [
+    "g total",
+    "g total",
+    "g total",
+    "g insgesamt"
+  ],
+  "g · G": [
+    "g G G",
+    "g · G",
+    "g · G",
+    "g · G"
+  ],
+  "g · P": [
+    "g · P",
+    "g · P",
+    "g · P",
+    "g · P"
+  ],
+  "g/h ·": [
+    "g / h",
+    "g/h",
+    "g / h",
+    "g/h"
+  ],
+  "globero.app": [
+    "Fero.app",
+    "mondialro.app",
+    "globero.app",
+    "globero.app"
+  ],
+  "h estimadas": [
+    "Estimació",
+    "Montant estimatif",
+    "estimate",
+    "Schätzung"
+  ],
+  "https://ejemplo.com/logo.png": [
+    "https: // ptimo. com / logo. ppng",
+    "https: / / ptimo.com / logo.png",
+    "https: / / ptimo.com / logo.png",
+    "https: / / ptimo.com / logo.png"
+  ],
+  "https://patrocinador.com": [
+    "https: // patrocinador",
+    "https: / / sponsor",
+    "https: / / sponsor",
+    "https: // Sponsor"
+  ],
+  "iCal": [
+    "iCal",
+    "iCal",
+    "iCal",
+    "iCal"
+  ],
+  "inactivo": [
+    "inactiu",
+    "inactif",
+    "inactive",
+    "inaktiv"
+  ],
+  "intervalos)": [
+    ")",
+    ")",
+    ")",
+    ")"
+  ],
+  "kcal": [
+    "kcalunit description in lists",
+    "kcal",
+    "kcal",
+    "kcal"
+  ],
+  "kcal ·": [
+    "kcalunit description in lists",
+    "kcal",
+    "kcal",
+    "kcal"
+  ],
+  "kcal · CHO": [
+    "Kcal CHO",
+    "Kcal · CHO",
+    "Kcal · CHO",
+    "Kcal · CHO"
+  ],
+  "km": [
+    "kmunit description in lists",
+    "km",
+    "km",
+    "km"
+  ],
+  "km pasados)": [
+    "Darrer km)",
+    "Dernier km)",
+    "Last km)",
+    "Letzter km"
+  ],
+  "km ·": [
+    "kmunit description in lists",
+    "km",
+    "km",
+    "km"
+  ],
+  "km/h · lluvia": [
+    "km / h",
+    "km/h · pluie",
+    "km / h · rain",
+    "km/h · Regen"
+  ],
+  "llamada(s) ·": [
+    "Crida (es)",
+    "appel (s)",
+    "call (s)",
+    "Ruf (s)"
+  ],
+  "m": [
+    "m",
+    "m",
+    "m",
+    "m"
+  ],
+  "min": [
+    "min",
+    "min",
+    "min",
+    "min."
+  ],
+  "min ·": [
+    "min",
+    "min",
+    "min",
+    "min."
+  ],
+  "min · media": [
+    "min · mitjana",
+    "min · moyenne",
+    "min · mean",
+    "min · Mittelwert"
+  ],
+  "min).": [
+    "min).",
+    "(min).",
+    "min).",
+    "min."
+  ],
   "min). ¿Quieres reubicarlo el": [
     "min). Voleu assignar- la",
     "(min). Voulez-vous déplacer son",
     "min). Do you want to relocate his",
     "min. Möchten Sie seine"
   ],
+  "mixtos": [
+    "Barreja",
+    "mélangé",
+    "mixed",
+    "gemischt"
+  ],
+  "mm": [
+    "mm",
+    "mm",
+    "mm",
+    "mm"
+  ],
   "más": [
     "més",
     "plus",
     "more",
     "mehr"
+  ],
+  "no soportado": [
+    "No acceptat",
+    "Sans support",
+    "Unsupported",
+    "Nicht unterstützt"
+  ],
+  "o": [
+    "o",
+    "ou",
+    "or",
+    "oder"
+  ],
+  "pagination": [
+    "pasginació",
+    "pagination",
+    "pagination",
+    "Paginierung"
   ],
   "panel": [
     "panell",
@@ -2094,6 +4098,42 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "To restore your password.",
     "Um Ihr Passwort wiederherzustellen."
   ],
+  "patrocinador": [
+    "patrocinador",
+    "parrain",
+    "sponsor",
+    "Sponsor"
+  ],
+  "pendiente": [
+    "excepcional",
+    "en suspens",
+    "outstanding",
+    "hervorragend"
+  ],
+  "perfil": [
+    "perfil",
+    "profil",
+    "profile",
+    "Profil"
+  ],
+  "permitido": [
+    "permès",
+    "permis",
+    "permitted",
+    "zulässig"
+  ],
+  "pieza": [
+    "peça",
+    "pièce",
+    "piece",
+    "Stück"
+  ],
+  "preview": [
+    "Vista prèvia",
+    "aperçu",
+    "preview",
+    "Vorschau"
+  ],
   "próxima": [
     "següent",
     "suivant",
@@ -2105,6 +4145,66 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Que vous avez téléchargé sont enregistrés sur votre appareil - vous pouvez les importer dans Zwift ou TrainingPeaks sans connexion.",
     "That you downloaded are saved onto your device - you can import them into Zwift or TrainingPeaks without connection.",
     "Dass Sie heruntergeladen haben, wird auf Ihrem Gerät gespeichert - Sie können sie ohne Verbindung in Zwift oder TrainingPeaks importieren."
+  ],
+  "requiere": [
+    "requereix",
+    "nécessitant",
+    "require",
+    "erfordern"
+  ],
+  "ruta": [
+    "camí",
+    "chemin",
+    "path",
+    "Wegstrecke"
+  ],
+  "sin logo": [
+    "Sense logo",
+    "Pas de logo",
+    "No logo",
+    "Kein Logo"
+  ],
+  "tokens": [
+    "fitxes",
+    "jetons",
+    "tokens",
+    "Token"
+  ],
+  "tras subir el test.": [
+    "Després de la prova.",
+    "Après le test.",
+    "after we get up the test.",
+    "Nachdem wir den Test gemacht haben."
+  ],
+  "tucorreo@ejemplo.com": [
+    "tumail",
+    "Tumail",
+    "tumail",
+    "tumail"
+  ],
+  "vencida": [
+    "Expandeix",
+    "Élargir",
+    "Expand",
+    "Expansion"
+  ],
+  "y": [
+    "i",
+    "et",
+    "and",
+    "und"
+  ],
+  "y confirma.": [
+    "I confirma.",
+    "et confirme.",
+    "and confirms.",
+    "und bestätigt."
+  ],
+  "y tus actividades de Intervals.icu.": [
+    "I les teves activitats de intervals.",
+    "et vos activités d'intervalles.",
+    "and your intervals.icus activities.",
+    "und Ihre intervals.icus Aktivitäten."
   ],
   "¡Cuenta de Intervals.icu conectada correctamente!": [
     "Compte d'Intervals.icu connectat correctament!",
@@ -2118,6 +4218,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Strava account connected!",
     "Strava-Konto verbunden!"
   ],
+  "°C · viento": [
+    "° C",
+    "° C · vent",
+    "° C · wind",
+    "° C · Wind"
+  ],
   "· Fatiga": [
     "FaigaCity name (optional, probably does not need a translation)",
     "Fatiga",
@@ -2130,11 +4236,41 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "· Projection",
     "· Prognose"
   ],
+  "· TrainingPeaks / Zwift →": [
+    "· ExerciciPetaks / Zwift Manveen",
+    "· FormationPeaks / Zwift →",
+    "· TrainingPeaks / Zwift →",
+    "· TrainingPeaks / Zwift"
+  ],
+  "· Valora tu esfuerzo": [
+    "· Valoreu els vostres esforços",
+    "· Appréciez vos efforts",
+    "· Value your efforts",
+    "· Schätzen Sie Ihre Bemühungen"
+  ],
   "· duró": [
     "· Va durar",
     "· a duré",
     "· lasted",
     "· Dauerhaft"
+  ],
+  "· min": [
+    "min",
+    "min",
+    "min",
+    "min."
+  ],
+  "· ref": [
+    "Ref",
+    "Réf.",
+    "Ref",
+    "Ref."
+  ],
+  "· semana": [
+    "• La setmana",
+    "• semaine",
+    "• week",
+    "• Woche"
   ],
   "¿Adaptar este entrenamiento a RODILLO (60-90 min)?\n\nSe recalculará el TSS previsto y se actualizará el evento en Intervals.icu. Podrás volver a exterior cuando quieras.": [
     "Per adaptar aquest entrenament a CALLLA (60- 90 min)?\n\nL'esdeveniment es recalcularà a Intervals.icual. Pots tornar a fora quan vulguis.",
@@ -2244,6 +4380,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Do you want to assign her as",
     "Willst du sie als"
   ],
+  "¿Qué NO funcionó?": [
+    "Què no ha funcionat?",
+    "Qu'est-ce qui n'a pas marché ?",
+    "What didn't work?",
+    "Was hat nicht funktioniert?"
+  ],
+  "¿Qué funcionó? (geles, comida, estrategia, descanso…)": [
+    "Què ha funcionat? (Gels, menjar, estratègia, descans...)",
+    "Qu'est-ce qui a marché ? (Gels, nourriture, stratégie, repos...)",
+    "What worked? (Gels, food, strategy, rest...)",
+    "Was hat funktioniert? (Gels, Essen, Strategie, Ruhe...)"
+  ],
   "¿Seguro que quieres eliminar tu perfil? Una vez eliminado no podrás acceder a tus datos y todo tu progreso quedará eliminado.": [
     "Esteu segur que voleu netejar el vostre perfil? Una vegada que us heu eliminat no tindreu accés a les vostres dades i tot el vostre progrés serà eliminat.",
     "Voulez-vous vraiment effacer votre profil ? Une fois que vous avez été supprimé, vous n'aurez pas accès à vos données et tous vos progrès seront éliminés.",
@@ -2261,6 +4409,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Vous avez un compte ?",
     "Do you have an account?",
     "Haben Sie einen Account?"
+  ],
+  "×": [
+    "×",
+    "×",
+    "×",
+    "×"
   ],
   "Últimas 20 actividades": [
     "Darrers 20 activitats",
@@ -2309,6 +4463,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "92% FCmax",
     "∞ 92% FCmax",
     "∞ 92% FCmax"
+  ],
+  "≥ 88% FTP · 30s": [
+    "88 88% FTP",
+    "≥ 88% FTP · 30s",
+    "≥ 88% FTP · 30s",
+    "≥ 88% FTP · 30s"
+  ],
+  "⏱ Faltan": [
+    "Ha fallat",
+    "Échec",
+    "Failed",
+    "Fehlgeschlagen"
   ],
   "✓ Guardado en tu perfil. La IA usará estas zonas al generar entrenamientos.": [
     "Això és del que parlo. La IA usarà aquestes àrees generant entrenament.",
