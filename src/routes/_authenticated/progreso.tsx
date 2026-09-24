@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -76,8 +77,8 @@ function ProgresoPage() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">Evolución</p>
-        <h1 className="font-display text-3xl font-bold uppercase tracking-tight mt-1">Progreso</h1>
+        <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">{tr("Evolución")}</p>
+        <h1 className="font-display text-3xl font-bold uppercase tracking-tight mt-1">{tr("Progreso")}</h1>
       </div>
 
       {th.data && <ThresholdCard status={th.data as any} />}
@@ -87,18 +88,18 @@ function ProgresoPage() {
       ) : !d ? null : (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <Kpi label="Fitness (CTL)" value={Math.round(d.current.ctl)} sub={ctlDelta != null ? `${ctlDelta >= 0 ? "+" : ""}${ctlDelta} en 30 días` : "42 días"} />
-            <Kpi label="Fatiga (ATL)" value={Math.round(d.current.atl)} sub="7 días" />
-            <Kpi label="Forma (TSB)" value={Math.round(d.current.tsb)} sub={tsbLabel(d.current.tsb)} />
-            <Kpi label="Actividades" value={d.records.activities_12m} sub="últimos 12 meses" />
+            <Kpi label={tr("Fitness (CTL)")} value={Math.round(d.current.ctl)} sub={ctlDelta != null ? `${ctlDelta >= 0 ? "+" : ""}${ctlDelta} ${tr("en 30 días")}` : tr("42 días")} />
+            <Kpi label={tr("Fatiga (ATL)")} value={Math.round(d.current.atl)} sub={tr("7 días")} />
+            <Kpi label={tr("Forma (TSB)")} value={Math.round(d.current.tsb)} sub={tsbLabel(d.current.tsb)} />
+            <Kpi label={tr("Actividades")} value={d.records.activities_12m} sub={tr("últimos 12 meses")} />
           </div>
 
           <section className="bg-surface border rounded-xl p-4 sm:p-5">
             <h2 className="font-display text-lg font-bold uppercase flex items-center gap-2">
-              <TrendingUp className="size-4 text-primary" /> PMC · Gestión del rendimiento
+              <TrendingUp className="size-4 text-primary" /> {tr("PMC · Gestión del rendimiento")}
             </h2>
             <p className="text-xs text-muted-foreground mt-1">
-              Histórico de 6 meses y proyección de 6 semanas según tus entrenamientos planificados. La zona sombreada es la previsión.
+              {tr("Histórico de 6 meses y proyección de 6 semanas según tus entrenamientos planificados. La zona sombreada es la previsión.")}
             </p>
             <div className="h-80 mt-4 -ml-5 sm:-ml-4">
               <ResponsiveContainer width="100%" height="100%">
@@ -113,32 +114,32 @@ function ProgresoPage() {
                       return point ? `${format(new Date(`${point.date}T12:00:00Z`), "d 'de' MMMM", { locale: es })}${point.projected ? " · Proyección" : ""}` : "";
                     }}
                     formatter={(value: any, name: any, item: any) => {
-                      const labels: Record<string, string> = { ctlReal: "Fitness (CTL)", atlReal: "Fatiga (ATL)", tsbReal: "Forma (TSB)", ctlProjected: "Fitness (CTL)", atlProjected: "Fatiga (ATL)", tsbProjected: "Forma (TSB)" };
+                      const labels: Record<string, string> = { ctlReal: tr("Fitness (CTL)"), atlReal: tr("Fatiga (ATL)"), tsbReal: tr("Forma (TSB)"), ctlProjected: tr("Fitness (CTL)"), atlProjected: tr("Fatiga (ATL)"), tsbProjected: tr("Forma (TSB)") };
                       return [value, labels[item?.dataKey] ?? name];
                     }}
                   />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <ReferenceArea x1={projectionStartLabel} x2={projectionEndLabel} fill="var(--muted)" fillOpacity={0.45} ifOverflow="extendDomain" />
-                  <ReferenceLine x={projectionStartLabel} stroke="var(--foreground)" strokeDasharray="3 3" label={{ value: "Hoy", position: "insideTopRight", fontSize: 10, fill: "var(--muted-foreground)" }} />
+                  <ReferenceLine x={projectionStartLabel} stroke="var(--foreground)" strokeDasharray="3 3" label={{ value: tr("Hoy"), position: "insideTopRight", fontSize: 10, fill: "var(--muted-foreground)" }} />
                   <ReferenceLine y={0} stroke="var(--border)" />
-                  <Line type="monotone" dataKey="ctlReal" name="Fitness (CTL)" stroke="var(--chart-2)" dot={false} strokeWidth={2.25} connectNulls={false} />
-                  <Line type="monotone" dataKey="atlReal" name="Fatiga (ATL)" stroke="var(--destructive)" dot={false} strokeWidth={1.75} connectNulls={false} />
-                  <Line type="monotone" dataKey="tsbReal" name="Forma (TSB)" stroke="var(--chart-3)" dot={false} strokeWidth={1.75} connectNulls={false} />
-                  <Line type="monotone" dataKey="ctlProjected" name="Fitness proyectado" stroke="var(--chart-2)" strokeDasharray="6 4" dot={false} strokeWidth={2.25} connectNulls={false} legendType="none" />
-                  <Line type="monotone" dataKey="atlProjected" name="Fatiga proyectada" stroke="var(--destructive)" strokeDasharray="6 4" dot={false} strokeWidth={1.75} connectNulls={false} legendType="none" />
-                  <Line type="monotone" dataKey="tsbProjected" name="Forma proyectada" stroke="var(--chart-3)" strokeDasharray="6 4" dot={false} strokeWidth={1.75} connectNulls={false} legendType="none" />
+                  <Line type="monotone" dataKey="ctlReal" name={tr("Fitness (CTL)")} stroke="var(--chart-2)" dot={false} strokeWidth={2.25} connectNulls={false} />
+                  <Line type="monotone" dataKey="atlReal" name={tr("Fatiga (ATL)")} stroke="var(--destructive)" dot={false} strokeWidth={1.75} connectNulls={false} />
+                  <Line type="monotone" dataKey="tsbReal" name={tr("Forma (TSB)")} stroke="var(--chart-3)" dot={false} strokeWidth={1.75} connectNulls={false} />
+                  <Line type="monotone" dataKey="ctlProjected" name={tr("Fitness proyectado")} stroke="var(--chart-2)" strokeDasharray="6 4" dot={false} strokeWidth={2.25} connectNulls={false} legendType="none" />
+                  <Line type="monotone" dataKey="atlProjected" name={tr("Fatiga proyectada")} stroke="var(--destructive)" strokeDasharray="6 4" dot={false} strokeWidth={1.75} connectNulls={false} legendType="none" />
+                  <Line type="monotone" dataKey="tsbProjected" name={tr("Forma proyectada")} stroke="var(--chart-3)" strokeDasharray="6 4" dot={false} strokeWidth={1.75} connectNulls={false} legendType="none" />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
             <p className="text-[11px] text-muted-foreground mt-2">
-              CTL = fitness acumulado (42 días) · ATL = fatiga reciente (7 días) · TSB = forma (CTL − ATL).
+              {tr("CTL = fitness acumulado (42 días) · ATL = fatiga reciente (7 días) · TSB = forma (CTL − ATL).")}
             </p>
           </section>
 
           <FtpHistoryChart history={d.ftp_history ?? []} weightKg={d.weight_kg ?? null} />
 
           <section className="bg-surface border rounded-xl p-5">
-            <h2 className="font-display text-lg font-bold uppercase">Carga semanal (TSS)</h2>
+            <h2 className="font-display text-lg font-bold uppercase">{tr("Carga semanal (TSS)")}</h2>
             <div className="h-56 mt-4 -ml-4">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={weeklyData}>
@@ -153,9 +154,9 @@ function ProgresoPage() {
           </section>
 
           <section className="bg-surface border rounded-xl p-5">
-            <h2 className="font-display text-lg font-bold uppercase">Prescrito vs ejecutado</h2>
+            <h2 className="font-display text-lg font-bold uppercase">{tr("Prescrito vs ejecutado")}</h2>
             <p className="text-xs text-muted-foreground mt-1">
-              TSS planificado frente al realmente ejecutado y % de sesiones completadas por semana.
+              {tr("TSS planificado frente al realmente ejecutado y % de sesiones completadas por semana.")}
             </p>
             <div className="h-56 mt-4 -ml-4">
               <ResponsiveContainer width="100%" height="100%">
@@ -166,24 +167,24 @@ function ProgresoPage() {
                   <YAxis yAxisId="r" orientation="right" domain={[0, 100]} tick={{ fontSize: 10 }} />
                   <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Bar dataKey="planned_tss" name="TSS previsto" fill="#94a3b8" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="actual_tss" name="TSS ejecutado" fill="var(--primary)" radius={[4, 4, 0, 0]} />
-                  <Line yAxisId="r" type="monotone" dataKey="compliance" name="Cumplimiento %" stroke="#22c55e" strokeWidth={2} dot={false} />
+                  <Bar dataKey="planned_tss" name={tr("TSS previsto")} fill="#94a3b8" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="actual_tss" name={tr("TSS ejecutado")} fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                  <Line yAxisId="r" type="monotone" dataKey="compliance" name={tr("Cumplimiento %")} stroke="#22c55e" strokeWidth={2} dot={false} />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
           </section>
 
           <section className="bg-surface border rounded-xl p-5">
-            <h2 className="font-display text-lg font-bold uppercase">Tiempo en zonas (8 semanas)</h2>
+            <h2 className="font-display text-lg font-bold uppercase">{tr("Tiempo en zonas (8 semanas)")}</h2>
             <div className="h-56 mt-4 -ml-4">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={d.zones ?? []}>
                   <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                   <XAxis dataKey="zone" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 10 }} />
-                  <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} formatter={(v: any, _n, p: any) => [`${v} min (${p?.payload?.pct ?? 0}%)`, "Tiempo"]} />
-                  <Bar dataKey="minutes" name="Minutos" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                  <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} formatter={(v: any, _n, p: any) => [`${v} min (${p?.payload?.pct ?? 0}%)`, tr("Tiempo")]} />
+                  <Bar dataKey="minutes" name={tr("Minutos")} fill="var(--primary)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -191,7 +192,7 @@ function ProgresoPage() {
 
           {readinessData.length > 0 && (
             <section className="bg-surface border rounded-xl p-5">
-              <h2 className="font-display text-lg font-bold uppercase">Readiness medio semanal</h2>
+              <h2 className="font-display text-lg font-bold uppercase">{tr("Readiness medio semanal")}</h2>
               <div className="h-48 mt-4 -ml-4">
                 <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart data={readinessData}>
@@ -208,16 +209,16 @@ function ProgresoPage() {
 
           <section className="bg-surface border rounded-xl p-5">
             <h2 className="font-display text-lg font-bold uppercase flex items-center gap-2">
-              <Zap className="size-4 text-primary" /> Curva de potencia (mean-max, 12 meses)
+              <Zap className="size-4 text-primary" /> {tr("Curva de potencia (mean-max, 12 meses)")}
             </h2>
             <p className="text-xs text-muted-foreground mt-1">
-              Mejor potencia media sostenida por cada duración. Se calcula a partir de los streams de Intervals.icu tras sincronizar.
+              {tr("Mejor potencia media sostenida por cada duración. Se calcula a partir de los streams de Intervals.icu tras sincronizar.")}
             </p>
             {curve.isLoading ? (
               <Skeleton className="h-56 w-full mt-4" />
             ) : (curve.data ?? []).length === 0 ? (
               <p className="text-sm text-muted-foreground mt-4">
-                Aún no hay picos de potencia calculados. Sincroniza Intervals.icu y se generarán automáticamente para actividades con potenciómetro.
+                {tr("Aún no hay picos de potencia calculados. Sincroniza Intervals.icu y se generarán automáticamente para actividades con potenciómetro.")}
               </p>
             ) : (
               <div className="h-56 mt-4 -ml-4">
@@ -228,10 +229,10 @@ function ProgresoPage() {
                     <YAxis tick={{ fontSize: 10 }} label={{ value: "W", angle: -90, position: "insideLeft", fontSize: 10 }} />
                     <Tooltip
                       contentStyle={{ fontSize: 12, borderRadius: 8 }}
-                      formatter={(v: any, _n, p: any) => [`${v} W${p?.payload?.wkg ? ` (${p.payload.wkg} W/kg)` : ""}`, "Potencia"]}
+                      formatter={(v: any, _n, p: any) => [`${v} W${p?.payload?.wkg ? ` (${p.payload.wkg} W/kg)` : ""}`, tr("Potencia")]}
                       labelFormatter={(_: any, p: any) => p?.[0]?.payload?.label ?? ""}
                     />
-                    <Line type="monotone" dataKey="watts" name="Potencia media" stroke="var(--primary)" strokeWidth={2} dot={{ r: 3 }} />
+                    <Line type="monotone" dataKey="watts" name={tr("Potencia media")} stroke="var(--primary)" strokeWidth={2} dot={{ r: 3 }} />
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>
@@ -240,11 +241,11 @@ function ProgresoPage() {
 
           <section className="bg-surface border rounded-xl p-5">
             <h2 className="font-display text-lg font-bold uppercase flex items-center gap-2">
-              <Zap className="size-4 text-primary" /> Récords de potencia (12 meses)
+              <Zap className="size-4 text-primary" /> {tr("Récords de potencia (12 meses)")}
             </h2>
             {d.prs.length === 0 ? (
               <p className="text-sm text-muted-foreground mt-2">
-                Sin datos de potencia en tus actividades. Sincroniza Intervals.icu con un medidor de potencia para ver tus PRs.
+                {tr("Sin datos de potencia en tus actividades. Sincroniza Intervals.icu con un medidor de potencia para ver tus PRs.")}
               </p>
             ) : (
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 mt-4">
@@ -282,7 +283,7 @@ function ProgresoPage() {
           </section>
 
           <p className="text-xs text-muted-foreground">
-            ¿Quieres ajustar la sesión de hoy? Hazlo desde el <Link to="/app" className="text-primary hover:underline">panel</Link>.
+            {tr("¿Quieres ajustar la sesión de hoy? Hazlo desde el")} <Link to="/app" className="text-primary hover:underline">{tr("panel")}</Link>.
           </p>
         </>
       )}
@@ -291,7 +292,7 @@ function ProgresoPage() {
 }
 
 function tsbLabel(tsb: number) {
-  return tsb > 10 ? "Fresco" : tsb > -10 ? "Equilibrado" : tsb > -25 ? "Cargado" : "Muy fatigado";
+  return tsb > 10 ? tr("Fresco") : tsb > -10 ? tr("Equilibrado") : tsb > -25 ? tr("Cargado") : tr("Muy fatigado");
 }
 
 function Kpi({ label, value, sub }: { label: string; value: number | string; sub?: string }) {

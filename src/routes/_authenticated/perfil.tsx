@@ -1,3 +1,4 @@
+import { tr } from "@/lib/i18n";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -52,18 +53,18 @@ function PerfilPage() {
     const strava = params.get("strava");
     if (status) {
       if (status === "success") {
-        toast.success("¡Cuenta de Intervals.icu conectada correctamente!");
+        toast.success(tr("¡Cuenta de Intervals.icu conectada correctamente!"));
         qc.invalidateQueries({ queryKey: ["profile"] });
       } else {
-        toast.error("No se pudo vincular Intervals.icu");
+        toast.error(tr("No se pudo vincular Intervals.icu"));
       }
     }
     if (strava) {
       if (strava === "success") {
-        toast.success("¡Cuenta de Strava conectada correctamente!");
+        toast.success(tr("¡Cuenta de Strava conectada correctamente!"));
         qc.invalidateQueries({ queryKey: ["profile"] });
       } else {
-        toast.error("No se pudo vincular Strava");
+        toast.error(tr("No se pudo vincular Strava"));
       }
     }
     if (status || strava) window.history.replaceState({}, "", window.location.pathname);
@@ -104,12 +105,12 @@ function PerfilPage() {
     }, { onConflict: "id" });
     if (error) toast.error(error.message);
     else {
-      toast.success("Perfil guardado");
+      toast.success(tr("Perfil guardado"));
       qc.invalidateQueries({ queryKey: ["profile"] });
       if (profileQ.data?.intervals_athlete_id && profileQ.data?.intervals_api_key) {
         try {
           const r = await syncZonesIcu({ data: undefined });
-          if (r.ok) toast.success("Zonas sincronizadas con Intervals.icu");
+          if (r.ok) toast.success(tr("Zonas sincronizadas con Intervals.icu"));
         } catch (err: any) { toast.error(`Intervals.icu: ${err.message}`); }
       }
     }
@@ -120,24 +121,24 @@ function PerfilPage() {
   return (
     <div className="space-y-8 max-w-4xl">
       <div>
-        <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">Configuración personal</p>
-        <h1 className="font-display text-4xl font-bold uppercase tracking-tight">Tu Perfil</h1>
+        <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">{tr("Configuración personal")}</p>
+        <h1 className="font-display text-4xl font-bold uppercase tracking-tight">{tr("Tu Perfil")}</h1>
       </div>
 
       <form onSubmit={save} className="grid lg:grid-cols-2 gap-6">
-        <Section title="Datos personales">
-          <Field label="Nombre completo"><input className="input" value={form.full_name ?? ""} onChange={(e) => setForm({...form, full_name: e.target.value})} /></Field>
+        <Section title={tr("Datos personales")}>
+          <Field label={tr("Nombre completo")}><input className="input" value={form.full_name ?? ""} onChange={(e) => setForm({...form, full_name: e.target.value})} /></Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Edad"><input type="number" className="input" value={form.age ?? ""} onChange={(e) => setForm({...form, age: e.target.value})} /></Field>
-            <Field label="Sexo">
+            <Field label={tr("Edad")}><input type="number" className="input" value={form.age ?? ""} onChange={(e) => setForm({...form, age: e.target.value})} /></Field>
+            <Field label={tr("Sexo")}>
               <select className="input" value={form.gender ?? ""} onChange={(e) => setForm({...form, gender: e.target.value})}>
-                <option value="">—</option><option value="masculino">Masculino</option><option value="femenino">Femenino</option>
+                <option value="">—</option><option value="masculino">{tr("Masculino")}</option><option value="femenino">{tr("Femenino")}</option>
               </select>
             </Field>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Peso (kg)"><input type="number" step="0.1" className="input" value={form.weight_kg ?? ""} onChange={(e) => setForm({...form, weight_kg: e.target.value})} /></Field>
-            <Field label="Altura (cm)"><input type="number" className="input" value={form.height_cm ?? ""} onChange={(e) => setForm({...form, height_cm: e.target.value})} /></Field>
+            <Field label={tr("Peso (kg)")}><input type="number" step="0.1" className="input" value={form.weight_kg ?? ""} onChange={(e) => setForm({...form, weight_kg: e.target.value})} /></Field>
+            <Field label={tr("Altura (cm)")}><input type="number" className="input" value={form.height_cm ?? ""} onChange={(e) => setForm({...form, height_cm: e.target.value})} /></Field>
           </div>
           <Field label="FTP (W)">
             <div className="flex gap-2">
@@ -145,7 +146,7 @@ function PerfilPage() {
               {!!icuConnected && (
                 <button
                   type="button"
-                  title="Estimar FTP automáticamente desde tus actividades de Intervals.icu"
+                  title={tr("Estimar FTP automáticamente desde tus actividades de Intervals.icu")}
                   onClick={async () => {
                     try {
                       const r = await estimateFtp({ data: undefined });
@@ -161,11 +162,11 @@ function PerfilPage() {
               )}
             </div>
             {!!icuConnected && (
-              <p className="mt-1 text-[10px] text-muted-foreground">Se calcula desde tus actividades de Intervals.icu con potencia. Puedes modificarlo manualmente.</p>
+              <p className="mt-1 text-[10px] text-muted-foreground">{tr("Se calcula desde tus actividades de Intervals.icu con potencia. Puedes modificarlo manualmente.")}</p>
             )}
             <div className="mt-2">
               <Link to="/ftp-test" className="text-xs font-semibold text-primary hover:underline">
-                ¿No conoces tu FTP? Hacer el test guiado de 20 min →
+                {tr("¿No conoces tu FTP? Hacer el test guiado de 20 min →")}
               </Link>
             </div>
             <ZonesPreview
@@ -177,7 +178,7 @@ function PerfilPage() {
             />
           </Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="FC máx (bpm)">
+            <Field label={tr("FC máx (bpm)")}>
               <div className="flex gap-2">
                 <input type="number" className="input" value={form.max_hr ?? ""} onChange={(e) => {
                   const v = e.target.value;
@@ -190,7 +191,7 @@ function PerfilPage() {
                 {!!icuConnected && (
                   <button
                     type="button"
-                    title="Estimar FC máx y LTHR desde tus actividades de Intervals.icu"
+                    title={tr("Estimar FC máx y LTHR desde tus actividades de Intervals.icu")}
                     onClick={async () => {
                       try {
                         const r = await estimateHr({ data: undefined });
@@ -206,7 +207,7 @@ function PerfilPage() {
                 )}
               </div>
             </Field>
-            <Field label="Umbral FC / LTHR (bpm)">
+            <Field label={tr("Umbral FC / LTHR (bpm)")}>
               <input type="number" className="input" placeholder="≈ 92% FCmáx" value={form.lthr ?? ""} onChange={(e) => setForm({ ...form, lthr: e.target.value })} />
             </Field>
           </div>
@@ -217,37 +218,37 @@ function PerfilPage() {
           </p>
         </Section>
 
-        <Section title="Perfil ciclista">
-          <Field label="Tipo de ciclista">
+        <Section title={tr("Perfil ciclista")}>
+          <Field label={tr("Tipo de ciclista")}>
             <select className="input" value={form.cyclist_type ?? "mixto"} onChange={(e) => setForm({ ...form, cyclist_type: e.target.value })}>
-              <option value="mixto">Mixto / sin definir</option>
+              <option value="mixto">{tr("Mixto / sin definir")}</option>
               <option value="sprinter">Sprinter</option>
-              <option value="rodador">Rodador</option>
-              <option value="escalador">Escalador</option>
-              <option value="contrarrelojista">Contrarrelojista</option>
+              <option value="rodador">{tr("Rodador")}</option>
+              <option value="escalador">{tr("Escalador")}</option>
+              <option value="contrarrelojista">{tr("Contrarrelojista")}</option>
             </select>
           </Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Fortalezas">
-              <input className="input" placeholder="Sprint, llano, larga distancia…" value={form.strengths ?? ""} onChange={(e) => setForm({ ...form, strengths: e.target.value })} />
+            <Field label={tr("Fortalezas")}>
+              <input className="input" placeholder={tr("Sprint, llano, larga distancia…")} value={form.strengths ?? ""} onChange={(e) => setForm({ ...form, strengths: e.target.value })} />
             </Field>
-            <Field label="Debilidades a trabajar">
-              <input className="input" placeholder="Subidas, final, crono…" value={form.weaknesses ?? ""} onChange={(e) => setForm({ ...form, weaknesses: e.target.value })} />
+            <Field label={tr("Debilidades a trabajar")}>
+              <input className="input" placeholder={tr("Subidas, final, crono…")} value={form.weaknesses ?? ""} onChange={(e) => setForm({ ...form, weaknesses: e.target.value })} />
             </Field>
           </div>
           <p className="text-[11px] text-muted-foreground">
-            La IA sesgará la distribución de carga según tu perfil: más sprint/VO₂max para sprinters, umbral para rodadores, Z2 y subidas para escaladores, y aeróbico constante para contrarrelojistas.
+            {tr("La IA sesgará la distribución de carga según tu perfil: más sprint/VO₂max para sprinters, umbral para rodadores, Z2 y subidas para escaladores, y aeróbico constante para contrarrelojistas.")}
           </p>
         </Section>
 
         <AthleteProfileSection />
 
-        <Section title="Meteorología">
+        <Section title={tr("Meteorología")}>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Ciudad base para previsión">
-              <input className="input" placeholder="Madrid, Barcelona, Sevilla…" value={form.location_city ?? ""} onChange={(e) => setForm({ ...form, location_city: e.target.value })} />
+            <Field label={tr("Ciudad base para previsión")}>
+              <input className="input" placeholder={tr("Madrid, Barcelona, Sevilla…")} value={form.location_city ?? ""} onChange={(e) => setForm({ ...form, location_city: e.target.value })} />
             </Field>
-            <Field label="País">
+            <Field label={tr("País")}>
               <select className="input" value={form.country ?? "ES"} onChange={(e) => setForm({ ...form, country: e.target.value })}>
                 {COUNTRIES.map((c) => (
                   <option key={c.code} value={c.code}>{c.name}</option>
@@ -257,7 +258,7 @@ function PerfilPage() {
           </div>
           <WeatherStatus city={profileQ.data?.location_city} />
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Umbral de viento (km/h)">
+            <Field label={tr("Umbral de viento (km/h)")}>
               <input type="number" min={10} max={60} className="input" value={form.weather_wind_threshold_kmh ?? 25} onChange={(e) => setForm({ ...form, weather_wind_threshold_kmh: e.target.value })} />
             </Field>
             <label className="flex items-center gap-2 text-sm self-end pb-2">
@@ -266,7 +267,7 @@ function PerfilPage() {
                 checked={form.weather_auto_indoor ?? true}
                 onChange={(e) => setForm({ ...form, weather_auto_indoor: e.target.checked })}
               />
-              <span>Sugerir rodillo en mal tiempo</span>
+              <span>{tr("Sugerir rodillo en mal tiempo")}</span>
             </label>
           </div>
           <label className="flex items-center gap-2 text-sm">
@@ -275,41 +276,41 @@ function PerfilPage() {
               checked={form.notify_weather_alerts ?? true}
               onChange={(e) => setForm({ ...form, notify_weather_alerts: e.target.checked })}
             />
-            <span>Avisarme cada mañana si hay alerta o mal tiempo</span>
+            <span>{tr("Avisarme cada mañana si hay alerta o mal tiempo")}</span>
           </label>
           <p className="text-[11px] text-muted-foreground">
-            El aviso llega justo después del resumen de la sesión del día, por app y/o Telegram. Incluye los avisos oficiales vigentes (amarillo, naranja o rojo) por lluvias, inundaciones, viento, tormenta o temperaturas extremas, además de la previsión de tu localidad.
+            {tr("El aviso llega justo después del resumen de la sesión del día, por app y/o Telegram. Incluye los avisos oficiales vigentes (amarillo, naranja o rojo) por lluvias, inundaciones, viento, tormenta o temperaturas extremas, además de la previsión de tu localidad.")}
           </p>
         </Section>
 
-        <Section title="Nutrición">
-          <Field label="Preferencias / intolerancias">
-            <textarea className="input min-h-[80px]" placeholder="Vegano, intolerancia lactosa, sin gluten…" value={form.dietary_preferences ?? ""} onChange={(e) => setForm({...form, dietary_preferences: e.target.value})} />
+        <Section title={tr("Nutrición")}>
+          <Field label={tr("Preferencias / intolerancias")}>
+            <textarea className="input min-h-[80px]" placeholder={tr("Vegano, intolerancia lactosa, sin gluten…")} value={form.dietary_preferences ?? ""} onChange={(e) => setForm({...form, dietary_preferences: e.target.value})} />
           </Field>
-          <p className="text-[11px] text-muted-foreground">Se tienen en cuenta siempre en el plan semanal y en el plan de competición (se adapta 5 días antes de cada carrera).</p>
+          <p className="text-[11px] text-muted-foreground">{tr("Se tienen en cuenta siempre en el plan semanal y en el plan de competición (se adapta 5 días antes de cada carrera).")}</p>
         </Section>
 
 
-        <Section title="Conexión Intervals.icu" className="lg:col-span-2">
+        <Section title={tr("Conexión Intervals.icu")} className="lg:col-span-2">
           <IntervalsConnection profile={profileQ.data} />
         </Section>
 
-        <Section title="Conexión Strava" className="lg:col-span-2">
+        <Section title={tr("Conexión Strava")} className="lg:col-span-2">
           <StravaConnection profile={profileQ.data} />
         </Section>
 
 
 
-        <Section title="Conectar Telegram" className="lg:col-span-2">
+        <Section title={tr("Conectar Telegram")} className="lg:col-span-2">
           <TelegramSection />
         </Section>
 
-        <Section title="Notificaciones" className="lg:col-span-2">
+        <Section title={tr("Notificaciones")} className="lg:col-span-2">
           <NotificationsPrefs />
         </Section>
 
 
-        <Section title="Readiness diario" className="lg:col-span-2">
+        <Section title={tr("Readiness diario")} className="lg:col-span-2">
           <p className="text-sm text-muted-foreground">
             Cada día recibirás un Push preguntándote cómo te encuentras (1 Nada preparado · 2 Paseo relajado · 3 Entreno normal · 4 Entreno exigente · 5 Dar lo máximo). La IA adaptará el entrenamiento de ese día según tu respuesta; si respondes 1, te sugerirá eliminarlo.
           </p>
@@ -319,9 +320,9 @@ function PerfilPage() {
               checked={form.readiness_push_enabled ?? true}
               onChange={(e) => setForm({ ...form, readiness_push_enabled: e.target.checked })}
             />
-            <span>Recibir Push diario de Readiness</span>
+            <span>{tr("Recibir Push diario de Readiness")}</span>
           </label>
-          <Field label="Hora del Push (Europa / España peninsular)">
+          <Field label={tr("Hora del Push (Europa / España peninsular)")}>
             <select
               className="input"
               value={form.readiness_push_hour ?? 7}
@@ -333,13 +334,13 @@ function PerfilPage() {
             </select>
           </Field>
           <p className="text-[11px] text-muted-foreground">
-            Necesitas tener el Push del servidor activado (arriba, en Notificaciones). El aviso solo se envía si aún no has respondido el Readiness del día.
+            {tr("Necesitas tener el Push del servidor activado (arriba, en Notificaciones). El aviso solo se envía si aún no has respondido el Readiness del día.")}
           </p>
         </Section>
 
         <div className="lg:col-span-2 flex justify-end">
           <button type="submit" className="bg-primary text-primary-foreground px-6 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90">
-            Guardar cambios
+            {tr("Guardar cambios")}
           </button>
         </div>
       </form>
