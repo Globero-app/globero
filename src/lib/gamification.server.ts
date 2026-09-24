@@ -192,12 +192,29 @@ export function gamificationText(g: Gamification, lang: "es" | "ca" | "fr" | "en
   };
   const source = compliance.es.indexOf(g.compliance.label);
   const complianceLabel = source >= 0 ? (compliance[lang]?.[source] ?? g.compliance.label) : g.compliance.label;
+  const translateBadge = (label: string) => {
+    const exact: Record<string, Record<string, string>> = {
+      "Récord de temporada": { ca: "Rècord de la temporada", fr: "Record de la saison", en: "Season record", de: "Saisonrekord" },
+      "Sesión clavada": { ca: "Sessió clavada", fr: "Séance parfaite", en: "Nailed session", de: "Perfekte Einheit" },
+      "Primera sesión": { ca: "Primera sessió", fr: "Première séance", en: "First session", de: "Erste Einheit" },
+      "Centenario": { ca: "Centenari", fr: "Centenaire", en: "Century ride", de: "Jahrhundertfahrt" },
+      "Escalador": { ca: "Escalador", fr: "Grimpeur", en: "Climber", de: "Kletterer" },
+      "Fondista": { ca: "Fondista", fr: "Endurant", en: "Endurance rider", de: "Ausdauerfahrer" },
+    };
+    const recordCount = label.match(/^(\d+) récords de temporada$/);
+    if (recordCount) return lang === "ca" ? `${recordCount[1]} rècords de la temporada` : lang === "fr" ? `${recordCount[1]} records de la saison` : lang === "en" ? `${recordCount[1]} season records` : lang === "de" ? `${recordCount[1]} Saisonrekorde` : label;
+    const workouts = label.match(/^(\d+) entrenos completados$/);
+    if (workouts) return lang === "ca" ? `${workouts[1]} entrenaments completats` : lang === "fr" ? `${workouts[1]} entraînements terminés` : lang === "en" ? `${workouts[1]} workouts completed` : lang === "de" ? `${workouts[1]} Trainings abgeschlossen` : label;
+    const streak = label.match(/^Racha de (\d+) semanas$/);
+    if (streak) return lang === "ca" ? `Ratxa de ${streak[1]} setmanes` : lang === "fr" ? `Série de ${streak[1]} semaines` : lang === "en" ? `${streak[1]}-week streak` : lang === "de" ? `${streak[1]}-Wochen-Serie` : label;
+    return exact[label]?.[lang] ?? label;
+  };
   const lines: string[] = [];
   if (g.compliance.percent != null) lines.push(`🎯 ${labels.compliance}: ${g.compliance.percent}% — ${complianceLabel}`);
   if (g.records.length) {
     lines.push(`🏆 ${labels.records}: ${g.records.map((r) => `${r.label} ${r.watts} W${r.gain ? ` (+${r.gain})` : ""}`).join(" · ")}`);
   }
   const others = g.badges.filter((b) => b.emoji !== "🏆");
-  if (others.length) lines.push(`${labels.badges}: ${others.map((b) => `${b.emoji} ${b.label}`).join(" · ")}`);
+  if (others.length) lines.push(`${labels.badges}: ${others.map((b) => `${b.emoji} ${translateBadge(b.label)}`).join(" · ")}`);
   return lines.join("\n");
 }

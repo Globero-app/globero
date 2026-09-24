@@ -14,7 +14,18 @@ const TEXT = {
   dailySummary: { es: "Resumen de hoy", ca: "Resum d'avui", fr: "Résumé du jour", en: "Today's summary", de: "Heutige Übersicht" },
   workoutReport: { es: "Informe del entrenamiento", ca: "Informe de l'entrenament", fr: "Rapport d'entraînement", en: "Workout report", de: "Trainingsbericht" },
   reportReady: { es: "Informe listo", ca: "Informe preparat", fr: "Rapport prêt", en: "Report ready", de: "Bericht fertig" },
+  health: { es: "Salud", ca: "Salut", fr: "Santé", en: "Health", de: "Gesundheit" },
+  sleep: { es: "sueño", ca: "son", fr: "sommeil", en: "sleep", de: "Schlaf" },
+  fatigue: { es: "fatiga", ca: "fatiga", fr: "fatigue", en: "fatigue", de: "Ermüdung" },
 } satisfies Record<string, Values>;
+
+export function competitionCountdown(lang: UserLang, name: string, days: number): string {
+  const values: Record<UserLang, string> = {
+    es: `${name}: faltan ${days} días.`, ca: `${name}: falten ${days} dies.`, fr: `${name} : dans ${days} jours.`,
+    en: `${name}: ${days} days to go.`, de: `${name}: noch ${days} Tage.`,
+  };
+  return values[lang];
+}
 
 export function serverText(lang: UserLang, key: keyof typeof TEXT): string {
   return TEXT[key][lang] ?? TEXT[key].es;

@@ -56,7 +56,7 @@ function briefHash(s: string): string {
 
 export async function buildDailyBrief(supabase: any, userId: string) {
   const { today, profile, load, todayWorkout, readiness, health, comp } = await loadContext(supabase, userId);
-  const [{ getUserLang, langInstruction }, { serverText }] = await Promise.all([
+  const [{ getUserLang, langInstruction }, { competitionCountdown, serverText }] = await Promise.all([
     import("./user-lang.server"),
     import("./server-i18n"),
   ]);
@@ -76,15 +76,15 @@ export async function buildDailyBrief(supabase: any, userId: string) {
   const last = health[0];
   if (last) {
     const bits = [
-      last.sleep_hours != null ? `sueño ${last.sleep_hours}h` : null,
-      last.fatigue != null ? `fatiga ${last.fatigue}/5` : null,
+      last.sleep_hours != null ? `${serverText(lang, "sleep")} ${last.sleep_hours}h` : null,
+      last.fatigue != null ? `${serverText(lang, "fatigue")} ${last.fatigue}/5` : null,
       last.weight_kg != null ? `${last.weight_kg} kg` : null,
     ].filter(Boolean);
-    if (bits.length) lines.push(`Salud (${last.entry_date}): ${bits.join(" · ")}`);
+    if (bits.length) lines.push(`${serverText(lang, "health")} (${last.entry_date}): ${bits.join(" · ")}`);
   }
   if (comp) {
     const days = Math.round((new Date(`${comp.date}T12:00:00Z`).getTime() - new Date(`${today}T12:00:00Z`).getTime()) / DAY);
-    lines.push(`${comp.name}: faltan ${days} días.`);
+    lines.push(competitionCountdown(lang, comp.name, days));
   }
 
   // Caché del consejo: solo se llama a la IA si cambia el contexto del día.
