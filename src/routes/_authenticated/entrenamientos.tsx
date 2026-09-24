@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
-import { completeWorkout, deleteWorkout, convertWorkoutToTrainer, revertWorkoutToOutdoor } from "@/lib/workouts.functions";
+import { completeWorkout, deleteWorkout, convertWorkoutToTrainer, revertWorkoutToOutdoor, rebalanceWeek } from "@/lib/workouts.functions";
 import { Dumbbell } from "lucide-react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,6 +26,8 @@ function EntrenamientosPage() {
   const toTrainer = useServerFn(convertWorkoutToTrainer);
   const toOutdoor = useServerFn(revertWorkoutToOutdoor);
   const quick = useServerFn(quickAdjustWorkout);
+  const rebalance = useServerFn(rebalanceWeek);
+  const [recalc, setRecalc] = useState(false);
   const [tab, setTab] = useState<"semana" | "proximas" | "historial">("semana");
 
   const profile = useQuery({
@@ -88,6 +90,27 @@ function EntrenamientosPage() {
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <h2 className="font-display text-lg font-bold uppercase">Tus entrenamientos</h2>
+          <button
+            type="button"
+            disabled={recalc}
+            onClick={async () => {
+              setRecalc(true);
+              try {
+                const r: any = await rebalance({ data: {} });
+                if (r?.changed) toast.success(`Semana recalculada: ${r.workouts.length} sesión(es) ajustadas`);
+                else toast.info(r?.reason === "ya_equilibrada" ? "La semana ya está equilibrada" : r?.reason === "no_quedan_sesiones" ? "No quedan sesiones pendientes esta semana" : "No hay objetivo semanal para recalcular");
+                qc.invalidateQueries({ queryKey: ["workouts"] });
+                qc.invalidateQueries({ queryKey: ["calendar"] });
+              } catch (e: any) {
+                toast.error(e?.message ?? "No se pudo recalcular");
+              } finally {
+                setRecalc(false);
+              }
+            }}
+            className="px-3 py-1.5 rounded-md border text-xs font-semibold hover:bg-secondary disabled:opacity-50"
+          >
+            {recalc ? "Recalculando…" : "Recalcular semana"}
+          </button>
         </div>
         {workouts.isLoading && (
           <div className="grid gap-3">
