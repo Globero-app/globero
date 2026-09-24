@@ -56,18 +56,23 @@ function briefHash(s: string): string {
 
 export async function buildDailyBrief(supabase: any, userId: string) {
   const { today, profile, load, todayWorkout, readiness, health, comp } = await loadContext(supabase, userId);
+  const [{ getUserLang, langInstruction }, { serverText }] = await Promise.all([
+    import("./user-lang.server"),
+    import("./server-i18n"),
+  ]);
+  const lang = await getUserLang(userId);
 
   const lines: string[] = [];
   if (todayWorkout) {
     const p: any = todayWorkout.plan ?? {};
-    lines.push(`Hoy: ${p.title ?? p.name ?? "Sesión planificada"} · ${todayWorkout.duration_minutes} min · ${todayWorkout.bike_type}`);
+    lines.push(`${serverText(lang, "today")}: ${p.title ?? p.name ?? serverText(lang, "session")} · ${todayWorkout.duration_minutes} min · ${todayWorkout.bike_type}`);
     if (p.summary) lines.push(p.summary);
   } else {
-    lines.push("Hoy: día de descanso (sin sesión planificada).");
+    lines.push(`${serverText(lang, "today")}: ${serverText(lang, "restDay")}`);
   }
-  lines.push(`Forma: CTL ${Math.round(load.ctl)} · ATL ${Math.round(load.atl)} · TSB ${Math.round(load.tsb)}`);
-  if (readiness?.score) lines.push(`Readiness de hoy: ${readiness.score}/5`);
-  else lines.push("Readiness de hoy: sin registrar");
+  lines.push(`${serverText(lang, "fitness")}: CTL ${Math.round(load.ctl)} · ATL ${Math.round(load.atl)} · TSB ${Math.round(load.tsb)}`);
+  if (readiness?.score) lines.push(`${serverText(lang, "readinessToday")}: ${readiness.score}/5`);
+  else lines.push(`${serverText(lang, "readinessToday")}: ${serverText(lang, "notRecorded")}`);
   const last = health[0];
   if (last) {
     const bits = [
@@ -94,7 +99,7 @@ export async function buildDailyBrief(supabase: any, userId: string) {
           {
             role: "system",
             content:
-              "Eres el entrenador de ciclismo del usuario. Devuelve UNA sola frase en español (máx. 200 caracteres), concreta y accionable, sin markdown ni emojis.",
+              `${langInstruction(lang)} Devuelve UNA sola frase (máx. 200 caracteres), concreta y accionable, sin markdown ni emojis.`,
           },
           { role: "user", content: lines.join("\n") },
         ],
@@ -115,21 +120,21 @@ export async function buildDailyBrief(supabase: any, userId: string) {
     }
   }
   advice = advice.replace(/\s+/g, " ").trim().slice(0, 220);
-  if (advice) lines.push(`Consejo: ${advice}`);
+  if (advice) lines.push(`${serverText(lang, "advice")}: ${advice}`);
 
   const short = todayWorkout
-    ? `${(todayWorkout.plan as any)?.title ?? "Sesión"} · ${todayWorkout.duration_minutes} min · TSB ${Math.round(load.tsb)}`
-    : `Descanso · TSB ${Math.round(load.tsb)}`;
+    ? `${(todayWorkout.plan as any)?.title ?? serverText(lang, "session")} · ${todayWorkout.duration_minutes} min · TSB ${Math.round(load.tsb)}`
+    : `${serverText(lang, "rest")} · TSB ${Math.round(load.tsb)}`;
 
   const notificationBody = todayWorkout
-    ? `${(todayWorkout.plan as any)?.title ?? "Sesión"} · ${todayWorkout.duration_minutes} min · ${todayWorkout.bike_type}${
+    ? `${(todayWorkout.plan as any)?.title ?? serverText(lang, "session")} · ${todayWorkout.duration_minutes} min · ${todayWorkout.bike_type}${
         (todayWorkout.plan as any)?.summary ? "\n" + (todayWorkout.plan as any).summary : ""
       }`
-    : "Hoy: día de descanso.";
+    : `${serverText(lang, "today")}: ${serverText(lang, "restDay")}`;
 
   return {
     date: today,
-    title: "🧭 Resumen de hoy",
+    title: `🧭 ${serverText(lang, "dailySummary")}`,
     short,
     body: notificationBody,
     detail: lines.join("\n"),
@@ -138,7 +143,7 @@ export async function buildDailyBrief(supabase: any, userId: string) {
     workout: todayWorkout
       ? {
           id: todayWorkout.id,
-          title: (todayWorkout.plan as any)?.title ?? (todayWorkout.plan as any)?.name ?? "Sesión",
+          title: (todayWorkout.plan as any)?.title ?? (todayWorkout.plan as any)?.name ?? serverText(lang, "session"),
           duration_minutes: todayWorkout.duration_minutes,
           bike_type: todayWorkout.bike_type,
           summary: (todayWorkout.plan as any)?.summary ?? null,
