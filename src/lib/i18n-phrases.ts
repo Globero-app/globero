@@ -5340,6 +5340,7 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
   "Guardar ajustes": ["Desar configuració", "Enregistrer les paramètres", "Save settings", "Einstellungen speichern"],
   "Conecta tu cuenta Intervals.icu desde Ajustes para ver tus actividades y gráficos.": ["Connecta el teu compte d'Intervals.icu des de Configuració per veure les teves activitats i gràfics.", "Connectez votre compte Intervals.icu depuis les Paramètres pour voir vos activités et graphiques.", "Connect your Intervals.icu account from Settings to view your activities and charts.", "Verbinde dein Intervals.icu-Konto in den Einstellungen, um deine Aktivitäten und Diagramme zu sehen."],
   "Ir a Ajustes": ["Anar a Configuració", "Aller aux Paramètres", "Go to Settings", "Zu den Einstellungen"],
+  "Conexión Telegram": ["Connexió Telegram", "Connexion Telegram", "Telegram connection", "Telegram-Verbindung"],
   "✓ Guardado en tu perfil. La IA usará estas zonas al generar entrenamientos.": [
     "Això és del que parlo. La IA usarà aquestes àrees generant entrenament.",
     "C'est de ça que je parle. L'AI utilisera ces domaines en créant une formation.",

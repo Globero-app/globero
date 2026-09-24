@@ -131,7 +131,7 @@ function AjustesPage() {
         <Section title={tr("Conexión Strava")} className="lg:col-span-2">
           <StravaConnection profile={profileQ.data} />
         </Section>
-        <Section title={tr("Conectar Telegram")} className="lg:col-span-2">
+        <Section title={tr("Conexión Telegram")} className="lg:col-span-2">
           <TelegramSection />
         </Section>
         <Section title={tr("Notificaciones")} className="lg:col-span-2">
