@@ -183,8 +183,17 @@ export function gamificationText(g: Gamification, lang: "es" | "ca" | "fr" | "en
     en: { compliance: "Completion", records: "Season records", badges: "Badges" },
     de: { compliance: "Erfüllung", records: "Saisonrekorde", badges: "Abzeichen" },
   }[lang];
+  const compliance: Record<string, string[]> = {
+    es: ["Sin datos suficientes para medir el cumplimiento.", "Clavado: ejecutaste el entreno tal y como estaba planificado.", "Te pasaste de carga respecto a lo previsto.", "Muy cerca de lo planificado.", "Te quedaste algo por debajo de lo previsto.", "La sesión quedó bastante por debajo de lo planificado."],
+    ca: ["No hi ha prou dades per mesurar el compliment.", "Clavat: has executat l'entrenament tal com estava planificat.", "Has superat la càrrega prevista.", "Molt a prop del que estava planificat.", "Has quedat una mica per sota del previst.", "La sessió ha quedat força per sota del que estava planificat."],
+    fr: ["Données insuffisantes pour mesurer la réalisation.", "Parfait : tu as réalisé l'entraînement comme prévu.", "Tu as dépassé la charge prévue.", "Très proche de ce qui était prévu.", "Tu es resté légèrement sous l'objectif.", "La séance est restée nettement sous l'objectif."],
+    en: ["Not enough data to measure completion.", "Nailed it: you completed the workout exactly as planned.", "You exceeded the planned load.", "Very close to the plan.", "You finished slightly below the target.", "The session was well below the planned target."],
+    de: ["Nicht genügend Daten zur Bewertung der Erfüllung.", "Perfekt: Du hast das Training wie geplant absolviert.", "Du hast die geplante Belastung überschritten.", "Sehr nah an der Planung.", "Du bist etwas unter dem Ziel geblieben.", "Die Einheit lag deutlich unter dem geplanten Ziel."],
+  };
+  const source = compliance.es.indexOf(g.compliance.label);
+  const complianceLabel = source >= 0 ? (compliance[lang]?.[source] ?? g.compliance.label) : g.compliance.label;
   const lines: string[] = [];
-  if (g.compliance.percent != null) lines.push(`🎯 ${labels.compliance}: ${g.compliance.percent}% — ${g.compliance.label}`);
+  if (g.compliance.percent != null) lines.push(`🎯 ${labels.compliance}: ${g.compliance.percent}% — ${complianceLabel}`);
   if (g.records.length) {
     lines.push(`🏆 ${labels.records}: ${g.records.map((r) => `${r.label} ${r.watts} W${r.gain ? ` (+${r.gain})` : ""}`).join(" · ")}`);
   }

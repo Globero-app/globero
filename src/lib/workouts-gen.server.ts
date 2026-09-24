@@ -103,8 +103,7 @@ export async function generateWorkoutsCore(supabase: any, userId: string, input:
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
   if (!profile) throw new Error("Perfil no encontrado");
-  const { getUserLang, langInstruction } = await import("./user-lang.server");
-  const outputLanguage = langInstruction(await getUserLang(userId));
+  const outputLanguage = langInstruction(userLang);
 
 
   const { data: recent } = await supabase
@@ -303,7 +302,9 @@ REGLAS METEOROLÓGICAS:
       : null,
   });
 
-  const loadBlock = loadPromptBlock(load, week);
+  const { getUserLang, langInstruction } = await import("./user-lang.server");
+  const userLang = await getUserLang(userId);
+  const loadBlock = loadPromptBlock(load, week, userLang);
   const blockBlock = periodization.prompt_block;
 
 
