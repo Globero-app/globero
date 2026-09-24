@@ -30,9 +30,11 @@ function logUsage(meta: AiCallMeta | undefined, usage: any) {
 export async function callAI(messages: any[], schema?: any, meta?: AiCallMeta): Promise<any> {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("LOVABLE_API_KEY no configurada");
+  const { getUserLang, langInstruction } = await import("./user-lang.server");
+  const li = langInstruction(await getUserLang(meta?.userId));
   const body: any = {
     model: MODEL,
-    messages,
+    messages: li ? [...messages, { role: "system", content: li }] : messages,
     // GPT-5.6 en chat/completions exige reasoning_effort "none" cuando hay tools.
     reasoning_effort: "none",
   };

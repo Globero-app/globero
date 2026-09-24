@@ -29,22 +29,24 @@ import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import { InstallAppButton } from "@/components/InstallAppButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { OnboardingTour } from "@/components/OnboardingTour";
+import { useI18n, LanguageSelector } from "@/lib/i18n";
 
 const NAV = [
-  { to: "/app", label: "Inicio", icon: LayoutDashboard },
-  { to: "/perfil", label: "Perfil", icon: User },
-  { to: "/entrenamientos", label: "Entrenamientos", icon: Dumbbell },
-  { to: "/menus", label: "Nutrición", icon: UtensilsCrossed },
-  { to: "/actividades", label: "Actividades", icon: Activity },
-  { to: "/competiciones", label: "Rutas", icon: Trophy },
-  { to: "/progreso", label: "Progreso", icon: TrendingUp },
-  { to: "/semanas", label: "Resumen semanal", icon: BarChart3 },
-  { to: "/calendario", label: "Calendario", icon: CalendarRange },
-  { to: "/readiness", label: "Readiness", icon: HeartPulse },
-  { to: "/mi-bici", label: "Mi Bici", icon: Bike },
+  { to: "/app", label: "nav.home", icon: LayoutDashboard },
+  { to: "/perfil", label: "nav.profile", icon: User },
+  { to: "/entrenamientos", label: "nav.workouts", icon: Dumbbell },
+  { to: "/menus", label: "nav.nutrition", icon: UtensilsCrossed },
+  { to: "/actividades", label: "nav.activities", icon: Activity },
+  { to: "/competiciones", label: "nav.routes", icon: Trophy },
+  { to: "/progreso", label: "nav.progress", icon: TrendingUp },
+  { to: "/semanas", label: "nav.weekly", icon: BarChart3 },
+  { to: "/calendario", label: "nav.calendar", icon: CalendarRange },
+  { to: "/readiness", label: "nav.readiness", icon: HeartPulse },
+  { to: "/mi-bici", label: "nav.bike", icon: Bike },
 ] as const;
 
 function TourButton({ onClick }: { onClick?: () => void }) {
+  const { t } = useI18n();
   return (
     <button
       type="button"
@@ -54,7 +56,7 @@ function TourButton({ onClick }: { onClick?: () => void }) {
       }}
       className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
     >
-      <Sparkles className="size-4 shrink-0" /> Ver Tour
+      <Sparkles className="size-4 shrink-0" /> {t("nav.tour")}
     </button>
   );
 }
@@ -65,6 +67,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { t } = useI18n();
 
   const handleSignOut = async () => {
     await qc.cancelQueries();
@@ -89,7 +92,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           }`}
         >
           <Icon className="size-4 shrink-0" />
-          {label}
+          {t(label)}
         </Link>
       ))}
       {isAdmin && (
@@ -103,7 +106,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           }`}
         >
           <Settings className="size-4 shrink-0" />
-          Backend
+          {t("nav.backend")}
         </Link>
       )}
     </>
@@ -121,7 +124,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span className="ml-1.5 text-foreground/70">IA</span>
             </div>
             <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-1">
-              Plataforma de IA para ciclistas
+              {t("brand.tagline")}
             </div>
           </Link>
         </div>
@@ -134,20 +137,21 @@ export function AppShell({ children }: { children: ReactNode }) {
         </nav>
         <div className="border-t p-4 space-y-3">
           <ThemeToggle />
+          <LanguageSelector className="w-full" />
           <div className="flex items-center gap-3 px-2">
             <div className="size-9 rounded-full bg-primary/10 text-primary grid place-items-center text-xs font-bold">
               {user?.email?.[0]?.toUpperCase() ?? "?"}
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold truncate">{user?.email}</p>
-              <p className="text-[10px] text-muted-foreground">{isAdmin ? "Administrador" : "Ciclista"}</p>
+              <p className="text-[10px] text-muted-foreground">{isAdmin ? t("role.admin") : t("role.cyclist")}</p>
             </div>
           </div>
           <button
             onClick={handleSignOut}
             className="w-full flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground hover:text-destructive px-3 py-2 rounded-md hover:bg-secondary"
           >
-            <LogOut className="size-3.5" /> Cerrar sesión
+            <LogOut className="size-3.5" /> {t("nav.signout")}
           </button>
         </div>
       </aside>
@@ -171,7 +175,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-50 bg-background/95 backdrop-blur flex flex-col">
           <div className="flex items-center justify-between px-4 py-3 border-b">
-            <span className="font-display font-bold uppercase">Menú</span>
+            <span className="font-display font-bold uppercase">{t("nav.menu")}</span>
             <button onClick={() => setMobileOpen(false)} className="p-2">
               <X className="size-5" />
             </button>
@@ -182,6 +186,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <TourButton onClick={() => setMobileOpen(false)} />
               <InstallAppButton />
               <ThemeToggle />
+              <LanguageSelector className="w-full" />
             </div>
 
             <button
@@ -191,7 +196,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               }}
               className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10"
             >
-              <LogOut className="size-4" /> Cerrar sesión
+              <LogOut className="size-4" /> {t("nav.signout")}
             </button>
           </nav>
         </div>
@@ -229,7 +234,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             }`}
           >
             <Icon className="size-5" />
-            <span className="text-[10px] font-medium">{label}</span>
+            <span className="text-[10px] font-medium">{t(label)}</span>
           </Link>
         ))}
         <button
@@ -238,7 +243,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           aria-label="Más secciones"
         >
           <Menu className="size-5" />
-          <span className="text-[10px] font-medium">Más</span>
+          <span className="text-[10px] font-medium">{t("nav.more")}</span>
         </button>
       </nav>
 

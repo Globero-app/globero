@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getSiteContent, type SiteBlock } from "@/lib/site-content.functions";
 import * as Icons from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
+import { useI18n, LanguageSelector } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   loader: () => getSiteContent({ data: { section: "landing" } }),
@@ -42,6 +43,8 @@ function LandingFallback() {
 
 function Landing() {
   const navigate = useNavigate();
+  const { t, lang } = useI18n();
+  const loc = (v: string | null | undefined, k: string) => (lang === "es" && v) || t(k);
   useEffect(() => {
     let active = true;
     supabase.auth.getSession().then(({ data }) => {
@@ -63,9 +66,12 @@ function Landing() {
       <header className="sticky top-0 z-40 border-b bg-surface/95 backdrop-blur">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <BrandLogo className="h-9 w-auto" />
+          <div className="flex items-center gap-2">
+          <LanguageSelector />
           <Link to="/auth" className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90">
-            {cta?.title || "Acceder"}
+            {loc(cta?.title, "landing.access")}
           </Link>
+          </div>
         </div>
       </header>
 
@@ -75,7 +81,7 @@ function Landing() {
           <div className="max-w-6xl mx-auto px-4 py-20 lg:py-28 relative flex flex-col items-center text-center">
             <BrandLogo className="h-28 sm:h-36 lg:h-44 w-auto" />
             <p className="mt-6 text-[10px] font-mono uppercase tracking-[0.3em] text-primary">
-              {hero?.subtitle || "Plataforma de IA para ciclistas"}
+              {loc(hero?.subtitle, "brand.tagline")}
             </p>
             <h1 className="mt-3 font-display text-5xl lg:text-7xl font-bold uppercase italic tracking-tight leading-none">
               {hero?.title || "Globero IA"}
@@ -83,10 +89,10 @@ function Landing() {
             <p className="mt-5 max-w-2xl text-base lg:text-lg text-muted-foreground whitespace-pre-line">{hero?.body}</p>
             <div className="mt-8 flex flex-wrap gap-3 justify-center">
               <Link to="/auth" className="rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90">
-                {cta?.title || "Acceder"}
+                {loc(cta?.title, "landing.access")}
               </Link>
               <Link to="/registro" className="rounded-lg border px-6 py-3 text-sm font-semibold hover:bg-secondary">
-                Crear cuenta
+                {t("landing.signup")}
               </Link>
             </div>
             {cta?.body && <p className="mt-3 text-xs text-muted-foreground">{cta.body}</p>}
@@ -123,7 +129,7 @@ function Landing() {
       <footer className="border-t bg-surface">
         <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
           <p>{footer?.body || "Globero IA"} © {new Date().getFullYear()}</p>
-          <Link to="/privacidad" className="hover:text-foreground underline">Política de Privacidad</Link>
+          <Link to="/privacidad" className="hover:text-foreground underline">{t("landing.privacy")}</Link>
         </div>
       </footer>
     </div>
