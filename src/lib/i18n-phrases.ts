@@ -5322,6 +5322,7 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Failed",
     "Fehlgeschlagen"
   ],
+  "No hay próximas salidas programadas.": ["No hi ha pròximes sortides programades.", "Aucune prochaine sortie programmée.", "There are no upcoming scheduled rides.", "Es sind keine kommenden Ausfahrten geplant."],
   "Proyección": ["Projecció", "Projection", "Projection", "Prognose"],
   "TSS esta semana": ["TSS aquesta setmana", "TSS cette semaine", "TSS this week", "TSS diese Woche"],
   "Readiness 7 días": ["Readiness 7 dies", "Forme sur 7 jours", "7-day readiness", "Tagesform über 7 Tage"],

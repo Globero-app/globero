@@ -266,7 +266,7 @@ function Dashboard() {
           </div> :
         upcoming.length === 0 ?
         <div className="border-2 border-dashed rounded-xl p-12 text-center">
-            <p className="text-sm text-muted-foreground mb-3">{tr("No existen salidas creadas.")}</p>
+            <p className="text-sm text-muted-foreground mb-3">{tr("No hay próximas salidas programadas.")}</p>
             <Link to="/competiciones" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold">
               <Plus className="size-4" /> {tr("Crear primera ruta")} 
           </Link>

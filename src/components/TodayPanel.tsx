@@ -91,7 +91,7 @@ export function TodayPanel() {
 
   return (
     <div className={`grid gap-4 ${menu.data?.hasPlan ? "lg:grid-cols-2" : ""}`}>
-      {menu.data?.hasPlan && <div className="bg-surface border rounded-xl p-5">
+      <div className="bg-surface border rounded-xl p-5">
         <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-2">
           <HeartPulse className="size-3.5 text-primary" /> {tr("Readiness de hoy")} 
         </p>
@@ -150,7 +150,7 @@ export function TodayPanel() {
         }
       </div>
 
-      <div className="bg-surface border rounded-xl p-5">
+      {menu.data?.hasPlan && <div className="bg-surface border rounded-xl p-5">
         <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-2">
           <UtensilsCrossed className="size-3.5 text-primary" /> {tr("Menú de hoy")} 
         </p>
