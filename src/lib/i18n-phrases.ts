@@ -180,6 +180,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Activities",
     "Aktivitäten"
   ],
+  "Activity": [
+    "Activitat",
+    "Activité",
+    "Activity",
+    "Tätigkeit"
+  ],
   "Actualizada": [
     "Actualitzat",
     "Mise à jour",
@@ -251,6 +257,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Fichier .FIT téléchargé",
     ".FIT file downloaded",
     ".FIT-Datei heruntergeladen"
+  ],
+  "Archivo .ZWO descargado": [
+    "S' ha descarregat el fitxer. Zee",
+    "Fichier .ZWO téléchargé",
+    ".ZWO file downloaded",
+    ".ZWO Datei heruntergeladen"
   ],
   "Archivo → Añadir al Dock": [
     "Fitxer Manveen Add a Acoblament",
@@ -479,6 +491,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Chaque jour, vous obtiendrez une Push vous demandant comment vous vous sentez (1 Rien préparé · 2 Marche à la retraite · 3 Formation à la retraite · 4 Formation à la retraite · 5 Donner autant). L'IV adaptera la formation de cette journée à votre réponse et si vous répondez 1, vous serez suggéré de la supprimer.",
     "Each day you will get a Push wondering how you feel (1 Nothing prepared · 2 Retirement walk · 3 Retiring training · 4 Retiring training · 5 Give as much). The IA will adapt that day's training to your answer and if you answer 1, you will be suggested to remove it.",
     "Jeden Tag werden Sie sich fragen, wie Sie sich fühlen (1 Nichts vorbereitet · 2 Ruhestandsspaziergang · 3 Ruhestandstraining · 4 Ruhestandstraining · 5 Geben Sie so viel). Die IA wird das Training an diesem Tag an Ihre Antwort anpassen und wenn Sie 1 antworten, werden Sie vorgeschlagen, es zu entfernen."
+  ],
+  "Cada mañana indicas cómo te encuentras y la IA adapta el entreno del día automáticamente.": [
+    "Cada matí indica com ets i la IA adaptarà automàticament l'entrenament del dia.",
+    "Chaque matin indique comment vous êtes et l'IV adaptera automatiquement la formation du jour.",
+    "Each morning indicates how you are and the IA will adapt the training of the day automatically.",
+    "Jeder Morgen zeigt an, wie es Ihnen geht und die IA passt das Training des Tages automatisch an."
   ],
   "Cada test actualiza tus zonas y la IA planifica los siguientes entrenamientos con el nuevo umbral.": [
     "Cada prova actualitza les vostres zones i la IA planeja l'entrenament següent amb el nou llindar.",
@@ -1194,6 +1212,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Deleted",
     "Gelöscht"
   ],
+  "Eliminado. Semana redistribuida:": [
+    "Eliminat. Setmana vermella:",
+    "Éliminé. Semaine redistribuée:",
+    "Eliminated. Redistributed week:",
+    "Eliminiert. Redistributed Woche:"
+  ],
   "Eliminar": [
     "Elimina",
     "Supprimer",
@@ -1290,6 +1314,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Web link (optional)",
     "Weblink (fakultativ)"
   ],
+  "Entra a tu panel y empieza a entrenar mejor.": [
+    "Introduïu el vostre plafó i comenceu a entrenar millor.",
+    "Entrez votre panneau et commencez mieux l'entraînement.",
+    "Enter your panel and start training better.",
+    "Betreten Sie Ihr Panel und beginnen Sie besser zu trainieren."
+  ],
   "Entrena.": [
     "Exercici.",
     "Formation.",
@@ -1367,6 +1397,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Formation remplacée",
     "Replaced training",
     "Ersetzte Ausbildung"
+  ],
+  "Entrenamientos personalizados, nutrición semanal, readiness diario y análisis de tus actividades. Todo conectado con Intervals.icu.": [
+    "L'entrenament personalitzat, la desaparició setmanal, la lectura i l'anàlisi diari de les teves activitats. Tots connectats amb Interval.",
+    "Formation personnalisée, nutrition hebdomadaire, préparation quotidienne et analyse de vos activités. Tous connectés avec Intervals.ico.",
+    "Custom training, weekly nutrition, daily readiness and analysis of your activities. All connected with Intervals.ico.",
+    "Maßgeschneidertes Training, wöchentliche Ernährung, tägliche Bereitschaft und Analyse Ihrer Aktivitäten. Alles verbunden mit Intervals.ico."
   ],
   "Entreno de hoy adaptado por la IA": [
     "Entrenament d’avui adaptat per la IA",
@@ -1451,6 +1487,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Écrivez au bot pour consulter ou adapter votre formation aujourd'hui.",
     "Write to the bot to consult or adapt your training today.",
     "Schreiben Sie an den Bot, um Ihr Training noch heute zu konsultieren oder anzupassen."
+  ],
+  "Esta política describe cómo Globero IA trata los datos personales de las personas usuarias de la aplicación.": [
+    "Aquesta política descriu com el Globetro IA tracta les dades personals dels usuaris de l'aplicació.",
+    "Cette politique décrit comment Globero IA traite les données personnelles des utilisateurs de l'application.",
+    "That policy describes how Globero IA treats personal data from users of the application.",
+    "Diese Richtlinie beschreibt, wie Globero IA mit personenbezogenen Daten von Nutzern der Anwendung umgeht."
   ],
   "Estado de forma": [
     "Estat",
@@ -1559,6 +1601,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "FTP (W)",
     "FTP (W)",
     "FTP (W)"
+  ],
+  "FTP calculado:": [
+    "FTP calculat:",
+    "FTP calculé:",
+    "FTP calculated:",
+    "FTP berechnet:"
   ],
   "FTP estimado (95%)": [
     "FTP estimat (95%)",
@@ -1782,6 +1830,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Globe IA",
     "Globus IA"
   ],
+  "Globero IA es responsable del tratamiento de los datos facilitados por la persona usuaria a través de la aplicación.": [
+    "El Globe IA és el responsable del processament de dades que proporciona l' usuari a través de l' aplicació.",
+    "Globero IA est responsable du traitement des données fournies par l'utilisateur via l'application.",
+    "Globero IA is responsible for processing data supplied by the user through the application.",
+    "Globero IA ist für die Verarbeitung der vom Benutzer über die Anwendung bereitgestellten Daten verantwortlich."
+  ],
   "Globero — Plataforma de IA para ciclistas": [
     "Globus - Una plataforma pels cícistes",
     "Globe - Une plateforme pour les cyclistes",
@@ -1865,6 +1919,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "J'ai lu et accepté les",
     "I have read and accept the",
     "Ich habe gelesen und akzeptiere die"
+  ],
+  "HeartPulse": [
+    "CorPulse",
+    "Pouls cardiaque",
+    "HeartPulse",
+    "HeartPulse"
   ],
   "Hidratación": [
     "Hidration",
@@ -2076,6 +2136,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Go to the previous page",
     "Zur vorherigen Seite"
   ],
+  "Ir a la página siguiente": [
+    "Vés a la pàgina següent",
+    "Aller à la page suivante",
+    "Go to next page",
+    "Gehe zur nächsten Seite"
+  ],
   "Ir al Perfil": [
     "Vés al perfil",
     "Aller au profil",
@@ -2220,6 +2286,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "The archives",
     "Die Archive"
   ],
+  "Los datos se conservan mientras la cuenta esté activa. Al eliminar la cuenta se eliminan los datos asociados.": [
+    "Les dades es conservaran sempre que s' activi el compte. Quan s' esborra el compte, s' esborraran les dades associades.",
+    "Les données sont conservées tant que le compte est activé. Lorsque le compte est supprimé, les données associées sont supprimées.",
+    "The data are preserved as long as the account is activated. When the account is deleted, the associated data are deleted.",
+    "Die Daten bleiben erhalten, solange das Konto aktiviert ist. Wenn das Konto gelöscht wird, werden die zugehörigen Daten gelöscht."
+  ],
+  "Los datos se utilizan para crear y ajustar planes de entrenamiento y nutrición, analizar las actividades y enviar avisos relacionados con el servicio.": [
+    "Les dades s'utilitzen per crear i ajustar l'entrenament i els plans nutricionals, analitzar activitats i enviar advertències relacionades amb el servei.",
+    "Les données sont utilisées pour créer et ajuster des plans de formation et de nutrition, analyser les activités et envoyer des avertissements liés au service.",
+    "The data are used to create and adjust training and nutrition plans, analyse activities and send service-related warnings.",
+    "Die Daten werden verwendet, um Trainings- und Ernährungspläne zu erstellen und anzupassen, Aktivitäten zu analysieren und servicebezogene Warnungen zu senden."
+  ],
   "Los entrenamientos son siempre": [
     "L' entrenament sempre és",
     "La formation est toujours",
@@ -2357,6 +2435,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Menus",
     "Menus",
     "Menüs"
+  ],
+  "Menús adaptados a tus entrenos, preferencias e intolerancias, con enfoque especial antes de competición.": [
+    "Menús adaptats al vostre entrenament, preferències i inlerències amb un focus especial abans de la competició.",
+    "Menus adaptés à vos entraînements, préférences et intolérances avec un accent particulier avant la compétition.",
+    "Menus adapted to your training, preferences and intolerances with a special focus before competition.",
+    "Menüs angepasst an Ihr Training, Vorlieben und Unverträglichkeiten mit einem besonderen Fokus vor dem Wettbewerb."
   ],
   "Menús pre-carrera": [
     "Menús pre- monitors",
@@ -3012,6 +3096,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Scheduled vs. Realized",
     "Geplant vs. realisiert"
   ],
+  "Plataforma de IA para ciclistas": [
+    "Una plataforma pels cícistes",
+    "Une plateforme pour les cyclistes",
+    "A Platform for Cyclists",
+    "Eine Plattform für Radfahrer"
+  ],
   "Plataforma de IA para ciclistas.": [
     "Una plataforma per motoristes.",
     "Une plateforme pour les motards.",
@@ -3155,6 +3245,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Prochaine date",
     "Next date",
     "Nächster Termin"
+  ],
+  "Puedes solicitar el acceso, la rectificación, la supresión y la portabilidad de tus datos, así como la limitación u oposición al tratamiento, escribiendo al contacto indicado en la aplicación.": [
+    "Podeu sol·licitar l' accés, la retificació, l' esborrat i la adaptació de les vostres dades, així com l' limitació o l'oposició al tractament escrivint el contacte indicat a l' aplicació.",
+    "Vous pouvez demander l'accès, la rectification, la suppression et la portabilité de vos données ainsi que la limitation ou l'opposition au traitement en écrivant au contact indiqué dans la demande.",
+    "You can request the access, rectification, deletion and portability of your data as well as limitation or opposition to treatment by writing to the contact indicated in the application.",
+    "Sie können den Zugang, die Berichtigung, Löschung und Portabilität Ihrer Daten sowie die Einschränkung oder den Widerspruch gegen die Behandlung anfordern, indem Sie an den in der Anwendung angegebenen Kontakt schreiben."
   ],
   "Pulsaciones": [
     "Prem",
@@ -3390,6 +3486,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Role",
     "Rolle"
   ],
+  "Rol cambiado a": [
+    "Rol ha canviat a",
+    "Rol est devenu",
+    "Rol changed to",
+    "Rol wechselte zu"
+  ],
   "Rutas": [
     "RoadsDescription",
     "Routes",
@@ -3468,6 +3570,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Calculated from your Intervals.icu activities with power. You can edit it manually.",
     "Wird aus deinen Intervals.icu-Aktivitäten mit Leistung berechnet. Du kannst ihn manuell ändern."
   ],
+  "Se comparten datos únicamente con los servicios necesarios para el funcionamiento: proveedor de base de datos y autenticación, Intervals.icu y, si la persona usuaria lo activa, Telegram.": [
+    "Les dades només es comparteixen amb els serveis requerits per a l' operació: base de dades i proveïdor d' autenticació, intervals. icu i, si està activat per l' usuari, Telegram.",
+    "Les données ne sont partagées qu'avec les services requis pour l'exploitation : base de données et fournisseur d'authentification, intervalles. icu et, si activé par l'utilisateur, Telegram.",
+    "Data are shared only with the services required for operation: database and authentication provider, intervals.icu and, if activated by the user, Telegram.",
+    "Daten werden nur mit den für den Betrieb erforderlichen Diensten geteilt: Datenbank- und Authentifizierungsanbieter, Intervalle. icu und, wenn vom Benutzer aktiviert, Telegram."
+  ],
   "Se eliminarán tus conexiones con Telegram e Intervals.icu y dejarán de crearse entrenamientos, informes y avisos.": [
     "Les vostres connexions amb el Telegram i els Interval.icu s' eliminaran i s' eliminaran, l'informe i la notificació deixaran de ser establerts.",
     "Vos connexions avec Telegram et Intervals.icu seront supprimées et la formation, le rapport et l'avis cesseront d'être établis.",
@@ -3522,6 +3630,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "week",
     "Woche"
   ],
+  "Semana recalculada:": [
+    "Cap setmana rebutjada:",
+    "Semaine rejetée :",
+    "Rejected week:",
+    "Woche abgelehnt:"
+  ],
   "Sensaciones (1-5)": [
     "Sensació (1- 5)",
     "Sensation (1-5)",
@@ -3539,6 +3653,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Sensation de mât.",
     "Mast feeling.",
     "Mastgefühl."
+  ],
+  "Sesión ajustada a": [
+    "S' ha ajustat la sessió",
+    "Session ajustée",
+    "Session adjusted to",
+    "Sitzung angepasst auf"
   ],
   "Sesión ajustada:": [
     "S' ha ajustat la reunió:",
@@ -3629,6 +3749,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Synchronisation des zones et des seuils (FTP, LTHR, FC max) avec les intervalles. icu pendant l'enregistrement du profil",
     "Zone and threshold synchronization (FTP, LTHR, max FC) with Intervals.icu while saving profile",
     "Zonen- und Schwellensynchronisation (FTP, LTHR, max FC) mit Intervallen. icu beim Speichern des Profils"
+  ],
+  "Sincronizadas": [
+    "Sincronització",
+    "synchronisation",
+    "sync",
+    "Sync"
   ],
   "Sincronizar": [
     "Sincronització",
@@ -3984,6 +4110,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Your response automatically adjustes today's dedicated training: The IA softens, keeps or tightens it according to your status.",
     "Ihre Antwort passt das heutige dedizierte Training automatisch an: Die IA mildert, hält oder strafft sie entsprechend Ihrem Status."
   ],
+  "Tus entrenos se envían a Intervals.icu y tus actividades vuelven con análisis, curva de potencia y cumplimiento.": [
+    "El teu entrenament és enviat a Interval. icu i les vostres activitats tornen amb anàlisi, corba d'energia i compliments.",
+    "Votre entraînement est envoyé à Intervals. icu et vos activités reviennent avec analyse, courbe de puissance et conformité.",
+    "Your training is sent to Intervals.icu and your activities come back with analysis, power curve and compliance.",
+    "Dein Training wird an Intervals geschickt. icu und ihre aktivitäten kommen mit analyse, power curve und compliance zurück."
+  ],
   "Título": [
     "Títol",
     "Titre",
@@ -4037,6 +4169,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Utilisateur créé",
     "User created",
     "Benutzer erstellt"
+  ],
+  "UtensilsCrossed": [
+    "El malevat",
+    "UstensilesCrossées",
+    "UtensilsCrossed",
+    "UtensilienCrossed"
   ],
   "Valoración global": [
     "Valoració global",
@@ -4230,11 +4368,23 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "You have responded today:",
     "Sie haben heute geantwortet:"
   ],
+  "Zonas calculadas.": [
+    "Cinc àrees allotjades.",
+    "Zones aménagées.",
+    "Fitted areas.",
+    "Anbauflächen."
+  ],
   "Zonas sincronizadas con Intervals.icu": [
     "Zones sincronitzades amb Intervals.icu",
     "Zones synchronisées avec Intervals.icu",
     "Zones synced with Intervals.icu",
     "Zonen mit Intervals.icu synchronisiert"
+  ],
+  "actividades": [
+    "Activitats",
+    "Activités",
+    "Activities",
+    "Aktivitäten"
   ],
   "activo": [
     "Actius",
@@ -4355,6 +4505,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "dans la barre inférieure.",
     "at the bottom bar.",
     "am unteren Balken."
+  ],
+  "entrenamientos subidos a Intervals.icu": [
+    "entrenament a Intervals.icu",
+    "formation à Intervals.icu",
+    "training at Intervals.icu",
+    "Ausbildung bei Intervals.icu"
   ],
   "eventos": [
     "esdeveniments",
@@ -4506,6 +4662,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "m",
     "m"
   ],
+  "mejor 20 min": [
+    "best 20 mins",
+    "meilleure 20 min",
+    "best 20 min",
+    "Beste 20 Minuten"
+  ],
   "min": [
     "min",
     "min",
@@ -4655,6 +4817,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "chemin",
     "path",
     "Wegstrecke"
+  ],
+  "sesiones ajustadas": [
+    "Sessions ajustades",
+    "Séances ajustées",
+    "adjusted sessions",
+    "Angepasste Sitzungen"
   ],
   "sin logo": [
     "Sense logo",
