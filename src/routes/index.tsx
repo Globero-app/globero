@@ -45,6 +45,7 @@ function Landing() {
   const navigate = useNavigate();
   const { t, lang } = useI18n();
   const loc = (v: string | null | undefined, k: string) => lang === "es" && v || t(k);
+  const localizeContent = (v: string | null | undefined) => v ? tr(v) : "";
   useEffect(() => {
     let active = true;
     supabase.auth.getSession().then(({ data }) => {
@@ -84,9 +85,9 @@ function Landing() {
               {loc(hero?.subtitle, "brand.tagline")}
             </p>
             <h1 className="mt-3 font-display text-5xl lg:text-7xl font-bold uppercase italic tracking-tight leading-none">
-              {hero?.title || "Globero IA"}
+              {localizeContent(hero?.title) || "Globero IA"}
             </h1>
-            <p className="mt-5 max-w-2xl text-base lg:text-lg text-muted-foreground whitespace-pre-line">{hero?.body}</p>
+            <p className="mt-5 max-w-2xl text-base lg:text-lg text-muted-foreground whitespace-pre-line">{localizeContent(hero?.body)}</p>
             <div className="mt-8 flex flex-wrap gap-3 justify-center">
               <Link to="/auth" className="rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90">
                 {loc(cta?.title, "landing.access")}
@@ -95,7 +96,7 @@ function Landing() {
                 {t("landing.signup")}
               </Link>
             </div>
-            {cta?.body && <p className="mt-3 text-xs text-muted-foreground">{cta.body}</p>}
+            {cta?.body && <p className="mt-3 text-xs text-muted-foreground">{localizeContent(cta.body)}</p>}
           </div>
         </section>
 
@@ -106,8 +107,8 @@ function Landing() {
                 <div className="size-10 rounded-lg bg-primary/10 text-primary grid place-items-center">
                   <Icon name={f.icon} className="size-5" />
                 </div>
-                <h2 className="mt-4 font-display text-xl font-bold uppercase tracking-tight">{f.title}</h2>
-                <p className="mt-2 text-sm text-muted-foreground whitespace-pre-line">{f.body}</p>
+                 <h2 className="mt-4 font-display text-xl font-bold uppercase tracking-tight">{localizeContent(f.title)}</h2>
+                 <p className="mt-2 text-sm text-muted-foreground whitespace-pre-line">{localizeContent(f.body)}</p>
               </article>
           )}
           </section>
@@ -117,9 +118,9 @@ function Landing() {
         <section className="max-w-3xl mx-auto px-4 pb-16 space-y-8">
             {extras.map((b) =>
           <article key={b.id}>
-                {b.title && <h2 className="font-display text-2xl font-bold uppercase tracking-tight">{b.title}</h2>}
-                {b.subtitle && <p className="text-sm text-primary">{b.subtitle}</p>}
-                {b.body && <p className="mt-2 text-sm text-muted-foreground whitespace-pre-line">{b.body}</p>}
+                 {b.title && <h2 className="font-display text-2xl font-bold uppercase tracking-tight">{localizeContent(b.title)}</h2>}
+                 {b.subtitle && <p className="text-sm text-primary">{localizeContent(b.subtitle)}</p>}
+                 {b.body && <p className="mt-2 text-sm text-muted-foreground whitespace-pre-line">{localizeContent(b.body)}</p>}
               </article>
           )}
           </section>
@@ -128,7 +129,7 @@ function Landing() {
 
       <footer className="border-t bg-surface">
         <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <p>{footer?.body || "Globero IA"} © {new Date().getFullYear()}</p>
+          <p>{localizeContent(footer?.body) || "Globero IA"} © {new Date().getFullYear()}</p>
           <Link to="/privacidad" className="hover:text-foreground underline">{t("landing.privacy")}</Link>
         </div>
       </footer>

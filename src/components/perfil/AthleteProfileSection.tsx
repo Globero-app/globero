@@ -71,10 +71,10 @@ export function AthleteProfileSection() {
           natural_cadence: prefs.natural_cadence === "" ? null : Number(prefs.natural_cadence)
         }
       } as any);
-      toast.success("Preferencias guardadas");
+      toast.success(tr("Preferencias guardadas"));
       qc.invalidateQueries({ queryKey: ["athlete-profile", user?.id] });
     } catch (e: any) {
-      toast.error(e?.message ?? "No se pudo guardar");
+      toast.error(e?.message ?? tr("No se pudo guardar"));
     } finally {
       setBusy(false);
     }
@@ -84,10 +84,10 @@ export function AthleteProfileSection() {
     setBusy(true);
     try {
       await recompute({ data: {} } as any);
-      toast.success("Ficha recalculada con tus datos");
+      toast.success(tr("Ficha recalculada con tus datos"));
       qc.invalidateQueries({ queryKey: ["athlete-profile", user?.id] });
     } catch (e: any) {
-      toast.error(e?.message ?? "No se pudo recalcular");
+      toast.error(e?.message ?? tr("No se pudo recalcular"));
     } finally {
       setBusy(false);
     }

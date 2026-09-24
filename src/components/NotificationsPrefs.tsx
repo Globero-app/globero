@@ -62,7 +62,7 @@ export function NotificationsPrefs() {
     const { error } = await supabase.from("profiles").update({ notify_channel: value } as never).eq("id", user!.id);
     if (error) {toast.error(error.message);return;}
     qc.invalidateQueries({ queryKey: ["notify_prefs"] });
-    toast.success("Canal actualizado");
+    toast.success(tr("Canal actualizado"));
   };
 
   const savePref = async (field: PrefKey, value: boolean) => {
@@ -74,14 +74,14 @@ export function NotificationsPrefs() {
 
   const ensurePermission = async (): Promise<boolean> => {
     if (perm === "granted") return true;
-    if (perm === "unsupported") {toast.error("Este navegador no admite notificaciones");return false;}
+    if (perm === "unsupported") {toast.error(tr("Este navegador no admite notificaciones"));return false;}
     if (perm === "denied") {toast.error(tr("Permiso bloqueado. Actívalo en los ajustes del navegador."));return false;}
     const p = await requestPushPermission();
     setPerm(p);
-    if (p !== "granted") {toast.error("Permiso no concedido");return false;}
+    if (p !== "granted") {toast.error(tr("Permiso no concedido"));return false;}
     sendLocalPush({
-      title: "Notificaciones activadas",
-      body: "Recibirás avisos importantes de tu entrenamiento y material.",
+      title: tr("Notificaciones activadas"),
+      body: tr("Recibirás avisos importantes de tu entrenamiento y material."),
       tag: "welcome",
       category: "maintenance",
       dedupe: "none"
@@ -95,7 +95,7 @@ export function NotificationsPrefs() {
       if (!ok) return;
     }
     const ok = await savePref(field, value);
-    if (ok) toast.success(value ? "Activado" : "Desactivado");
+    if (ok) toast.success(value ? tr("Activado") : tr("Desactivado"));
   };
 
 
@@ -103,7 +103,7 @@ export function NotificationsPrefs() {
     setBusy(true);
     try {
       const r = await enableServerPush();
-      if (r.ok) {setServerSub("subscribed");setPerm("granted");toast.success("Push del servidor activado");} else
+      if (r.ok) {setServerSub("subscribed");setPerm("granted");toast.success(tr("Push del servidor activado"));} else
       toast.error(r.reason);
     } catch (e: any) {toast.error(e.message);} finally
     {setBusy(false);}
@@ -111,7 +111,7 @@ export function NotificationsPrefs() {
 
   const disableServer = async () => {
     setBusy(true);
-    try {await disableServerPush();setServerSub("none");toast.success("Push del servidor desactivado");}
+    try {await disableServerPush();setServerSub("none");toast.success(tr("Push del servidor desactivado"));}
     catch (e: any) {toast.error(e.message);} finally
     {setBusy(false);}
   };
@@ -120,7 +120,7 @@ export function NotificationsPrefs() {
     setBusy(true);
     try {
       const r = (await testFn({})) as {sent: number;};
-      toast.success(`Enviado a ${r.sent} dispositivo${r.sent === 1 ? "" : "s"}`);
+      toast.success(r.sent === 1 ? tr("Enviado a 1 dispositivo") : `${tr("Enviado a")} ${r.sent} ${tr("dispositivos")}`);
     } catch (e: any) {toast.error(e.message);} finally
     {setBusy(false);}
   };
@@ -203,7 +203,7 @@ export function NotificationsPrefs() {
                 onClick={() => saveChannel(o.v)}
                 className={`text-xs font-semibold px-2 py-1.5 rounded-md border transition-colors ${active ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:border-primary/40"}`}>
                 
-                  {o.l}
+                  {tr(o.l)}
                 </button>);
 
           })}
@@ -236,9 +236,9 @@ export function NotificationsPrefs() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <Icon className="size-3.5 text-muted-foreground" />
-                  <span className="text-sm font-semibold">{label}</span>
+                   <span className="text-sm font-semibold">{tr(label)}</span>
                 </div>
-                <p className="text-[11px] text-muted-foreground mt-0.5">{desc}</p>
+                 <p className="text-[11px] text-muted-foreground mt-0.5">{tr(desc)}</p>
               </div>
             </label>);
 

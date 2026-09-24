@@ -26,7 +26,7 @@ export function IntervalsConnection({ profile }: {profile: any;}) {
             type="button"
             onClick={async () => {
               await disconnectIcu({ data: undefined });
-              toast.success("Intervals.icu desconectado");
+               toast.success(tr("Intervals.icu desconectado"));
               qc.invalidateQueries({ queryKey: ["profile"] });
             }}
             className="text-xs font-semibold text-destructive hover:underline flex items-center gap-1">
@@ -53,7 +53,7 @@ export function IntervalsConnection({ profile }: {profile: any;}) {
             const { state } = await createOAuthState();
             window.location.href = intervalsAuthorizeUrl(state);
           } catch (e: any) {
-            toast.error(e?.message ?? "No se pudo iniciar la conexión");
+             toast.error(e?.message ?? tr("No se pudo iniciar la conexión"));
           }
         }}
         className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90">

@@ -326,7 +326,7 @@ function Dot({ color, on }: {color: string;on: boolean;}) {
 }
 
 function interpretTSB(tsb: number): {level: "green" | "yellow" | "red";title: string;message: string;} {
-  if (tsb >= 5) return { level: "green", title: "Frescura óptima", message: "Estás descansado y listo para competir. Aprovecha." };
-  if (tsb >= -10) return { level: "yellow", title: "Carga equilibrada", message: "Buen punto de entrenamiento, mantén ritmo y cuida descansos." };
-  return { level: "red", title: "Sobrecarga: descansa", message: "Fatiga alta. Reduce intensidad y prioriza recuperación esta semana." };
+  if (tsb >= 5) return { level: "green", title: tr("Frescura óptima"), message: tr("Estás descansado y listo para competir. Aprovecha.") };
+  if (tsb >= -10) return { level: "yellow", title: tr("Carga equilibrada"), message: tr("Buen punto de entrenamiento, mantén ritmo y cuida descansos.") };
+  return { level: "red", title: tr("Sobrecarga: descansa"), message: tr("Fatiga alta. Reduce intensidad y prioriza recuperación esta semana.") };
 }
