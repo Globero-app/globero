@@ -34,7 +34,7 @@ export function UsersTab() {
   const toggleRole = async (uid: string, current: string[]) => {
     const next = current.includes("admin") ? "user" : "admin";
     await setRole({ data: { userId: uid, role: next } });
-    toast.success(`Rol cambiado a ${next}`);
+    toast.success(`${tr("Rol cambiado a")} ${next}`);
     qc.invalidateQueries({ queryKey: ["all_users"] });
   };
 

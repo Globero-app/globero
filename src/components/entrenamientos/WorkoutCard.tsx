@@ -86,7 +86,7 @@ export function WorkoutCard({
     };
     const safe = (plan.name || "entrenamiento").replace(/[^a-zA-Z0-9_-]/g, "_");
     downloadZwo(zwo, ftp, `${safe}_${w.id.slice(0, 6)}.zwo`);
-    toast.success(`Archivo .ZWO descargado (FTP ${ftp}W)`);
+    toast.success(`${tr("Archivo .ZWO descargado")} (FTP ${ftp}W)`);
     setShowPreview(false);
   };
 

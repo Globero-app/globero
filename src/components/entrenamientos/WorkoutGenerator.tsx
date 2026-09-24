@@ -143,7 +143,7 @@ export function WorkoutGenerator({ profile }: {profile: any;}) {
         if (yes) {
           try {
             const r: any = await uploadIcu({ data: { workout_ids: ids } });
-            toast.success(`${r.uploaded} entrenamiento(s) subidos a Intervals.icu`);
+            toast.success(`${r.uploaded} ${tr("entrenamientos subidos a Intervals.icu")}`);
             qc.invalidateQueries({ queryKey: ["workouts"] });
           } catch (e: any) {
             toast.error(e.message ?? tr("Error subiendo a Intervals.icu"));

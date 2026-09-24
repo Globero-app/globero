@@ -99,7 +99,7 @@ function EntrenamientosPage() {
               setRecalc(true);
               try {
                 const r: any = await rebalance({ data: {} });
-                if (r?.changed) toast.success(`Semana recalculada: ${r.workouts.length} sesión(es) ajustadas`);else
+                if (r?.changed) toast.success(`${tr("Semana recalculada:")} ${r.workouts.length} ${tr("sesiones ajustadas")}`);else
                 toast.info(r?.reason === "ya_equilibrada" ? tr("La semana ya está equilibrada") : r?.reason === "no_quedan_sesiones" ? tr("No quedan sesiones pendientes esta semana") : tr("No hay objetivo semanal para recalcular"));
                 qc.invalidateQueries({ queryKey: ["workouts"] });
                 qc.invalidateQueries({ queryKey: ["calendar"] });
@@ -184,7 +184,7 @@ function EntrenamientosPage() {
                   if (!confirm(tr("¿Eliminar este entrenamiento? La carga de la semana se redistribuirá entre las sesiones pendientes."))) return;
                   const r: any = await del({ data: { workout_id: w.id } });
                   if (r?.rebalanced?.changed) {
-                    toast.success(`Eliminado. Semana redistribuida: ${r.rebalanced.workouts.length} sesión(es) ajustadas`);
+                    toast.success(`${tr("Eliminado. Semana redistribuida:")} ${r.rebalanced.workouts.length} ${tr("sesiones ajustadas")}`);
                   }
                   qc.invalidateQueries({ queryKey: ["workouts"] });
                 }}
@@ -204,7 +204,7 @@ function EntrenamientosPage() {
                     toast.success(r?.proposed_date ? tr("Marcado como no realizado. Te proponemos un día libre para reubicarlo.") : tr("Marcado como no realizado. La semana se ha recortado manteniendo las sesiones clave."));
                     qc.invalidateQueries({ queryKey: ["reschedule-proposals"] });
                   } else {
-                    toast.success(`Sesión ajustada a ${r?.minutes} min`);
+                    toast.success(`${tr("Sesión ajustada a")} ${r?.minutes} min`);
                   }
                   qc.invalidateQueries({ queryKey: ["workouts"] });
                   qc.invalidateQueries({ queryKey: ["calendar"] });

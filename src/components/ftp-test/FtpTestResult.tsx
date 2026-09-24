@@ -60,7 +60,7 @@ export function FtpTestResult({ profile, onRepeat }: {profile: any;onRepeat: () 
     estimatedFtp ? `FTP: ${estimatedFtp} W` : null,
     estimatedLthr ? `LTHR: ${estimatedLthr} bpm` : null].
     filter(Boolean).join(" · ");
-    toast.success(`Guardado (${parts}). Zonas calculadas.`);
+    toast.success(`${tr("Guardado")} (${parts}). ${tr("Zonas calculadas.")}`);
   };
 
   return (
