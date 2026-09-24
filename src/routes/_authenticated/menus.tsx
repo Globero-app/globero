@@ -87,11 +87,11 @@ function MenusPage() {
     setBusy(true);
     try {
       await genNutrition({ data: { goal: effectiveGoal as any } });
-      toast.success("Plan nutricional semanal creado");
+      toast.success(tr("Plan nutricional semanal creado"));
       qc.invalidateQueries({ queryKey: ["weekly-nutrition"] });
       qc.invalidateQueries({ queryKey: ["profile-nutrition"] });
     } catch (e: any) {
-      toast.error(e.message ?? "No se pudo generar el plan");
+      toast.error(e.message ?? tr("No se pudo generar el plan"));
     } finally {
       setBusy(false);
     }

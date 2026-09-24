@@ -140,10 +140,10 @@ function CompetitionDetail() {
       setWaterSources(nearbyWaterSources);
       setWaterSearchComplete(true);
 
-      toast.success("GPX procesado");
+      toast.success(tr("GPX procesado"));
       await qc.invalidateQueries({ queryKey: ["competition", id] });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "No se pudo procesar el GPX");
+      toast.error(error instanceof Error ? error.message : tr("No se pudo procesar el GPX"));
     } finally {
       setProcessingGpx(false);
       e.target.value = "";
@@ -151,7 +151,7 @@ function CompetitionDetail() {
   };
 
   const downloadGpx = async () => {
-    if (!c.gpx_data || !wpts.length) {toast.error("Sube un GPX y genera el plan primero");return;}
+    if (!c.gpx_data || !wpts.length) {toast.error(tr("Sube un GPX y genera el plan primero"));return;}
     let newGpx = buildGpxWithWaypoints(c.gpx_data, points, wpts.map((w: any) => ({ km: w.km, label: w.label })), c.name);
     try {
       const { addWaterWaypointsToGpx } = await import("@/utils/gpxWaterFinder");
@@ -168,7 +168,7 @@ function CompetitionDetail() {
         setWaterSearchComplete(true);
         sourceCount = spaced.length;
       }
-      toast.success(sourceCount ? `${sourceCount} fuentes de agua añadidas` : "Sin fuentes de agua cercanas");
+      toast.success(sourceCount ? `${sourceCount} fuentes de agua añadidas` : tr("Sin fuentes de agua cercanas"));
     } catch {
       toast.warning(tr("No se pudieron buscar fuentes de agua"));
     }
@@ -192,7 +192,7 @@ function CompetitionDetail() {
     setSwapping(`${dayIndex}-${mealKey}`);
     try {
       await swapFn({ data: { competitionId: id, dayIndex, mealKey } });
-      toast.success("Receta cambiada");
+      toast.success(tr("Receta cambiada"));
       qc.invalidateQueries({ queryKey: ["competition", id] });
     } catch (e: any) {toast.error(e.message);} finally
     {setSwapping(null);}

@@ -146,12 +146,12 @@ export function WorkoutGenerator({ profile }: {profile: any;}) {
             toast.success(`${r.uploaded} entrenamiento(s) subidos a Intervals.icu`);
             qc.invalidateQueries({ queryKey: ["workouts"] });
           } catch (e: any) {
-            toast.error(e.message ?? "Error subiendo a Intervals.icu");
+            toast.error(e.message ?? tr("Error subiendo a Intervals.icu"));
           }
         }
       }
     },
-    onError: (e: any) => toast.error(e.message ?? "Error generando entrenamientos")
+    onError: (e: any) => toast.error(e.message ?? tr("Error generando entrenamientos"))
   });
 
   return (

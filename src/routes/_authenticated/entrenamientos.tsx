@@ -100,11 +100,11 @@ function EntrenamientosPage() {
               try {
                 const r: any = await rebalance({ data: {} });
                 if (r?.changed) toast.success(`Semana recalculada: ${r.workouts.length} sesión(es) ajustadas`);else
-                toast.info(r?.reason === "ya_equilibrada" ? "La semana ya está equilibrada" : r?.reason === "no_quedan_sesiones" ? "No quedan sesiones pendientes esta semana" : "No hay objetivo semanal para recalcular");
+                toast.info(r?.reason === "ya_equilibrada" ? tr("La semana ya está equilibrada") : r?.reason === "no_quedan_sesiones" ? tr("No quedan sesiones pendientes esta semana") : tr("No hay objetivo semanal para recalcular"));
                 qc.invalidateQueries({ queryKey: ["workouts"] });
                 qc.invalidateQueries({ queryKey: ["calendar"] });
               } catch (e: any) {
-                toast.error(e?.message ?? "No se pudo recalcular");
+                toast.error(e?.message ?? tr("No se pudo recalcular"));
               } finally {
                 setRecalc(false);
               }
@@ -191,9 +191,9 @@ function EntrenamientosPage() {
                 onTrainer={async () => {
                   const r: any = await toTrainer({ data: { workout_id: w.id } });
                   toast.success(
-                    r.intervals_synced ?
-                    "Entrenamiento adaptado a rodillo y actualizado en Intervals.icu" :
-                    "Entrenamiento adaptado a rodillo"
+                    r.intervals_synced ? tr(
+                      "Entrenamiento adaptado a rodillo y actualizado en Intervals.icu") : tr(
+                      "Entrenamiento adaptado a rodillo")
                   );
                   qc.invalidateQueries({ queryKey: ["workouts"] });
                   qc.invalidateQueries({ queryKey: ["calendar"] });
@@ -201,7 +201,7 @@ function EntrenamientosPage() {
                 onQuick={async (action) => {
                   const r: any = await quick({ data: { workout_id: w.id, action } });
                   if (action === "skip") {
-                    toast.success(r?.proposed_date ? "Marcado como no realizado. Te proponemos un día libre para reubicarlo." : "Marcado como no realizado. La semana se ha recortado manteniendo las sesiones clave.");
+                    toast.success(r?.proposed_date ? tr("Marcado como no realizado. Te proponemos un día libre para reubicarlo.") : tr("Marcado como no realizado. La semana se ha recortado manteniendo las sesiones clave."));
                     qc.invalidateQueries({ queryKey: ["reschedule-proposals"] });
                   } else {
                     toast.success(`Sesión ajustada a ${r?.minutes} min`);
@@ -212,9 +212,9 @@ function EntrenamientosPage() {
                 onOutdoor={async () => {
                   const r: any = await toOutdoor({ data: { workout_id: w.id } });
                   toast.success(
-                    r.intervals_synced ?
-                    "Entrenamiento devuelto a exterior y actualizado en Intervals.icu" :
-                    "Entrenamiento devuelto a exterior"
+                    r.intervals_synced ? tr(
+                      "Entrenamiento devuelto a exterior y actualizado en Intervals.icu") : tr(
+                      "Entrenamiento devuelto a exterior")
                   );
                   qc.invalidateQueries({ queryKey: ["workouts"] });
                   qc.invalidateQueries({ queryKey: ["calendar"] });

@@ -26,7 +26,7 @@ export function FtpTestScheduler({ profile }: {profile: any;}) {
       );
       qc.invalidateQueries({ queryKey: ["calendar"] });
       qc.invalidateQueries({ queryKey: ["workouts"] });
-    } catch (e: any) {toast.error(e.message ?? "Error añadiendo el test");} finally
+    } catch (e: any) {toast.error(e.message ?? tr("Error añadiendo el test"));} finally
     {setScheduling(false);}
   };
 

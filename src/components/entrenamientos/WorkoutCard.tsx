@@ -64,7 +64,7 @@ export function WorkoutCard({
     };
     const safe = (plan.name || "entrenamiento").replace(/[^a-zA-Z0-9_-]/g, "_");
     downloadFit(fit, `${safe}_${w.id.slice(0, 6)}.fit`);
-    toast.success("Archivo .FIT descargado");
+    toast.success(tr("Archivo .FIT descargado"));
     setShowPreview(false);
   };
 
@@ -137,7 +137,7 @@ export function WorkoutCard({
                 if (!confirm(tr("¿Volver a la versión de EXTERIOR?\n\nSe restaurará el entrenamiento original, se recalculará el TSS previsto y se actualizará el evento en Intervals.icu."))) return;
                 setConverting(true);
                 try {await onOutdoor();}
-                catch (e: any) {toast.error(e?.message ?? "Error volviendo a exterior");} finally
+                catch (e: any) {toast.error(e?.message ?? tr("Error volviendo a exterior"));} finally
                 {setConverting(false);}
               }}
               title={tr("Volver a exterior")}
@@ -154,7 +154,7 @@ export function WorkoutCard({
                 if (!confirm(tr("¿Adaptar este entrenamiento a RODILLO (60-90 min)?\n\nSe recalculará el TSS previsto y se actualizará el evento en Intervals.icu. Podrás volver a exterior cuando quieras."))) return;
                 setConverting(true);
                 try {await onTrainer();}
-                catch (e: any) {toast.error(e?.message ?? "Error adaptando a rodillo");} finally
+                catch (e: any) {toast.error(e?.message ?? tr("Error adaptando a rodillo"));} finally
                 {setConverting(false);}
               }}
               title={tr("Cambiar a rodillo")}
@@ -197,7 +197,7 @@ export function WorkoutCard({
               if (k === "skip" && !confirm(tr("¿Marcar este entreno como no realizado? Te propondremos reubicarlo en un día libre de esta semana."))) return;
               setQuick(k);
               try {await onQuick(k);}
-              catch (e: any) {toast.error(e?.message ?? "No se ha podido ajustar");} finally
+              catch (e: any) {toast.error(e?.message ?? tr("No se ha podido ajustar"));} finally
               {setQuick(null);}
             }}
             className="text-[11px] font-semibold px-2.5 py-1 rounded-md border hover:bg-secondary disabled:opacity-50">
