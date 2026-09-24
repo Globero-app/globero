@@ -24,7 +24,7 @@ export function TrainingLoadCard() {
         <h2 className="font-display text-lg font-bold uppercase">{tr("Estado de forma")}</h2>
         {block?.focus &&
         <span className="text-[10px] font-mono uppercase bg-secondary px-2 py-0.5 rounded"> {tr("Bloque")} 
-          {FOCUS_LABEL[block.focus] ?? block.focus} {tr("· semana")} {block.week_index ?? 1}/4
+          {tr(FOCUS_LABEL[block.focus] ?? block.focus)} {tr("· semana")} {block.week_index ?? 1}/4
           </span>
         }
       </div>
@@ -34,9 +34,9 @@ export function TrainingLoadCard() {
         <Metric label={tr("Forma (TSB)")} value={Math.round(tsb)} className={form.c} />
       </div>
       <p className="text-xs text-muted-foreground mt-3">
-        {form.t}
-        {load.weekly_tss != null && ` · ${Math.round(load.weekly_tss)} TSS esta semana`}
-        {load.readiness_7d != null && ` · readiness 7d ${load.readiness_7d}/5`}
+        {tr(form.t)}
+        {load.weekly_tss != null && ` · ${Math.round(load.weekly_tss)} ${tr("TSS esta semana")}`}
+        {load.readiness_7d != null && ` · ${tr("Readiness 7 días")} ${load.readiness_7d}/5`}
       </p>
     </div>);
 

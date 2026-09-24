@@ -98,7 +98,7 @@ function SemanasPage() {
                   <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <Bar dataKey="km" name="km" fill="var(--primary)" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="hours" name="horas" fill="#94a3b8" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="hours" name={tr("Horas")} fill="var(--muted-foreground)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -115,7 +115,7 @@ function SemanasPage() {
                   <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <Bar dataKey="tss" name="TSS" fill="var(--primary)" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="avg_watts" name="vatios medios" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="avg_watts" name={tr("Vatios medios")} fill="var(--chart-4)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

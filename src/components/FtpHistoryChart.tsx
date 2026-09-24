@@ -48,8 +48,8 @@ export function FtpHistoryChart({ history, weightKg }: {history: FtpTestPoint[];
                 <YAxis tick={{ fontSize: 10 }} domain={["dataMin - 15", "dataMax + 15"]} />
                 <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Line type="monotone" dataKey="ftp" name="FTP (W)" stroke="var(--primary)" strokeWidth={2} dot={{ r: 4 }} connectNulls />
-                <Line type="monotone" dataKey="lthr" name="LTHR (ppm)" stroke="#ef4444" strokeWidth={1.5} dot={{ r: 3 }} connectNulls />
+                <Line type="monotone" dataKey="ftp" name={tr("FTP (W)")} stroke="var(--primary)" strokeWidth={2} dot={{ r: 4 }} connectNulls />
+                <Line type="monotone" dataKey="lthr" name={tr("LTHR (ppm)")} stroke="var(--destructive)" strokeWidth={1.5} dot={{ r: 3 }} connectNulls />
               </LineChart>
             </ResponsiveContainer>
           </div>

@@ -14,6 +14,11 @@ export async function buildWorkoutReport(
   userId: string,
   workoutId: string,
 ): Promise<{ text: string; title: string } | null> {
+  const [{ getUserLang, langInstruction }, { noMetricsReport, serverText }] = await Promise.all([
+    import("./user-lang.server"),
+    import("./server-i18n"),
+  ]);
+  const lang = await getUserLang(userId);
   const { data: w } = await supabase
     .from("workouts")
     .select("id,plan,planned_tss,actual_tss,actual_if,compliance,duration_minutes,bike_type,rpe,session_goal,completed_at")
@@ -55,8 +60,8 @@ export async function buildWorkoutReport(
     const mins = Math.round(Number(act.moving_time ?? 0) / 60);
     const km = Number(act.distance ?? 0) / 1000;
     return {
-      title: plan.title ?? plan.name ?? "Sesión",
-      text: `Sesión registrada: ${mins} min${km > 1 ? `, ${km.toFixed(1)} km` : ""}. Sin datos de potencia ni frecuencia cardíaca no se genera análisis detallado.`,
+      title: plan.title ?? plan.name ?? serverText(lang, "session"),
+      text: noMetricsReport(lang, mins, km),
     };
   }
 
@@ -84,7 +89,7 @@ export async function buildWorkoutReport(
       .maybeSingle(),
   ]);
 
-  const planTitle = plan.title ?? plan.name ?? "Sesión";
+  const planTitle = plan.title ?? plan.name ?? serverText(lang, "session");
   const dateISO = (daily?.date ?? String(act.start_date ?? "").slice(0, 10)) || today;
 
   const facts: string[] = [];
@@ -154,7 +159,7 @@ export async function buildWorkoutReport(
     }
   }
 
-  const system = `Eres el entrenador de ciclismo del usuario. Escribe un informe BREVE en español comparando lo planificado con lo ejecutado.
+  const system = `${langInstruction(lang)} Eres el entrenador de ciclismo del usuario. Escribe un informe BREVE comparando lo planificado con lo ejecutado.
 Formato exacto (sin markdown, sin emojis, sin negritas):
 Línea 1: "He completado el análisis del entrenamiento planificado "<título>" del <DD/MM>."
 Línea "Cumplimiento: <una o dos frases>."
@@ -186,6 +191,8 @@ export async function generateAndNotifyWorkoutReport(
   workoutId: string,
 ): Promise<boolean> {
   try {
+    const { getUserLang } = await import("./user-lang.server");
+    const userLang = await getUserLang(userId);
     let report: { text: string; title: string } | null = null;
     try {
       const { processFtpTestWorkout } = await import("./ftp-test-auto.server");
@@ -211,7 +218,7 @@ export async function generateAndNotifyWorkoutReport(
       const g = await buildGamification(supabase, userId, workoutId);
       if (g) {
         plan.gamification = g;
-        gamiText = gamificationText(g);
+        gamiText = gamificationText(g, userLang);
       }
     } catch (e) {
       console.error("[workout-report] gamification", e);
@@ -225,17 +232,20 @@ export async function generateAndNotifyWorkoutReport(
 
     const { data: prof } = await supabase
       .from("profiles")
-      .select("notify_channel,telegram_chat_id")
+      .select("notify_channel,telegram_chat_id,language")
       .eq("id", userId)
       .maybeSingle();
     const channel = (prof?.notify_channel as string) || "push";
     const chatId = prof?.telegram_chat_id as string | null;
+    const { normalizeUserLang } = await import("./user-lang.server");
+    const { reportPushBody, serverText } = await import("./server-i18n");
+    const lang = normalizeUserLang(prof?.language as string | undefined);
 
     // Telegram: informe completo
     if ((channel === "telegram" || channel === "both") && chatId) {
       try {
         const { telegramSend } = await import("./telegram.server");
-        await telegramSend(chatId, `📊 Informe del entrenamiento\n\n${report.text}${gamiText ? `\n\n${gamiText}` : ""}`);
+        await telegramSend(chatId, `📊 ${serverText(lang, "workoutReport")}\n\n${report.text}${gamiText ? `\n\n${gamiText}` : ""}`);
       } catch (e) {
         console.error("[workout-report] telegram", e);
       }
@@ -246,8 +256,8 @@ export async function generateAndNotifyWorkoutReport(
       try {
         const { notifyUserPushOnly } = await import("./web-push.server");
         await notifyUserPushOnly(userId, {
-          title: "📊 Informe listo",
-          body: `Ya puedes ver el análisis de "${report.title}" en Entrenamientos.`,
+          title: `📊 ${serverText(lang, "reportReady")}`,
+          body: reportPushBody(lang, report.title),
           tag: `workout-report-${workoutId}`,
           url: "/entrenamientos",
         });

@@ -337,21 +337,25 @@ export function prescribeWeek(load: TrainingLoadSummary, opts: {
   };
 }
 
-export function loadPromptBlock(load: TrainingLoadSummary, week: WeekPrescription): string {
+export function loadPromptBlock(load: TrainingLoadSummary, week: WeekPrescription, lang = "es"): string {
+  const instruction: Record<string, string> = {
+    es: "Distribuye la carga semanal objetivo respetando estrictamente el máximo de sesiones intensas y la recuperación indicada.",
+    ca: "Distribueix la càrrega setmanal objectiu respectant estrictament el màxim de sessions intenses i la recuperació indicada.",
+    fr: "Répartis la charge hebdomadaire cible en respectant strictement le maximum de séances intenses et la récupération indiquée.",
+    en: "Distribute the target weekly load while strictly respecting the maximum number of hard sessions and the prescribed recovery.",
+    de: "Verteile die angestrebte Wochenbelastung unter strikter Einhaltung der maximalen Anzahl intensiver Einheiten und der vorgesehenen Erholung.",
+  };
+  const distribution: Record<string, string> = week.mode === "recovery" ? {
+    es: "95 % del tiempo en Z1-Z2; como máximo, un bloque corto de calidad.", ca: "95 % del temps en Z1-Z2; com a màxim, un bloc curt de qualitat.", fr: "95 % du temps en Z1-Z2 ; au maximum un court bloc de qualité.", en: "95% of the time in Z1-Z2, with at most one short quality block.", de: "95 % der Zeit in Z1-Z2, höchstens ein kurzer Qualitätsblock.",
+  } : {
+    es: "Reparto polarizado: ~80 % en Z1-Z2 y ~20 % en Z4 o superior; evita la zona gris Z3 prolongada.", ca: "Distribució polaritzada: ~80 % en Z1-Z2 i ~20 % en Z4 o superior; evita la zona grisa Z3 prolongada.", fr: "Répartition polarisée : ~80 % en Z1-Z2 et ~20 % en Z4 ou plus ; évite la zone grise Z3 prolongée.", en: "Polarized distribution: ~80% in Z1-Z2 and ~20% in Z4 or above; avoid prolonged Z3 gray-zone work.", de: "Polarisierte Verteilung: ~80 % in Z1-Z2 und ~20 % in Z4 oder höher; längere Z3-Grauzonenbelastung vermeiden.",
+  };
   return `
-ESTADO ACTUAL DEL CICLISTA (calculado, no estimes estos números):
-- CTL (forma, 42d): ${load.ctl} · ATL (fatiga, 7d): ${load.atl} · TSB (frescura): ${load.tsb}
-- Carga semanal reciente (TSS): ${load.weekly.map((w) => `${w.week_start}=${w.tss}`).join(", ") || "sin datos"}
-- Media semanal 3 semanas previas: ${load.avg_weekly_tss_3w} TSS · Rampa actual: ${load.ramp_pct === null ? "n/a" : `${load.ramp_pct}%`}
-- Adherencia 28d: ${load.adherence_pct === null ? "n/a" : `${load.adherence_pct}% (${load.completed_28d}/${load.planned_28d})`}
-- RPE medio de los entrenos completados: ${load.avg_rpe ?? "n/a"}/5
-- Readiness medio 7d: ${load.readiness_7d ?? "n/a"}/5 · 14d: ${load.readiness_14d ?? "n/a"}/5 · tendencia: ${load.readiness_trend}
-
-PRESCRIPCIÓN DE LA SEMANA (OBLIGATORIA):
-- Modo: ${week.mode.toUpperCase()} (${week.reason})
-- TSS TOTAL OBJETIVO de la semana: ${week.target_tss} (±10%). Reparte ese total entre las sesiones.
-- Máximo ${week.hard_sessions_max} sesión(es) dura(s) (Z4 o superior) en toda la semana; el resto aeróbicas.
-- ${week.polarized_note}
-- Nunca coloques dos sesiones duras en días consecutivos.
-- En "summary" de cada sesión indica su TSS estimado.`;
+${instruction[lang] ?? instruction.es}
+CTL 42d: ${load.ctl} · ATL 7d: ${load.atl} · TSB: ${load.tsb}
+TSS: ${load.weekly.map((w) => `${w.week_start}=${w.tss}`).join(", ") || "n/a"} · 3w avg: ${load.avg_weekly_tss_3w} · ramp: ${load.ramp_pct ?? "n/a"}%
+28d adherence: ${load.adherence_pct ?? "n/a"}% (${load.completed_28d}/${load.planned_28d}) · avg RPE: ${load.avg_rpe ?? "n/a"}/10
+Readiness 7d: ${load.readiness_7d ?? "n/a"}/5 · 14d: ${load.readiness_14d ?? "n/a"}/5
+Target: ${week.target_tss} TSS (±10%) · hard sessions max: ${week.hard_sessions_max}
+${distribution[lang] ?? distribution.es}`;
 }
