@@ -13,6 +13,7 @@ import { WorkoutCard } from "@/components/entrenamientos/WorkoutCard";
 import { WorkoutGenerator } from "@/components/entrenamientos/WorkoutGenerator";
 import { RescheduleProposals } from "@/components/entrenamientos/RescheduleProposals";
 import { quickAdjustWorkout } from "@/lib/workout-actions.functions";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/entrenamientos")({
   component: EntrenamientosPage,
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/_authenticated/entrenamientos")({
 
 function EntrenamientosPage() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const qc = useQueryClient();
   const complete = useServerFn(completeWorkout);
   const del = useServerFn(deleteWorkout);
@@ -75,8 +77,8 @@ function EntrenamientosPage() {
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">Plan personalizado</p>
-        <h1 className="font-display text-2xl sm:text-4xl font-bold uppercase tracking-tight">Entrenamientos</h1>
+        <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">{t("workouts.eyebrow")}</p>
+        <h1 className="font-display text-2xl sm:text-4xl font-bold uppercase tracking-tight">{t("nav.workouts")}</h1>
       </div>
 
       <TrainingLoadCard />
@@ -89,7 +91,7 @@ function EntrenamientosPage() {
       {/* Lista */}
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <h2 className="font-display text-lg font-bold uppercase">Tus entrenamientos</h2>
+          <h2 className="font-display text-lg font-bold uppercase">{t("workouts.yours")}</h2>
           <button
             type="button"
             disabled={recalc}
@@ -109,7 +111,7 @@ function EntrenamientosPage() {
             }}
             className="px-3 py-1.5 rounded-md border text-xs font-semibold hover:bg-secondary disabled:opacity-50"
           >
-            {recalc ? "Recalculando…" : "Recalcular semana"}
+            {recalc ? t("workouts.recalcing") : t("workouts.recalc")}
           </button>
         </div>
         {workouts.isLoading && (
@@ -120,7 +122,7 @@ function EntrenamientosPage() {
         {workouts.data?.length === 0 && (
           <div className="text-center py-12 bg-surface border rounded-xl">
             <Dumbbell className="size-10 text-muted-foreground mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground">Aún no has generado ningún entrenamiento.</p>
+            <p className="text-sm text-muted-foreground">{t("workouts.none")}</p>
           </div>
         )}
         {(() => {
@@ -146,9 +148,9 @@ function EntrenamientosPage() {
             <>
               <div className="flex gap-1 rounded-lg border bg-surface p-1 w-full sm:w-fit overflow-x-auto">
                 {([
-                  ["semana", "Esta semana"],
-                  ["proximas", "Próximas"],
-                  ["historial", "Historial"],
+                  ["semana", t("workouts.tabWeek")],
+                  ["proximas", t("workouts.tabNext")],
+                  ["historial", t("workouts.tabHistory")],
                 ] as const).map(([key, label]) => (
                   <button
                     key={key}

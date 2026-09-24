@@ -14,16 +14,18 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "sonner";
 import { SplashScreen } from "@/components/SplashScreen";
+import { I18nProvider, useI18n } from "@/lib/i18n";
 
 function NotFoundComponent() {
+  const { t } = useI18n();
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-display font-semibold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold">Página no encontrada</h2>
-        <p className="mt-2 text-sm text-muted-foreground">La ruta solicitada no existe.</p>
+        <h2 className="mt-4 text-xl font-semibold">{t("notfound.title")}</h2>
+        <p className="mt-2 text-sm text-muted-foreground">{t("notfound.body")}</p>
         <Link to="/" className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
-          Volver al inicio
+          {t("common.backHome")}
         </Link>
       </div>
     </div>
@@ -36,6 +38,7 @@ function ErrorComponent({ error, reset }: { error?: unknown; reset: () => void }
   );
   console.error(err);
   const router = useRouter();
+  const { t } = useI18n();
   useEffect(() => {
     reportLovableError(err, { boundary: "tanstack_root_error_component" });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -43,15 +46,15 @@ function ErrorComponent({ error, reset }: { error?: unknown; reset: () => void }
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold">Algo ha fallado</h1>
+        <h1 className="text-xl font-semibold">{t("error.title")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{err.message}</p>
 
         <div className="mt-6 flex gap-2 justify-center">
           <button
             onClick={() => { router.invalidate(); reset(); }}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-          >Reintentar</button>
-          <a href="/" className="rounded-md border px-4 py-2 text-sm font-medium">Inicio</a>
+          >{t("error.retry")}</button>
+          <a href="/" className="rounded-md border px-4 py-2 text-sm font-medium">{t("common.home")}</a>
         </div>
       </div>
     </div>
@@ -141,9 +144,11 @@ function RootComponent() {
   }, [router, queryClient]);
   return (
     <QueryClientProvider client={queryClient}>
-      <SplashScreen />
-      <Outlet />
-      <Toaster position="top-right" richColors />
+      <I18nProvider>
+        <SplashScreen />
+        <Outlet />
+        <Toaster position="top-right" richColors />
+      </I18nProvider>
     </QueryClientProvider>
   );
 }
