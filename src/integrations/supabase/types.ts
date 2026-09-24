@@ -709,6 +709,7 @@ export type Database = {
           intervals_oauth: boolean
           intervals_refresh_token: string | null
           intervals_token_expires_at: string | null
+          language: string
           linking_code: string | null
           location_city: string | null
           location_lat: number | null
@@ -775,6 +776,7 @@ export type Database = {
           intervals_oauth?: boolean
           intervals_refresh_token?: string | null
           intervals_token_expires_at?: string | null
+          language?: string
           linking_code?: string | null
           location_city?: string | null
           location_lat?: number | null
@@ -841,6 +843,7 @@ export type Database = {
           intervals_oauth?: boolean
           intervals_refresh_token?: string | null
           intervals_token_expires_at?: string | null
+          language?: string
           linking_code?: string | null
           location_city?: string | null
           location_lat?: number | null
