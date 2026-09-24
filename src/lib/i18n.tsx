@@ -1,5 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { Fragment, createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { PHRASES } from "./i18n-phrases";
 
 export const LANGS = [
   { code: "es", label: "Castellano" },
@@ -84,6 +85,14 @@ export function translate(lang: Lang, key: string): string {
   return DICTS[lang]?.[key] ?? es[key] ?? key;
 }
 
+let currentLang: Lang = "es";
+const IDX: Record<Lang, number> = { es: -1, ca: 0, fr: 1, en: 2, de: 3 };
+/** Traduce una frase original en castellano al idioma activo. */
+export function tr(text: string): string {
+  const i = IDX[currentLang];
+  return i < 0 ? text : PHRASES[text]?.[i] ?? text;
+}
+
 interface Ctx { lang: Lang; setLang: (l: Lang) => void; t: (key: string) => string }
 const I18nCtx = createContext<Ctx>({ lang: "es", setLang: () => {}, t: (k) => translate("es", k) });
 
@@ -99,6 +108,7 @@ function detect(): Lang {
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>("es");
+  currentLang = lang;
 
   useEffect(() => {
     setLangState(detect());
@@ -127,7 +137,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const t = useCallback((k: string) => translate(lang, k), [lang]);
-  return <I18nCtx.Provider value={{ lang, setLang, t }}>{children}</I18nCtx.Provider>;
+  return <I18nCtx.Provider value={{ lang, setLang, t }}><Fragment key={lang}>{children}</Fragment></I18nCtx.Provider>;
 }
 
 export const useI18n = () => useContext(I18nCtx);
