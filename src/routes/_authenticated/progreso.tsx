@@ -111,7 +111,7 @@ function ProgresoPage() {
                   contentStyle={{ fontSize: 12, borderRadius: 8 }}
                   labelFormatter={(_label, payload) => {
                     const point = payload?.[0]?.payload;
-                    return point ? `${format(new Date(`${point.date}T12:00:00Z`), "d 'de' MMMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}${point.projected ? " · Proyección" : ""}` : "";
+                    return point ? `${format(new Date(`${point.date}T12:00:00Z`), "d MMMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}${point.projected ? ` · ${tr("Proyección")}` : ""}` : "";
                   }}
                   formatter={(value: any, name: any, item: any) => {
                     const labels: Record<string, string> = { ctlReal: tr("Fitness (CTL)"), atlReal: tr("Fatiga (ATL)"), tsbReal: tr("Forma (TSB)"), ctlProjected: tr("Fitness (CTL)"), atlProjected: tr("Fatiga (ATL)"), tsbProjected: tr("Forma (TSB)") };
@@ -200,7 +200,7 @@ function ProgresoPage() {
                     <XAxis dataKey="label" tick={{ fontSize: 10 }} />
                     <YAxis domain={[1, 5]} tick={{ fontSize: 10 }} />
                     <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
-                    <Line type="monotone" dataKey="score" name="Readiness" stroke="#0ea5e9" strokeWidth={2} />
+                    <Line type="monotone" dataKey="score" name={tr("Readiness")} stroke="var(--chart-4)" strokeWidth={2} />
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>

@@ -103,6 +103,8 @@ export async function generateWorkoutsCore(supabase: any, userId: string, input:
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
   if (!profile) throw new Error("Perfil no encontrado");
+  const { getUserLang, langInstruction } = await import("./user-lang.server");
+  const outputLanguage = langInstruction(await getUserLang(userId));
 
 
   const { data: recent } = await supabase
@@ -368,7 +370,9 @@ ${schedule.map((s, i) => `- Sesión ${i + 1}: ${s.date} (${DAY_NAMES[s.dow]})${l
 ${longDay !== null ? `- Las sesiones marcadas como TIRADA LARGA (${DAY_NAMES[longDay]}) duran 1.5-2.5x la duración objetivo y tienen estructura propia según el bloque "${blockFocus}": ${longRideStructure[blockFocus] ?? longRideStructure.base}. Indícalo en el título y en el summary.` : ""}
 - Reparte carga y recuperación entre sesiones consecutivas teniendo en cuenta los días reales del calendario.`;
 
-  const prompt = `Eres un entrenador profesional de ciclismo. Diseña ${effectiveCount} entrenamiento(s) MIXTOS personalizados para este ciclista.
+  const prompt = `${outputLanguage}
+
+Eres un entrenador profesional de ciclismo. Diseña ${effectiveCount} entrenamiento(s) MIXTOS personalizados para este ciclista.
 
 PERFIL:
 - Edad: ${profile.age ?? "n/a"}, Sexo: ${profile.gender ?? "n/a"}, Peso: ${weight}kg
@@ -411,14 +415,14 @@ INSTRUCCIONES:
 3. duration_type='time' con duration_seconds salvo descansos abiertos.
 4. Respeta ESTRICTAMENTE la BASE DE PRESCRIPCIÓN (${basis === "hr" ? "frecuencia cardíaca" : "potencia/FTP"}).
 5. Fuerza sobre la bici: cadencia baja (50-60rpm) con intensidad Z3-Z4.
-6. name MÁXIMO 15 caracteres. Title puede ser largo. TODO en ESPAÑOL.
+6. name MÁXIMO 15 caracteres. Title puede ser largo. Todo texto visible debe respetar el IDIOMA OBLIGATORIO indicado al principio.
 7. PLAN MIXTO: alterna resistencia, intervalos y fuerza entre las sesiones del bloque; no repitas el mismo tipo dos días seguidos.
 8. PROGRESIÓN Y MEJORA: usa el histórico de entrenamientos realizados (RPE, notas, cumplimiento) y las actividades de Intervals.icu para subir la carga de forma progresiva respecto a la semana anterior. Si el RPE medio >4 reduce intensidad; si <2 auméntala.
 9. TIPO DE BICI (${input.bike_type}): adapta el enfoque al material.
 10. MODULACIÓN POR READINESS: la PRIMERA sesión del plan se ajusta al Readiness de hoy (1 → descanso/movilidad, 2 → Z1-Z2 corto, 3 → estándar, 4-5 → puedes subir carga).
 11. AJUSTE METEOROLÓGICO: si el día tiene condiciones adversas según la previsión, indícalo en el summary y, si procede, convierte la sesión en rodillo (indoor=true) con duración 60-90 min.`;
 
-  const result = await callAI([{ role: "user", content: prompt }], PlanSchema, { fn: "workouts-gen" });
+  const result = await callAI([{ role: "user", content: prompt }], PlanSchema, { fn: "workouts-gen", userId });
 
   // ---- Validación y corrección determinista ----
   const items = (result.workouts as any[]).slice(0, effectiveCount).map((w, i) => {
