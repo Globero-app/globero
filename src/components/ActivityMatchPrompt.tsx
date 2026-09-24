@@ -40,8 +40,8 @@ export function ActivityMatchPrompt({ enabled = true }: {enabled?: boolean;}) {
       if (v.accept) {
         toast.success(
           v.match.target_kind === "workout" ?
-          "Entrenamiento marcado como completado" :
-          "Actividad asignada a la competición"
+          tr("Entrenamiento marcado como completado") :
+          tr("Actividad asignada a la competición")
         );
       }
       qc.invalidateQueries({ queryKey: ["activity-matches"] });

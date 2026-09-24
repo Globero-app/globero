@@ -202,7 +202,7 @@ const Sidebar = React.forwardRef<
             
             <SheetHeader className="sr-only">
               <SheetTitle>{tr("Sidebar")}</SheetTitle>
-              <SheetDescription>{tr("Displays the mobile sidebar.")}</SheetDescription>
+              <SheetDescription>{tr("Muestra la barra lateral móvil.")}</SheetDescription>
             </SheetHeader>
             <div className="flex h-full w-full flex-col">{children}</div>
           </SheetContent>

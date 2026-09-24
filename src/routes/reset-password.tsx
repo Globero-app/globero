@@ -71,7 +71,7 @@ function ResetPasswordPage() {
       toast.success(tr("Contraseña actualizada"));
       navigate({ to: "/app" });
     } catch (err: any) {
-      toast.error(err.message || "No se ha podido actualizar");
+      toast.error(err.message || tr("No se ha podido actualizar"));
     } finally {
       setLoading(false);
     }
