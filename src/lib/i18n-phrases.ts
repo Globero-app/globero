@@ -499,10 +499,10 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Jeden Tag werden Sie sich fragen, wie Sie sich fühlen (1 Nichts vorbereitet · 2 Ruhestandsspaziergang · 3 Ruhestandstraining · 4 Ruhestandstraining · 5 Geben Sie so viel). Die IA wird das Training an diesem Tag an Ihre Antwort anpassen und wenn Sie 1 antworten, werden Sie vorgeschlagen, es zu entfernen."
   ],
   "Cada mañana indicas cómo te encuentras y la IA adapta el entreno del día automáticamente.": [
-    "Cada matí indica com ets i la IA adaptarà automàticament l'entrenament del dia.",
-    "Chaque matin indique comment vous êtes et l'IV adaptera automatiquement la formation du jour.",
-    "Each morning indicates how you are and the IA will adapt the training of the day automatically.",
-    "Jeder Morgen zeigt an, wie es Ihnen geht und die IA passt das Training des Tages automatisch an."
+    "Cada matí indiques com et trobes i la IA adapta automàticament l’entrenament del dia.",
+    "Chaque matin, vous indiquez comment vous vous sentez et l’IA adapte automatiquement la séance du jour.",
+    "Each morning, you report how you feel and AI automatically adapts the day’s workout.",
+    "Jeden Morgen gibst du an, wie du dich fühlst, und die KI passt das Training automatisch an."
   ],
   "Cada test actualiza tus zonas y la IA planifica los siguientes entrenamientos con el nuevo umbral.": [
     "Cada prova actualitza les vostres zones i la IA planeja l'entrenament següent amb el nou llindar.",
@@ -985,10 +985,10 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Persönliche Daten"
   ],
   "Datos que tratamos": [
-    "Dades que intentem",
-    "Données que nous essayons",
-    "Data we're trying",
-    "Daten, die wir versuchen"
+    "Dades que tractem",
+    "Données traitées",
+    "Data we process",
+    "Verarbeitete Daten"
   ],
   "Debes aceptar la política de privacidad": [
     "Heu d' acceptar la política de privacitat",
@@ -1106,7 +1106,7 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
   ],
   "Dispositivos": [
     "Dispositius",
-    "Dispositifs",
+    "Appareils",
     "Devices",
     "Geräte"
   ],
@@ -1453,16 +1453,16 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Ersetzte Ausbildung"
   ],
   "Entrenamientos con IA": [
-    "Exercici amb IA",
-    "Formation avec IA",
-    "Training with IA",
-    "Training mit IA"
+    "Entrenaments amb IA",
+    "Entraînements avec l’IA",
+    "AI-powered training",
+    "KI-gestütztes Training"
   ],
   "Entrenamientos personalizados, nutrición semanal, readiness diario y análisis de tus actividades. Todo conectado con Intervals.icu.": [
-    "L'entrenament personalitzat, la desaparició setmanal, la lectura i l'anàlisi diari de les teves activitats. Tots connectats amb Interval.",
-    "Formation personnalisée, nutrition hebdomadaire, préparation quotidienne et analyse de vos activités. Tous connectés avec Intervals.ico.",
-    "Custom training, weekly nutrition, daily readiness and analysis of your activities. All connected with Intervals.ico.",
-    "Maßgeschneidertes Training, wöchentliche Ernährung, tägliche Bereitschaft und Analyse Ihrer Aktivitäten. Alles verbunden mit Intervals.ico."
+    "Entrenaments personalitzats, nutrició setmanal, estat de forma diari i anàlisi de les teves activitats. Tot connectat amb Intervals.icu.",
+    "Entraînements personnalisés, nutrition hebdomadaire, forme du jour et analyse de vos activités. Le tout connecté à Intervals.icu.",
+    "Personalized training, weekly nutrition, daily readiness, and activity analysis. All connected to Intervals.icu.",
+    "Personalisiertes Training, wöchentliche Ernährung, tägliche Tagesform und Aktivitätsanalyse. Alles mit Intervals.icu verbunden."
   ],
   "Entreno de hoy adaptado por la IA": [
     "Entrenament d’avui adaptat per la IA",
@@ -1885,10 +1885,10 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Insgesamt"
   ],
   "Globero IA": [
-    "Globus IA",
-    "Le Globe IA",
-    "Globe IA",
-    "Globus IA"
+    "Globero IA",
+    "Globero IA",
+    "Globero IA",
+    "Globero IA"
   ],
   "Globero IA es responsable del tratamiento de los datos facilitados por la persona usuaria a través de la aplicación.": [
     "El Globe IA és el responsable del processament de dades que proporciona l' usuari a través de l' aplicació.",
@@ -2071,10 +2071,10 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "ZU IHRER PERSÖNLICHEN"
   ],
   "IA vs Entrenador Personal": [
-    "Exercici personal IA contra I.",
-    "Formation personnelle",
-    "IA vs. Personal Training",
-    "IA vs. Personal Training"
+    "IA vs. entrenador personal",
+    "IA ou entraîneur personnel",
+    "AI vs personal coach",
+    "KI vs. persönlicher Trainer"
   ],
   "Icono (lucide)": [
     "Icona (llucide)",
@@ -2171,6 +2171,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Intervalles de surface",
     "Area intervales",
     "Flächenintervalle"
+  ],
+  "Intervals.icu": [
+    "Intervals.icu",
+    "Intervals.icu",
+    "Intervals.icu",
+    "Intervals.icu"
   ],
   "Intervals.icu conectado": [
     "Intervals. iu connectat",
@@ -3013,7 +3019,7 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Ernährung"
   ],
   "Nutrición semanal": [
-    "Expulsió setmanal",
+    "Nutrició setmanal",
     "Nutrition hebdomadaire",
     "Weekly nutrition",
     "Wöchentliche Ernährung"
@@ -3199,10 +3205,10 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Plan:"
   ],
   "Planes generados según tu Edad, Peso, FTP, FC máxima, tus días disponibles y tu carga de entrenamiento (CTL/ATL/TSB).": [
-    "Plans generats per l'edat, pes, FTP, Màxim FC, dies disponibles i la càrrega d' entrenament (TL / ATL / TSB).",
-    "Plans générés par votre âge, poids, FTP, maximum FC, vos jours disponibles et votre charge d'entraînement (CTL / ATL / BST).",
-    "Plans generated by your Age, Weight, FTP, Maximum FCs, your available days and your training load (CTL / ATL / TSB).",
-    "Pläne, die durch Ihr Alter, Gewicht, FTP, maximale FCs, Ihre verfügbaren Tage und Ihre Trainingslast (CTL / ATL / TSB) generiert werden."
+    "Plans generats segons la teva edat, pes, FTP, FC màxima, disponibilitat i càrrega d’entrenament (CTL/ATL/TSB).",
+    "Plans générés selon votre âge, poids, FTP, FC maximale, disponibilités et charge d’entraînement (CTL/ATL/TSB).",
+    "Plans generated from your age, weight, FTP, maximum heart rate, availability, and training load (CTL/ATL/TSB).",
+    "Pläne auf Basis von Alter, Gewicht, FTP, maximaler Herzfrequenz, Verfügbarkeit und Trainingsbelastung (CTL/ATL/TSB)."
   ],
   "Planes nutricionales": [
     "Planificació de plans",
@@ -3217,10 +3223,10 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Geplant vs. realisiert"
   ],
   "Plataforma de IA para ciclistas": [
-    "Una plataforma pels cícistes",
-    "Une plateforme pour les cyclistes",
-    "A Platform for Cyclists",
-    "Eine Plattform für Radfahrer"
+    "Plataforma d’IA per a ciclistes",
+    "Plateforme d’IA pour cyclistes",
+    "AI platform for cyclists",
+    "KI-Plattform für Radsportler"
   ],
   "Plataforma de IA para ciclistas.": [
     "Una plataforma per motoristes.",
@@ -3243,8 +3249,8 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
   "Política de Privacidad": [
     "Política de privadesa",
     "Politique de confidentialité",
-    "Privacy policy",
-    "Datenschutzpolitik"
+    "Privacy Policy",
+    "Datenschutzerklärung"
   ],
   "Post-carrera": [
     "Post-trace",
@@ -3451,7 +3457,7 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Bereitschaft heute"
   ],
   "Readiness diario": [
-    "Readiness diari",
+    "Estat de forma diari",
     "Forme du jour",
     "Daily readiness",
     "Tägliche Tagesform"
@@ -3573,8 +3579,8 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
   "Responsable del tratamiento": [
     "Responsable del tractament",
     "Responsable du traitement",
-    "Responsible for treatment",
-    "Verantwortlich für die Behandlung"
+    "Data controller",
+    "Verantwortlicher"
   ],
   "Respuesta de la IA": [
     "Una resposta",
@@ -3901,10 +3907,10 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Noch keine Routen."
   ],
   "Sincronización Intervals.icu": [
-    "Intervals. iu sincronització",
-    "Synchronisation Intervals.icu",
+    "Sincronització amb Intervals.icu",
+    "Synchronisation avec Intervals.icu",
     "Intervals.icu sync",
-    "Intervals.icu sync"
+    "Intervals.icu-Synchronisierung"
   ],
   "Sincronización de zonas y umbrales (FTP, LTHR, FC máx) con Intervals.icu al guardar el perfil": [
     "Sincronització de zones i llindar (FTP, LTRTR, max FC) amb intervals. icu en desar el perfil",
