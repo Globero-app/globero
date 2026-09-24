@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { tr } from "@/lib/i18n";import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { WifiOff, Wifi, RefreshCw, MapPin, Dumbbell, Trophy, User, Activity, UtensilsCrossed, LayoutDashboard, CheckCircle2, XCircle } from "lucide-react";
 import { useOnlineStatus } from "@/lib/use-online-status";
@@ -9,31 +9,31 @@ export const Route = createFileRoute("/offline")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Sin conexión — Globero" },
-      { name: "description", content: "Estado de la conexión y contenido disponible offline." },
-      { name: "robots", content: "noindex" },
-    ],
+    { title: "Sin conexión — Globero" },
+    { name: "description", content: "Estado de la conexión y contenido disponible offline." },
+    { name: "robots", content: "noindex" }]
+
   }),
-  component: OfflinePage,
+  component: OfflinePage
 });
 
 const AVAILABLE_OFFLINE = [
-  { icon: LayoutDashboard, label: "Dashboard", to: "/app", note: "Última versión cacheada" },
-  { icon: User, label: "Perfil", to: "/perfil", note: "Datos vistos recientemente" },
-  { icon: Activity, label: "Actividades", to: "/actividades", note: "Gráfico y lista cacheados" },
-  { icon: Dumbbell, label: "Entrenamientos", to: "/entrenamientos", note: "Últimos vistos + descargas .fit/.zwo" },
-  { icon: Trophy, label: "Competiciones", to: "/competiciones", note: "Listado y detalles ya cargados" },
-  { icon: UtensilsCrossed, label: "Menús", to: "/menus", note: "Menús visitados" },
-  { icon: MapPin, label: "Mapas GPX", to: "/competiciones", note: "Tiles y trazas ya vistas" },
-] as const;
+{ icon: LayoutDashboard, label: "Dashboard", to: "/app", note: "Última versión cacheada" },
+{ icon: User, label: "Perfil", to: "/perfil", note: "Datos vistos recientemente" },
+{ icon: Activity, label: "Actividades", to: "/actividades", note: "Gráfico y lista cacheados" },
+{ icon: Dumbbell, label: "Entrenamientos", to: "/entrenamientos", note: "Últimos vistos + descargas .fit/.zwo" },
+{ icon: Trophy, label: "Competiciones", to: "/competiciones", note: "Listado y detalles ya cargados" },
+{ icon: UtensilsCrossed, label: "Menús", to: "/menus", note: "Menús visitados" },
+{ icon: MapPin, label: "Mapas GPX", to: "/competiciones", note: "Tiles y trazas ya vistas" }] as
+const;
 
 const REQUIRES_NETWORK = [
-  "Sincronizar con Intervals.icu",
-  "Generar nuevos entrenamientos con IA",
-  "Crear o editar competiciones",
-  "Guardar cambios en el perfil",
-  "Subir logos de patrocinadores",
-] as const;
+"Sincronizar con Intervals.icu",
+"Generar nuevos entrenamientos con IA",
+"Crear o editar competiciones",
+"Guardar cambios en el perfil",
+"Subir logos de patrocinadores"] as
+const;
 
 function OfflinePage() {
   const online = useOnlineStatus();
@@ -71,9 +71,9 @@ function OfflinePage() {
                 {online ? "Conexión restaurada" : "Estás sin conexión"}
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
-                {online
-                  ? "Tu dispositivo vuelve a tener red. Puedes recargar para sincronizar los datos más recientes."
-                  : "No podemos alcanzar nuestros servidores. Puedes seguir consultando el contenido que ya se cargó anteriormente."}
+                {online ?
+                "Tu dispositivo vuelve a tener red. Puedes recargar para sincronizar los datos más recientes." :
+                "No podemos alcanzar nuestros servidores. Puedes seguir consultando el contenido que ya se cargó anteriormente."}
               </p>
 
               <div className="mt-5 flex flex-wrap gap-2">
@@ -81,11 +81,11 @@ function OfflinePage() {
                   <RefreshCw className={`size-4 ${checking ? "animate-spin" : ""}`} />
                   {online ? "Ir al inicio" : "Reintentar conexión"}
                 </Button>
-                {online && (
-                  <Button asChild variant="outline">
-                    <Link to="/app">Volver al dashboard</Link>
+                {online &&
+                <Button asChild variant="outline">
+                    <Link to="/app">{tr("Volver al dashboard")}</Link>
                   </Button>
-                )}
+                }
               </div>
             </div>
           </div>
@@ -95,14 +95,14 @@ function OfflinePage() {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <CheckCircle2 className="size-4 text-emerald-500" />
-              Disponible sin conexión
+              <CheckCircle2 className="size-4 text-emerald-500" /> {tr("Disponible sin conexión")} 
+
             </CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="divide-y">
-              {AVAILABLE_OFFLINE.map(({ icon: Icon, label, to, note }) => (
-                <li key={label} className="py-2.5 flex items-center gap-3">
+              {AVAILABLE_OFFLINE.map(({ icon: Icon, label, to, note }) =>
+              <li key={label} className="py-2.5 flex items-center gap-3">
                   <Icon className="size-4 text-muted-foreground shrink-0" />
                   <div className="flex-1 min-w-0">
                     <Link to={to} className="text-sm font-medium hover:underline">
@@ -111,12 +111,12 @@ function OfflinePage() {
                     <p className="text-xs text-muted-foreground truncate">{note}</p>
                   </div>
                 </li>
-              ))}
+              )}
             </ul>
-            <p className="text-xs text-muted-foreground mt-4">
-              Los archivos <span className="font-mono">.fit</span> y{" "}
-              <span className="font-mono">.zwo</span> que descargaste están guardados en tu
-              dispositivo — puedes importarlos en Zwift o TrainingPeaks sin conexión.
+            <p className="text-xs text-muted-foreground mt-4"> {tr("Los archivos")} 
+              <span className="font-mono">{tr(".fit")}</span> {tr("y")}{" "}
+              <span className="font-mono">{tr(".zwo")}</span> {tr("que descargaste están guardados en tu dispositivo — puedes importarlos en Zwift o TrainingPeaks sin conexión.")} 
+
             </p>
           </CardContent>
         </Card>
@@ -125,26 +125,26 @@ function OfflinePage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <XCircle className="size-4 text-destructive" />
-              Requiere conexión
+              <XCircle className="size-4 text-destructive" /> {tr("Requiere conexión")} 
+
             </CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
-              {REQUIRES_NETWORK.map((item) => (
-                <li key={item} className="text-sm text-muted-foreground flex items-start gap-2">
+              {REQUIRES_NETWORK.map((item) =>
+              <li key={item} className="text-sm text-muted-foreground flex items-start gap-2">
                   <span className="mt-1.5 size-1.5 rounded-full bg-muted-foreground/40 shrink-0" />
                   {item}
                 </li>
-              ))}
+              )}
             </ul>
-            <p className="text-xs text-muted-foreground mt-4">
-              En cuanto vuelvas a tener red, la app sincronizará automáticamente los cambios
-              pendientes y recargará los datos más recientes.
+            <p className="text-xs text-muted-foreground mt-4"> {tr("En cuanto vuelvas a tener red, la app sincronizará automáticamente los cambios pendientes y recargará los datos más recientes.")} 
+
+
             </p>
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 }

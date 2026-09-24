@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { tr, activeLang } from "@/lib/i18n";import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
@@ -9,7 +9,7 @@ import { getFtpTestStatus } from "@/lib/diag.functions";
 import { Trophy, Flame, Bike, ChevronRight, Plus, Trash2, Activity, Timer, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MaintenanceAlertsBanner } from "@/components/MaintenanceAlertsBanner";
 import { AdjustTodayCard } from "@/components/AdjustTodayCard";
@@ -21,7 +21,7 @@ import { useTodayPushTriggers, notifyActivitySync } from "@/lib/push-triggers";
 
 
 export const Route = createFileRoute("/_authenticated/app")({
-  component: Dashboard,
+  component: Dashboard
 });
 
 function Dashboard() {
@@ -36,7 +36,7 @@ function Dashboard() {
       const { data } = await supabase.from("profiles").select("*").eq("id", user!.id).maybeSingle();
       return data;
     },
-    enabled: !!user,
+    enabled: !!user
   });
 
   const load = useQuery({
@@ -45,7 +45,7 @@ function Dashboard() {
       const res = await loadFn({ data: undefined });
       return res?.load ?? null;
     },
-    enabled: !!user,
+    enabled: !!user
   });
 
   const comps = useQuery({
@@ -54,7 +54,7 @@ function Dashboard() {
       const { data } = await supabase.from("competitions").select("*").eq("user_id", user!.id).order("date", { ascending: true });
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user
   });
 
   const acts = useQuery({
@@ -63,14 +63,14 @@ function Dashboard() {
       const { data } = await supabase.from("intervals_activities").select("*").eq("user_id", user!.id).order("start_date", { ascending: false }).limit(60);
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user
   });
 
   const ftpTestFn = useServerFn(getFtpTestStatus);
   const ftpTest = useQuery({
     queryKey: ["ftp_test_status", user?.id],
     queryFn: () => ftpTestFn({ data: undefined } as any),
-    enabled: !!user,
+    enabled: !!user
   });
 
 
@@ -87,23 +87,23 @@ function Dashboard() {
     if (Date.now() - last < 10 * 60 * 1000) return;
     autoSyncedRef.current = true;
     localStorage.setItem(key, String(Date.now()));
-    sync({ data: undefined })
-      .then((res: any) => {
-        qc.invalidateQueries({ queryKey: ["recent_activities"] });
-        qc.invalidateQueries({ queryKey: ["intervals_activities"] });
-        qc.invalidateQueries({ queryKey: ["training_load"] });
-        void notifyActivitySync(user.id, res?.count ?? 0);
-      })
-      .catch(() => {});
+    sync({ data: undefined }).
+    then((res: any) => {
+      qc.invalidateQueries({ queryKey: ["recent_activities"] });
+      qc.invalidateQueries({ queryKey: ["intervals_activities"] });
+      qc.invalidateQueries({ queryKey: ["training_load"] });
+      void notifyActivitySync(user.id, res?.count ?? 0);
+    }).
+    catch(() => {});
   }, [user, profile.data?.intervals_api_key, sync, qc]);
 
 
   const handleDelete = async (id: string) => {
-    if (!confirm("¿Eliminar esta competición?")) return;
+    if (!confirm(tr("¿Eliminar esta competición?"))) return;
     const { error } = await supabase.from("competitions").delete().eq("id", id);
-    if (error) toast.error(error.message);
-    else {
-      toast.success("Competición eliminada");
+    if (error) toast.error(error.message);else
+    {
+      toast.success(tr("Competición eliminada"));
       qc.invalidateQueries({ queryKey: ["competitions"] });
     }
   };
@@ -122,57 +122,57 @@ function Dashboard() {
   const form = interpretTSB(tsb);
 
   // Proyección de CTL el día de la competición (decaimiento exponencial 42 días sin carga añadida)
-  const projectedCtl = next && daysToNext != null && daysToNext > 0
-    ? ctl * Math.exp(-daysToNext / 42) + (Number(load.data?.avg_weekly_tss_3w ?? 0) / 7) * (1 - Math.exp(-daysToNext / 42))
-    : ctl;
+  const projectedCtl = next && daysToNext != null && daysToNext > 0 ?
+  ctl * Math.exp(-daysToNext / 42) + Number(load.data?.avg_weekly_tss_3w ?? 0) / 7 * (1 - Math.exp(-daysToNext / 42)) :
+  ctl;
 
 
   // Progreso del plan de carga: días transcurridos vs ventana de plan (90 días antes de la cita)
   const PLAN_WINDOW_DAYS = 90;
-  const planProgress = next
-    ? Math.max(0, Math.min(100, ((PLAN_WINDOW_DAYS - (daysToNext ?? 0)) / PLAN_WINDOW_DAYS) * 100))
-    : 0;
+  const planProgress = next ?
+  Math.max(0, Math.min(100, (PLAN_WINDOW_DAYS - (daysToNext ?? 0)) / PLAN_WINDOW_DAYS * 100)) :
+  0;
 
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">Panel del ciclista</p>
-        <h1 className="font-display text-4xl font-bold uppercase tracking-tight mt-1">
-          Hola, <span className="text-primary italic">{profile.data?.full_name?.split(" ")[0] ?? "ciclista"}</span>
+        <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">{tr("Panel del ciclista")}</p>
+        <h1 className="font-display text-4xl font-bold uppercase tracking-tight mt-1"> {tr("Hola,")} 
+          <span className="text-primary italic">{profile.data?.full_name?.split(" ")[0] ?? "ciclista"}</span>
         </h1>
       </div>
 
-      {isRaceDay && next && (
-        <div className="rounded-xl border-2 border-primary bg-primary/10 p-6">
-          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary">Modo competición</p>
-          <h2 className="font-display text-3xl font-bold uppercase tracking-tight mt-1">Hoy compites: {next.name}</h2>
+      {isRaceDay && next &&
+      <div className="rounded-xl border-2 border-primary bg-primary/10 p-6">
+          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary">{tr("Modo competición")}</p>
+          <h2 className="font-display text-3xl font-bold uppercase tracking-tight mt-1">{tr("Hoy compites:")} {next.name}</h2>
           <div className="grid grid-cols-3 gap-3 mt-4 text-sm">
-            <div><p className="text-muted-foreground text-xs">Distancia</p><p className="font-semibold">{next.distance_km} km</p></div>
-            <div><p className="text-muted-foreground text-xs">Desnivel</p><p className="font-semibold">+{next.elevation_m} m</p></div>
-            <div><p className="text-muted-foreground text-xs">Forma (TSB)</p><p className="font-semibold">{tsb.toFixed(0)}</p></div>
+            <div><p className="text-muted-foreground text-xs">{tr("Distancia")}</p><p className="font-semibold">{next.distance_km} {tr("km")}</p></div>
+            <div><p className="text-muted-foreground text-xs">{tr("Desnivel")}</p><p className="font-semibold">+{next.elevation_m} {tr("m")}</p></div>
+            <div><p className="text-muted-foreground text-xs">{tr("Forma (TSB)")}</p><p className="font-semibold">{tsb.toFixed(0)}</p></div>
           </div>
-          <Link to="/competiciones/$id" params={{ id: next.id }} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-            Ver plan de carrera, nutrición y meteo <ChevronRight className="size-4" />
+          <Link to="/competiciones/$id" params={{ id: next.id }} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary"> {tr("Ver plan de carrera, nutrición y meteo")} 
+          <ChevronRight className="size-4" />
           </Link>
         </div>
-      )}
+      }
 
-      {ftpTest.data?.due && (
-        <div className="rounded-xl border bg-surface p-4 flex items-start gap-3">
+      {ftpTest.data?.due &&
+      <div className="rounded-xl border bg-surface p-4 flex items-start gap-3">
           <Timer className="size-4 text-primary mt-0.5 shrink-0" />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold">
               {ftpTest.data.overdue ? "Test de FTP/FC pendiente" : "Toca revisar tus umbrales"}
             </p>
             <p className="text-xs text-muted-foreground">
-              {ftpTest.data.weeks_since == null
-                ? "Aún no has registrado ningún test. Programa uno para ajustar tus zonas."
-                : `Han pasado ${ftpTest.data.weeks_since} semanas desde tu último test. Recomendado cada 6-8 semanas.`}
+              {ftpTest.data.weeks_since == null ?
+            "Aún no has registrado ningún test. Programa uno para ajustar tus zonas." :
+            `Han pasado ${ftpTest.data.weeks_since} semanas desde tu último test. Recomendado cada 6-8 semanas.`}
             </p>
           </div>
-          <Link to="/ftp-test" className="text-xs font-semibold text-primary shrink-0">Programar</Link>
+          <Link to="/ftp-test" className="text-xs font-semibold text-primary shrink-0">{tr("Programar")}</Link>
         </div>
-      )}
+      }
 
       <MaintenanceAlertsBanner />
 
@@ -185,42 +185,42 @@ function Dashboard() {
 
 
       {/* Countdown + Form */}
-      {(next || (acts.data?.length ?? 0) > 0) && (
-        <div className="grid gap-4 lg:grid-cols-2">
-          {next && (
-            <div className="bg-accent text-accent-foreground border border-accent rounded-xl p-6">
+      {(next || (acts.data?.length ?? 0) > 0) &&
+      <div className="grid gap-4 lg:grid-cols-2">
+          {next &&
+        <div className="bg-accent text-accent-foreground border border-accent rounded-xl p-6">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-accent-foreground/60 flex items-center gap-2">
-                  <Timer className="size-3.5 text-primary" /> Cuenta atrás
-                </p>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-primary">{format(new Date(next.date), "d MMM", { locale: es })}</span>
+                  <Timer className="size-3.5 text-primary" /> {tr("Cuenta atrás")} 
+            </p>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-primary">{format(new Date(next.date), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}</span>
               </div>
               <p className="font-display text-3xl font-bold uppercase tracking-tight truncate">{next.name}</p>
               <p className="font-display text-5xl font-bold mt-2">
-                <span className="text-primary">⏱ Faltan {daysToNext}</span>
+                <span className="text-primary">{tr("⏱ Faltan")} {daysToNext}</span>
                 <span className="text-2xl text-accent-foreground/60 ml-2">{daysToNext === 1 ? "día" : "días"}</span>
               </p>
               <div className="mt-5">
                 <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-accent-foreground/60 mb-1.5">
-                  <span>Plan de carga</span>
+                  <span>{tr("Plan de carga")}</span>
                   <span className="text-primary">{planProgress.toFixed(0)}%</span>
                 </div>
                 <div className="h-2 bg-accent-foreground/10 rounded-full overflow-hidden">
                   <div className="h-full bg-primary transition-all duration-500" style={{ width: `${planProgress}%` }} />
                 </div>
               </div>
-              <p className="text-[10px] font-mono uppercase tracking-widest text-accent-foreground/60 mt-3">
-                CTL proyectado el día de la cita: <span className="text-primary">{projectedCtl.toFixed(0)}</span> (hoy {ctl.toFixed(0)})
+              <p className="text-[10px] font-mono uppercase tracking-widest text-accent-foreground/60 mt-3"> {tr("CTL proyectado el día de la cita:")} 
+            <span className="text-primary">{projectedCtl.toFixed(0)}</span> {tr("(hoy")} {ctl.toFixed(0)})
               </p>
             </div>
-          )}
+        }
 
           <div className="bg-surface border rounded-xl p-6">
             <div className="flex items-center justify-between mb-3">
               <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-2">
-                <Heart className="size-3.5 text-primary" /> Estado de forma
-              </p>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Performance Manager</span>
+                <Heart className="size-3.5 text-primary" /> {tr("Estado de forma")} 
+            </p>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{tr("Performance Manager")}</span>
             </div>
             <div className="flex items-center gap-4 mt-2">
               <div className="flex flex-col gap-1.5">
@@ -233,33 +233,33 @@ function Dashboard() {
                 <p className="text-sm text-muted-foreground mt-1">{form.message}</p>
               </div>
             </div>
-            <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-4">
-              Carga {ctl.toFixed(0)} · Fatiga {atl.toFixed(0)}
+            <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-4"> {tr("Carga")} 
+            {ctl.toFixed(0)} {tr("· Fatiga")} {atl.toFixed(0)}
             </p>
           </div>
         </div>
-      )}
+      }
 
       {/* Stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard label="Próxima cita" value={next?.name ?? "—"} sub={next ? `en ${daysToNext}d` : "Sin competiciones"} icon={Trophy} accent />
-        <StatCard label="Carga (CTL)" value={ctl > 0 ? ctl.toFixed(0) : "—"} sub="42 días" icon={Flame} />
-        <StatCard label="Actividades" value={String(acts.data?.length ?? 0)} sub="últimas sincronizadas" icon={Activity} />
-        <StatCard label="Competiciones" value={String(comps.data?.length ?? 0)} sub="totales" icon={Bike} />
+        <StatCard label={tr("Próxima cita")} value={next?.name ?? "—"} sub={next ? `en ${daysToNext}d` : "Sin competiciones"} icon={Trophy} accent />
+        <StatCard label={tr("Carga (CTL)")} value={ctl > 0 ? ctl.toFixed(0) : "—"} sub="42 días" icon={Flame} />
+        <StatCard label={tr("Actividades")} value={String(acts.data?.length ?? 0)} sub="últimas sincronizadas" icon={Activity} />
+        <StatCard label={tr("Competiciones")} value={String(comps.data?.length ?? 0)} sub="totales" icon={Bike} />
       </div>
 
       {/* Competitions list */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-2xl font-bold uppercase tracking-tight">Salidas programadas</h2>
+          <h2 className="font-display text-2xl font-bold uppercase tracking-tight">{tr("Salidas programadas")}</h2>
           <Link to="/competiciones" className="text-xs font-medium text-primary hover:underline flex items-center gap-1">
-            <Plus className="size-4" /> Nueva
+            <Plus className="size-4" /> {tr("Nueva")} 
           </Link>
         </div>
-        {comps.isLoading ? (
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="bg-surface border rounded-xl p-5 space-y-3">
+        {comps.isLoading ?
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) =>
+          <div key={i} className="bg-surface border rounded-xl p-5 space-y-3">
                 <Skeleton className="h-3 w-20" />
                 <Skeleton className="h-6 w-3/4" />
                 <div className="grid grid-cols-3 gap-3 pt-3 border-t">
@@ -267,23 +267,23 @@ function Dashboard() {
                 </div>
                 <Skeleton className="h-4 w-1/2" />
               </div>
-            ))}
-          </div>
-        ) : (comps.data?.length ?? 0) === 0 ? (
-          <div className="border-2 border-dashed rounded-xl p-12 text-center">
-            <p className="text-sm text-muted-foreground mb-3">No existen salidas creadas.</p>
+          )}
+          </div> :
+        (comps.data?.length ?? 0) === 0 ?
+        <div className="border-2 border-dashed rounded-xl p-12 text-center">
+            <p className="text-sm text-muted-foreground mb-3">{tr("No existen salidas creadas.")}</p>
             <Link to="/competiciones" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold">
-              <Plus className="size-4" /> Crear primera ruta
-            </Link>
-          </div>
-        ) : (
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {comps.data!.map((c) => (
-              <div key={c.id} className="group bg-surface border rounded-xl p-5 hover:border-primary/50 transition-colors">
+              <Plus className="size-4" /> {tr("Crear primera ruta")} 
+          </Link>
+          </div> :
+
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {comps.data!.map((c) =>
+          <div key={c.id} className="group bg-surface border rounded-xl p-5 hover:border-primary/50 transition-colors">
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="min-w-0">
                     <p className="text-[10px] font-mono uppercase tracking-widest text-primary">
-                      {format(new Date(c.date), "d MMM yyyy", { locale: es })}
+                      {format(new Date(c.date), "d MMM yyyy", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}
                     </p>
                     <h3 className="font-display text-xl font-bold uppercase truncate mt-0.5">{c.name}</h3>
                   </div>
@@ -292,20 +292,20 @@ function Dashboard() {
                   </button>
                 </div>
                 <div className="grid grid-cols-3 gap-3 text-xs border-t pt-3">
-                  <div><p className="text-muted-foreground">Distancia</p><p className="font-semibold">{c.distance_km}km</p></div>
-                  <div><p className="text-muted-foreground">Desnivel</p><p className="font-semibold">+{c.elevation_m}m</p></div>
-                  <div><p className="text-muted-foreground">Tipo</p><p className="font-semibold capitalize">{c.type}</p></div>
+                  <div><p className="text-muted-foreground">{tr("Distancia")}</p><p className="font-semibold">{c.distance_km}{tr("km")}</p></div>
+                  <div><p className="text-muted-foreground">{tr("Desnivel")}</p><p className="font-semibold">+{c.elevation_m}{tr("m")}</p></div>
+                  <div><p className="text-muted-foreground">{tr("Tipo")}</p><p className="font-semibold capitalize">{c.type}</p></div>
                 </div>
-                <Link to="/competiciones/$id" params={{ id: c.id }} className="mt-4 flex items-center justify-between text-xs font-semibold text-primary">
-                  Ver plan completo <ChevronRight className="size-4" />
+                <Link to="/competiciones/$id" params={{ id: c.id }} className="mt-4 flex items-center justify-between text-xs font-semibold text-primary"> {tr("Ver plan completo")} 
+              <ChevronRight className="size-4" />
                 </Link>
               </div>
-            ))}
+          )}
           </div>
-        )}
+        }
       </section>
-    </div>
-  );
+    </div>);
+
 }
 
 function StatCard({ label, value, sub, icon: Icon, accent }: any) {
@@ -317,15 +317,15 @@ function StatCard({ label, value, sub, icon: Icon, accent }: any) {
       </div>
       <p className="font-display text-2xl font-bold truncate">{value}</p>
       <p className={`text-[10px] mt-0.5 ${accent ? "text-accent-foreground/60" : "text-muted-foreground"}`}>{sub}</p>
-    </div>
-  );
+    </div>);
+
 }
 
-function Dot({ color, on }: { color: string; on: boolean }) {
+function Dot({ color, on }: {color: string;on: boolean;}) {
   return <span className={`size-4 rounded-full ${color} transition-opacity ${on ? "opacity-100 ring-2 ring-offset-2 ring-offset-surface ring-current shadow-lg" : "opacity-20"}`} />;
 }
 
-function interpretTSB(tsb: number): { level: "green" | "yellow" | "red"; title: string; message: string } {
+function interpretTSB(tsb: number): {level: "green" | "yellow" | "red";title: string;message: string;} {
   if (tsb >= 5) return { level: "green", title: "Frescura óptima", message: "Estás descansado y listo para competir. Aprovecha." };
   if (tsb >= -10) return { level: "yellow", title: "Carga equilibrada", message: "Buen punto de entrenamiento, mantén ritmo y cuida descansos." };
   return { level: "red", title: "Sobrecarga: descansa", message: "Fatiga alta. Reduce intensidad y prioriza recuperación esta semana." };

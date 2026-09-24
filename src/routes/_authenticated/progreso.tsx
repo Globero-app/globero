@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n";
+import { tr, activeLang } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -6,11 +6,11 @@ import { getProgress, getThresholdStatus, getPowerCurve } from "@/lib/progress.f
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingUp, Zap, Mountain, Route as RouteIcon } from "lucide-react";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 import {
   ResponsiveContainer, ComposedChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend, ReferenceArea, ReferenceLine,
-  BarChart, Bar,
-} from "recharts";
+  BarChart, Bar } from
+"recharts";
 import { ThresholdCard } from "@/components/ThresholdCard";
 import { FtpHistoryChart } from "@/components/FtpHistoryChart";
 
@@ -18,14 +18,14 @@ export const Route = createFileRoute("/_authenticated/progreso")({
   component: ProgresoPage,
   head: () => ({
     meta: [
-      { title: "Progreso · CTL, TSB y curva de potencia" },
-      { name: "description", content: "Evolución de tu forma: fitness (CTL), fatiga (ATL), frescura (TSB), carga semanal y curva mean-max de potencia del último año." },
-      { property: "og:title", content: "Progreso del ciclista · CTL, TSB y potencia" },
-      { property: "og:description", content: "Sigue la evolución de tu entrenamiento con curvas de carga y tu curva de potencia." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+    { title: "Progreso · CTL, TSB y curva de potencia" },
+    { name: "description", content: "Evolución de tu forma: fitness (CTL), fatiga (ATL), frescura (TSB), carga semanal y curva mean-max de potencia del último año." },
+    { property: "og:title", content: "Progreso del ciclista · CTL, TSB y potencia" },
+    { property: "og:description", content: "Sigue la evolución de tu entrenamiento con curvas de carga y tu curva de potencia." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" }]
+
+  })
 });
 
 function ProgresoPage() {
@@ -41,34 +41,34 @@ function ProgresoPage() {
 
   const chartData = (d?.series ?? []).map((p: any) => ({
     ...p,
-    label: format(new Date(`${p.date}T12:00:00Z`), "d MMM", { locale: es }),
+    label: format(new Date(`${p.date}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] }),
     ctlReal: p.projected ? null : p.ctl,
     atlReal: p.projected ? null : p.atl,
     tsbReal: p.projected ? null : p.tsb,
     ctlProjected: p.projected || p.date === d?.projection_start ? p.ctl : null,
     atlProjected: p.projected || p.date === d?.projection_start ? p.atl : null,
-    tsbProjected: p.projected || p.date === d?.projection_start ? p.tsb : null,
+    tsbProjected: p.projected || p.date === d?.projection_start ? p.tsb : null
   }));
-  const projectionStartLabel = d?.projection_start
-    ? format(new Date(`${d.projection_start}T12:00:00Z`), "d MMM", { locale: es })
-    : undefined;
-  const projectionEndLabel = d?.projection_end
-    ? format(new Date(`${d.projection_end}T12:00:00Z`), "d MMM", { locale: es })
-    : undefined;
+  const projectionStartLabel = d?.projection_start ?
+  format(new Date(`${d.projection_start}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] }) :
+  undefined;
+  const projectionEndLabel = d?.projection_end ?
+  format(new Date(`${d.projection_end}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] }) :
+  undefined;
 
   const weeklyData = (d?.weekly ?? []).map((w: any) => ({
     ...w,
-    label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: es }),
+    label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })
   }));
 
   const adherenceData = (d?.adherence ?? []).map((w: any) => ({
     ...w,
-    label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: es }),
+    label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })
   }));
 
   const readinessData = (d?.readiness_weekly ?? []).map((w: any) => ({
     ...w,
-    label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: es }),
+    label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })
   }));
 
 
@@ -83,10 +83,10 @@ function ProgresoPage() {
 
       {th.data && <ThresholdCard status={th.data as any} />}
 
-      {q.isLoading ? (
-        <Skeleton className="h-72 w-full rounded-xl" />
-      ) : !d ? null : (
-        <>
+      {q.isLoading ?
+      <Skeleton className="h-72 w-full rounded-xl" /> :
+      !d ? null :
+      <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <Kpi label={tr("Fitness (CTL)")} value={Math.round(d.current.ctl)} sub={ctlDelta != null ? `${ctlDelta >= 0 ? "+" : ""}${ctlDelta} ${tr("en 30 días")}` : tr("42 días")} />
             <Kpi label={tr("Fatiga (ATL)")} value={Math.round(d.current.atl)} sub={tr("7 días")} />
@@ -108,16 +108,16 @@ function ProgresoPage() {
                   <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={Math.max(1, Math.floor(chartData.length / 8))} />
                   <YAxis tick={{ fontSize: 10 }} />
                   <Tooltip
-                    contentStyle={{ fontSize: 12, borderRadius: 8 }}
-                    labelFormatter={(_label, payload) => {
-                      const point = payload?.[0]?.payload;
-                      return point ? `${format(new Date(`${point.date}T12:00:00Z`), "d 'de' MMMM", { locale: es })}${point.projected ? " · Proyección" : ""}` : "";
-                    }}
-                    formatter={(value: any, name: any, item: any) => {
-                      const labels: Record<string, string> = { ctlReal: tr("Fitness (CTL)"), atlReal: tr("Fatiga (ATL)"), tsbReal: tr("Forma (TSB)"), ctlProjected: tr("Fitness (CTL)"), atlProjected: tr("Fatiga (ATL)"), tsbProjected: tr("Forma (TSB)") };
-                      return [value, labels[item?.dataKey] ?? name];
-                    }}
-                  />
+                  contentStyle={{ fontSize: 12, borderRadius: 8 }}
+                  labelFormatter={(_label, payload) => {
+                    const point = payload?.[0]?.payload;
+                    return point ? `${format(new Date(`${point.date}T12:00:00Z`), "d 'de' MMMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}${point.projected ? " · Proyección" : ""}` : "";
+                  }}
+                  formatter={(value: any, name: any, item: any) => {
+                    const labels: Record<string, string> = { ctlReal: tr("Fitness (CTL)"), atlReal: tr("Fatiga (ATL)"), tsbReal: tr("Forma (TSB)"), ctlProjected: tr("Fitness (CTL)"), atlProjected: tr("Fatiga (ATL)"), tsbProjected: tr("Forma (TSB)") };
+                    return [value, labels[item?.dataKey] ?? name];
+                  }} />
+                
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <ReferenceArea x1={projectionStartLabel} x2={projectionEndLabel} fill="var(--muted)" fillOpacity={0.45} ifOverflow="extendDomain" />
                   <ReferenceLine x={projectionStartLabel} stroke="var(--foreground)" strokeDasharray="3 3" label={{ value: tr("Hoy"), position: "insideTopRight", fontSize: 10, fill: "var(--muted-foreground)" }} />
@@ -190,8 +190,8 @@ function ProgresoPage() {
             </div>
           </section>
 
-          {readinessData.length > 0 && (
-            <section className="bg-surface border rounded-xl p-5">
+          {readinessData.length > 0 &&
+        <section className="bg-surface border rounded-xl p-5">
               <h2 className="font-display text-lg font-bold uppercase">{tr("Readiness medio semanal")}</h2>
               <div className="h-48 mt-4 -ml-4">
                 <ResponsiveContainer width="100%" height="100%">
@@ -205,7 +205,7 @@ function ProgresoPage() {
                 </ResponsiveContainer>
               </div>
             </section>
-          )}
+        }
 
           <section className="bg-surface border rounded-xl p-5">
             <h2 className="font-display text-lg font-bold uppercase flex items-center gap-2">
@@ -214,71 +214,71 @@ function ProgresoPage() {
             <p className="text-xs text-muted-foreground mt-1">
               {tr("Mejor potencia media sostenida por cada duración. Se calcula a partir de los streams de Intervals.icu tras sincronizar.")}
             </p>
-            {curve.isLoading ? (
-              <Skeleton className="h-56 w-full mt-4" />
-            ) : (curve.data ?? []).length === 0 ? (
-              <p className="text-sm text-muted-foreground mt-4">
+            {curve.isLoading ?
+          <Skeleton className="h-56 w-full mt-4" /> :
+          (curve.data ?? []).length === 0 ?
+          <p className="text-sm text-muted-foreground mt-4">
                 {tr("Aún no hay picos de potencia calculados. Sincroniza Intervals.icu y se generarán automáticamente para actividades con potenciómetro.")}
-              </p>
-            ) : (
-              <div className="h-56 mt-4 -ml-4">
+              </p> :
+
+          <div className="h-56 mt-4 -ml-4">
                 <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart data={curve.data as any[]}>
                     <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                     <XAxis dataKey="label" tick={{ fontSize: 10 }} />
                     <YAxis tick={{ fontSize: 10 }} label={{ value: "W", angle: -90, position: "insideLeft", fontSize: 10 }} />
                     <Tooltip
-                      contentStyle={{ fontSize: 12, borderRadius: 8 }}
-                      formatter={(v: any, _n, p: any) => [`${v} W${p?.payload?.wkg ? ` (${p.payload.wkg} W/kg)` : ""}`, tr("Potencia")]}
-                      labelFormatter={(_: any, p: any) => p?.[0]?.payload?.label ?? ""}
-                    />
+                  contentStyle={{ fontSize: 12, borderRadius: 8 }}
+                  formatter={(v: any, _n, p: any) => [`${v} W${p?.payload?.wkg ? ` (${p.payload.wkg} W/kg)` : ""}`, tr("Potencia")]}
+                  labelFormatter={(_: any, p: any) => p?.[0]?.payload?.label ?? ""} />
+                
                     <Line type="monotone" dataKey="watts" name={tr("Potencia media")} stroke="var(--primary)" strokeWidth={2} dot={{ r: 3 }} />
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>
-            )}
+          }
           </section>
 
           <section className="bg-surface border rounded-xl p-5">
             <h2 className="font-display text-lg font-bold uppercase flex items-center gap-2">
               <Zap className="size-4 text-primary" /> {tr("Récords de potencia (12 meses)")}
             </h2>
-            {d.prs.length === 0 ? (
-              <p className="text-sm text-muted-foreground mt-2">
+            {d.prs.length === 0 ?
+          <p className="text-sm text-muted-foreground mt-2">
                 {tr("Sin datos de potencia en tus actividades. Sincroniza Intervals.icu con un medidor de potencia para ver tus PRs.")}
-              </p>
-            ) : (
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 mt-4">
-                {d.prs.map((p: any) => (
-                  <div key={p.key} className="rounded-lg border bg-secondary/30 p-4">
+              </p> :
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 mt-4">
+                {d.prs.map((p: any) =>
+            <div key={p.key} className="rounded-lg border bg-secondary/30 p-4">
                     <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{p.label}</p>
-                    <p className="font-display text-3xl font-bold">{p.watts}<span className="text-base ml-1">W</span></p>
-                    {p.wkg && <p className="text-xs text-primary font-mono">{p.wkg} W/kg</p>}
+                    <p className="font-display text-3xl font-bold">{p.watts}<span className="text-base ml-1">{tr("W")}</span></p>
+                    {p.wkg && <p className="text-xs text-primary font-mono">{p.wkg} {tr("W/kg")}</p>}
                     <p className="text-[11px] text-muted-foreground mt-1 truncate">{p.activity}</p>
                     <p className="text-[10px] font-mono text-muted-foreground">{p.date}</p>
                   </div>
-                ))}
-              </div>
             )}
+              </div>
+          }
             <div className="grid gap-3 sm:grid-cols-2 mt-4">
-              {d.records.longest_km != null && (
-                <div className="flex items-center gap-3 rounded-lg border p-3">
+              {d.records.longest_km != null &&
+            <div className="flex items-center gap-3 rounded-lg border p-3">
                   <RouteIcon className="size-4 text-primary" />
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold">{d.records.longest_km} km</p>
-                    <p className="text-[11px] text-muted-foreground truncate">Salida más larga · {d.records.longest_name}</p>
+                    <p className="text-sm font-semibold">{d.records.longest_km} {tr("km")}</p>
+                    <p className="text-[11px] text-muted-foreground truncate">{tr("Salida más larga ·")} {d.records.longest_name}</p>
                   </div>
                 </div>
-              )}
-              {d.records.elevation_m != null && (
-                <div className="flex items-center gap-3 rounded-lg border p-3">
+            }
+              {d.records.elevation_m != null &&
+            <div className="flex items-center gap-3 rounded-lg border p-3">
                   <Mountain className="size-4 text-primary" />
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold">{d.records.elevation_m} m</p>
-                    <p className="text-[11px] text-muted-foreground truncate">Más desnivel · {d.records.elevation_name}</p>
+                    <p className="text-sm font-semibold">{d.records.elevation_m} {tr("m")}</p>
+                    <p className="text-[11px] text-muted-foreground truncate">{tr("Más desnivel ·")} {d.records.elevation_name}</p>
                   </div>
                 </div>
-              )}
+            }
             </div>
           </section>
 
@@ -286,21 +286,21 @@ function ProgresoPage() {
             {tr("¿Quieres ajustar la sesión de hoy? Hazlo desde el")} <Link to="/app" className="text-primary hover:underline">{tr("panel")}</Link>.
           </p>
         </>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }
 
 function tsbLabel(tsb: number) {
   return tsb > 10 ? tr("Fresco") : tsb > -10 ? tr("Equilibrado") : tsb > -25 ? tr("Cargado") : tr("Muy fatigado");
 }
 
-function Kpi({ label, value, sub }: { label: string; value: number | string; sub?: string }) {
+function Kpi({ label, value, sub }: {label: string;value: number | string;sub?: string;}) {
   return (
     <div className="bg-surface border rounded-xl p-4">
       <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">{label}</p>
       <p className="font-display text-3xl font-bold mt-1">{value}</p>
       {sub && <p className="text-[11px] text-muted-foreground">{sub}</p>}
-    </div>
-  );
+    </div>);
+
 }

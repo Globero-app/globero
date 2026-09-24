@@ -1,6 +1,6 @@
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
+import { tr, activeLang } from "@/lib/i18n";import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { Gauge } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
@@ -12,10 +12,10 @@ export interface FtpTestPoint {
   source?: string;
 }
 
-export function FtpHistoryChart({ history, weightKg }: { history: FtpTestPoint[]; weightKg?: number | null }) {
+export function FtpHistoryChart({ history, weightKg }: {history: FtpTestPoint[];weightKg?: number | null;}) {
   const data = (history ?? []).map((t) => ({
     ...t,
-    label: format(new Date(`${t.date}T12:00:00Z`), "d MMM", { locale: es }),
+    label: format(new Date(`${t.date}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })
   }));
 
   const last = data[data.length - 1];
@@ -25,18 +25,18 @@ export function FtpHistoryChart({ history, weightKg }: { history: FtpTestPoint[]
   return (
     <section className="bg-surface border rounded-xl p-4 sm:p-5">
       <h2 className="font-display text-lg font-bold uppercase flex items-center gap-2">
-        <Gauge className="size-4 text-primary" /> Tests de FTP
+        <Gauge className="size-4 text-primary" /> {tr("Tests de FTP")} 
       </h2>
-      {data.length === 0 ? (
-        <p className="text-sm text-muted-foreground mt-2">
-          Aún no has registrado ningún test.{" "}
-          <Link to="/ftp-test" className="underline font-semibold">Hacer el test de 20 min →</Link>
-        </p>
-      ) : (
-        <>
-          <p className="text-xs text-muted-foreground mt-1">
-            Último test: <strong>{last?.ftp ?? "—"} W</strong>
-            {weightKg && last?.ftp ? ` · ${Math.round((last.ftp / weightKg) * 100) / 100} W/kg` : ""}
+      {data.length === 0 ?
+      <p className="text-sm text-muted-foreground mt-2"> {tr("Aún no has registrado ningún test.")}
+        {" "}
+          <Link to="/ftp-test" className="underline font-semibold">{tr("Hacer el test de 20 min →")}</Link>
+        </p> :
+
+      <>
+          <p className="text-xs text-muted-foreground mt-1"> {tr("Último test:")} 
+          <strong>{last?.ftp ?? "—"} {tr("W")}</strong>
+            {weightKg && last?.ftp ? ` · ${Math.round(last.ftp / weightKg * 100) / 100} W/kg` : ""}
             {delta != null ? ` · ${delta >= 0 ? "+" : ""}${delta} W respecto al anterior` : ""}
             {last?.lthr ? ` · LTHR ${last.lthr} ppm` : ""}
           </p>
@@ -53,11 +53,11 @@ export function FtpHistoryChart({ history, weightKg }: { history: FtpTestPoint[]
               </LineChart>
             </ResponsiveContainer>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-2">
-            Cada test actualiza tus zonas y la IA planifica los siguientes entrenamientos con el nuevo umbral.
-          </p>
+          <p className="text-[11px] text-muted-foreground mt-2"> {tr("Cada test actualiza tus zonas y la IA planifica los siguientes entrenamientos con el nuevo umbral.")} 
+
+        </p>
         </>
-      )}
-    </section>
-  );
+      }
+    </section>);
+
 }

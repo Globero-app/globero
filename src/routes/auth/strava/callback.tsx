@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { tr } from "@/lib/i18n";import { createFileRoute } from "@tanstack/react-router";
 
 const APP_ORIGIN = "https://globero.app";
 
@@ -42,13 +42,13 @@ export const Route = createFileRoute("/auth/strava/callback")({
           new TextEncoder().encode(stateSecret),
           { name: "HMAC", hash: "SHA-256" },
           false,
-          ["sign"],
+          ["sign"]
         );
         const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
-        const expectedSignature = btoa(String.fromCharCode(...new Uint8Array(signature)))
-          .replaceAll("+", "-")
-          .replaceAll("/", "_")
-          .replaceAll("=", "");
+        const expectedSignature = btoa(String.fromCharCode(...new Uint8Array(signature))).
+        replaceAll("+", "-").
+        replaceAll("/", "_").
+        replaceAll("=", "");
         if (!signaturesMatch(suppliedSignature, expectedSignature)) {
           return redirectToProfile("error", "invalid_state");
         }
@@ -64,8 +64,8 @@ export const Route = createFileRoute("/auth/strava/callback")({
             client_id: clientId,
             client_secret: clientSecret,
             code,
-            grant_type: "authorization_code",
-          }),
+            grant_type: "authorization_code"
+          })
         });
         if (!response.ok) {
           console.error(`Strava OAuth token exchange failed with status ${response.status}`);
@@ -76,45 +76,45 @@ export const Route = createFileRoute("/auth/strava/callback")({
           access_token?: string;
           refresh_token?: string;
           expires_at?: number;
-          athlete?: { id?: string | number };
+          athlete?: {id?: string | number;};
         };
         if (!token.access_token) return redirectToProfile("error", "invalid_response");
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { error } = await supabaseAdmin
-          .from("profiles")
-          .update({
-            strava_athlete_id: token.athlete?.id != null ? Number(token.athlete.id) : null,
-            strava_access_token: token.access_token,
-            strava_refresh_token: token.refresh_token ?? null,
-            strava_token_expires_at: token.expires_at ? new Date(token.expires_at * 1000).toISOString() : null,
-          })
-          .eq("id", userId);
+        const { error } = await supabaseAdmin.
+        from("profiles").
+        update({
+          strava_athlete_id: token.athlete?.id != null ? Number(token.athlete.id) : null,
+          strava_access_token: token.access_token,
+          strava_refresh_token: token.refresh_token ?? null,
+          strava_token_expires_at: token.expires_at ? new Date(token.expires_at * 1000).toISOString() : null
+        }).
+        eq("id", userId);
         if (error) {
           console.error(`Strava OAuth profile update failed: ${error.message}`);
           return redirectToProfile("error", "profile_update");
         }
         return redirectToProfile("success");
-      },
-    },
+      }
+    }
   },
   component: StravaCallback,
   head: () => ({
     meta: [
-      { title: "Vinculando Strava · Globero IA" },
-      { name: "description", content: "Finalizando la conexión de tu cuenta de Strava con Globero IA." },
-      { property: "og:title", content: "Vinculando Strava · Globero IA" },
-      { property: "og:description", content: "Finalizando la conexión de tu cuenta de Strava con Globero IA." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+    { title: "Vinculando Strava · Globero IA" },
+    { name: "description", content: "Finalizando la conexión de tu cuenta de Strava con Globero IA." },
+    { property: "og:title", content: "Vinculando Strava · Globero IA" },
+    { property: "og:description", content: "Finalizando la conexión de tu cuenta de Strava con Globero IA." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" }]
+
+  })
 });
 
 function StravaCallback() {
   return (
     <div className="min-h-[60vh] grid place-items-center p-8">
-      <p className="text-sm text-muted-foreground">Vinculando tu cuenta de Strava…</p>
-    </div>
-  );
+      <p className="text-sm text-muted-foreground">{tr("Vinculando tu cuenta de Strava…")}</p>
+    </div>);
+
 }

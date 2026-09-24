@@ -25,7 +25,7 @@ import { COUNTRIES } from "@/lib/countries";
 
 
 export const Route = createFileRoute("/_authenticated/perfil")({
-  component: PerfilPage,
+  component: PerfilPage
 });
 
 function PerfilPage() {
@@ -42,11 +42,11 @@ function PerfilPage() {
       const { data } = await supabase.from("profiles").select("*").eq("id", user!.id).maybeSingle();
       return data;
     },
-    enabled: !!user,
+    enabled: !!user
   });
 
   const [form, setForm] = useState<any>({});
-  useEffect(() => { if (profileQ.data) setForm(profileQ.data); }, [profileQ.data]);
+  useEffect(() => {if (profileQ.data) setForm(profileQ.data);}, [profileQ.data]);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const status = params.get("intervals");
@@ -95,23 +95,23 @@ function PerfilPage() {
       weather_wind_threshold_kmh: form.weather_wind_threshold_kmh != null && form.weather_wind_threshold_kmh !== "" ? Number(form.weather_wind_threshold_kmh) : 25,
       notify_weather_alerts: form.notify_weather_alerts ?? true,
       // Fuerza volver a localizar si cambia la población o el país
-      ...(form.location_city !== profileQ.data?.location_city || (form.country || "ES") !== profileQ.data?.country
-        ? { location_lat: null, location_lon: null, location_resolved: null }
-        : {}),
+      ...(form.location_city !== profileQ.data?.location_city || (form.country || "ES") !== profileQ.data?.country ?
+      { location_lat: null, location_lon: null, location_resolved: null } :
+      {}),
 
       dietary_preferences: form.dietary_preferences,
       readiness_push_enabled: form.readiness_push_enabled ?? true,
-      readiness_push_hour: form.readiness_push_hour != null && form.readiness_push_hour !== "" ? Number(form.readiness_push_hour) : 7,
+      readiness_push_hour: form.readiness_push_hour != null && form.readiness_push_hour !== "" ? Number(form.readiness_push_hour) : 7
     }, { onConflict: "id" });
-    if (error) toast.error(error.message);
-    else {
+    if (error) toast.error(error.message);else
+    {
       toast.success(tr("Perfil guardado"));
       qc.invalidateQueries({ queryKey: ["profile"] });
       if (profileQ.data?.intervals_athlete_id && profileQ.data?.intervals_api_key) {
         try {
           const r = await syncZonesIcu({ data: undefined });
           if (r.ok) toast.success(tr("Zonas sincronizadas con Intervals.icu"));
-        } catch (err: any) { toast.error(`Intervals.icu: ${err.message}`); }
+        } catch (err: any) {toast.error(`Intervals.icu: ${err.message}`);}
       }
     }
   };
@@ -127,43 +127,43 @@ function PerfilPage() {
 
       <form onSubmit={save} className="grid lg:grid-cols-2 gap-6">
         <Section title={tr("Datos personales")}>
-          <Field label={tr("Nombre completo")}><input className="input" value={form.full_name ?? ""} onChange={(e) => setForm({...form, full_name: e.target.value})} /></Field>
+          <Field label={tr("Nombre completo")}><input className="input" value={form.full_name ?? ""} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label={tr("Edad")}><input type="number" className="input" value={form.age ?? ""} onChange={(e) => setForm({...form, age: e.target.value})} /></Field>
+            <Field label={tr("Edad")}><input type="number" className="input" value={form.age ?? ""} onChange={(e) => setForm({ ...form, age: e.target.value })} /></Field>
             <Field label={tr("Sexo")}>
-              <select className="input" value={form.gender ?? ""} onChange={(e) => setForm({...form, gender: e.target.value})}>
+              <select className="input" value={form.gender ?? ""} onChange={(e) => setForm({ ...form, gender: e.target.value })}>
                 <option value="">—</option><option value="masculino">{tr("Masculino")}</option><option value="femenino">{tr("Femenino")}</option>
               </select>
             </Field>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Field label={tr("Peso (kg)")}><input type="number" step="0.1" className="input" value={form.weight_kg ?? ""} onChange={(e) => setForm({...form, weight_kg: e.target.value})} /></Field>
-            <Field label={tr("Altura (cm)")}><input type="number" className="input" value={form.height_cm ?? ""} onChange={(e) => setForm({...form, height_cm: e.target.value})} /></Field>
+            <Field label={tr("Peso (kg)")}><input type="number" step="0.1" className="input" value={form.weight_kg ?? ""} onChange={(e) => setForm({ ...form, weight_kg: e.target.value })} /></Field>
+            <Field label={tr("Altura (cm)")}><input type="number" className="input" value={form.height_cm ?? ""} onChange={(e) => setForm({ ...form, height_cm: e.target.value })} /></Field>
           </div>
-          <Field label="FTP (W)">
+          <Field label={tr("FTP (W)")}>
             <div className="flex gap-2">
-              <input type="number" className="input" value={form.ftp ?? ""} onChange={(e) => setForm({...form, ftp: e.target.value})} />
-              {!!icuConnected && (
-                <button
-                  type="button"
-                  title={tr("Estimar FTP automáticamente desde tus actividades de Intervals.icu")}
-                  onClick={async () => {
-                    try {
-                      const r = await estimateFtp({ data: undefined });
-                      setForm((f: any) => ({ ...f, ftp: r.ftp }));
-                      toast.success(`FTP estimado: ${r.ftp} W`);
-                      qc.invalidateQueries({ queryKey: ["profile"] });
-                    } catch (e: any) { toast.error(e.message); }
-                  }}
-                  className="shrink-0 inline-flex items-center gap-1 px-3 rounded-lg border bg-surface text-xs font-semibold hover:bg-muted"
-                >
-                  <Wand2 className="size-3.5" /> Auto
-                </button>
-              )}
+              <input type="number" className="input" value={form.ftp ?? ""} onChange={(e) => setForm({ ...form, ftp: e.target.value })} />
+              {!!icuConnected &&
+              <button
+                type="button"
+                title={tr("Estimar FTP automáticamente desde tus actividades de Intervals.icu")}
+                onClick={async () => {
+                  try {
+                    const r = await estimateFtp({ data: undefined });
+                    setForm((f: any) => ({ ...f, ftp: r.ftp }));
+                    toast.success(`FTP estimado: ${r.ftp} W`);
+                    qc.invalidateQueries({ queryKey: ["profile"] });
+                  } catch (e: any) {toast.error(e.message);}
+                }}
+                className="shrink-0 inline-flex items-center gap-1 px-3 rounded-lg border bg-surface text-xs font-semibold hover:bg-muted">
+                
+                  <Wand2 className="size-3.5" /> {tr("Auto")} 
+              </button>
+              }
             </div>
-            {!!icuConnected && (
-              <p className="mt-1 text-[10px] text-muted-foreground">{tr("Se calcula desde tus actividades de Intervals.icu con potencia. Puedes modificarlo manualmente.")}</p>
-            )}
+            {!!icuConnected &&
+            <p className="mt-1 text-[10px] text-muted-foreground">{tr("Se calcula desde tus actividades de Intervals.icu con potencia. Puedes modificarlo manualmente.")}</p>
+            }
             <div className="mt-2">
               <Link to="/ftp-test" className="text-xs font-semibold text-primary hover:underline">
                 {tr("¿No conoces tu FTP? Hacer el test guiado de 20 min →")}
@@ -174,8 +174,8 @@ function PerfilPage() {
               lthr={form.lthr ? Number(form.lthr) : null}
               maxHr={form.max_hr ? Number(form.max_hr) : null}
               mode={form.zones_display_mode || "watts"}
-              onModeChange={(m) => setForm({ ...form, zones_display_mode: m })}
-            />
+              onModeChange={(m) => setForm({ ...form, zones_display_mode: m })} />
+            
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label={tr("FC máx (bpm)")}>
@@ -188,33 +188,33 @@ function PerfilPage() {
                     return { ...f, max_hr: v, lthr: auto };
                   });
                 }} />
-                {!!icuConnected && (
-                  <button
-                    type="button"
-                    title={tr("Estimar FC máx y LTHR desde tus actividades de Intervals.icu")}
-                    onClick={async () => {
-                      try {
-                        const r = await estimateHr({ data: undefined });
-                        setForm((f: any) => ({ ...f, max_hr: r.max_hr ?? f.max_hr, lthr: r.lthr ?? f.lthr }));
-                        toast.success(`FC máx: ${r.max_hr ?? "—"} bpm · LTHR: ${r.lthr ?? "—"} bpm`);
-                        qc.invalidateQueries({ queryKey: ["profile"] });
-                      } catch (e: any) { toast.error(e.message); }
-                    }}
-                    className="shrink-0 inline-flex items-center gap-1 px-3 rounded-lg border bg-surface text-xs font-semibold hover:bg-muted"
-                  >
-                    <Wand2 className="size-3.5" /> Auto
-                  </button>
-                )}
+                {!!icuConnected &&
+                <button
+                  type="button"
+                  title={tr("Estimar FC máx y LTHR desde tus actividades de Intervals.icu")}
+                  onClick={async () => {
+                    try {
+                      const r = await estimateHr({ data: undefined });
+                      setForm((f: any) => ({ ...f, max_hr: r.max_hr ?? f.max_hr, lthr: r.lthr ?? f.lthr }));
+                      toast.success(`FC máx: ${r.max_hr ?? "—"} bpm · LTHR: ${r.lthr ?? "—"} bpm`);
+                      qc.invalidateQueries({ queryKey: ["profile"] });
+                    } catch (e: any) {toast.error(e.message);}
+                  }}
+                  className="shrink-0 inline-flex items-center gap-1 px-3 rounded-lg border bg-surface text-xs font-semibold hover:bg-muted">
+                  
+                    <Wand2 className="size-3.5" /> {tr("Auto")} 
+                </button>
+                }
               </div>
             </Field>
             <Field label={tr("Umbral FC / LTHR (bpm)")}>
-              <input type="number" className="input" placeholder="≈ 92% FCmáx" value={form.lthr ?? ""} onChange={(e) => setForm({ ...form, lthr: e.target.value })} />
+              <input type="number" className="input" placeholder={tr("≈ 92% FCmáx")} value={form.lthr ?? ""} onChange={(e) => setForm({ ...form, lthr: e.target.value })} />
             </Field>
           </div>
           <p className="text-[11px] text-muted-foreground">
-            {icuConnected
-              ? "Se calculan automáticamente desde tus actividades de Intervals.icu con pulsómetro (FC máx registrada y LTHR = mejor FC media de 20' × 0,95). Puedes modificarlos manualmente."
-              : "LTHR = FC media del último 20' del test FTP × 0,95. Si no lo indicas, se estima como 92 % de tu FC máx."}
+            {icuConnected ?
+            "Se calculan automáticamente desde tus actividades de Intervals.icu con pulsómetro (FC máx registrada y LTHR = mejor FC media de 20' × 0,95). Puedes modificarlos manualmente." :
+            "LTHR = FC media del último 20' del test FTP × 0,95. Si no lo indicas, se estima como 92 % de tu FC máx."}
           </p>
         </Section>
 
@@ -222,7 +222,7 @@ function PerfilPage() {
           <Field label={tr("Tipo de ciclista")}>
             <select className="input" value={form.cyclist_type ?? "mixto"} onChange={(e) => setForm({ ...form, cyclist_type: e.target.value })}>
               <option value="mixto">{tr("Mixto / sin definir")}</option>
-              <option value="sprinter">Sprinter</option>
+              <option value="sprinter">{tr("Sprinter")}</option>
               <option value="rodador">{tr("Rodador")}</option>
               <option value="escalador">{tr("Escalador")}</option>
               <option value="contrarrelojista">{tr("Contrarrelojista")}</option>
@@ -250,9 +250,9 @@ function PerfilPage() {
             </Field>
             <Field label={tr("País")}>
               <select className="input" value={form.country ?? "ES"} onChange={(e) => setForm({ ...form, country: e.target.value })}>
-                {COUNTRIES.map((c) => (
-                  <option key={c.code} value={c.code}>{c.name}</option>
-                ))}
+                {COUNTRIES.map((c) =>
+                <option key={c.code} value={c.code}>{c.name}</option>
+                )}
               </select>
             </Field>
           </div>
@@ -265,8 +265,8 @@ function PerfilPage() {
               <input
                 type="checkbox"
                 checked={form.weather_auto_indoor ?? true}
-                onChange={(e) => setForm({ ...form, weather_auto_indoor: e.target.checked })}
-              />
+                onChange={(e) => setForm({ ...form, weather_auto_indoor: e.target.checked })} />
+              
               <span>{tr("Sugerir rodillo en mal tiempo")}</span>
             </label>
           </div>
@@ -274,8 +274,8 @@ function PerfilPage() {
             <input
               type="checkbox"
               checked={form.notify_weather_alerts ?? true}
-              onChange={(e) => setForm({ ...form, notify_weather_alerts: e.target.checked })}
-            />
+              onChange={(e) => setForm({ ...form, notify_weather_alerts: e.target.checked })} />
+            
             <span>{tr("Avisarme cada mañana si hay alerta o mal tiempo")}</span>
           </label>
           <p className="text-[11px] text-muted-foreground">
@@ -285,7 +285,7 @@ function PerfilPage() {
 
         <Section title={tr("Nutrición")}>
           <Field label={tr("Preferencias / intolerancias")}>
-            <textarea className="input min-h-[80px]" placeholder={tr("Vegano, intolerancia lactosa, sin gluten…")} value={form.dietary_preferences ?? ""} onChange={(e) => setForm({...form, dietary_preferences: e.target.value})} />
+            <textarea className="input min-h-[80px]" placeholder={tr("Vegano, intolerancia lactosa, sin gluten…")} value={form.dietary_preferences ?? ""} onChange={(e) => setForm({ ...form, dietary_preferences: e.target.value })} />
           </Field>
           <p className="text-[11px] text-muted-foreground">{tr("Se tienen en cuenta siempre en el plan semanal y en el plan de competición (se adapta 5 días antes de cada carrera).")}</p>
         </Section>
@@ -311,26 +311,26 @@ function PerfilPage() {
 
 
         <Section title={tr("Readiness diario")} className="lg:col-span-2">
-          <p className="text-sm text-muted-foreground">
-            Cada día recibirás un Push preguntándote cómo te encuentras (1 Nada preparado · 2 Paseo relajado · 3 Entreno normal · 4 Entreno exigente · 5 Dar lo máximo). La IA adaptará el entrenamiento de ese día según tu respuesta; si respondes 1, te sugerirá eliminarlo.
+          <p className="text-sm text-muted-foreground"> {tr("Cada día recibirás un Push preguntándote cómo te encuentras (1 Nada preparado · 2 Paseo relajado · 3 Entreno normal · 4 Entreno exigente · 5 Dar lo máximo). La IA adaptará el entrenamiento de ese día según tu respuesta; si respondes 1, te sugerirá eliminarlo.")} 
+
           </p>
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={form.readiness_push_enabled ?? true}
-              onChange={(e) => setForm({ ...form, readiness_push_enabled: e.target.checked })}
-            />
+              onChange={(e) => setForm({ ...form, readiness_push_enabled: e.target.checked })} />
+            
             <span>{tr("Recibir Push diario de Readiness")}</span>
           </label>
           <Field label={tr("Hora del Push (Europa / España peninsular)")}>
             <select
               className="input"
               value={form.readiness_push_hour ?? 7}
-              onChange={(e) => setForm({ ...form, readiness_push_hour: e.target.value })}
-            >
-              {Array.from({ length: 24 }, (_, h) => (
-                <option key={h} value={h}>{String(h).padStart(2, "0")}:00</option>
-              ))}
+              onChange={(e) => setForm({ ...form, readiness_push_hour: e.target.value })}>
+              
+              {Array.from({ length: 24 }, (_, h) =>
+              <option key={h} value={h}>{String(h).padStart(2, "0")}:00</option>
+              )}
             </select>
           </Field>
           <p className="text-[11px] text-muted-foreground">
@@ -348,7 +348,6 @@ function PerfilPage() {
       <DeleteAccountSection />
 
       <style>{`.input{width:100%;padding:.55rem .75rem;border-radius:.5rem;border:1px solid var(--border);background:var(--surface);font-size:.875rem;outline:none}.input:focus{box-shadow:0 0 0 2px var(--ring)}`}</style>
-    </div>
-  );
-}
+    </div>);
 
+}

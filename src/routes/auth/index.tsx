@@ -1,4 +1,4 @@
-import darkLogo from "@/assets/globero-dark.jpg.asset.json";
+import { tr } from "@/lib/i18n";import darkLogo from "@/assets/globero-dark.jpg.asset.json";
 import { BrandLogo } from "@/components/BrandLogo";
 import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/auth/")({
     const { data } = await supabase.auth.getUser();
     if (data.user) throw redirect({ to: "/app" });
   },
-  component: AuthPage,
+  component: AuthPage
 });
 
 function AuthPage() {
@@ -20,7 +20,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [notice, setNotice] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+  const [notice, setNotice] = useState<{kind: "ok" | "error";text: string;} | null>(null);
 
   useEffect(() => {
     const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
@@ -68,12 +68,12 @@ function AuthPage() {
           <img src={darkLogo.url} alt="Globero" className="h-20 w-auto object-contain" />
         </div>
         <div className="relative space-y-4 max-w-md">
-          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary">Gestión del equipo</p>
-          <h1 className="font-display text-5xl font-bold uppercase italic leading-none">
-            Entrena.<br />Compite.<br /><span className="text-primary">Recupera.</span>
+          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary">{tr("Gestión del equipo")}</p>
+          <h1 className="font-display text-5xl font-bold uppercase italic leading-none"> {tr("Entrena.")}
+            <br />{tr("Compite.")}<br /><span className="text-primary">{tr("Recupera.")}</span>
           </h1>
-          <p className="text-sm text-accent-foreground/70 max-w-sm">
-            Plataforma de IA para ciclistas: planificación nutricional con IA, análisis de Intervals.icu y planes GPX con waypoints de carbohidratos.
+          <p className="text-sm text-accent-foreground/70 max-w-sm"> {tr("Plataforma de IA para ciclistas: planificación nutricional con IA, análisis de Intervals.icu y planes GPX con waypoints de carbohidratos.")} 
+
           </p>
         </div>
         <div className="relative text-[10px] uppercase tracking-widest text-accent-foreground/40">
@@ -88,52 +88,52 @@ function AuthPage() {
             <BrandLogo className="h-14 w-auto" />
           </div>
           <div className="space-y-1">
-            <h2 className="font-display text-3xl font-bold uppercase tracking-tight">Iniciar sesión</h2>
-            <p className="text-sm text-muted-foreground">Accede a tu panel del equipo.</p>
+            <h2 className="font-display text-3xl font-bold uppercase tracking-tight">{tr("Iniciar sesión")}</h2>
+            <p className="text-sm text-muted-foreground">{tr("Accede a tu panel del equipo.")}</p>
           </div>
-          {notice && (
-            <div className={`rounded-lg border p-3 text-xs ${notice.kind === "ok" ? "border-primary/40 bg-primary/10 text-primary" : "border-destructive/40 bg-destructive/10 text-destructive"}`}>
+          {notice &&
+          <div className={`rounded-lg border p-3 text-xs ${notice.kind === "ok" ? "border-primary/40 bg-primary/10 text-primary" : "border-destructive/40 bg-destructive/10 text-destructive"}`}>
               {notice.text}
             </div>
-          )}
+          }
           <div className="space-y-3">
             <div>
               <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</label>
               <input
                 type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 w-full px-4 py-2.5 rounded-lg border bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="tucorreo@ejemplo.com"
-              />
+                placeholder={tr("tucorreo@ejemplo.com")} />
+              
             </div>
             <div>
-              <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Contraseña</label>
+              <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{tr("Contraseña")}</label>
               <input
                 type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 w-full px-4 py-2.5 rounded-lg border bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="••••••••"
-              />
+                placeholder="••••••••" />
+              
             </div>
           </div>
           <button
             type="submit" disabled={loading}
-            className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
-          >
+            className="w-full bg-primary text-primary-foreground py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 disabled:opacity-50 transition-opacity">
+            
             {loading ? "Entrando…" : "Entrar"}
           </button>
           <div className="space-y-2 text-center">
             <p className="text-xs text-muted-foreground">
-              <Link to="/recuperar" className="text-primary underline">¿Olvidaste tu contraseña?</Link>
+              <Link to="/recuperar" className="text-primary underline">{tr("¿Olvidaste tu contraseña?")}</Link>
             </p>
-            <p className="text-xs text-muted-foreground">
-              ¿No tienes cuenta? <Link to="/registro" className="text-primary underline">Date de alta</Link>
+            <p className="text-xs text-muted-foreground"> {tr("¿No tienes cuenta?")} 
+              <Link to="/registro" className="text-primary underline">{tr("Date de alta")}</Link>
             </p>
             <p className="text-[11px] text-muted-foreground">
-              <Link to="/" className="hover:underline">Inicio</Link> · <Link to="/privacidad" className="hover:underline">Política de Privacidad</Link>
+              <Link to="/" className="hover:underline">{tr("Inicio")}</Link> · <Link to="/privacidad" className="hover:underline">{tr("Política de Privacidad")}</Link>
             </p>
           </div>
 
         </form>
       </div>
-    </div>
-  );
+    </div>);
+
 }

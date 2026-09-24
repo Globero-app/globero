@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { tr } from "@/lib/i18n";import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getPendingActivityFeedback, saveActivityFeedback } from "@/lib/activity-feedback.functions";
@@ -23,7 +23,7 @@ export function ActivityFeedbackPrompt() {
     queryFn: () => pendingFn({ data: undefined }) as any,
     enabled: !loading && !!user,
     retry: false,
-    refetchInterval: 5 * 60 * 1000,
+    refetchInterval: 5 * 60 * 1000
   });
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export function ActivityFeedbackPrompt() {
     setBusy(true);
     try {
       await saveFn({ data: { activity_id: String(pending.activity_id), rpe, feel } });
-      toast.success("Valoración guardada");
+      toast.success(tr("Valoración guardada"));
       setOpen(false);
       qc.invalidateQueries({ queryKey: ["activity-feedback-pending"] });
     } catch (e: any) {
@@ -52,46 +52,46 @@ export function ActivityFeedbackPrompt() {
         <div className="flex items-center gap-3">
           <Bike className="size-7 text-primary" />
           <div>
-            <h2 className="font-display text-xl font-bold uppercase tracking-tight">Entrenamiento detectado</h2>
-            <p className="text-xs text-muted-foreground">{pending.date} · Valora tu esfuerzo</p>
+            <h2 className="font-display text-xl font-bold uppercase tracking-tight">{tr("Entrenamiento detectado")}</h2>
+            <p className="text-xs text-muted-foreground">{pending.date} {tr("· Valora tu esfuerzo")}</p>
           </div>
         </div>
 
         <div>
-          <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-2">RPE (1-10)</p>
+          <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-2">{tr("RPE (1-10)")}</p>
           <div className="grid grid-cols-10 gap-1">
-            {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-              <button key={n} type="button" onClick={() => setRpe(n)}
-                className={`py-2 rounded-md border text-xs font-bold ${rpe === n ? "bg-primary text-primary-foreground border-primary" : "hover:bg-muted"}`}>
+            {Array.from({ length: 10 }, (_, i) => i + 1).map((n) =>
+            <button key={n} type="button" onClick={() => setRpe(n)}
+            className={`py-2 rounded-md border text-xs font-bold ${rpe === n ? "bg-primary text-primary-foreground border-primary" : "hover:bg-muted"}`}>
                 {n}
               </button>
-            ))}
+            )}
           </div>
         </div>
 
         <div>
-          <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-2">Sensaciones (1-5)</p>
+          <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-2">{tr("Sensaciones (1-5)")}</p>
           <div className="grid grid-cols-5 gap-1">
-            {FEEL.map((label, i) => (
-              <button key={label} type="button" onClick={() => setFeel(i + 1)}
-                className={`py-2 rounded-md border text-[10px] font-semibold ${feel === i + 1 ? "bg-primary text-primary-foreground border-primary" : "hover:bg-muted"}`}>
+            {FEEL.map((label, i) =>
+            <button key={label} type="button" onClick={() => setFeel(i + 1)}
+            className={`py-2 rounded-md border text-[10px] font-semibold ${feel === i + 1 ? "bg-primary text-primary-foreground border-primary" : "hover:bg-muted"}`}>
                 {i + 1}
                 <span className="block font-normal opacity-80">{label}</span>
               </button>
-            ))}
+            )}
           </div>
         </div>
 
         <div className="flex gap-2">
           <button type="button" onClick={submit} disabled={busy}
-            className="flex-1 bg-primary text-primary-foreground py-2.5 rounded-lg font-semibold text-sm disabled:opacity-60">
+          className="flex-1 bg-primary text-primary-foreground py-2.5 rounded-lg font-semibold text-sm disabled:opacity-60">
             {busy ? "Guardando…" : "Guardar y enviar a Intervals.icu"}
           </button>
-          <button type="button" onClick={() => setOpen(false)} className="px-3 rounded-lg border text-xs font-semibold">
-            Ahora no
+          <button type="button" onClick={() => setOpen(false)} className="px-3 rounded-lg border text-xs font-semibold"> {tr("Ahora no")} 
+
           </button>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }

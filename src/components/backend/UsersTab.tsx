@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { tr } from "@/lib/i18n";import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -25,10 +25,10 @@ export function UsersTab() {
     e.preventDefault();
     try {
       await create({ data: f });
-      toast.success("Usuario creado");
-      setOpen(false); setF({ email: "", password: "", full_name: "", role: "user" });
+      toast.success(tr("Usuario creado"));
+      setOpen(false);setF({ email: "", password: "", full_name: "", role: "user" });
       qc.invalidateQueries({ queryKey: ["all_users"] });
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {toast.error(e.message);}
   };
 
   const toggleRole = async (uid: string, current: string[]) => {
@@ -39,16 +39,16 @@ export function UsersTab() {
   };
 
   const remove = async (uid: string) => {
-    if (!confirm("¿Eliminar usuario? Sus datos se perderán.")) return;
-    try { await del({ data: { userId: uid } }); toast.success("Eliminado"); qc.invalidateQueries({ queryKey: ["all_users"] }); }
-    catch (e: any) { toast.error(e.message); }
+    if (!confirm(tr("¿Eliminar usuario? Sus datos se perderán."))) return;
+    try {await del({ data: { userId: uid } });toast.success("Eliminado");qc.invalidateQueries({ queryKey: ["all_users"] });}
+    catch (e: any) {toast.error(e.message);}
   };
 
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
         <button onClick={() => setOpen(true)} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold">
-          <Plus className="size-4" /> Nuevo usuario
+          <Plus className="size-4" /> {tr("Nuevo usuario")} 
         </button>
       </div>
       <div className="bg-surface border rounded-xl divide-y">
@@ -68,63 +68,63 @@ export function UsersTab() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  {u.deactivated_at && <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-destructive/10 text-destructive">Baja</span>}
+                  {u.deactivated_at && <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-destructive/10 text-destructive">{tr("Baja")}</span>}
                   <span className={`text-[10px] uppercase font-semibold px-2 py-0.5 rounded ${isAdmin ? "bg-primary/10 text-primary" : "bg-secondary text-muted-foreground"}`}>
                     {isAdmin ? "Admin" : "Usuario"}
                   </span>
                   <ChevronDown className={`size-4 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`} />
                 </div>
               </button>
-              {isOpen && (
-                <div className="px-4 pb-4 space-y-3 bg-secondary/20">
+              {isOpen &&
+              <div className="px-4 pb-4 space-y-3 bg-secondary/20">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs pt-3">
-                    <Info label="Nombre" value={u.full_name ?? "—"} />
+                    <Info label={tr("Nombre")} value={u.full_name ?? "—"} />
                     <Info label="Email" value={u.email} />
-                    <Info label="País" value={countryName(u.country) ?? "—"} />
-                    <Info label="Alta" value={u.created_at ? new Date(u.created_at).toLocaleDateString("es-ES") : "—"} />
-                    <Info label="Llamadas IA" value={String(u.ai_calls ?? 0)} />
-                    <Info label="Tokens IA" value={(u.ai_tokens ?? 0).toLocaleString("es-ES")} />
+                    <Info label={tr("País")} value={countryName(u.country) ?? "—"} />
+                    <Info label={tr("Alta")} value={u.created_at ? new Date(u.created_at).toLocaleDateString("es-ES") : "—"} />
+                    <Info label={tr("Llamadas IA")} value={String(u.ai_calls ?? 0)} />
+                    <Info label={tr("Tokens IA")} value={(u.ai_tokens ?? 0).toLocaleString("es-ES")} />
                     <Info label="Telegram" value={u.telegram ? "Conectado" : "No"} />
                     <Info label="Intervals.icu" value={u.intervals ? "Conectado" : "No"} />
                   </div>
-                  {u.id !== me?.id && (
-                    <div className="flex flex-wrap gap-2">
+                  {u.id !== me?.id &&
+                <div className="flex flex-wrap gap-2">
                       <button onClick={() => toggleRole(u.id, u.roles)} className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-semibold hover:bg-secondary">
                         {isAdmin ? <UserIcon className="size-3.5" /> : <Shield className="size-3.5" />}
                         {isAdmin ? "Quitar admin" : "Convertir en Admin"}
                       </button>
                       <button onClick={() => remove(u.id)} className="inline-flex items-center gap-2 rounded-lg bg-destructive px-3 py-1.5 text-xs font-semibold text-destructive-foreground">
-                        <Trash2 className="size-3.5" /> Eliminar usuario
-                      </button>
+                        <Trash2 className="size-3.5" /> {tr("Eliminar usuario")} 
+                  </button>
                     </div>
-                  )}
+                }
                 </div>
-              )}
-            </div>
-          );
+              }
+            </div>);
+
         })}
       </div>
 
-      {open && (
-        <div className="fixed inset-0 z-50 bg-black/50 grid place-items-center p-4">
+      {open &&
+      <div className="fixed inset-0 z-50 bg-black/50 grid place-items-center p-4">
           <form onSubmit={submit} className="bg-background border rounded-xl p-6 w-full max-w-md space-y-3">
-            <h3 className="font-display text-2xl font-bold uppercase">Nuevo usuario</h3>
-            <Field label="Nombre"><input required className="input" value={f.full_name} onChange={(e) => setF({...f, full_name: e.target.value})} /></Field>
-            <Field label="Email"><input required type="email" className="input" value={f.email} onChange={(e) => setF({...f, email: e.target.value})} /></Field>
-            <Field label="Contraseña (mín. 8)"><input required type="password" minLength={8} className="input" value={f.password} onChange={(e) => setF({...f, password: e.target.value})} /></Field>
-            <Field label="Rol">
-              <select className="input" value={f.role} onChange={(e) => setF({...f, role: e.target.value as any})}>
-                <option value="user">Usuario</option><option value="admin">Admin</option>
+            <h3 className="font-display text-2xl font-bold uppercase">{tr("Nuevo usuario")}</h3>
+            <Field label={tr("Nombre")}><input required className="input" value={f.full_name} onChange={(e) => setF({ ...f, full_name: e.target.value })} /></Field>
+            <Field label="Email"><input required type="email" className="input" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></Field>
+            <Field label={tr("Contraseña (mín. 8)")}><input required type="password" minLength={8} className="input" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></Field>
+            <Field label={tr("Rol")}>
+              <select className="input" value={f.role} onChange={(e) => setF({ ...f, role: e.target.value as any })}>
+                <option value="user">{tr("Usuario")}</option><option value="admin">Admin</option>
               </select>
             </Field>
             <div className="flex justify-end gap-2 pt-2">
-              <button type="button" onClick={() => setOpen(false)} className="px-4 py-2 border rounded-lg text-sm">Cancelar</button>
-              <button type="submit" className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold">Crear</button>
+              <button type="button" onClick={() => setOpen(false)} className="px-4 py-2 border rounded-lg text-sm">{tr("Cancelar")}</button>
+              <button type="submit" className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold">{tr("Crear")}</button>
             </div>
             <style>{INPUT_STYLE}</style>
           </form>
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }

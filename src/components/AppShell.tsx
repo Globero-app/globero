@@ -166,7 +166,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </Link>
         <div className="flex items-center gap-1">
           <ThemeToggle compact />
-          <button onClick={() => setMobileOpen(true)} className="p-2 rounded-md hover:bg-secondary" aria-label="Menú">
+          <button onClick={() => setMobileOpen(true)} className="p-2 rounded-md hover:bg-secondary" aria-label={t("nav.menu")}>
             <Menu className="size-5" />
           </button>
         </div>
@@ -240,7 +240,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <button
           onClick={() => setMobileOpen(true)}
           className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-md text-muted-foreground"
-          aria-label="Más secciones"
+          aria-label={t("nav.more")}
         >
           <Menu className="size-5" />
           <span className="text-[10px] font-medium">{t("nav.more")}</span>

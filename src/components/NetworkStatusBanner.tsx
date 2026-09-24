@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { tr } from "@/lib/i18n";import { useEffect, useState } from "react";
 import { WifiOff, RefreshCw, Wifi } from "lucide-react";
 import { useOnlineStatus } from "@/lib/use-online-status";
 import { useQueryClient } from "@tanstack/react-query";
@@ -35,24 +35,24 @@ export function NetworkStatusBanner() {
       <div
         role="status"
         aria-live="polite"
-        className="sticky top-0 z-50 w-full bg-destructive text-destructive-foreground shadow-md"
-      >
+        className="sticky top-0 z-50 w-full bg-destructive text-destructive-foreground shadow-md">
+        
         <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between gap-3 text-xs sm:text-sm">
           <div className="flex items-center gap-2 min-w-0">
             <WifiOff className="size-4 shrink-0" />
-            <span className="truncate">
-              Sin conexión — trabajando en modo offline con contenido cacheado.
+            <span className="truncate"> {tr("Sin conexión — trabajando en modo offline con contenido cacheado.")} 
+
             </span>
           </div>
           <a
             href="/offline"
-            className="shrink-0 underline underline-offset-2 font-medium hover:opacity-90"
-          >
-            Ver detalles
+            className="shrink-0 underline underline-offset-2 font-medium hover:opacity-90"> {tr("Ver detalles")} 
+
+
           </a>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (justReconnected) {
@@ -60,22 +60,22 @@ export function NetworkStatusBanner() {
       <div
         role="status"
         aria-live="polite"
-        className="sticky top-0 z-50 w-full bg-emerald-600 text-white shadow-md"
-      >
+        className="sticky top-0 z-50 w-full bg-emerald-600 text-white shadow-md">
+        
         <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between gap-3 text-xs sm:text-sm">
           <div className="flex items-center gap-2 min-w-0">
             <Wifi className="size-4 shrink-0" />
-            <span className="truncate">Conexión restaurada. Actualizando datos…</span>
+            <span className="truncate">{tr("Conexión restaurada. Actualizando datos…")}</span>
           </div>
           <button
             onClick={() => qc.invalidateQueries()}
-            className="shrink-0 inline-flex items-center gap-1 underline underline-offset-2 font-medium hover:opacity-90"
-          >
-            <RefreshCw className="size-3.5" /> Reintentar
+            className="shrink-0 inline-flex items-center gap-1 underline underline-offset-2 font-medium hover:opacity-90">
+            
+            <RefreshCw className="size-3.5" /> {tr("Reintentar")} 
           </button>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return null;
