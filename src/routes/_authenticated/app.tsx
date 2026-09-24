@@ -12,7 +12,6 @@ import { format } from "date-fns";
 import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MaintenanceAlertsBanner } from "@/components/MaintenanceAlertsBanner";
-import { AdjustTodayCard } from "@/components/AdjustTodayCard";
 import { TodayPanel } from "@/components/TodayPanel";
 import { CoachBriefCard } from "@/components/CoachBriefCard";
 
@@ -109,8 +108,8 @@ function Dashboard() {
   };
 
   const today = new Date();
-  const todayISO = today.toISOString().slice(0, 10);
-  const upcoming = (comps.data ?? []).filter((c) => new Date(c.date) >= today || c.date === todayISO);
+  const todayISO = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit" }).format(today);
+  const upcoming = (comps.data ?? []).filter((c) => c.date >= todayISO);
   const next = upcoming[0];
   const daysToNext = next ? Math.ceil((new Date(next.date).getTime() - today.getTime()) / 86400000) : null;
   const isRaceDay = !!next && next.date === todayISO;
@@ -179,10 +178,6 @@ function Dashboard() {
       <CoachBriefCard />
 
       <TodayPanel />
-
-      <AdjustTodayCard />
-
-
 
       {/* Countdown + Form */}
       {(next || (acts.data?.length ?? 0) > 0) &&
@@ -269,16 +264,16 @@ function Dashboard() {
               </div>
           )}
           </div> :
-        (comps.data?.length ?? 0) === 0 ?
+        upcoming.length === 0 ?
         <div className="border-2 border-dashed rounded-xl p-12 text-center">
-            <p className="text-sm text-muted-foreground mb-3">{tr("No existen salidas creadas.")}</p>
+            <p className="text-sm text-muted-foreground mb-3">{tr("No hay próximas salidas programadas.")}</p>
             <Link to="/competiciones" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold">
               <Plus className="size-4" /> {tr("Crear primera ruta")} 
           </Link>
           </div> :
 
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {comps.data!.map((c) =>
+            {upcoming.map((c) =>
           <div key={c.id} className="group bg-surface border rounded-xl p-5 hover:border-primary/50 transition-colors">
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="min-w-0">
