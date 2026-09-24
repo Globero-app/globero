@@ -59,7 +59,7 @@ export function TodayPanel() {
       limit(1).
       maybeSingle();
       const dias: any[] = (data?.plan as any)?.dias as any[] ?? [];
-      return dias.find((d) => d.fecha === today) ?? null;
+      return { hasPlan: !!data, day: dias.find((d) => d.fecha === today) ?? null };
     },
     enabled: !!user
   });
@@ -90,8 +90,8 @@ export function TodayPanel() {
   });
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <div className="bg-surface border rounded-xl p-5">
+    <div className={`grid gap-4 ${menu.data?.hasPlan ? "lg:grid-cols-2" : ""}`}>
+      {menu.data?.hasPlan && <div className="bg-surface border rounded-xl p-5">
         <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-2">
           <HeartPulse className="size-3.5 text-primary" /> {tr("Readiness de hoy")} 
         </p>
@@ -154,15 +154,15 @@ export function TodayPanel() {
         <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-2">
           <UtensilsCrossed className="size-3.5 text-primary" /> {tr("Menú de hoy")} 
         </p>
-        {menu.data ?
+        {menu.data.day ?
         <div className="mt-3 space-y-1.5 text-sm">
             <p className="text-xs text-muted-foreground">
-              {Math.round(menu.data.objetivo_calorias_kcal ?? 0)} {tr("kcal ·")} {Math.round(menu.data.objetivo_carbohidratos_g ?? 0)} {tr("g CH")} 
+               {Math.round(menu.data.day.objetivo_calorias_kcal ?? 0)} {tr("kcal ·")} {Math.round(menu.data.day.objetivo_carbohidratos_g ?? 0)} {tr("g CH")} 
           </p>
             {(["desayuno", "comida", "cena"] as const).map((k) =>
           <p key={k} className="truncate">
                 <span className="text-muted-foreground capitalize">{k}: </span>
-                {menu.data[k]?.nombre ?? "—"}
+                {menu.data.day[k]?.nombre ?? "—"}
               </p>
           )}
             <Link to="/menus" className="text-xs text-primary font-semibold inline-block pt-1"> {tr("Ver plan completo")} 
@@ -177,7 +177,7 @@ export function TodayPanel() {
           </Link>
           </div>
         }
-      </div>
+      </div>}
     </div>);
 
 }
