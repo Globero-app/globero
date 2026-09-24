@@ -51,12 +51,17 @@ export function TodayPanel() {
   const menu = useQuery({
     queryKey: ["menu-today", user?.id, today],
     queryFn: async () => {
+      // Lunes de la semana en curso (Madrid): sólo cuenta un plan activo para esta semana.
+      const now = new Date();
+      const madrid = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Madrid" }));
+      const dow = madrid.getDay();
+      madrid.setDate(madrid.getDate() + (dow === 0 ? -6 : 1 - dow));
+      const weekStart = `${madrid.getFullYear()}-${String(madrid.getMonth() + 1).padStart(2, "0")}-${String(madrid.getDate()).padStart(2, "0")}`;
       const { data } = await supabase.
       from("weekly_nutrition_plans").
       select("plan, week_start").
       eq("user_id", user!.id).
-      order("week_start", { ascending: false }).
-      limit(1).
+      eq("week_start", weekStart).
       maybeSingle();
       const dias: any[] = (data?.plan as any)?.dias as any[] ?? [];
       return { hasPlan: !!data, day: dias.find((d) => d.fecha === today) ?? null };
