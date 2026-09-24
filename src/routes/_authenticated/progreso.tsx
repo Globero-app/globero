@@ -89,7 +89,7 @@ function ProgresoPage() {
       <div className="flex border-b" role="tablist" aria-label={tr("Progreso")}>
         <Link
           to="/progreso"
-          search={{}}
+          search={{ vista: undefined }}
           role="tab"
           aria-selected={vista === "progreso"}
           className={`px-4 py-2 text-sm font-semibold border-b-2 ${vista === "progreso" ? "border-primary text-primary" : "border-transparent text-muted-foreground"}`}
