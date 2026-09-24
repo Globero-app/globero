@@ -45,7 +45,7 @@ function Landing() {
   const navigate = useNavigate();
   const { t, lang } = useI18n();
   const loc = (v: string | null | undefined, k: string) => lang === "es" && v || t(k);
-  const localizeContent = (v: string | null | undefined) => v ? tr(v) : "";
+  const localizeContent = (v: string | null | undefined) => v ? tr(v.trim()) : "";
   useEffect(() => {
     let active = true;
     supabase.auth.getSession().then(({ data }) => {
