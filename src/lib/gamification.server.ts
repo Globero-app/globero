@@ -175,13 +175,20 @@ export async function buildGamification(
 }
 
 /** Texto corto para notificaciones. */
-export function gamificationText(g: Gamification): string {
+export function gamificationText(g: Gamification, lang: "es" | "ca" | "fr" | "en" | "de" = "es"): string {
+  const labels = {
+    es: { compliance: "Cumplimiento", records: "Récords de temporada", badges: "Insignias" },
+    ca: { compliance: "Compliment", records: "Rècords de la temporada", badges: "Insígnies" },
+    fr: { compliance: "Réalisation", records: "Records de la saison", badges: "Badges" },
+    en: { compliance: "Completion", records: "Season records", badges: "Badges" },
+    de: { compliance: "Erfüllung", records: "Saisonrekorde", badges: "Abzeichen" },
+  }[lang];
   const lines: string[] = [];
-  if (g.compliance.percent != null) lines.push(`🎯 Cumplimiento: ${g.compliance.percent}% — ${g.compliance.label}`);
+  if (g.compliance.percent != null) lines.push(`🎯 ${labels.compliance}: ${g.compliance.percent}% — ${g.compliance.label}`);
   if (g.records.length) {
-    lines.push(`🏆 Récords de temporada: ${g.records.map((r) => `${r.label} ${r.watts} W${r.gain ? ` (+${r.gain})` : ""}`).join(" · ")}`);
+    lines.push(`🏆 ${labels.records}: ${g.records.map((r) => `${r.label} ${r.watts} W${r.gain ? ` (+${r.gain})` : ""}`).join(" · ")}`);
   }
   const others = g.badges.filter((b) => b.emoji !== "🏆");
-  if (others.length) lines.push(`Insignias: ${others.map((b) => `${b.emoji} ${b.label}`).join(" · ")}`);
+  if (others.length) lines.push(`${labels.badges}: ${others.map((b) => `${b.emoji} ${b.label}`).join(" · ")}`);
   return lines.join("\n");
 }

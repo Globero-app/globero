@@ -191,6 +191,8 @@ export async function generateAndNotifyWorkoutReport(
   workoutId: string,
 ): Promise<boolean> {
   try {
+    const { getUserLang } = await import("./user-lang.server");
+    const userLang = await getUserLang(userId);
     let report: { text: string; title: string } | null = null;
     try {
       const { processFtpTestWorkout } = await import("./ftp-test-auto.server");
@@ -216,7 +218,7 @@ export async function generateAndNotifyWorkoutReport(
       const g = await buildGamification(supabase, userId, workoutId);
       if (g) {
         plan.gamification = g;
-        gamiText = gamificationText(g);
+        gamiText = gamificationText(g, userLang);
       }
     } catch (e) {
       console.error("[workout-report] gamification", e);
