@@ -20,6 +20,8 @@ import {
   TrendingUp,
   Sparkles,
   Bike,
+  Plus,
+  Minus,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -51,7 +53,7 @@ const MORE_GROUPS = [
   { label: "nav.group.training", items: TRAINING_NAV },
   { label: "nav.group.analysis", items: ANALYSIS_NAV },
 ] as const;
-const BOTTOM_NAV = [HOME, TRAINING_NAV[0], ANALYSIS_NAV[0], GENERAL_NAV[0]] as const;
+const BOTTOM_NAV = [HOME, GENERAL_NAV[2], TRAINING_NAV[0], TRAINING_NAV[1]] as const;
 
 function TourButton({ onClick }: { onClick?: () => void }) {
   const { t } = useI18n();
@@ -75,6 +77,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
+    "nav.group.training": true,
+    "nav.group.analysis": false,
+  });
   const { t } = useI18n();
 
   const handleSignOut = async () => {
@@ -107,12 +113,24 @@ export function AppShell({ children }: { children: ReactNode }) {
   const NavLinks = ({ onClick }: { onClick?: () => void }) => (
     <>
       <NavItem item={HOME} onClick={onClick} />
-      {MORE_GROUPS.map((group) => (
-        <div key={group.label} className="pt-3 first:pt-1">
-          <p className="px-4 pb-1 text-[10px] font-semibold uppercase text-muted-foreground">{t(group.label)}</p>
-          {group.items.map((item) => <NavItem key={item.to} item={item} onClick={onClick} />)}
-        </div>
-      ))}
+      {MORE_GROUPS.map((group) => {
+        const containsActive = group.items.some((item) => isActive(item.to));
+        const isOpen = openGroups[group.label] || containsActive;
+        return (
+          <div key={group.label} className="pt-3 first:pt-1">
+            <button
+              type="button"
+              onClick={() => setOpenGroups((current) => ({ ...current, [group.label]: !isOpen }))}
+              className="flex w-full items-center gap-2 px-4 pb-1 text-left text-[10px] font-semibold uppercase text-muted-foreground hover:text-foreground"
+              aria-expanded={isOpen}
+            >
+              {isOpen ? <Minus className="size-3" /> : <Plus className="size-3" />}
+              {t(group.label)}
+            </button>
+            {isOpen && group.items.map((item) => <NavItem key={item.to} item={item} onClick={onClick} />)}
+          </div>
+        );
+      })}
       <div className="pt-3">
         {GENERAL_NAV.map((item) => <NavItem key={item.to} item={item} onClick={onClick} />)}
       </div>
