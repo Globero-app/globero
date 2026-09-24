@@ -474,6 +474,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "CHO",
     "CHO"
   ],
+  "CONSERVACIÓN": [
+    "Com fer-ho",
+    "COMMENT CONSERVER",
+    "HOW TO STORE",
+    "WIE SPEICHERN"
+  ],
   "CTL = fitness acumulado (42 días) · ATL = fatiga reciente (7 días) · TSB = forma (CTL − ATL).": [
     "CTL = fitness acumulat (42 dies) · ATL = fatiga recent (7 dies) · TSB = forma (CTL − ATL).",
     "CTL = forme accumulée (42 jours) · ATL = fatigue récente (7 jours) · TSB = fraîcheur (CTL − ATL).",
@@ -936,6 +942,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Code generated",
     "Erzeugter Code"
   ],
+  "DATOS QUE TRATAMOS": [
+    "DATA DE LA TEIY",
+    "DONNÉES QUE NOUS TRAITÉS",
+    "DATA WHICH WE TREATY",
+    "DATEN, DIE WIR VERTRAGEN"
+  ],
+  "DISPOSITIVOS": [
+    "DEVESConstellation name (optional)",
+    "DISPOSITIFS",
+    "DEVICES",
+    "GERÄTE"
+  ],
   "Date de alta": [
     "Data de publicació",
     "Date de sortie",
@@ -947,6 +965,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Retraite pour avoir accès à Globero IA.",
     "Retirement to gain access to Globero IA.",
     "Ruhestand, um Zugang zu Globero IA zu erhalten."
+  ],
+  "Datos de cuenta (nombre y apellidos, email), datos deportivos (peso, altura, FTP, frecuencia cardíaca, zonas, actividades, entrenamientos, readiness) y datos técnicos necesarios para el funcionamiento del servicio (notificaciones push, integraciones con Intervals.icu y Telegram).": [
+    "Dades del compte (nom i nom), dades esportives (pès, alçada, FTP, taxa de cor, zones, activitats, entrenament, lectura i dades tècniques necessàries per a l'actuació del servei (psh notificacions, intervals. i telegram).",
+    "Données de compte (nom et nom), données sportives (poids, hauteur, FTP, fréquence cardiaque, zones, activités, entraînement, préparation) et données techniques nécessaires pour la performance de service (notifications push, intervals.icu et Telegram intégrations).",
+    "Account data (name and name), sports data (weight, height, FTP, heart rate, zones, activities, training, readiness) and technical data necessary for service performance (push notifications, intervals.icu and Telegram integrations).",
+    "Kontodaten (Name und Name), Sportdaten (Gewicht, Größe, FTP, Herzfrequenz, Zonen, Aktivitäten, Training, Bereitschaft) und technische Daten, die für die Serviceleistung erforderlich sind (Push-Benachrichtigungen, intervals.icu und Telegram-Integrationen)."
   ],
   "Datos personales": [
     "Dades personals",
@@ -1122,6 +1146,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Days you can train",
     "Tage, die Sie trainieren können"
   ],
+  "ENTRENAMIENTOS CON IA": [
+    "INNAMITES amb IA",
+    "INNAMITES AVEC L'AI",
+    "INNAMITES WITH IA",
+    "INNAMITEN MIT IA"
+  ],
   "Edad": [
     "Edat",
     "Âge",
@@ -1163,6 +1193,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "L'alerte arrive juste après le résumé de la séance du jour, via l'app et/ou Telegram. Elle inclut les vigilances officielles en cours (jaune, orange ou rouge) pour pluie, inondations, vent, orage ou températures extrêmes, ainsi que la météo de ta ville.",
     "The alert arrives right after the day's session summary, via the app and/or Telegram. It includes current official warnings (yellow, orange or red) for rain, floods, wind, storms or extreme temperatures, plus your local forecast.",
     "Die Warnung kommt direkt nach der Zusammenfassung der Tageseinheit, per App und/oder Telegram. Sie enthält aktuelle amtliche Warnungen (gelb, orange oder rot) zu Regen, Hochwasser, Wind, Gewitter oder Extremtemperaturen sowie die Vorhersage für deinen Ort."
+  ],
+  "El entrenador humano es ideal para deportistas pro/élite, aunque con un coste alto (100-300 €/mes), disponibilidad puntual (horario) y un alcance limitado (límite de usuarios) a recomendar pautas.": [
+    "L'entrenador humà és ideal per als esports d'elit, però amb un alt cost (100- 300 €/ mes), amb temps (hora límit d' hora) i un interval limitat (ordre d' usuari) per a recomanar directrius.",
+    "L'entraineur humain est idéal pour les sportifs pro / élite, mais à coût élevé (100-300 €/ mois), limite de temps (temps) et une plage limitée (limite d'utilisation) pour recommander des lignes directrices.",
+    "The human coach is ideal for pro / elite sportsmen, but at high cost (100-300 €/ month), time-bound (time) and a limited range (user limit) to recommend guidelines.",
+    "Der menschliche Trainer ist ideal für Profi / Elite-Sportler, aber zu hohen Kosten (100-300 € / Monat), zeitgebunden (Zeit) und einer begrenzten Reichweite (Benutzerlimit), um Richtlinien zu empfehlen."
   ],
   "El plan encontrado no tiene intervalos de potencia comparables.": [
     "El pla no té intervals de potència comparables.",
@@ -1854,6 +1890,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Go to previous page",
     "Gehen Sie zur vorherigen Seite"
   ],
+  "Gracias a sólo depender de la integración con Intervals.icu no es necesario solicitar otras integraciones, facilitando el trabajo, por ello, ahora mismo estamos en fase Beta y es gratuito (aunque su precio será de unos 3-5€ / mes).": [
+    "Per apendre només dels intervals. La integració de l'icu, no cal exigir altres integraciós, facilitar la feina, així que ara estem a Beta i lliure (encara que el seu preu serà d'uns 3-5 €/ mes).",
+    "Pour ne dépendre que des intervalles. L'intégration d'icu, nous n'avons pas à exiger d'autres intégrations, facilitant le travail, donc nous sommes actuellement à Beta et gratuit (bien que son prix sera d'environ 3-5 €/ mois).",
+    "To depend only on intervals.icu's integration, we do not have to demand other integrations, facilitating the work, so we are currently at Beta and free (although its price will be about 3-5 €/ month).",
+    "Nur abhängig von Intervallen. Die Integration von icu, wir müssen keine anderen Integrationen verlangen, die die Arbeit erleichtern, also sind wir derzeit bei Beta und kostenlos (obwohl der Preis etwa 3-5 € / Monat betragen wird)."
+  ],
   "Grasa": [
     "Fat",
     "Graisses",
@@ -1997,6 +2039,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Mouille",
     "Wet",
     "Nass"
+  ],
+  "IA VS ENTRENADOR PERSONAL": [
+    "A màquina personal no hi ha accés",
+    "À VOUS PERSONNEL DANS",
+    "TO YOU PERSONAL INTO",
+    "ZU IHRER PERSÖNLICHEN"
   ],
   "Icono (lucide)": [
     "Icona (llucide)",
@@ -2220,6 +2268,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "The IA creates breakfast, half a morning, food, snack and dinner for every day of the week according to your training, profile and preferences / intolerances",
     "Die IA schafft Frühstück, einen halben Morgen, Essen, Snack und Abendessen für jeden Tag der Woche nach Ihrem Training, Profil und Vorlieben / Intoleranzen"
   ],
+  "La IA es ideal para deportistas amateurs, ofrece un coste menor (actualmente gratis, después entre 3-5€/mes), ofrece una atención dedicada 24/7 con toma de decisiones en tiempo real y sin límite de usuarios (cada usuario es único)": [
+    "La IA és ideal per als amateurs, ofereix un cost inferior (actualment lliure, després de 3- 5 €/ mes), ofereix assistència dedicada a 24 / 7 amb decisió real i lliure d' usuari (cada usuari és únic)",
+    "L'IA est idéal pour les amateurs, offre un coût inférieur (actuellement gratuit, après 3-5 €/ mois), offre des soins dédiés 24/7 avec prise de décision en temps réel et sans utilisateur (chaque utilisateur est unique)",
+    "The IA is ideal for amateurs, offers a lower cost (currently free, after 3-5 €/ month), offers dedicated care 24 / 7 with real-time decision-making and user-free (each user is unique)",
+    "Die IA ist ideal für Amateure, bietet einen niedrigeren Preis (derzeit kostenlos, nach 3-5 € / Monat), bietet dedizierte Betreuung 24 / 7 mit Echtzeit-Entscheidungsfindung und benutzerfrei (jeder Benutzer ist einzigartig)"
+  ],
   "La IA generará un plan periodizado y mixto hasta el día del evento, en los días que marques abajo.": [
     "La IA generarà un pla puntejat i mixt al dia de l'esdeveniment, en els dies que els marqueu.",
     "L'IV générera un plan échelonné et mixte jusqu'au jour de l'événement, les jours où vous les marquez.",
@@ -2436,6 +2490,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Menus",
     "Menüs"
   ],
+  "Menús adaptados a tus entrenos, preferencias e intolerancias, con enfoque especial antes de competición, cada salida entrenamiento es diferente": [
+    "Menús adaptats al vostre entrenament, preferències i inleràncies amb focus especial abans de la competició, cada sortida d' entrenament és diferent",
+    "Menus adaptés à votre formation, préférences et intolérances avec une attention particulière avant la compétition, chaque sortie de formation est différente",
+    "Menus adapted to your training, preferences and intolerances with special focus before competition, each training output is different",
+    "Menüs angepasst an Ihr Training, Vorlieben und Unverträglichkeiten mit besonderem Fokus vor dem Wettkampf, jeder Trainingsoutput ist anders"
+  ],
   "Menús adaptados a tus entrenos, preferencias e intolerancias, con enfoque especial antes de competición.": [
     "Menús adaptats al vostre entrenament, preferències i inlerències amb un focus especial abans de la competició.",
     "Menus adaptés à vos entraînements, préférences et intolérances avec un accent particulier avant la compétition.",
@@ -2573,6 +2633,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "NP",
     "NP",
     "NP"
+  ],
+  "NUTRICIÓN SEMANAL": [
+    "SEMANAL INTRIIÓConstellation name (optional)",
+    "INTRITION SÉMANALE",
+    "SEMANAL INTRITION",
+    "SEMANALE INTRITION"
   ],
   "Necesitas tener el Push del servidor activado (arriba, en Notificaciones). El aviso solo se envía si aún no has respondido el Readiness del día.": [
     "Cal tenir el Push del servidor activat (a dalt, a Notificacions). L'avís només s'envia si encara no has respost el Readiness del dia.",
@@ -2952,11 +3018,23 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Oswald",
     "Oswald"
   ],
+  "PLATAFORMA DE IA PARA CICLISTAS": [
+    "PER A CLASSSConstellation name (optional)",
+    "PLATAFORME POUR LES CLASSES",
+    "A PLATAFORM FOR CLASSITS",
+    "EIN PLATAFORM FÜR KLASSEN"
+  ],
   "PMC · Gestión del rendimiento": [
     "PMC · Gestió del rendiment",
     "PMC · Gestion de la performance",
     "PMC · Performance management",
     "PMC · Leistungsmanagement"
+  ],
+  "POLÍTICA DE PRIVACIDAD": [
+    "PRIVACITAT POLICY",
+    "POLITIQUE DE PRIVABILITÉ",
+    "PRIVACITY POLICY",
+    "PRIVAZITÄTSPOLITIK"
   ],
   "Panel del ciclista": [
     "Plafó cíclista",
@@ -3084,6 +3162,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Plan:",
     "Plan:"
   ],
+  "Planes generados según tu Edad, Peso, FTP, FC máxima, tus días disponibles y tu carga de entrenamiento (CTL/ATL/TSB).": [
+    "Plans generats per l'edat, pes, FTP, Màxim FC, dies disponibles i la càrrega d' entrenament (TL / ATL / TSB).",
+    "Plans générés par votre âge, poids, FTP, maximum FC, vos jours disponibles et votre charge d'entraînement (CTL / ATL / BST).",
+    "Plans generated by your Age, Weight, FTP, Maximum FCs, your available days and your training load (CTL / ATL / TSB).",
+    "Pläne, die durch Ihr Alter, Gewicht, FTP, maximale FCs, Ihre verfügbaren Tage und Ihre Trainingslast (CTL / ATL / TSB) generiert werden."
+  ],
   "Planes nutricionales": [
     "Planificació de plans",
     "Plans nutritionnels",
@@ -3107,6 +3191,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Une plateforme pour les motards.",
     "A platform for bikers.",
     "Eine Plattform für Biker."
+  ],
+  "Plataforma de IA para ciclistas. © 2026": [
+    "Una plataforma per motoristes. © 2026",
+    "Une plateforme pour les motards. © 2026",
+    "A platform for bikers. © 2026",
+    "Eine Plattform für Biker. © 2026"
   ],
   "Plataforma de IA para ciclistas: planificación nutricional con IA, análisis de Intervals.icu y planes GPX con waypoints de carbohidratos.": [
     "Una plataforma per a cyclistes: Planificació nutricional amb intervals A, intervals. Anàlisis i plans de GPX amb punts de comunicació carbohidrats.",
@@ -3287,6 +3377,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "J'ai un plan nutritionnel.",
     "I have a nutritional plan.",
     "Ich habe einen Ernährungsplan."
+  ],
+  "READINESS DIARIO": [
+    "DIARIRIRI RADES",
+    "LECTURES DIAIRES",
+    "DIARY READIES",
+    "DIARY READIES"
+  ],
+  "RESPONSABLE DEL TRATAMIENTO": [
+    "RESCILE PER LA TRABLEConstellation name (optional)",
+    "RESPONSABLE DU TRAITEMENT",
+    "RESPONSIBLE FOR TREATMENT",
+    "ZUSTÄNDIG FÜR DIE BEHANDLUNG"
   ],
   "RPE (1-10)": [
     "RPE (1-10)",
@@ -3510,6 +3612,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Power records (12 months)",
     "Leistungsrekorde (12 Monate)"
   ],
+  "SINCRONIZACIÓN INTERVALS.ICU": [
+    "ENNIZACIÓ ENVALSConstellation name (optional)",
+    "INTERVALES D'INCRONISATION",
+    "INCRONIZATION INTERVALS.ICU",
+    "INCRONISIERUNGSINTERVALS.ICU"
+  ],
   "Safari": [
     "Safari",
     "Safari",
@@ -3581,6 +3689,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Vos connexions avec Telegram et Intervals.icu seront supprimées et la formation, le rapport et l'avis cesseront d'être établis.",
     "Your connections with Telegram and Intervals.icu will be removed and training, report and notice will cease to be established.",
     "Ihre Verbindungen mit Telegram und Intervals.icu werden entfernt und Schulungen, Berichte und Mitteilungen werden nicht mehr hergestellt."
+  ],
+  "Se integra con Garmin, Wahoo, Strava.... Todo a través de Intervals.icu": [
+    "Està integrada amb Garm, Wahoo, Strava... Tot a través dels intervals. u.",
+    "Il s'intègre à Garm, Wahoo, Strava... Tous à travers Intervals.icu",
+    "It integrates with Garm, Wahoo, Strava... All through Intervals.icu",
+    "Es integriert sich mit Garm, Wahoo, Strava ... Alles über Intervals.icu"
   ],
   "Se recalculan bloques, TSS y, si tienes Intervals.icu conectado, se actualiza el evento del día.": [
     "Els blocs són recalculats, TS i, si tens intervals. icu connectat, l' esdeveniment del dia s' actualitza.",
@@ -4068,6 +4182,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Reel tolerance",
     "Walzentoleranz"
   ],
+  "Toma decisiones en tiempo real, modifica tu entreno según tus sensaciones.": [
+    "Pren decisions en temps real, modifica el teu entrenament d'acord amb els teus sentiments.",
+    "Prenez des décisions en temps réel, modifiez votre entraînement en fonction de vos sentiments.",
+    "Make decisions in real time, modify your training according to your feelings.",
+    "Treffen Sie Entscheidungen in Echtzeit, ändern Sie Ihr Training nach Ihren Gefühlen."
+  ],
   "Totales de todos los usuarios desde el": [
     "Total de tots els usuaris de",
     "Total de tous les utilisateurs",
@@ -4109,6 +4229,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Votre réponse ajuste automatiquement la formation dédiée d'aujourd'hui: L'IV adoucit, maintient ou resserre selon votre statut.",
     "Your response automatically adjustes today's dedicated training: The IA softens, keeps or tightens it according to your status.",
     "Ihre Antwort passt das heutige dedizierte Training automatisch an: Die IA mildert, hält oder strafft sie entsprechend Ihrem Status."
+  ],
+  "Tus entrenos se envían a Intervals.icu y tus actividades vuelven con análisis, curva de potencia y cumplimiento que analiza la IA.": [
+    "El teu entrenament és enviat a Interval. L'Icu i les teves activitats tornen amb l'anàlisi, la corba d'energia i el compliment que analitza l'IA.",
+    "Votre entraînement est envoyé à Intervals. icu et vos activités reviennent avec l'analyse, la courbe de puissance et la conformité qui analyse l'IV.",
+    "Your training is sent to Intervals.icu and your activities come back with analysis, power curve and compliance that analyzes the IA.",
+    "Dein Training wird an Intervals geschickt. icu und ihre aktivitäten kommen mit analyse, power curve und compliance zurück, die die ia analysieren."
   ],
   "Tus entrenos se envían a Intervals.icu y tus actividades vuelven con análisis, curva de potencia y cumplimiento.": [
     "El teu entrenament és enviat a Interval. icu i les vostres activitats tornen amb anàlisi, corba d'energia i compliments.",
