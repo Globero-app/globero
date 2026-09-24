@@ -29,7 +29,7 @@ import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import { InstallAppButton } from "@/components/InstallAppButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { OnboardingTour } from "@/components/OnboardingTour";
-import { useI18n, LanguageSelector } from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
 
 const NAV = [
   { to: "/app", label: "nav.home", icon: LayoutDashboard },
