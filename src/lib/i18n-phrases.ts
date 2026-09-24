@@ -156,17 +156,35 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Access",
     "Zugang"
   ],
+  "Activado": [
+    "activat",
+    "activé",
+    "activated",
+    "aktiviert"
+  ],
   "Activar push del servidor": [
     "Activa l' activació del servidor",
     "Activer la poussée du serveur",
     "Activate server push",
     "Server Push aktivieren"
   ],
+  "Actividad asignada a la competición": [
+    "Activitats assignades a la competència",
+    "Activités assignées au concours",
+    "Activities assigned to competition",
+    "Mit dem Wettbewerb beauftragte Tätigkeiten"
+  ],
   "Actividades": [
     "Activitats",
     "Activités",
     "Activities",
     "Aktivitäten"
+  ],
+  "Actualizada": [
+    "Actualitzat",
+    "Mise à jour",
+    "Updated",
+    "Aktualisiert"
   ],
   "Actualizar": [
     "S' està actualitzant",
@@ -227,6 +245,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Anton",
     "Anton",
     "Anton"
+  ],
+  "Archivo .FIT descargado": [
+    "S' ha baixat el fitxer .FIT",
+    "Fichier .FIT téléchargé",
+    ".FIT file downloaded",
+    ".FIT-Datei heruntergeladen"
   ],
   "Archivo → Añadir al Dock": [
     "Fitxer Manveen Add a Acoblament",
@@ -390,11 +414,29 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Neue babies",
     "Neue Babys"
   ],
+  "Bici eliminada": [
+    "Bicicleta eliminada",
+    "Vélo supprimé",
+    "Bike deleted",
+    "Fahrrad gelöscht"
+  ],
+  "Bici guardada": [
+    "Bicicleta desada",
+    "Vélo enregistré",
+    "Bike saved",
+    "Fahrrad gespeichert"
+  ],
   "Bidones 500 ml": [
     "Bidons 500 ml",
     "Bidons 500 ml",
     "Bidons 500 ml",
     "Bidons 500 ml"
+  ],
+  "Bienvenido": [
+    "Benvingut",
+    "Bienvenue",
+    "Welcome",
+    "Willkommen"
   ],
   "Bike": [
     "BikeCity name (optional, probably does not need a translation)",
@@ -407,6 +449,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Bloc",
     "Block",
     "Block"
+  ],
+  "Buen punto de entrenamiento, mantén ritmo y cuida descansos.": [
+    "És un bon punt d'entrenament. No et moguis i descansa una mica.",
+    "C'est un bon point d'entraînement. Continuez et reposez-vous.",
+    "That's a good training point. Keep up and get some rest.",
+    "Das ist ein guter Trainingspunkt. Bleib dran und ruhe dich aus."
   ],
   "CHO": [
     "CHO",
@@ -492,6 +540,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Change topic",
     "Änderungsthema"
   ],
+  "Canal actualizado": [
+    "Canal actualitzat",
+    "Canal mis à jour",
+    "Channel updated",
+    "Kanal aktualisiert"
+  ],
   "Cancelar": [
     "Cancel· la",
     "Annuler",
@@ -521,6 +575,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Chargement (TSS)",
     "Loading (TSS)",
     "Beladung (TSS)"
+  ],
+  "Carga equilibrada": [
+    "Càrrega equilibrada",
+    "Charge équilibrée",
+    "Balanced load",
+    "Ausgewogene Belastung"
   ],
   "Carga semanal (TSS)": [
     "Càrrega setmanal (TSS)",
@@ -678,6 +738,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Added component",
     "Zusatzkomponente"
   ],
+  "Componente sustituido": [
+    "Component reemplaçat",
+    "Composante remplacée",
+    "Replaced component",
+    "Ersetztes Bauteil"
+  ],
   "Componentes activos": [
     "Components actius",
     "Composantes actives",
@@ -780,6 +846,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Password updated",
     "Password aktualisiert"
   ],
+  "Creada": [
+    "Creat",
+    "Créé",
+    "Created",
+    "Geschaffen"
+  ],
   "Crear": [
     "Crea",
     "Créer",
@@ -797,6 +869,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Création de la première piste",
     "Creating First Track",
     "Erstellen des ersten Tracks"
+  ],
+  "Credenciales incorrectas": [
+    "Credencials incorrectes",
+    "Identifiants incorrects",
+    "Incorrect credentials",
+    "Falsche Anmeldedaten"
   ],
   "Cuenta atrás": [
     "Compte enrere",
@@ -875,6 +953,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Points faibles à travailler",
     "Weaknesses to work on",
     "Schwächen zum Trainieren"
+  ],
+  "Desactivado": [
+    "Encaixat",
+    "Monté",
+    "Fitted",
+    "montiert"
   ],
   "Desactivar": [
     "No es pot determinar",
@@ -1080,6 +1164,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Choose the day you want to do the test and how to conduct it. It will be created in your calendar and, if you have Intervals.icu connected, will automatically get up to that day.",
     "Wählen Sie den Tag, an dem Sie den Test durchführen möchten und wie Sie ihn durchführen. Es wird in Ihrem Kalender erstellt und wenn Sie Intervalle haben. icu connected, wird automatisch bis zu diesem tag."
   ],
+  "Elige la fecha del test": [
+    "Escolliu la data de prova",
+    "Choisir la date d'essai",
+    "Choose Test Date",
+    "Wählen Sie das Testdatum"
+  ],
   "Elige menos tiempo o marcar 'voy más suave'": [
     "Tria menys temps o marca \"Vaig a suau\"",
     "Choisissez moins de temps ou composez \"Je vais doux\"",
@@ -1091,6 +1181,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Choisissez les avertissements que vous voulez obtenir. Ils sont affichés à l'ouverture de l'application et pour les obtenir avec l'application fermée, installer le pWA sur votre téléphone.",
     "Choose what warnings you want to get. They are shown at the opening of the app and to get them with the closed app, install the pWA onto your phone.",
     "Wählen Sie, welche Warnungen Sie erhalten möchten. Sie werden beim Öffnen der App angezeigt und um sie mit der geschlossenen App zu erhalten, installieren Sie die pWA auf Ihrem Telefon."
+  ],
+  "Eliminada": [
+    "Eliminada",
+    "Supprimée",
+    "Deleted",
+    "Gelöscht"
+  ],
+  "Eliminado": [
+    "Eliminat",
+    "Supprimé",
+    "Deleted",
+    "Gelöscht"
   ],
   "Eliminar": [
     "Elimina",
@@ -1127,6 +1229,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Supprimer l' utilisateur",
     "Remove User",
     "Benutzer entfernen"
+  ],
+  "Email": [
+    "Correu electrònic",
+    "E-mail",
+    "Email",
+    "E-Mail"
   ],
   "Email de confirmación reenviado": [
     "Correu de confirmació diferent",
@@ -1188,6 +1296,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Training.",
     "Ausbildung."
   ],
+  "Entrenamiento adaptado a rodillo": [
+    "Exercici amb forma de Rod",
+    "Formation adaptée aux règles",
+    "Rod-adapted training",
+    "Rod-adaptierte Ausbildung"
+  ],
+  "Entrenamiento adaptado a rodillo y actualizado en Intervals.icu": [
+    "L' entrenament s'ha adaptat a en Roller i s'ha actualitzat a Intervals.icu",
+    "Formation adaptée au rouleau et mise à jour à Intervals.icu",
+    "Training adapted to roller and updated at Intervals.icu",
+    "Training angepasst an Roller und aktualisiert auf Intervals.icu"
+  ],
   "Entrenamiento de hoy eliminado también de Intervals.icu": [
     "L'entrenament d'avui també s'ha eliminat de Interval.iciu",
     "La formation d'aujourd'hui est également retirée de Intervals.icu",
@@ -1205,6 +1325,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Formation trouvée",
     "Training found",
     "Ausbildung gefunden"
+  ],
+  "Entrenamiento devuelto a exterior": [
+    "L' entrenament ha tornat a fora",
+    "Formation de retour à l ' extérieur",
+    "Training returned to outside",
+    "Training zurück nach draußen"
+  ],
+  "Entrenamiento devuelto a exterior y actualizado en Intervals.icu": [
+    "Informes i entrenament actualitzats a Intervals.icu",
+    "Formation signalée et mise à jour à Intervals.icu",
+    "Reported and updated training at Intervals.icu",
+    "Gemeldete und aktualisierte Schulungen auf Intervals.icu"
   ],
   "Entrenamiento marcado como completado": [
     "Exercici com a complet",
@@ -1230,6 +1362,30 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Reprogrammed training but could not be updated at Intervals.icu",
     "Umprogrammiertes Training konnte aber nicht unter Intervals.icu aktualisiert werden"
   ],
+  "Entrenamiento reubicado": [
+    "Exercici substituït",
+    "Formation remplacée",
+    "Replaced training",
+    "Ersetzte Ausbildung"
+  ],
+  "Entreno de hoy adaptado por la IA": [
+    "Entrenament d’avui adaptat per la IA",
+    "Entraînement du jour adapté par l’IA",
+    "Today’s workout adapted by AI",
+    "Heutiges Training durch KI angepasst"
+  ],
+  "Enviado a": [
+    "Enviat a",
+    "Envoyé à",
+    "Sended to",
+    "Versendet an"
+  ],
+  "Enviado a 1 dispositivo": [
+    "S' ha enviat a un dispositiu",
+    "Envoi à 1 appareil",
+    "Sended to 1 device",
+    "Versendet auf 1 Gerät"
+  ],
   "Enviar prueba": [
     "Envia la prova",
     "Envoyer l'essai",
@@ -1241,6 +1397,36 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Équilibré",
     "Balanced",
     "Ausgeglichen"
+  ],
+  "Error adaptando a rodillo": [
+    "Error en adaptar- se al Rollo",
+    "Erreur d'adaptation au rouleau",
+    "Error adapting to roller",
+    "Fehler bei der Anpassung an Rolle"
+  ],
+  "Error añadiendo el test": [
+    "Error afegint la prova",
+    "Erreur en ajoutant le test",
+    "Error by adding the test",
+    "Fehler durch Hinzufügen des Tests"
+  ],
+  "Error generando entrenamientos": [
+    "Error en generar l' entrenament",
+    "Erreur lors de la formation",
+    "Error generating training",
+    "Fehlergenerierende Schulung"
+  ],
+  "Error subiendo a Intervals.icu": [
+    "Error fins a Interval. u",
+    "Erreur jusqu'à Intervals.icu",
+    "Error up to Intervals.icu",
+    "Fehler bis zu Intervals.icu"
+  ],
+  "Error volviendo a exterior": [
+    "Error de nou a fora",
+    "Erreur de retour à l'extérieur",
+    "Error back to outside",
+    "Fehler zurück nach außen"
   ],
   "Error:": [
     "Error:",
@@ -1278,6 +1464,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Status:",
     "Status:"
   ],
+  "Este navegador no admite notificaciones": [
+    "Aquest navegador no accepta notificacions",
+    "Ce navigateur n'accepte pas les notifications",
+    "That browser doesn't accept notifications",
+    "Dieser Browser akzeptiert keine Benachrichtigungen"
+  ],
   "Estimación desde Intervals.icu:": [
     "Estimat de Intervals.ici:",
     "Estimation d'Intervals.icu:",
@@ -1307,6 +1499,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Structure de formation",
     "Training structure",
     "Ausbildungsstruktur"
+  ],
+  "Estás descansado y listo para competir. Aprovecha.": [
+    "Estàs descansant i llest per competir. Cuida't.",
+    "Tu te reposes et tu es prêt à participer. Prends soin de toi.",
+    "You're resting and ready to compete. Take care.",
+    "Sie ruhen sich aus und sind bereit zu konkurrieren. Pass auf."
   ],
   "Estás viendo la app dentro del editor. Para instalarla, abre la URL publicada directamente en el navegador de tu móvil:": [
     "Estàs veient l'aplicació dins l'editor. Per a instal· lar- lo, obriu l' URL publicat directament al vostre navegador mòbil:",
@@ -1380,6 +1578,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Fatigue (ATL)",
     "Ermüdung (ATL)"
   ],
+  "Fatiga alta. Reduce intensidad y prioriza recuperación esta semana.": [
+    "Fa molt alt. Redueix la intensitat i prioritza la recuperació d'aquesta setmana.",
+    "Grosse grosse. Il réduit l'intensité et priorise la récupération cette semaine.",
+    "Fat high. It reduces intensity and prioritizes recovery this week.",
+    "Fett hoch. Es reduziert die Intensität und priorisiert die Erholung in dieser Woche."
+  ],
   "Fatiga proyectada": [
     "Fatiga projectada",
     "Fatigue projetée",
@@ -1415,6 +1619,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Femme",
     "Female",
     "Weiblich"
+  ],
+  "Ficha recalculada con tus datos": [
+    "Torna a imprimir amb les vostres dades",
+    "Réimpression avec vos données",
+    "Reprints with your data",
+    "Reprints mit Ihren Daten"
   ],
   "Fitness (CTL)": [
     "Fitness (CTL)",
@@ -1464,6 +1674,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Fresh",
     "Frisch"
   ],
+  "Frescura óptima": [
+    "Frescor òptim",
+    "Fraîcheur optimale",
+    "Optimal freshness",
+    "Optimale Frische"
+  ],
   "Fuente cuerpo": [
     "Font del cos",
     "Source corporelle",
@@ -1487,6 +1703,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "GPX non valide",
     "Invalid GPX",
     "Ungültige GPX"
+  ],
+  "GPX procesado": [
+    "GPX processat",
+    "GPX traité",
+    "GPX processed",
+    "GPX verarbeitet"
   ],
   "Garmin / Wahoo / Edge →": [
     "Garm / Wahoo / Edge eka",
@@ -1589,6 +1811,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Gravel",
     "Gravel",
     "Kies"
+  ],
+  "Guardado": [
+    "Desat",
+    "Enregistré",
+    "Saved",
+    "Gespeichert"
   ],
   "Guardar": [
     "Desa",
@@ -1812,11 +2040,23 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Intervals.icu connected",
     "Intervals.icu verbunden"
   ],
+  "Intervals.icu desconectado": [
+    "Intervals.ici fora de línia",
+    "Intervals.icu hors ligne",
+    "Intervals.icu offline",
+    "Intervals.icu offline"
+  ],
   "Introduce la potencia media de los 20 min all-out (dato de tu ciclocomputador / plato). Si no tienes potenciómetro, apunta la FC media como referencia.": [
     "Introduïu el poder de la 20 min- out (des del vostre ordinador / plat). Si no tens potent idiòmetre, posa la mitjana de FC com a referència.",
     "Entrez la puissance moyenne de l'ensemble de 20 min (données de votre ordinateur / plaque). Si vous n'avez pas de potentiomètre, mettez le FC moyen comme référence.",
     "Enter the mean power of the 20 min all-out (data from your computer / plate). If you have no potentiometer, put the mean FC as a reference.",
     "Geben Sie die mittlere Leistung des 20-Minuten-Allout ein (Daten von Ihrem Computer / Ihrer Platte). Wenn Sie kein Potentiometer haben, geben Sie den mittleren FC als Referenz an."
+  ],
+  "Introduce potencia media o FC media de los 20 min": [
+    "Presentació vol dir poder o vol dir FC de 20 min",
+    "Introduire la puissance moyenne ou le FC moyen de 20 min",
+    "Introduce mean power or mean FC of 20 min",
+    "mittlere Leistung oder mittlere FC von 20 min einführen"
   ],
   "Introduce tu email y te enviaremos un enlace.": [
     "Introduïu el vostre correu electrònic i us enviarem un enllaç.",
@@ -1829,6 +2069,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Aller aux concours",
     "Go to Competitions",
     "Zu Wettbewerben gehen"
+  ],
+  "Ir a la página anterior": [
+    "Anar a la pàgina anterior",
+    "Aller à la page précédente",
+    "Go to the previous page",
+    "Zur vorherigen Seite"
   ],
   "Ir al Perfil": [
     "Vés al perfil",
@@ -1920,6 +2166,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "The AI will bias your load to your profile: more sprint/VO₂max for sprinters, threshold for rouleurs, Z2 and climbs for climbers, and steady aerobic work for time trialists.",
     "Die KI richtet die Belastung nach deinem Profil aus: mehr Sprint/VO₂max für Sprinter, Schwelle für Rouleure, Z2 und Anstiege für Bergfahrer und gleichmäßige aerobe Arbeit für Zeitfahrer."
   ],
+  "La clave del bloque es obligatoria": [
+    "Es requereix la clau del bloc",
+    "La clé du bloc est nécessaire",
+    "The key to the block is required",
+    "Der Schlüssel zum Block ist erforderlich"
+  ],
+  "La semana ya está equilibrada": [
+    "La setmana ja està equilibrat",
+    "La semaine est déjà équilibrée",
+    "The week's already balanced",
+    "Die Woche ist bereits ausgeglichen"
+  ],
   "La sesión ya es corta (": [
     "La sessió ja és curta (",
     "La session est déjà courte (",
@@ -2009,6 +2267,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Ventilateur",
     "Fan",
     "Fan"
+  ],
+  "Marcado como no realizado. La semana se ha recortado manteniendo las sesiones clave.": [
+    "Marcat com a desper format. La setmana s' ha tallat amb les sessions de tecla que s' han premut.",
+    "Marqué comme non performé. La semaine a été coupée avec des séances clés.",
+    "Marked as unperformed. The week has been cut with key sessions held.",
+    "Markiert als unperformed. Die Woche wurde mit wichtigen Sitzungen geschnitten."
+  ],
+  "Marcado como no realizado. Te proponemos un día libre para reubicarlo.": [
+    "Marcat com a desper format. Et proposem un dia lliure per a traslladar-lo.",
+    "Marqué comme non performé. Nous vous proposons un jour de congé pour le réinstaller.",
+    "Marked as unperformed. We propose you a day off to relocate him.",
+    "Markiert als unperformed. Wir schlagen Ihnen einen freien Tag vor, um ihn zu verlagern."
   ],
   "Marcar como realizado": [
     "Marcat com a realitzada",
@@ -2184,6 +2454,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "More pages",
     "Mehr Seiten"
   ],
+  "Muestra la barra lateral móvil.": [
+    "Mostra la barra lateral mòbil.",
+    "Affiche la barre latérale mobile.",
+    "Displays the mobile sidebar.",
+    "Zeigt die mobile Seitenleiste an."
+  ],
   "Muy fatigado": [
     "Molt fatigat",
     "Très fatigué",
@@ -2274,11 +2550,23 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "No events in range",
     "Keine Ereignisse in Reichweite"
   ],
+  "No hay objetivo semanal para recalcular": [
+    "No hi ha cap objectiu setmanal per calcular",
+    "Aucune cible hebdomadaire à recalculer",
+    "No weekly target to recalculate",
+    "Kein wöchentliches Ziel zu rekalkulieren"
+  ],
   "No hay pasos definidos en este entrenamiento.": [
     "No hi ha passos clars en aquest entrenament.",
     "Pas d'étapes claires dans cette formation.",
     "No clear steps at this training.",
     "Keine klaren Schritte bei diesem Training."
+  ],
+  "No quedan sesiones pendientes esta semana": [
+    "No hi ha sessions excepcionals aquesta setmana",
+    "Pas de sessions exceptionnelles cette semaine",
+    "No outstanding sessions this week",
+    "Keine ausstehenden Sessions in dieser Woche"
   ],
   "No se detectaron intervalos claros por encima del 88% FTP.": [
     "No s' han trobat intervals clars sobre el 88% FTP.",
@@ -2286,17 +2574,59 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "No clear intervals were found above 88% FTP.",
     "Es wurden keine klaren Intervalle über 88% FTP gefunden."
   ],
+  "No se ha podido actualizar": [
+    "No s' ha pogut actualitzar",
+    "Impossible de mettre à jour",
+    "Unable to update",
+    "Kann nicht aktualisiert werden"
+  ],
+  "No se ha podido ajustar": [
+    "Uniup",
+    "Découpe",
+    "Untiup",
+    "Ruhen"
+  ],
   "No se ha podido cargar la política de privacidad.": [
     "Ha estat impossible carregar la política de privacitat.",
     "Il a été impossible d'adopter la politique de confidentialité.",
     "It has been impossible to carry the privacy policy.",
     "Es war unmöglich, die Datenschutzerklärung zu tragen."
   ],
+  "No se ha podido completar": [
+    "Sense finalitzar",
+    "Inachèvement",
+    "Uncomplete",
+    "Unvollständig"
+  ],
+  "No se ha podido crear la cuenta": [
+    "No s' ha pogut crear el compte",
+    "Impossible de créer un compte",
+    "Unable to create account",
+    "Unfähig, ein Konto zu erstellen"
+  ],
+  "No se ha podido eliminar el perfil": [
+    "No s' ha pogut eliminar el perfil",
+    "Impossible de supprimer le profil",
+    "Unable to remove profile",
+    "Profil nicht entfernen können"
+  ],
+  "No se ha podido enviar el email": [
+    "No s' ha pogut enviar el correu electrònic",
+    "Impossible d'envoyer un email",
+    "Unable to send email",
+    "E-Mails können nicht gesendet werden"
+  ],
   "No se ha podido obtener el nombre del bot. Revisa la conexión de Telegram.": [
     "No sé com es diu el seu robot. Comproveu la connexió de Telegram.",
     "On ne peut pas obtenir son nom de son robot. Vérifiez la connexion de Télégram.",
     "Can't get his name from his bot. Check Telegram's connection.",
     "Kann seinen namen nicht von seinem bot bekommen. Überprüfen Sie die Verbindung von Telegram."
+  ],
+  "No se ha podido reenviar el email": [
+    "No s' ha pogut enviar el correu electrònic",
+    "Impossible d'envoyer un email",
+    "Unable to send email",
+    "E-Mails können nicht gesendet werden"
   ],
   "No se han encontrado fuentes de agua cercanas a menos de 200m a lo largo de la ruta indicada": [
     "No s'han trobat fonts d'aigua prop de menys de 200m a la ruta indicada",
@@ -2309,6 +2639,54 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Aucune source d'eau n'a pu être trouvée",
     "No water sources could be found",
     "Keine Wasserquellen konnten gefunden werden"
+  ],
+  "No se pudo ajustar la sesión": [
+    "No s' ha pogut retallar la sessió",
+    "Impossible de tenir la session",
+    "Unable to tiup session",
+    "Keine Tiup-Sitzung"
+  ],
+  "No se pudo generar el plan": [
+    "No s' ha pogut generar el pla",
+    "Le plan n'a pas pu être élaboré",
+    "The plan could not be generated",
+    "Der Plan konnte nicht erstellt werden"
+  ],
+  "No se pudo guardar": [
+    "No es pot haver desat",
+    "Impossible d'être sauvé",
+    "Can't have been saved",
+    "Kann nicht gerettet worden sein"
+  ],
+  "No se pudo guardar el test": [
+    "No es pot desar la prova",
+    "Impossible d'enregistrer le test",
+    "Can't save the test",
+    "Kann den Test nicht retten"
+  ],
+  "No se pudo iniciar la conexión": [
+    "No s’ha pogut iniciar la connexió",
+    "Impossible de démarrer la connexion",
+    "Could not start the connection",
+    "Verbindung konnte nicht gestartet werden"
+  ],
+  "No se pudo procesar el GPX": [
+    "Ha fallat en processar el GPX",
+    "Impossible de traiter GPX",
+    "Failed to process GPX",
+    "Keine Verarbeitung von GPX"
+  ],
+  "No se pudo programar el test": [
+    "No es pot programar la prova",
+    "Impossible de programmer le test",
+    "Can't program the test",
+    "Kann den Test nicht programmieren"
+  ],
+  "No se pudo recalcular": [
+    "No es pot recalcular",
+    "Impossible de recalculer",
+    "Can't recalculate",
+    "Kann nicht neu berechnen"
   ],
   "No se pudo vincular Intervals.icu": [
     "No s'ha pogut vincular Intervals.icu",
@@ -2399,6 +2777,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Notifications",
     "Notifications",
     "Benachrichtigungen"
+  ],
+  "Notificaciones activadas": [
+    "Notifics activats",
+    "Signaux activés",
+    "Notifics activated",
+    "Notifikationen aktiviert"
   ],
   "Notificaciones push": [
     "NotificacionsName",
@@ -2550,6 +2934,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Loan's blocked. Act with the browser settings.",
     "Der Kredit ist blockiert. Handeln Sie mit den Browsereinstellungen."
   ],
+  "Permiso no concedido": [
+    "Marxa sense èxit",
+    "Congé non accordé",
+    "Ungranted leave",
+    "Nicht gewährter Urlaub"
+  ],
   "Permitir notificaciones": [
     "Permet notificacions",
     "Autoriser les notifications",
@@ -2597,6 +2987,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Plan nutritionnel hebdomadaire",
     "Weekly nutritional plan",
     "Wöchentlicher Ernährungsplan"
+  ],
+  "Plan nutricional semanal creado": [
+    "Pla nutricional setmanal creat",
+    "Plan nutritionnel hebdomadaire créé",
+    "Weekly nutrition plan created",
+    "Wöchentlicher Ernährungsplan erstellt"
   ],
   "Plan:": [
     "Pla:",
@@ -2682,6 +3078,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Preferences / intolerances",
     "Vorlieben / Unverträglichkeiten"
   ],
+  "Preferencias guardadas": [
+    "Preferències desades",
+    "Préférences enregistrées",
+    "Preferences saved",
+    "Einstellungen gespeichert"
+  ],
   "Preparación": [
     "Preparació",
     "Préparation",
@@ -2766,6 +3168,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Server push",
     "Server Push"
   ],
+  "Push del servidor activado": [
+    "El servidor s' ha activat",
+    "Pousse du serveur activée",
+    "Server push activated",
+    "Server Push aktiviert"
+  ],
+  "Push del servidor desactivado": [
+    "S' ha deshabilitat el servidor Push",
+    "Serveur push désactivé",
+    "Push server disabled",
+    "Push-Server deaktiviert"
+  ],
   "Quedan": [
     "Ja està.",
     "C'est ça.",
@@ -2814,6 +3228,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Weekly average readiness",
     "Wöchentliche Durchschnitts-Tagesform"
   ],
+  "Readiness registrado": [
+    "Readiness registrat",
+    "État de forme enregistré",
+    "Readiness saved",
+    "Tagesform gespeichert"
+  ],
   "Realizado:": [
     "Realitzat:",
     "Réalisation :",
@@ -2832,6 +3252,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Retractable session",
     "Retractable Session"
   ],
+  "Receta cambiada": [
+    "Recepta canviada",
+    "Recette remplacée",
+    "Recipe changed",
+    "Rezept geändert"
+  ],
   "Recibe avisos con la app cerrada (recordatorios de entreno, sync Intervals.icu, mantenimiento…). Requiere permitir notificaciones e instalar la PWA en iOS.": [
     "Recupera avisos amb aplicacions tancades (trau els recordatoris, Interval de sincronització.icu, manteniment...). Cal permetre notificacions i instal· lar la pWA a iOS.",
     "Il reçoit des avertissements avec une application fermée (rappel de train, Sync Intervals.icu, maintenance...). Il faut autoriser les notifications et installer le pWA sur iOS.",
@@ -2843,6 +3269,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Recevoir une notification quotidienne de forme",
     "Receive daily Readiness push",
     "Tägliche Tagesform-Push erhalten"
+  ],
+  "Recibirás avisos importantes de tu entrenamiento y material.": [
+    "Tindràs informació important sobre el teu entrenament i material.",
+    "Vous obtiendrez des informations importantes sur votre formation et votre matériel.",
+    "You'll get important information about your training and material.",
+    "Sie erhalten wichtige Informationen zu Ihrem Training und Material."
   ],
   "Recupera.": [
     "Retrave.",
@@ -3078,6 +3510,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Week",
     "Woche"
   ],
+  "Semana ajustada sin ese entrenamiento": [
+    "La setmana llarga sense aquest entrenament",
+    "Semaine serrée sans cette formation",
+    "Tight week without that training",
+    "Enge Woche ohne dieses Training"
+  ],
   "Semana del": [
     "setmana",
     "semaine",
@@ -3101,6 +3539,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Sensation de mât.",
     "Mast feeling.",
     "Mastgefühl."
+  ],
+  "Sesión ajustada:": [
+    "S' ha ajustat la reunió:",
+    "Réunion ajustée:",
+    "Adjusted meeting:",
+    "Bereinigte Sitzung:"
   ],
   "Sexo": [
     "Sexe",
@@ -3162,6 +3606,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "No registered mistakes.)",
     "Keine registrierten Fehler."
   ],
+  "Sin fuentes de agua cercanas": [
+    "Sense fonts d'aigua properes",
+    "Sans sources d'eau proches",
+    "Without close water sources",
+    "Ohne nahe Wasserquellen"
+  ],
   "Sin llamadas registradas este mes.": [
     "No hi ha trucades registrades aquest mes.",
     "Aucun appel enregistré ce mois-ci.",
@@ -3185,6 +3635,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "synchronisation",
     "sync",
     "Sync"
+  ],
+  "Sobrecarga: descansa": [
+    "Sobrecàrrega: descansa",
+    "Surcharge : repose-toi",
+    "Overload: rest",
+    "Überlastung: Pause einlegen"
   ],
   "Sodio": [
     "Sodi",
@@ -3216,11 +3672,23 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Strava connected",
     "Strava verbunden"
   ],
+  "Strava desconectado": [
+    "S' ha desconnexió de la capa",
+    "Sangle non reliée",
+    "Unconnected strap",
+    "Nicht angeschlossenes Gurtband"
+  ],
   "Sube el GPX de la ruta para localizarla y consultar el clima previsto.": [
     "Van pujar el Gpx des de la ruta a trobar i comprovar el clima.",
     "Remontez le Gpx de la route pour trouver et vérifier le climat.",
     "Fan up the Gpx from the route to find and check the climate.",
     "Auffächern des Gpx von der Route, um das Klima zu finden und zu überprüfen."
+  ],
+  "Sube un GPX y genera el plan primero": [
+    "Poseu primer un Gpx i genereu el pla",
+    "Mettez un Gpx et générer le plan d'abord",
+    "Put up a Gpx and generate the plan first",
+    "Erstellen Sie einen Gpx und generieren Sie zuerst den Plan"
   ],
   "Sube un archivo .gpx con el track de la competición": [
     "Registre d' un fitxer .gpx amb la pista de competència",
@@ -3336,6 +3804,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Telegram connected",
     "Telegramm verbunden"
   ],
+  "Telegram desconectado": [
+    "Telegram desconnectat",
+    "Télégramme déconnecté",
+    "Telegram disconnected",
+    "Telegramm abgeschaltet"
+  ],
   "Tengo menos tiempo": [
     "Tinc menys temps.",
     "J'ai moins de temps.",
@@ -3359,6 +3833,18 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Essai marqué tel quel.",
     "Test marked as performed.",
     "Prüfung als durchgeführt gekennzeichnet."
+  ],
+  "Test programado en tu calendario": [
+    "Prova planificada en el calendari",
+    "Test programmé dans votre agenda",
+    "Test scheduled in your calendar",
+    "Test in Ihrem Kalender geplant"
+  ],
+  "Test programado y enviado a Intervals.icu": [
+    "Prova planificada i enviat a Intervals.ichu",
+    "Test programmé et envoyé à Intervals.icu",
+    "Test scheduled and sent to Intervals.icu",
+    "Test geplant und an Intervals.icu gesendet"
   ],
   "Tests de FTP": [
     "Proves FTP",
@@ -3756,6 +4242,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Assets",
     "Vermögenswerte"
   ],
+  "actualizada en Intervals.icu": [
+    "S'ha actualitzat a Intervals.icu",
+    "mise à jour à Intervals.icu",
+    "updated at Intervals.icu",
+    "aktualisiert auf Intervals.icu"
+  ],
   "al límite": [
     "al límit",
     "dans la limite",
@@ -3833,6 +4325,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Du mois.",
     "Of the month.",
     "des Monats."
+  ],
+  "dispositivos": [
+    "dispositius",
+    "dispositifs",
+    "devices",
+    "Einrichtungen"
   ],
   "días ·": [
     "dies",
