@@ -20,7 +20,6 @@ import {
   TrendingUp,
   Sparkles,
   Bike,
-  BarChart3,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -31,20 +30,28 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { useI18n } from "@/lib/i18n";
 
-const NAV = [
-  { to: "/app", label: "nav.home", icon: LayoutDashboard },
-  { to: "/perfil", label: "nav.profile", icon: User },
+const HOME = { to: "/app", label: "nav.home", icon: LayoutDashboard } as const;
+const TRAINING_NAV = [
   { to: "/entrenamientos", label: "nav.workouts", icon: Dumbbell },
   { to: "/menus", label: "nav.nutrition", icon: UtensilsCrossed },
-  { to: "/actividades", label: "nav.activities", icon: Activity },
-  { to: "/competiciones", label: "nav.routes", icon: Trophy },
-  { to: "/progreso", label: "nav.progress", icon: TrendingUp },
-  { to: "/semanas", label: "nav.weekly", icon: BarChart3 },
   { to: "/calendario", label: "nav.calendar", icon: CalendarRange },
   { to: "/readiness", label: "nav.readiness", icon: HeartPulse },
+] as const;
+const ANALYSIS_NAV = [
+  { to: "/progreso", label: "nav.progress", icon: TrendingUp },
+  { to: "/actividades", label: "nav.activities", icon: Activity },
+] as const;
+const GENERAL_NAV = [
+  { to: "/competiciones", label: "nav.routes", icon: Trophy },
   { to: "/mi-bici", label: "nav.bike", icon: Bike },
+  { to: "/perfil", label: "nav.profile", icon: User },
   { to: "/ajustes", label: "nav.settings", icon: Settings },
 ] as const;
+const MORE_GROUPS = [
+  { label: "nav.group.training", items: TRAINING_NAV },
+  { label: "nav.group.analysis", items: ANALYSIS_NAV },
+] as const;
+const BOTTOM_NAV = [HOME, TRAINING_NAV[0], ANALYSIS_NAV[0], GENERAL_NAV[0]] as const;
 
 function TourButton({ onClick }: { onClick?: () => void }) {
   const { t } = useI18n();
@@ -79,23 +86,36 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const isActive = (to: string) => (to === "/app" ? path === "/app" : path.startsWith(to));
 
+  const NavItem = ({ item, onClick }: { item: (typeof HOME) | (typeof TRAINING_NAV)[number] | (typeof ANALYSIS_NAV)[number] | (typeof GENERAL_NAV)[number]; onClick?: () => void }) => {
+    const Icon = item.icon;
+    return (
+      <Link
+        to={item.to}
+        onClick={onClick}
+        className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+          isActive(item.to)
+            ? "bg-accent text-accent-foreground"
+            : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+        }`}
+      >
+        <Icon className="size-4 shrink-0" />
+        {t(item.label)}
+      </Link>
+    );
+  };
+
   const NavLinks = ({ onClick }: { onClick?: () => void }) => (
     <>
-      {NAV.map(({ to, label, icon: Icon }) => (
-        <Link
-          key={to}
-          to={to}
-          onClick={onClick}
-          className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-            isActive(to)
-              ? "bg-accent text-accent-foreground"
-              : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-          }`}
-        >
-          <Icon className="size-4 shrink-0" />
-          {t(label)}
-        </Link>
+      <NavItem item={HOME} onClick={onClick} />
+      {MORE_GROUPS.map((group) => (
+        <div key={group.label} className="pt-3 first:pt-1">
+          <p className="px-4 pb-1 text-[10px] font-semibold uppercase text-muted-foreground">{t(group.label)}</p>
+          {group.items.map((item) => <NavItem key={item.to} item={item} onClick={onClick} />)}
+        </div>
       ))}
+      <div className="pt-3">
+        {GENERAL_NAV.map((item) => <NavItem key={item.to} item={item} onClick={onClick} />)}
+      </div>
       {isAdmin && (
         <Link
           to="/backend"
@@ -224,7 +244,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Mobile bottom nav */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-surface border-t flex items-center justify-around px-2 py-2">
-        {NAV.slice(0, 4).map(({ to, label, icon: Icon }) => (
+        {BOTTOM_NAV.map(({ to, label, icon: Icon }) => (
           <Link
             key={to}
             to={to}

@@ -13,8 +13,12 @@ import {
 "recharts";
 import { ThresholdCard } from "@/components/ThresholdCard";
 import { FtpHistoryChart } from "@/components/FtpHistoryChart";
+import { WeeklySummary } from "@/components/WeeklySummary";
 
 export const Route = createFileRoute("/_authenticated/progreso")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    vista: search.vista === "semanal" ? "semanal" as const : undefined,
+  }),
   component: ProgresoPage,
   head: () => ({
     meta: [
@@ -29,6 +33,7 @@ export const Route = createFileRoute("/_authenticated/progreso")({
 });
 
 function ProgresoPage() {
+  const vista = Route.useSearch().vista ?? "progreso";
   const getProg = useServerFn(getProgress);
   const getTh = useServerFn(getThresholdStatus);
   const getCurve = useServerFn(getPowerCurve);
@@ -80,6 +85,29 @@ function ProgresoPage() {
         <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">{tr("Evolución")}</p>
         <h1 className="font-display text-3xl font-bold uppercase tracking-tight mt-1">{tr("Progreso")}</h1>
       </div>
+
+      <div className="flex border-b" role="tablist" aria-label={tr("Progreso")}>
+        <Link
+          to="/progreso"
+          search={{ vista: undefined }}
+          role="tab"
+          aria-selected={vista === "progreso"}
+          className={`px-4 py-2 text-sm font-semibold border-b-2 ${vista === "progreso" ? "border-primary text-primary" : "border-transparent text-muted-foreground"}`}
+        >
+          {tr("Progreso")}
+        </Link>
+        <Link
+          to="/progreso"
+          search={{ vista: "semanal" }}
+          role="tab"
+          aria-selected={vista === "semanal"}
+          className={`px-4 py-2 text-sm font-semibold border-b-2 ${vista === "semanal" ? "border-primary text-primary" : "border-transparent text-muted-foreground"}`}
+        >
+          {tr("Resumen semanal")}
+        </Link>
+      </div>
+
+      {vista === "semanal" ? <WeeklySummary /> : <>
 
       {th.data && <ThresholdCard status={th.data as any} />}
 
@@ -287,6 +315,7 @@ function ProgresoPage() {
           </p>
         </>
       }
+      </>}
     </div>);
 
 }
