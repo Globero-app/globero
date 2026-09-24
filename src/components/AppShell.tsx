@@ -43,6 +43,7 @@ const NAV = [
   { to: "/calendario", label: "nav.calendar", icon: CalendarRange },
   { to: "/readiness", label: "nav.readiness", icon: HeartPulse },
   { to: "/mi-bici", label: "nav.bike", icon: Bike },
+  { to: "/ajustes", label: "nav.settings", icon: Settings },
 ] as const;
 
 function TourButton({ onClick }: { onClick?: () => void }) {
@@ -137,7 +138,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         </nav>
         <div className="border-t p-4 space-y-3">
           <ThemeToggle />
-          <LanguageSelector className="w-full" />
           <div className="flex items-center gap-3 px-2">
             <div className="size-9 rounded-full bg-primary/10 text-primary grid place-items-center text-xs font-bold">
               {user?.email?.[0]?.toUpperCase() ?? "?"}
@@ -186,7 +186,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               <TourButton onClick={() => setMobileOpen(false)} />
               <InstallAppButton />
               <ThemeToggle />
-              <LanguageSelector className="w-full" />
             </div>
 
             <button

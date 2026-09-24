@@ -17,7 +17,7 @@ type Dict = Record<string, string>;
 const es: Dict = {
   "nav.home": "Inicio", "nav.profile": "Perfil", "nav.workouts": "Entrenamientos", "nav.nutrition": "Nutrición",
   "nav.activities": "Actividades", "nav.routes": "Rutas", "nav.progress": "Progreso", "nav.weekly": "Resumen semanal",
-  "nav.calendar": "Calendario", "nav.readiness": "Readiness", "nav.bike": "Mi Bici", "nav.backend": "Backend",
+  "nav.calendar": "Calendario", "nav.readiness": "Readiness", "nav.bike": "Mi Bici", "nav.settings": "Ajustes", "nav.backend": "Backend",
   "nav.tour": "Ver Tour", "nav.menu": "Menú", "nav.more": "Más", "nav.signout": "Cerrar sesión",
   "role.admin": "Administrador", "role.cyclist": "Ciclista", "brand.tagline": "Plataforma de IA para ciclistas",
   "lang.label": "Idioma", "landing.access": "Acceder", "landing.signup": "Crear cuenta", "landing.privacy": "Política de Privacidad",
@@ -30,7 +30,7 @@ const es: Dict = {
 const ca: Dict = {
   "nav.home": "Inici", "nav.profile": "Perfil", "nav.workouts": "Entrenaments", "nav.nutrition": "Nutrició",
   "nav.activities": "Activitats", "nav.routes": "Rutes", "nav.progress": "Progrés", "nav.weekly": "Resum setmanal",
-  "nav.calendar": "Calendari", "nav.readiness": "Readiness", "nav.bike": "La meva bici", "nav.backend": "Backend",
+  "nav.calendar": "Calendari", "nav.readiness": "Readiness", "nav.bike": "La meva bici", "nav.settings": "Configuració", "nav.backend": "Backend",
   "nav.tour": "Veure el tour", "nav.menu": "Menú", "nav.more": "Més", "nav.signout": "Tancar sessió",
   "role.admin": "Administrador", "role.cyclist": "Ciclista", "brand.tagline": "Plataforma d'IA per a ciclistes",
   "lang.label": "Idioma", "landing.access": "Accedir", "landing.signup": "Crear compte", "landing.privacy": "Política de privadesa",
@@ -43,7 +43,7 @@ const ca: Dict = {
 const fr: Dict = {
   "nav.home": "Accueil", "nav.profile": "Profil", "nav.workouts": "Entraînements", "nav.nutrition": "Nutrition",
   "nav.activities": "Activités", "nav.routes": "Parcours", "nav.progress": "Progrès", "nav.weekly": "Bilan hebdo",
-  "nav.calendar": "Calendrier", "nav.readiness": "Forme du jour", "nav.bike": "Mon vélo", "nav.backend": "Administration",
+  "nav.calendar": "Calendrier", "nav.readiness": "Forme du jour", "nav.bike": "Mon vélo", "nav.settings": "Paramètres", "nav.backend": "Administration",
   "nav.tour": "Voir la visite", "nav.menu": "Menu", "nav.more": "Plus", "nav.signout": "Se déconnecter",
   "role.admin": "Administrateur", "role.cyclist": "Cycliste", "brand.tagline": "Plateforme d'IA pour cyclistes",
   "lang.label": "Langue", "landing.access": "Se connecter", "landing.signup": "Créer un compte", "landing.privacy": "Politique de confidentialité",
@@ -56,7 +56,7 @@ const fr: Dict = {
 const en: Dict = {
   "nav.home": "Home", "nav.profile": "Profile", "nav.workouts": "Workouts", "nav.nutrition": "Nutrition",
   "nav.activities": "Activities", "nav.routes": "Routes", "nav.progress": "Progress", "nav.weekly": "Weekly summary",
-  "nav.calendar": "Calendar", "nav.readiness": "Readiness", "nav.bike": "My Bike", "nav.backend": "Admin",
+  "nav.calendar": "Calendar", "nav.readiness": "Readiness", "nav.bike": "My Bike", "nav.settings": "Settings", "nav.backend": "Admin",
   "nav.tour": "Take the tour", "nav.menu": "Menu", "nav.more": "More", "nav.signout": "Sign out",
   "role.admin": "Administrator", "role.cyclist": "Cyclist", "brand.tagline": "AI platform for cyclists",
   "lang.label": "Language", "landing.access": "Sign in", "landing.signup": "Create account", "landing.privacy": "Privacy Policy",
@@ -69,7 +69,7 @@ const en: Dict = {
 const de: Dict = {
   "nav.home": "Start", "nav.profile": "Profil", "nav.workouts": "Trainings", "nav.nutrition": "Ernährung",
   "nav.activities": "Aktivitäten", "nav.routes": "Routen", "nav.progress": "Fortschritt", "nav.weekly": "Wochenübersicht",
-  "nav.calendar": "Kalender", "nav.readiness": "Tagesform", "nav.bike": "Mein Rad", "nav.backend": "Verwaltung",
+  "nav.calendar": "Kalender", "nav.readiness": "Tagesform", "nav.bike": "Mein Rad", "nav.settings": "Einstellungen", "nav.backend": "Verwaltung",
   "nav.tour": "Tour ansehen", "nav.menu": "Menü", "nav.more": "Mehr", "nav.signout": "Abmelden",
   "role.admin": "Administrator", "role.cyclist": "Radfahrer", "brand.tagline": "KI-Plattform für Radfahrer",
   "lang.label": "Sprache", "landing.access": "Anmelden", "landing.signup": "Konto erstellen", "landing.privacy": "Datenschutzerklärung",

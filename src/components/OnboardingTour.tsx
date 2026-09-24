@@ -29,7 +29,7 @@ const STEPS: Step[] = [
   icon: Bike,
   title: "2 · Conecta Intervals.icu ",
   body: "Sincroniza tus actividades para que la IA analice tu forma real y estime tu FTP automáticamente. También sincronizará tus entrenos.",
-  cta: { label: "Configurar Intervals.icu", to: "/perfil" }
+   cta: { label: "Configurar Intervals.icu", to: "/ajustes" }
 },
 {
   icon: Gauge,

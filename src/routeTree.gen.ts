@@ -28,6 +28,7 @@ import { Route as AuthenticatedEntrenamientosRouteImport } from './routes/_authe
 import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
 import { Route as AuthenticatedBackendRouteImport } from './routes/_authenticated/backend'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuthenticatedAjustesRouteImport } from './routes/_authenticated/ajustes'
 import { Route as AuthenticatedCompeticionesIndexRouteImport } from './routes/_authenticated/competiciones.index'
 import { Route as AuthenticatedActividadesIndexRouteImport } from './routes/_authenticated/actividades.index'
 import { Route as AuthStravaCallbackRouteImport } from './routes/auth/strava/callback'
@@ -139,6 +140,11 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   path: '/app',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAjustesRoute = AuthenticatedAjustesRouteImport.update({
+  id: '/ajustes',
+  path: '/ajustes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCompeticionesIndexRoute =
   AuthenticatedCompeticionesIndexRouteImport.update({
     id: '/competiciones/',
@@ -233,6 +239,7 @@ export interface FileRoutesByFullPath {
   '/recuperar': typeof RecuperarRoute
   '/registro': typeof RegistroRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/ajustes': typeof AuthenticatedAjustesRoute
   '/app': typeof AuthenticatedAppRoute
   '/backend': typeof AuthenticatedBackendRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
@@ -268,6 +275,7 @@ export interface FileRoutesByTo {
   '/recuperar': typeof RecuperarRoute
   '/registro': typeof RegistroRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/ajustes': typeof AuthenticatedAjustesRoute
   '/app': typeof AuthenticatedAppRoute
   '/backend': typeof AuthenticatedBackendRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
@@ -305,6 +313,7 @@ export interface FileRoutesById {
   '/recuperar': typeof RecuperarRoute
   '/registro': typeof RegistroRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/ajustes': typeof AuthenticatedAjustesRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/backend': typeof AuthenticatedBackendRoute
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
@@ -342,6 +351,7 @@ export interface FileRouteTypes {
     | '/recuperar'
     | '/registro'
     | '/reset-password'
+    | '/ajustes'
     | '/app'
     | '/backend'
     | '/calendario'
@@ -377,6 +387,7 @@ export interface FileRouteTypes {
     | '/recuperar'
     | '/registro'
     | '/reset-password'
+    | '/ajustes'
     | '/app'
     | '/backend'
     | '/calendario'
@@ -413,6 +424,7 @@ export interface FileRouteTypes {
     | '/recuperar'
     | '/registro'
     | '/reset-password'
+    | '/_authenticated/ajustes'
     | '/_authenticated/app'
     | '/_authenticated/backend'
     | '/_authenticated/calendario'
@@ -599,6 +611,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ajustes': {
+      id: '/_authenticated/ajustes'
+      path: '/ajustes'
+      fullPath: '/ajustes'
+      preLoaderRoute: typeof AuthenticatedAjustesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/competiciones/': {
       id: '/_authenticated/competiciones/'
       path: '/competiciones'
@@ -708,6 +727,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAjustesRoute: typeof AuthenticatedAjustesRoute
   AuthenticatedAppRoute: typeof AuthenticatedAppRoute
   AuthenticatedBackendRoute: typeof AuthenticatedBackendRoute
   AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
@@ -726,6 +746,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAjustesRoute: AuthenticatedAjustesRoute,
   AuthenticatedAppRoute: AuthenticatedAppRoute,
   AuthenticatedBackendRoute: AuthenticatedBackendRoute,
   AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,

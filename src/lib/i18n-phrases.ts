@@ -5332,6 +5332,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
   "Pico": ["Pic", "Pic", "Peak", "Höhepunkt"],
   "Tapering": ["Afinament", "Affûtage", "Tapering", "Tapering"],
   "Descarga": ["Descàrrega", "Récupération", "Deload", "Entlastung"],
+  "Ajustes": ["Configuració", "Paramètres", "Settings", "Einstellungen"],
+  "Preferencias y conexiones": ["Preferències i connexions", "Préférences et connexions", "Preferences and connections", "Einstellungen und Verbindungen"],
+  "Idioma": ["Idioma", "Langue", "Language", "Sprache"],
+  "Idioma de la aplicación": ["Idioma de l'aplicació", "Langue de l'application", "Application language", "App-Sprache"],
+  "Ajustes guardados": ["Configuració desada", "Paramètres enregistrés", "Settings saved", "Einstellungen gespeichert"],
+  "Guardar ajustes": ["Desar configuració", "Enregistrer les paramètres", "Save settings", "Einstellungen speichern"],
   "✓ Guardado en tu perfil. La IA usará estas zonas al generar entrenamientos.": [
     "Això és del que parlo. La IA usarà aquestes àrees generant entrenament.",
     "C'est de ça que je parle. L'AI utilisera ces domaines en créant une formation.",
