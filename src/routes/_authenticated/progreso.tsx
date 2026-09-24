@@ -17,7 +17,7 @@ import { WeeklySummary } from "@/components/WeeklySummary";
 
 export const Route = createFileRoute("/_authenticated/progreso")({
   validateSearch: (search: Record<string, unknown>) => ({
-    vista: search.vista === "semanal" ? "semanal" as const : "progreso" as const,
+    vista: search.vista === "semanal" ? "semanal" as const : undefined,
   }),
   component: ProgresoPage,
   head: () => ({
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/_authenticated/progreso")({
 });
 
 function ProgresoPage() {
-  const { vista } = Route.useSearch();
+  const vista = Route.useSearch().vista ?? "progreso";
   const getProg = useServerFn(getProgress);
   const getTh = useServerFn(getThresholdStatus);
   const getCurve = useServerFn(getPowerCurve);
