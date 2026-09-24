@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { tr } from "@/lib/i18n";import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,19 +7,19 @@ import { intervalsActivityDetail } from "@/lib/intervals.functions";
 import {
   downsample, meanMaxCurve, powerZoneDistribution, hrZoneDistribution,
   detectIntervals, extractPlannedIntervals, complianceScore, normalizedPower,
-  formatDuration, type Streams,
-} from "@/lib/activity-analysis";
+  formatDuration, type Streams } from
+"@/lib/activity-analysis";
 import { useEffect, useMemo, useRef } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar, Cell,
-} from "recharts";
+  BarChart, Bar, Cell } from
+"recharts";
 import { ArrowLeft, ExternalLink, Activity, Zap, Heart, Gauge, Target, CheckCircle2, XCircle } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
 export const Route = createFileRoute("/_authenticated/actividades/$id")({
-  component: ActivityDetailPage,
+  component: ActivityDetailPage
 });
 
 function ActivityDetailPage() {
@@ -33,13 +33,13 @@ function ActivityDetailPage() {
       const { data } = await supabase.from("profiles").select("ftp,age").eq("id", user!.id).maybeSingle();
       return data;
     },
-    enabled: !!user,
+    enabled: !!user
   });
 
   const detail = useQuery({
     queryKey: ["icu-detail", id],
     queryFn: () => fetchDetail({ data: { id } }),
-    staleTime: 30 * 60 * 1000,
+    staleTime: 30 * 60 * 1000
   });
 
   const actRow = useQuery({
@@ -47,7 +47,7 @@ function ActivityDetailPage() {
     queryFn: async () => {
       const { data } = await supabase.from("intervals_activities").select("*").eq("id", String(id)).maybeSingle();
       return data;
-    },
+    }
   });
 
   // Busca workout planificado cercano en fecha (±1 día)
@@ -57,17 +57,17 @@ function ActivityDetailPage() {
     queryFn: async () => {
       if (!startDate) return null;
       const day = new Date(startDate);
-      const from = new Date(day); from.setDate(from.getDate() - 1);
-      const to = new Date(day); to.setDate(to.getDate() + 1);
-      const { data } = await supabase.from("workouts").select("*")
-        .eq("user_id", user!.id)
-        .gte("created_at", from.toISOString())
-        .lte("created_at", to.toISOString())
-        .order("created_at", { ascending: false })
-        .limit(1);
+      const from = new Date(day);from.setDate(from.getDate() - 1);
+      const to = new Date(day);to.setDate(to.getDate() + 1);
+      const { data } = await supabase.from("workouts").select("*").
+      eq("user_id", user!.id).
+      gte("created_at", from.toISOString()).
+      lte("created_at", to.toISOString()).
+      order("created_at", { ascending: false }).
+      limit(1);
       return data?.[0] ?? null;
     },
-    enabled: !!user && !!startDate,
+    enabled: !!user && !!startDate
   });
 
   const activity = detail.data?.activity;
@@ -88,12 +88,12 @@ function ActivityDetailPage() {
       t: Math.round((time[i] ?? 0) / 60),
       watts: watts[i] ?? null,
       hr: hr[i] ?? null,
-      cad: cad[i] ?? null,
+      cad: cad[i] ?? null
     }));
   }, [time, watts, hr, cad]);
 
   const mmp = useMemo(() => meanMaxCurve(watts).map((p) => ({
-    label: formatDuration(p.seconds), watts: p.watts,
+    label: formatDuration(p.seconds), watts: p.watts
   })), [watts]);
 
   const pZones = useMemo(() => powerZoneDistribution(watts, ftp), [watts, ftp]);
@@ -103,23 +103,23 @@ function ActivityDetailPage() {
 
   const plannedIntervals = useMemo(
     () => planned.data?.plan ? extractPlannedIntervals(planned.data.plan) : [],
-    [planned.data],
+    [planned.data]
   );
   const compliance = useMemo(
     () => complianceScore(plannedIntervals, intervals),
-    [plannedIntervals, intervals],
+    [plannedIntervals, intervals]
   );
 
   if (detail.isLoading) {
-    return <div className="text-sm text-muted-foreground">Cargando análisis…</div>;
+    return <div className="text-sm text-muted-foreground">{tr("Cargando análisis…")}</div>;
   }
   if (detail.isError || !activity) {
     return (
       <div className="max-w-xl mx-auto text-center py-20">
-        <p className="text-sm text-destructive mb-4">Error: {(detail.error as any)?.message ?? "Actividad no disponible"}</p>
-        <Link to="/actividades" className="text-primary text-sm underline">Volver</Link>
-      </div>
-    );
+        <p className="text-sm text-destructive mb-4">{tr("Error:")} {(detail.error as any)?.message ?? "Actividad no disponible"}</p>
+        <Link to="/actividades" className="text-primary text-sm underline">{tr("Volver")}</Link>
+      </div>);
+
   }
 
 
@@ -127,7 +127,7 @@ function ActivityDetailPage() {
     <div className="space-y-6">
       <div>
         <Link to="/actividades" className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1 mb-2">
-          <ArrowLeft className="size-3" /> Actividades
+          <ArrowLeft className="size-3" /> {tr("Actividades")} 
         </Link>
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
@@ -138,24 +138,24 @@ function ActivityDetailPage() {
             </p>
           </div>
           <a href={`https://intervals.icu/activities/${activity.id}`} target="_blank" rel="noopener"
-             className="inline-flex items-center gap-1 text-primary text-xs hover:opacity-80 shrink-0">
+          className="inline-flex items-center gap-1 text-primary text-xs hover:opacity-80 shrink-0">
             Intervals.icu <ExternalLink className="size-3" />
           </a>
         </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <Stat label="Distancia" value={`${((activity.distance ?? 0) / 1000).toFixed(1)} km`} />
-        <Stat label="Duración" value={formatDuration(activity.moving_time ?? 0)} />
-        <Stat label="Desnivel" value={`+${Math.round(activity.total_elevation_gain ?? 0)} m`} />
-        <Stat label="Potencia media" value={activity.average_watts ? `${Math.round(activity.average_watts)} W` : "—"} />
-        <Stat label="NP" value={np ? `${np} W` : "—"} />
+        <Stat label={tr("Distancia")} value={`${((activity.distance ?? 0) / 1000).toFixed(1)} km`} />
+        <Stat label={tr("Duración")} value={formatDuration(activity.moving_time ?? 0)} />
+        <Stat label={tr("Desnivel")} value={`+${Math.round(activity.total_elevation_gain ?? 0)} m`} />
+        <Stat label={tr("Potencia media")} value={activity.average_watts ? `${Math.round(activity.average_watts)} W` : "—"} />
+        <Stat label={tr("NP")} value={np ? `${np} W` : "—"} />
       </div>
 
       {latlng.length > 0 && <RouteMap latlng={latlng} />}
 
-      {watts.length > 0 && (
-        <ChartCard icon={<Zap className="size-4" />} title="Potencia">
+      {watts.length > 0 &&
+      <ChartCard icon={<Zap className="size-4" />} title={tr("Potencia")}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -166,10 +166,10 @@ function ActivityDetailPage() {
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>
-      )}
+      }
 
-      {hr.length > 0 && (
-        <ChartCard icon={<Heart className="size-4" />} title="Frecuencia cardíaca">
+      {hr.length > 0 &&
+      <ChartCard icon={<Heart className="size-4" />} title={tr("Frecuencia cardíaca")}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -180,10 +180,10 @@ function ActivityDetailPage() {
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>
-      )}
+      }
 
-      {cad.length > 0 && (
-        <ChartCard icon={<Gauge className="size-4" />} title="Cadencia">
+      {cad.length > 0 &&
+      <ChartCard icon={<Gauge className="size-4" />} title={tr("Cadencia")}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -194,10 +194,10 @@ function ActivityDetailPage() {
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>
-      )}
+      }
 
-      {mmp.length > 0 && (
-        <ChartCard icon={<Activity className="size-4" />} title="Curva de potencia (mean-max)">
+      {mmp.length > 0 &&
+      <ChartCard icon={<Activity className="size-4" />} title={tr("Curva de potencia (mean-max)")}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={mmp}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -208,95 +208,95 @@ function ActivityDetailPage() {
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>
-      )}
+      }
 
       <div className="grid md:grid-cols-2 gap-4">
-        {watts.length > 0 && (
-          <ZonesCard title={`Zonas de potencia (FTP ${ftp}W)`} zones={pZones} />
-        )}
-        {hr.length > 0 && (
-          <ZonesCard title={`Zonas FC (FCmax ${hrMax})`} zones={hrZones} />
-        )}
+        {watts.length > 0 &&
+        <ZonesCard title={`Zonas de potencia (FTP ${ftp}W)`} zones={pZones} />
+        }
+        {hr.length > 0 &&
+        <ZonesCard title={`Zonas FC (FCmax ${hrMax})`} zones={hrZones} />
+        }
       </div>
 
       <div className="bg-surface border rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
           <Target className="size-4 text-primary" />
-          <h2 className="font-display text-lg font-bold uppercase">Intervalos detectados</h2>
+          <h2 className="font-display text-lg font-bold uppercase">{tr("Intervalos detectados")}</h2>
           <span className="text-xs text-muted-foreground ml-auto">
-            {intervals.length} bloque{intervals.length === 1 ? "" : "s"} ≥ 88% FTP · 30s
+            {intervals.length} {tr("bloque")}{intervals.length === 1 ? "" : "s"} {tr("≥ 88% FTP · 30s")} 
           </span>
         </div>
-        {intervals.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No se detectaron intervalos claros por encima del 88% FTP.</p>
-        ) : (
-          <div className="space-y-1.5">
-            {intervals.map((iv, i) => (
-              <div key={i} className="flex items-center justify-between text-sm border-b border-border/50 pb-1.5">
+        {intervals.length === 0 ?
+        <p className="text-sm text-muted-foreground">{tr("No se detectaron intervalos claros por encima del 88% FTP.")}</p> :
+
+        <div className="space-y-1.5">
+            {intervals.map((iv, i) =>
+          <div key={i} className="flex items-center justify-between text-sm border-b border-border/50 pb-1.5">
                 <span className="font-mono text-xs text-muted-foreground">#{i + 1}</span>
                 <span>{formatDuration(iv.duration)}</span>
-                <span className="font-semibold text-primary">{iv.avgWatts} W</span>
-                <span className="text-xs text-muted-foreground">{Math.round((iv.avgWatts / ftp) * 100)}% FTP</span>
+                <span className="font-semibold text-primary">{iv.avgWatts} {tr("W")}</span>
+                <span className="text-xs text-muted-foreground">{Math.round(iv.avgWatts / ftp * 100)}{tr("% FTP")}</span>
               </div>
-            ))}
+          )}
           </div>
-        )}
+        }
       </div>
 
-      {planned.data && (
-        <div className="bg-surface border rounded-xl p-5">
+      {planned.data &&
+      <div className="bg-surface border rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
             <CheckCircle2 className="size-4 text-primary" />
-            <h2 className="font-display text-lg font-bold uppercase">Planificado vs Realizado</h2>
-            <span className="text-xs text-muted-foreground ml-auto">Plan: {(planned.data.plan as any)?.title ?? planned.data.training_type}</span>
+            <h2 className="font-display text-lg font-bold uppercase">{tr("Planificado vs Realizado")}</h2>
+            <span className="text-xs text-muted-foreground ml-auto">{tr("Plan:")} {(planned.data.plan as any)?.title ?? planned.data.training_type}</span>
           </div>
-          {plannedIntervals.length === 0 ? (
-            <p className="text-sm text-muted-foreground">El plan encontrado no tiene intervalos de potencia comparables.</p>
-          ) : (
-            <>
+          {plannedIntervals.length === 0 ?
+        <p className="text-sm text-muted-foreground">{tr("El plan encontrado no tiene intervalos de potencia comparables.")}</p> :
+
+        <>
               <div className="flex items-baseline gap-3 mb-4">
                 <span className="font-display text-4xl font-bold text-primary">{compliance.percent}%</span>
-                <span className="text-sm text-muted-foreground">cumplimiento ({compliance.matched}/{compliance.total} intervalos)</span>
+                <span className="text-sm text-muted-foreground">{tr("cumplimiento (")}{compliance.matched}/{compliance.total} {tr("intervalos)")}</span>
               </div>
               <div className="space-y-2">
-                {compliance.details.map((d, i) => (
-                  <div key={i} className="grid grid-cols-[auto_1fr_auto] items-center gap-3 border-b border-border/50 pb-2 text-sm">
+                {compliance.details.map((d, i) =>
+            <div key={i} className="grid grid-cols-[auto_1fr_auto] items-center gap-3 border-b border-border/50 pb-2 text-sm">
                     {d.ok ? <CheckCircle2 className="size-4 text-green-500" /> : <XCircle className="size-4 text-destructive" />}
                     <div className="min-w-0">
                       <p className="font-semibold truncate">{d.planned.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Objetivo: {formatDuration(d.planned.duration)} · {d.planned.targetLow}-{d.planned.targetHigh}W
-                      </p>
+                      <p className="text-xs text-muted-foreground"> {tr("Objetivo:")} 
+                  {formatDuration(d.planned.duration)} · {d.planned.targetLow}-{d.planned.targetHigh}{tr("W")} 
+                </p>
                     </div>
                     <div className="text-right text-xs">
-                      {d.detected ? (
-                        <>
-                          <p><span className="text-muted-foreground">Realizado:</span> {formatDuration(d.detected.duration)} · {d.detected.avgWatts}W</p>
-                          <p className="text-muted-foreground">Dur {d.durationPct}% · W {d.wattsPct}%</p>
-                        </>
-                      ) : <p className="text-muted-foreground">No detectado</p>}
+                      {d.detected ?
+                <>
+                          <p><span className="text-muted-foreground">{tr("Realizado:")}</span> {formatDuration(d.detected.duration)} · {d.detected.avgWatts}{tr("W")}</p>
+                          <p className="text-muted-foreground">{tr("Dur")} {d.durationPct}{tr("% · W")} {d.wattsPct}%</p>
+                        </> :
+                <p className="text-muted-foreground">{tr("No detectado")}</p>}
                     </div>
                   </div>
-                ))}
+            )}
               </div>
             </>
-          )}
+        }
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value }: {label: string;value: string;}) {
   return (
     <div className="bg-surface border rounded-lg p-3">
       <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{label}</p>
       <p className="font-display text-lg font-bold">{value}</p>
-    </div>
-  );
+    </div>);
+
 }
 
-function ChartCard({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
+function ChartCard({ icon, title, children }: {icon: React.ReactNode;title: string;children: React.ReactNode;}) {
   return (
     <div className="bg-surface border rounded-xl p-5">
       <div className="flex items-center gap-2 mb-3">
@@ -304,11 +304,11 @@ function ChartCard({ icon, title, children }: { icon: React.ReactNode; title: st
         <h2 className="font-display text-lg font-bold uppercase">{title}</h2>
       </div>
       <div className="h-56">{children}</div>
-    </div>
-  );
+    </div>);
+
 }
 
-function ZonesCard({ title, zones }: { title: string; zones: { name: string; color: string; seconds: number; percent: number }[] }) {
+function ZonesCard({ title, zones }: {title: string;zones: {name: string;color: string;seconds: number;percent: number;}[];}) {
   return (
     <div className="bg-surface border rounded-xl p-5">
       <h2 className="font-display text-sm font-bold uppercase mb-3">{title}</h2>
@@ -325,11 +325,11 @@ function ZonesCard({ title, zones }: { title: string; zones: { name: string; col
           </BarChart>
         </ResponsiveContainer>
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
-function RouteMap({ latlng }: { latlng: [number, number][] }) {
+function RouteMap({ latlng }: {latlng: [number, number][];}) {
   const ref = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   useEffect(() => {
@@ -343,21 +343,21 @@ function RouteMap({ latlng }: { latlng: [number, number][] }) {
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap" }).addTo(mapRef.current);
       }
       const map = mapRef.current;
-      map.eachLayer((l: any) => { if (l instanceof L.Polyline || l instanceof L.Marker) map.removeLayer(l); });
+      map.eachLayer((l: any) => {if (l instanceof L.Polyline || l instanceof L.Marker) map.removeLayer(l);});
       const pts = latlng.filter((p) => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1]));
       if (pts.length === 0) return;
       const line = L.polyline(pts, { color: "#e11d48", weight: 4 }).addTo(map);
       map.fitBounds(line.getBounds(), { padding: [20, 20] });
       requestAnimationFrame(() => map.invalidateSize());
-      setTimeout(() => { map.invalidateSize(); map.fitBounds(line.getBounds(), { padding: [20, 20] }); }, 300);
+      setTimeout(() => {map.invalidateSize();map.fitBounds(line.getBounds(), { padding: [20, 20] });}, 300);
     })();
-    return () => { cancelled = true; };
+    return () => {cancelled = true;};
   }, [latlng]);
-  useEffect(() => () => { mapRef.current?.remove(); mapRef.current = null; }, []);
+  useEffect(() => () => {mapRef.current?.remove();mapRef.current = null;}, []);
 
   return (
     <div className="bg-surface border rounded-xl overflow-hidden">
       <div ref={ref} className="h-72 w-full" />
-    </div>
-  );
+    </div>);
+
 }

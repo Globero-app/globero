@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { tr } from "@/lib/i18n";import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
@@ -8,13 +8,13 @@ import { toast } from "sonner";
 import { RefreshCw, Activity, ExternalLink } from "lucide-react";
 import { useEffect, useRef } from "react";
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-} from "recharts";
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from
+"recharts";
 import { format, eachDayOfInterval } from "date-fns";
 import { es } from "date-fns/locale";
 
 export const Route = createFileRoute("/_authenticated/actividades/")({
-  component: ActividadesPage,
+  component: ActividadesPage
 });
 
 function ActividadesPage() {
@@ -28,7 +28,7 @@ function ActividadesPage() {
       const { data } = await supabase.from("profiles").select("intervals_api_key").eq("id", user!.id).maybeSingle();
       return data;
     },
-    enabled: !!user,
+    enabled: !!user
   });
 
   const acts = useQuery({
@@ -37,7 +37,7 @@ function ActividadesPage() {
       const { data } = await supabase.from("intervals_activities").select("*").eq("user_id", user!.id).order("start_date", { ascending: false }).limit(20);
       return data ?? [];
     },
-    enabled: !!user,
+    enabled: !!user
   });
 
   const handleSync = async () => {
@@ -61,13 +61,13 @@ function ActividadesPage() {
     if (Date.now() - last < 10 * 60 * 1000) return;
     autoSyncedRef.current = true;
     localStorage.setItem(key, String(Date.now()));
-    sync({ data: undefined })
-      .then(() => {
-        qc.invalidateQueries({ queryKey: ["intervals_activities"] });
-        qc.invalidateQueries({ queryKey: ["activity-matches"] });
-        qc.invalidateQueries({ queryKey: ["weekly-stats"] });
-      })
-      .catch(() => {});
+    sync({ data: undefined }).
+    then(() => {
+      qc.invalidateQueries({ queryKey: ["intervals_activities"] });
+      qc.invalidateQueries({ queryKey: ["activity-matches"] });
+      qc.invalidateQueries({ queryKey: ["weekly-stats"] });
+    }).
+    catch(() => {});
   }, [user, profile.data?.intervals_api_key, sync, qc]);
 
   // Calcula CTL (carga crónica, 42 días) y ATL (fatiga, 7 días) con suffer_score
@@ -77,13 +77,13 @@ function ActividadesPage() {
     return (
       <div className="max-w-xl mx-auto text-center py-20">
         <Activity className="size-12 text-muted-foreground mx-auto mb-4" />
-        <h1 className="font-display text-3xl font-bold uppercase tracking-tight mb-2">Actividades</h1>
-        <p className="text-muted-foreground mb-6">Conecta tu cuenta Intervals.icu desde el Perfil para ver tus actividades y gráficos.</p>
-        <a href="/perfil" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold">
-          Ir al Perfil
+        <h1 className="font-display text-3xl font-bold uppercase tracking-tight mb-2">{tr("Actividades")}</h1>
+        <p className="text-muted-foreground mb-6">{tr("Conecta tu cuenta Intervals.icu desde el Perfil para ver tus actividades y gráficos.")}</p>
+        <a href="/perfil" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold"> {tr("Ir al Perfil")} 
+
         </a>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -91,15 +91,15 @@ function ActividadesPage() {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">Intervals.icu</p>
-          <h1 className="font-display text-4xl font-bold uppercase tracking-tight">Actividades</h1>
+          <h1 className="font-display text-4xl font-bold uppercase tracking-tight">{tr("Actividades")}</h1>
         </div>
         <button onClick={handleSync} className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-lg text-sm font-semibold">
-          <RefreshCw className="size-4" /> Sincronizar
+          <RefreshCw className="size-4" /> {tr("Sincronizar")} 
         </button>
       </div>
 
       <div className="bg-surface border rounded-xl p-5">
-        <h2 className="font-display text-lg font-bold uppercase mb-4">Carga, Fatiga &amp; Forma</h2>
+        <h2 className="font-display text-lg font-bold uppercase mb-4">{tr("Carga, Fatiga & Forma")}</h2>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
@@ -117,14 +117,14 @@ function ActividadesPage() {
       </div>
 
       <div className="space-y-2">
-        <h2 className="font-display text-lg font-bold uppercase mb-2">Últimas 20 actividades</h2>
-        {(acts.data ?? []).map((a) => (
-          <Link
-            key={a.id}
-            to="/actividades/$id"
-            params={{ id: String(a.id) }}
-            className="bg-surface border rounded-lg p-4 flex items-center justify-between hover:border-primary/40 transition"
-          >
+        <h2 className="font-display text-lg font-bold uppercase mb-2">{tr("Últimas 20 actividades")}</h2>
+        {(acts.data ?? []).map((a) =>
+        <Link
+          key={a.id}
+          to="/actividades/$id"
+          params={{ id: String(a.id) }}
+          className="bg-surface border rounded-lg p-4 flex items-center justify-between hover:border-primary/40 transition">
+          
             <div className="min-w-0">
               <p className="font-semibold truncate">{a.name}</p>
               <p className="text-xs text-muted-foreground">
@@ -132,25 +132,25 @@ function ActividadesPage() {
               </p>
             </div>
             <div className="flex items-center gap-6 text-xs">
-              <div className="text-right"><p className="text-muted-foreground">Distancia</p><p className="font-semibold">{((a.distance ?? 0) / 1000).toFixed(1)}km</p></div>
-              <div className="text-right hidden md:block"><p className="text-muted-foreground">Desnivel</p><p className="font-semibold">+{Math.round(a.total_elevation_gain ?? 0)}m</p></div>
-              <div className="text-right hidden md:block"><p className="text-muted-foreground">Carga</p><p className="font-semibold">{a.icu_training_load ?? "—"}</p></div>
+              <div className="text-right"><p className="text-muted-foreground">{tr("Distancia")}</p><p className="font-semibold">{((a.distance ?? 0) / 1000).toFixed(1)}{tr("km")}</p></div>
+              <div className="text-right hidden md:block"><p className="text-muted-foreground">{tr("Desnivel")}</p><p className="font-semibold">+{Math.round(a.total_elevation_gain ?? 0)}{tr("m")}</p></div>
+              <div className="text-right hidden md:block"><p className="text-muted-foreground">{tr("Carga")}</p><p className="font-semibold">{a.icu_training_load ?? "—"}</p></div>
               <a
-                href={`https://intervals.icu/activities/${a.id}`}
-                target="_blank"
-                rel="noopener"
-                onClick={(e) => e.stopPropagation()}
-                className="text-primary hover:opacity-80"
-              >
+              href={`https://intervals.icu/activities/${a.id}`}
+              target="_blank"
+              rel="noopener"
+              onClick={(e) => e.stopPropagation()}
+              className="text-primary hover:opacity-80">
+              
                 <ExternalLink className="size-4" />
               </a>
             </div>
           </Link>
-        ))}
-        {acts.data?.length === 0 && <p className="text-sm text-muted-foreground">Aún no hay actividades. Pulsa "Sincronizar".</p>}
+        )}
+        {acts.data?.length === 0 && <p className="text-sm text-muted-foreground">{tr("Aún no hay actividades. Pulsa \"Sincronizar\".")}</p>}
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
 function buildCtlAtl(acts: any[]) {
@@ -167,7 +167,7 @@ function buildCtlAtl(acts: any[]) {
   end.setHours(0, 0, 0, 0);
   const allDays = eachDayOfInterval({ start, end });
   const result: any[] = [];
-  let ctl = 0, atl = 0;
+  let ctl = 0,atl = 0;
   allDays.forEach((day) => {
     const key = format(day, "yyyy-MM-dd");
     const tss = dayMap.get(key) ?? 0; // día sin actividad = descanso
@@ -177,7 +177,7 @@ function buildCtlAtl(acts: any[]) {
       label: format(day, "d MMM", { locale: es }),
       carga: Math.round(ctl),
       fatiga: Math.round(atl),
-      tsb: Math.round(ctl - atl),
+      tsb: Math.round(ctl - atl)
     });
   });
   return result;

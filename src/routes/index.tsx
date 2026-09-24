@@ -4,28 +4,28 @@ import { supabase } from "@/integrations/supabase/client";
 import { getSiteContent, type SiteBlock } from "@/lib/site-content.functions";
 import * as Icons from "lucide-react";
 import { BrandLogo } from "@/components/BrandLogo";
-import { useI18n, LanguageSelector } from "@/lib/i18n";
+import { useI18n, LanguageSelector, tr } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   loader: () => getSiteContent({ data: { section: "landing" } }),
   head: () => ({
     meta: [
-      { title: "Globero IA — Plataforma de IA para ciclistas" },
-      { name: "description", content: "Entrenamientos con IA, nutrición semanal, readiness diario y análisis de tus actividades sincronizadas con Intervals.icu." },
-      { property: "og:title", content: "Globero IA — Plataforma de IA para ciclistas" },
-      { property: "og:description", content: "Entrenamientos con IA, nutrición semanal, readiness diario y análisis de actividades." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:image", content: "https://globero.app/og-image.jpg" },
-      { name: "twitter:image", content: "https://globero.app/og-image.jpg" },
-    ],
+    { title: "Globero IA — Plataforma de IA para ciclistas" },
+    { name: "description", content: "Entrenamientos con IA, nutrición semanal, readiness diario y análisis de tus actividades sincronizadas con Intervals.icu." },
+    { property: "og:title", content: "Globero IA — Plataforma de IA para ciclistas" },
+    { property: "og:description", content: "Entrenamientos con IA, nutrición semanal, readiness diario y análisis de actividades." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+    { property: "og:image", content: "https://globero.app/og-image.jpg" },
+    { name: "twitter:image", content: "https://globero.app/og-image.jpg" }]
+
   }),
   component: Landing,
-  errorComponent: () => <LandingFallback />,
+  errorComponent: () => <LandingFallback />
 });
 
-function Icon({ name, className }: { name?: string | null; className?: string }) {
-  const C = (name && (Icons as any)[name]) || Icons.Sparkles;
+function Icon({ name, className }: {name?: string | null;className?: string;}) {
+  const C = name && (Icons as any)[name] || Icons.Sparkles;
   return <C className={className} />;
 }
 
@@ -33,24 +33,24 @@ function LandingFallback() {
   return (
     <div className="min-h-screen grid place-items-center bg-background px-6 text-center">
       <div>
-        <h1 className="font-display text-4xl font-bold uppercase">Globero IA</h1>
-        <p className="mt-2 text-muted-foreground">Plataforma de IA para ciclistas.</p>
-        <Link to="/auth" className="mt-6 inline-flex rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">Acceder</Link>
+        <h1 className="font-display text-4xl font-bold uppercase">{tr("Globero IA")}</h1>
+        <p className="mt-2 text-muted-foreground">{tr("Plataforma de IA para ciclistas.")}</p>
+        <Link to="/auth" className="mt-6 inline-flex rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">{tr("Acceder")}</Link>
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
 function Landing() {
   const navigate = useNavigate();
   const { t, lang } = useI18n();
-  const loc = (v: string | null | undefined, k: string) => (lang === "es" && v) || t(k);
+  const loc = (v: string | null | undefined, k: string) => lang === "es" && v || t(k);
   useEffect(() => {
     let active = true;
     supabase.auth.getSession().then(({ data }) => {
       if (active && data.session) navigate({ to: "/app", replace: true });
     });
-    return () => { active = false; };
+    return () => {active = false;};
   }, [navigate]);
   const blocks = Route.useLoaderData() as SiteBlock[];
 
@@ -99,31 +99,31 @@ function Landing() {
           </div>
         </section>
 
-        {features.length > 0 && (
-          <section className="max-w-6xl mx-auto px-4 py-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((f) => (
-              <article key={f.id} className="rounded-xl border bg-surface p-6">
+        {features.length > 0 &&
+        <section className="max-w-6xl mx-auto px-4 py-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map((f) =>
+          <article key={f.id} className="rounded-xl border bg-surface p-6">
                 <div className="size-10 rounded-lg bg-primary/10 text-primary grid place-items-center">
                   <Icon name={f.icon} className="size-5" />
                 </div>
                 <h2 className="mt-4 font-display text-xl font-bold uppercase tracking-tight">{f.title}</h2>
                 <p className="mt-2 text-sm text-muted-foreground whitespace-pre-line">{f.body}</p>
               </article>
-            ))}
+          )}
           </section>
-        )}
+        }
 
-        {extras.length > 0 && (
-          <section className="max-w-3xl mx-auto px-4 pb-16 space-y-8">
-            {extras.map((b) => (
-              <article key={b.id}>
+        {extras.length > 0 &&
+        <section className="max-w-3xl mx-auto px-4 pb-16 space-y-8">
+            {extras.map((b) =>
+          <article key={b.id}>
                 {b.title && <h2 className="font-display text-2xl font-bold uppercase tracking-tight">{b.title}</h2>}
                 {b.subtitle && <p className="text-sm text-primary">{b.subtitle}</p>}
                 {b.body && <p className="mt-2 text-sm text-muted-foreground whitespace-pre-line">{b.body}</p>}
               </article>
-            ))}
+          )}
           </section>
-        )}
+        }
       </main>
 
       <footer className="border-t bg-surface">
@@ -132,6 +132,6 @@ function Landing() {
           <Link to="/privacidad" className="hover:text-foreground underline">{t("landing.privacy")}</Link>
         </div>
       </footer>
-    </div>
-  );
+    </div>);
+
 }

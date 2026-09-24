@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { tr } from "@/lib/i18n";import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { scheduleFtpTest } from "@/lib/workouts.functions";
@@ -19,7 +19,7 @@ export interface ThresholdStatusView {
 }
 
 /** Aviso de umbrales desactualizados con propuesta de test. */
-export function ThresholdCard({ status, compact }: { status: ThresholdStatusView; compact?: boolean }) {
+export function ThresholdCard({ status, compact }: {status: ThresholdStatusView;compact?: boolean;}) {
   const schedule = useServerFn(scheduleFtpTest);
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
@@ -32,15 +32,15 @@ export function ThresholdCard({ status, compact }: { status: ThresholdStatusView
       <div className="rounded-xl border bg-surface p-4 flex items-start gap-3">
         <CheckCircle2 className="size-4 text-emerald-600 mt-0.5" />
         <div>
-          <p className="text-sm font-semibold">Umbrales actualizados</p>
+          <p className="text-sm font-semibold">{tr("Umbrales actualizados")}</p>
           <p className="text-xs text-muted-foreground mt-0.5">{status.recommendation}</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   const handle = async () => {
-    if (!date) { toast.error("Elige la fecha del test"); return; }
+    if (!date) {toast.error("Elige la fecha del test");return;}
     setBusy(true);
     try {
       const r: any = await schedule({ data: { date, basis } });
@@ -60,53 +60,53 @@ export function ThresholdCard({ status, compact }: { status: ThresholdStatusView
       <div className="flex items-start gap-3">
         <AlertTriangle className="size-4 text-amber-600 mt-0.5 shrink-0" />
         <div className="min-w-0 flex-1">
-          <h3 className="font-display text-lg font-bold uppercase">Umbrales desactualizados</h3>
+          <h3 className="font-display text-lg font-bold uppercase">{tr("Umbrales desactualizados")}</h3>
           <ul className="mt-2 space-y-1">
-            {status.reasons.map((r, i) => (
-              <li key={i} className="text-xs text-muted-foreground">• {r}</li>
-            ))}
+            {status.reasons.map((r, i) =>
+            <li key={i} className="text-xs text-muted-foreground">• {r}</li>
+            )}
           </ul>
           <p className="text-xs mt-3">{status.recommendation}</p>
-          {(status.suggested_ftp || status.suggested_lthr) && (
-            <p className="text-[11px] font-mono text-muted-foreground mt-2">
-              Estimación desde Intervals.icu:
-              {status.suggested_ftp ? ` FTP ~${status.suggested_ftp} W` : ""}
+          {(status.suggested_ftp || status.suggested_lthr) &&
+          <p className="text-[11px] font-mono text-muted-foreground mt-2"> {tr("Estimación desde Intervals.icu:")} 
+
+            {status.suggested_ftp ? ` FTP ~${status.suggested_ftp} W` : ""}
               {status.suggested_lthr ? ` · LTHR ~${status.suggested_lthr} ppm` : ""}
             </p>
-          )}
+          }
 
           <div className="flex flex-wrap items-end gap-2 mt-4">
             <label className="block">
-              <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Fecha del test</span>
+              <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">{tr("Fecha del test")}</span>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="mt-1 block rounded-lg border bg-surface px-3 py-2 text-sm"
-              />
+                className="mt-1 block rounded-lg border bg-surface px-3 py-2 text-sm" />
+              
             </label>
             <label className="block">
-              <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Basado en</span>
+              <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">{tr("Basado en")}</span>
               <select
                 value={basis}
                 onChange={(e) => setBasis(e.target.value as "power" | "hr")}
-                className="mt-1 block rounded-lg border bg-surface px-3 py-2 text-sm"
-              >
-                <option value="power">Potencia (FTP)</option>
-                <option value="hr">Frecuencia cardíaca (LTHR)</option>
+                className="mt-1 block rounded-lg border bg-surface px-3 py-2 text-sm">
+                
+                <option value="power">{tr("Potencia (FTP)")}</option>
+                <option value="hr">{tr("Frecuencia cardíaca (LTHR)")}</option>
               </select>
             </label>
             <button
               onClick={handle}
               disabled={busy}
-              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-50"
-            >
-              {busy ? <Loader2 className="size-4 animate-spin" /> : null}
-              Programar test
+              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-50">
+              
+              {busy ? <Loader2 className="size-4 animate-spin" /> : null} {tr("Programar test")} 
+
             </button>
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }

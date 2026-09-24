@@ -1,10 +1,10 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { tr } from "@/lib/i18n";import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { CheckCircle2, Link as LinkIcon, Unlink } from "lucide-react";
 import { createStravaAuthorizeUrl, disconnectStrava } from "@/lib/strava.functions";
 
-export function StravaConnection({ profile }: { profile: any }) {
+export function StravaConnection({ profile }: {profile: any;}) {
   const qc = useQueryClient();
   const disconnect = useServerFn(disconnectStrava);
   const authorize = useServerFn(createStravaAuthorizeUrl);
@@ -16,8 +16,8 @@ export function StravaConnection({ profile }: { profile: any }) {
           <div className="flex items-center gap-3">
             <CheckCircle2 className="size-5 text-orange-600" />
             <div>
-              <p className="font-semibold text-orange-800">Strava conectado</p>
-              <p className="text-xs text-orange-700">Atleta: {profile?.strava_athlete_id}</p>
+              <p className="font-semibold text-orange-800">{tr("Strava conectado")}</p>
+              <p className="text-xs text-orange-700">{tr("Atleta:")} {profile?.strava_athlete_id}</p>
             </div>
           </div>
           <button
@@ -27,23 +27,23 @@ export function StravaConnection({ profile }: { profile: any }) {
               toast.success("Strava desconectado");
               qc.invalidateQueries({ queryKey: ["profile"] });
             }}
-            className="text-xs font-semibold text-destructive hover:underline flex items-center gap-1"
-          >
-            <Unlink className="size-3" /> Desconectar
+            className="text-xs font-semibold text-destructive hover:underline flex items-center gap-1">
+            
+            <Unlink className="size-3" /> {tr("Desconectar")} 
           </button>
         </div>
-        <p className="text-xs text-muted-foreground">
-          Al detectar un entreno realizado, se renombra la actividad en Strava con el nombre del entreno y se añade
-          debajo "atleta de https://globero.app/".
+        <p className="text-xs text-muted-foreground"> {tr("Al detectar un entreno realizado, se renombra la actividad en Strava con el nombre del entreno y se añade debajo \"atleta de https://globero.app/\".")} 
+
+
         </p>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-muted-foreground">
-        Conecta Strava para que tus salidas aparezcan con el nombre del entrenamiento realizado.
+      <p className="text-sm text-muted-foreground"> {tr("Conecta Strava para que tus salidas aparezcan con el nombre del entrenamiento realizado.")} 
+
       </p>
       <button
         type="button"
@@ -55,10 +55,10 @@ export function StravaConnection({ profile }: { profile: any }) {
             toast.error(e?.message ?? "No se pudo iniciar la conexión");
           }
         }}
-        className="inline-flex items-center gap-2 bg-[#FC4C02] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90"
-      >
-        <LinkIcon className="size-4" /> Conectar con Strava
+        className="inline-flex items-center gap-2 bg-[#FC4C02] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90">
+        
+        <LinkIcon className="size-4" /> {tr("Conectar con Strava")} 
       </button>
-    </div>
-  );
+    </div>);
+
 }

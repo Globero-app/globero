@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { tr } from "@/lib/i18n";import { Link } from "@tanstack/react-router";
 import { AlertTriangle, Wrench, ChevronRight } from "lucide-react";
 import { useMaintenanceAlerts } from "@/lib/maintenance-alerts";
 import { useEffect, useRef } from "react";
@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
  * Compact alerts card for the dashboard. Also fires a native browser
  * notification (once per session) if the user opted in to push.
  */
-export function MaintenanceAlertsBanner({ variant = "dashboard" }: { variant?: "dashboard" | "inline" }) {
+export function MaintenanceAlertsBanner({ variant = "dashboard" }: {variant?: "dashboard" | "inline";}) {
   const { user } = useAuth();
   const { data: alerts = [] } = useMaintenanceAlerts();
 
@@ -18,9 +18,9 @@ export function MaintenanceAlertsBanner({ variant = "dashboard" }: { variant?: "
     queryKey: ["notify_prefs", user?.id],
     queryFn: async () => {
       const { data } = await supabase.from("profiles").select("*").eq("id", user!.id).maybeSingle();
-      return data as (Record<string, unknown> & { notify_maintenance_push?: boolean }) | null;
+      return data as (Record<string, unknown> & {notify_maintenance_push?: boolean;}) | null;
     },
-    enabled: !!user,
+    enabled: !!user
   });
 
   // Fire local browser notification once per session when there are alerts
@@ -37,18 +37,18 @@ export function MaintenanceAlertsBanner({ variant = "dashboard" }: { variant?: "
     if (Date.now() - last < 60 * 60 * 1000) return; // 1h dedupe per session/tab
 
     const first = alerts[0];
-    const body = first.severity === "danger"
-      ? `${first.componentLabel} de ${first.bikeName} ha superado su vida útil`
-      : `${first.componentLabel} de ${first.bikeName}: quedan ${Math.round(first.remaining)} km`;
+    const body = first.severity === "danger" ?
+    `${first.componentLabel} de ${first.bikeName} ha superado su vida útil` :
+    `${first.componentLabel} de ${first.bikeName}: quedan ${Math.round(first.remaining)} km`;
     try {
       new Notification("Mantenimiento pendiente", {
         body: alerts.length > 1 ? `${body} · +${alerts.length - 1} más` : body,
         icon: "/favicon.ico",
-        tag: "maintenance",
+        tag: "maintenance"
       });
       sessionStorage.setItem(key, String(Date.now()));
       notifiedRef.current = true;
-    } catch { /* noop */ }
+    } catch {/* noop */}
   }, [alerts, prefsQ.data, user?.id]);
 
   if (alerts.length === 0) return null;
@@ -56,9 +56,9 @@ export function MaintenanceAlertsBanner({ variant = "dashboard" }: { variant?: "
   const danger = alerts.filter((a) => a.severity === "danger").length;
   const warn = alerts.length - danger;
 
-  const wrapClass = variant === "dashboard"
-    ? "bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 md:p-5"
-    : "bg-amber-50 border border-amber-200 rounded-lg p-3";
+  const wrapClass = variant === "dashboard" ?
+  "bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 md:p-5" :
+  "bg-amber-50 border border-amber-200 rounded-lg p-3";
 
   return (
     <div className={wrapClass}>
@@ -68,44 +68,44 @@ export function MaintenanceAlertsBanner({ variant = "dashboard" }: { variant?: "
             <Wrench className="size-4" />
           </div>
           <div className="min-w-0">
-            <p className="font-display text-base font-bold uppercase tracking-tight text-amber-900">
-              Mantenimiento pendiente
+            <p className="font-display text-base font-bold uppercase tracking-tight text-amber-900"> {tr("Mantenimiento pendiente")} 
+
             </p>
             <p className="text-xs text-amber-800 mt-0.5">
-              {danger > 0 && <span className="font-semibold">{danger} pieza{danger > 1 ? "s" : ""} vencida{danger > 1 ? "s" : ""}</span>}
+              {danger > 0 && <span className="font-semibold">{danger} {tr("pieza")}{danger > 1 ? "s" : ""} {tr("vencida")}{danger > 1 ? "s" : ""}</span>}
               {danger > 0 && warn > 0 && " · "}
-              {warn > 0 && <span>{warn} próxima{warn > 1 ? "s" : ""} al límite</span>}
+              {warn > 0 && <span>{warn} {tr("próxima")}{warn > 1 ? "s" : ""} {tr("al límite")}</span>}
             </p>
           </div>
         </div>
-        <Link to="/perfil" className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold text-amber-900 hover:underline">
-          Ver <ChevronRight className="size-3.5" />
+        <Link to="/perfil" className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold text-amber-900 hover:underline"> {tr("Ver")} 
+          <ChevronRight className="size-3.5" />
         </Link>
       </div>
 
       <ul className="mt-3 space-y-1.5">
-        {alerts.slice(0, 3).map((a) => (
-          <li key={a.componentId} className="flex items-center justify-between text-xs bg-white/60 rounded-md px-2.5 py-1.5">
+        {alerts.slice(0, 3).map((a) =>
+        <li key={a.componentId} className="flex items-center justify-between text-xs bg-white/60 rounded-md px-2.5 py-1.5">
             <span className="truncate">
               <strong className="text-foreground">{a.componentLabel}</strong>
               <span className="text-muted-foreground"> · {a.bikeName}</span>
             </span>
             <span className={`shrink-0 ml-2 font-mono font-semibold flex items-center gap-1 ${a.severity === "danger" ? "text-destructive" : "text-amber-700"}`}>
-              {a.severity === "danger" ? (
-                <>
+              {a.severity === "danger" ?
+            <>
                   <AlertTriangle className="size-3" />
-                  +{Math.round(-a.remaining)} km
-                </>
-              ) : (
-                <>{Math.round(a.remaining)} km</>
-              )}
+                  +{Math.round(-a.remaining)} {tr("km")} 
+            </> :
+
+            <>{Math.round(a.remaining)} {tr("km")}</>
+            }
             </span>
           </li>
-        ))}
-        {alerts.length > 3 && (
-          <li className="text-[11px] text-amber-800 text-center pt-1">+{alerts.length - 3} más</li>
         )}
+        {alerts.length > 3 &&
+        <li className="text-[11px] text-amber-800 text-center pt-1">+{alerts.length - 3} {tr("más")}</li>
+        }
       </ul>
-    </div>
-  );
+    </div>);
+
 }

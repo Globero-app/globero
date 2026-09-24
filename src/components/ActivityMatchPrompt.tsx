@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { tr } from "@/lib/i18n";import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getActivityMatches, linkActivityToTarget, type ActivityMatch } from "@/lib/activity-match.functions";
@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/lib/use-auth";
 
 /** Pregunta si una actividad de Intervals.icu corresponde al entreno/competición del día */
-export function ActivityMatchPrompt({ enabled = true }: { enabled?: boolean }) {
+export function ActivityMatchPrompt({ enabled = true }: {enabled?: boolean;}) {
   const qc = useQueryClient();
   const load = useServerFn(getActivityMatches);
   const link = useServerFn(linkActivityToTarget);
@@ -22,33 +22,33 @@ export function ActivityMatchPrompt({ enabled = true }: { enabled?: boolean }) {
     queryKey: ["activity-matches", user?.id],
     queryFn: () => load({ data: undefined }),
     enabled: enabled && !loading && !!user,
-    retry: false,
+    retry: false
   });
 
   const m = useMutation({
-    mutationFn: (v: { match: ActivityMatch; accept: boolean }) =>
-      link({
-        data: {
-          activity_id: v.match.activity_id,
-          target_kind: v.match.target_kind,
-          target_id: v.match.target_id,
-          accept: v.accept,
-        },
-      }),
+    mutationFn: (v: {match: ActivityMatch;accept: boolean;}) =>
+    link({
+      data: {
+        activity_id: v.match.activity_id,
+        target_kind: v.match.target_kind,
+        target_id: v.match.target_id,
+        accept: v.accept
+      }
+    }),
     onSuccess: (_r, v) => {
       setDismissed((d) => [...d, v.match.activity_id]);
       if (v.accept) {
         toast.success(
-          v.match.target_kind === "workout"
-            ? "Entrenamiento marcado como completado"
-            : "Actividad asignada a la competición",
+          v.match.target_kind === "workout" ?
+          "Entrenamiento marcado como completado" :
+          "Actividad asignada a la competición"
         );
       }
       qc.invalidateQueries({ queryKey: ["activity-matches"] });
       qc.invalidateQueries({ queryKey: ["calendar"] });
       qc.invalidateQueries({ queryKey: ["workouts"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => toast.error(e.message)
   });
 
   const match = (q.data ?? []).find((x) => !dismissed.includes(x.activity_id));
@@ -61,8 +61,8 @@ export function ActivityMatchPrompt({ enabled = true }: { enabled?: boolean }) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Activity className="size-4 text-primary" />
-            Nueva actividad detectada en Intervals.icu
+            <Activity className="size-4 text-primary" /> {tr("Nueva actividad detectada en Intervals.icu")} 
+
           </DialogTitle>
           <DialogDescription>
             {format(new Date(match.date + "T00:00:00"), "EEEE d MMMM yyyy", { locale: es })}
@@ -76,9 +76,9 @@ export function ActivityMatchPrompt({ enabled = true }: { enabled?: boolean }) {
             </p>
             <p className="text-xs text-muted-foreground">{match.activity_subtitle}</p>
           </div>
-          <p className="text-muted-foreground">
-            ¿Quieres asignarla como{" "}
-            {match.target_kind === "competition" ? "la competición" : "el entrenamiento"} de ese día?
+          <p className="text-muted-foreground"> {tr("¿Quieres asignarla como")}
+            {" "}
+            {match.target_kind === "competition" ? "la competición" : "el entrenamiento"} {tr("de ese día?")} 
           </p>
           <div className="rounded-md border border-border p-3">
             <p className="font-medium flex items-center gap-1.5">
@@ -92,19 +92,19 @@ export function ActivityMatchPrompt({ enabled = true }: { enabled?: boolean }) {
           <button
             disabled={m.isPending}
             onClick={() => m.mutate({ match, accept: false })}
-            className="px-3 py-1.5 text-xs rounded-md border border-border hover:bg-secondary disabled:opacity-50"
-          >
-            No
+            className="px-3 py-1.5 text-xs rounded-md border border-border hover:bg-secondary disabled:opacity-50"> {tr("No")} 
+
+
           </button>
           <button
             disabled={m.isPending}
             onClick={() => m.mutate({ match, accept: true })}
-            className="px-3 py-1.5 text-xs rounded-md bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
-          >
-            Sí, asignar
+            className="px-3 py-1.5 text-xs rounded-md bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"> {tr("Sí, asignar")} 
+
+
           </button>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 }

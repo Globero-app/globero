@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { tr } from "@/lib/i18n";import { createFileRoute } from "@tanstack/react-router";
 
 const APP_ORIGIN = "https://globero.app";
 
@@ -42,13 +42,13 @@ export const Route = createFileRoute("/auth/intervals/callback")({
           new TextEncoder().encode(stateSecret),
           { name: "HMAC", hash: "SHA-256" },
           false,
-          ["sign"],
+          ["sign"]
         );
         const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
-        const expectedSignature = btoa(String.fromCharCode(...new Uint8Array(signature)))
-          .replaceAll("+", "-")
-          .replaceAll("/", "_")
-          .replaceAll("=", "");
+        const expectedSignature = btoa(String.fromCharCode(...new Uint8Array(signature))).
+        replaceAll("+", "-").
+        replaceAll("/", "_").
+        replaceAll("=", "");
         if (!signaturesMatch(suppliedSignature, expectedSignature)) {
           return redirectToProfile("error", "invalid_state");
         }
@@ -60,16 +60,16 @@ export const Route = createFileRoute("/auth/intervals/callback")({
         const response = await fetch("https://intervals.icu/api/oauth/token", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({ client_id: clientId, client_secret: clientSecret, code }),
+          body: new URLSearchParams({ client_id: clientId, client_secret: clientSecret, code })
         });
         if (!response.ok) {
           console.error(`Intervals.icu OAuth token exchange failed with status ${response.status}`);
           return redirectToProfile("error", "token_exchange");
         }
 
-        const token = await response.json() as {
+        const token = (await response.json()) as {
           access_token?: string;
-          athlete?: { id?: string | number };
+          athlete?: {id?: string | number;};
           refresh_token?: string;
           expires_in?: number;
         };
@@ -77,42 +77,42 @@ export const Route = createFileRoute("/auth/intervals/callback")({
           return redirectToProfile("error", "invalid_response");
         }
 
-        const expiresAtIso = token.expires_in
-          ? new Date(Date.now() + Number(token.expires_in) * 1000).toISOString()
-          : null;
+        const expiresAtIso = token.expires_in ?
+        new Date(Date.now() + Number(token.expires_in) * 1000).toISOString() :
+        null;
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { error } = await supabaseAdmin.from("profiles").update({
           intervals_athlete_id: String(token.athlete.id),
           intervals_api_key: token.access_token,
           intervals_oauth: true,
           intervals_refresh_token: token.refresh_token ?? null,
-          intervals_token_expires_at: expiresAtIso,
+          intervals_token_expires_at: expiresAtIso
         }).eq("id", userId);
         if (error) {
           console.error(`Intervals.icu OAuth profile update failed: ${error.message}`);
           return redirectToProfile("error", "profile_update");
         }
         return redirectToProfile("success");
-      },
-    },
+      }
+    }
   },
   component: IntervalsCallback,
   head: () => ({
     meta: [
-      { title: "Vinculando Intervals.icu · Globero IA" },
-      { name: "description", content: "Finalizando la conexión de tu cuenta de Intervals.icu con Globero IA." },
-      { property: "og:title", content: "Vinculando Intervals.icu · Globero IA" },
-      { property: "og:description", content: "Finalizando la conexión de tu cuenta de Intervals.icu con Globero IA." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+    { title: "Vinculando Intervals.icu · Globero IA" },
+    { name: "description", content: "Finalizando la conexión de tu cuenta de Intervals.icu con Globero IA." },
+    { property: "og:title", content: "Vinculando Intervals.icu · Globero IA" },
+    { property: "og:description", content: "Finalizando la conexión de tu cuenta de Intervals.icu con Globero IA." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" }]
+
+  })
 });
 
 function IntervalsCallback() {
   return (
     <div className="min-h-[60vh] grid place-items-center p-8">
-      <p className="text-sm text-muted-foreground">Vinculando tu cuenta de Intervals.icu…</p>
-    </div>
-  );
+      <p className="text-sm text-muted-foreground">{tr("Vinculando tu cuenta de Intervals.icu…")}</p>
+    </div>);
+
 }

@@ -93,6 +93,14 @@ export function tr(text: string): string {
   return i < 0 ? text : PHRASES[text]?.[i] ?? text;
 }
 
+export function activeLang(): Lang {
+  return currentLang;
+}
+
+export function localeCode(lang: Lang = currentLang): string {
+  return ({ es: "es-ES", ca: "ca-ES", fr: "fr-FR", en: "en-GB", de: "de-DE" } as const)[lang];
+}
+
 interface Ctx { lang: Lang; setLang: (l: Lang) => void; t: (key: string) => string }
 const I18nCtx = createContext<Ctx>({ lang: "es", setLang: () => {}, t: (k) => translate("es", k) });
 
