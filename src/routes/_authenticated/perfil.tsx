@@ -9,22 +9,24 @@ import { useServerFn } from "@tanstack/react-start";
 import { syncIntervalsZones, intervalsEstimateFtp, intervalsEstimateHr } from "@/lib/intervals.functions";
 import { Wand2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { NotificationsPrefs } from "@/components/NotificationsPrefs";
-import { TelegramSection } from "@/components/TelegramSection";
 import { Section, Field } from "@/components/perfil/Section";
 import { ZonesPreview } from "@/components/perfil/ZonesPreview";
 import { DeleteAccountSection } from "@/components/perfil/DeleteAccountSection";
-import { IntervalsConnection } from "@/components/perfil/IntervalsConnection";
-import { StravaConnection } from "@/components/perfil/StravaConnection";
 
 import { AthleteProfileSection } from "@/components/perfil/AthleteProfileSection";
-import { WeatherStatus } from "@/components/perfil/WeatherStatus";
-import { COUNTRIES } from "@/lib/countries";
 
 
 
 
 export const Route = createFileRoute("/_authenticated/perfil")({
+  head: () => ({ meta: [
+    { title: "Perfil — Globero" },
+    { name: "description", content: "Gestiona tus datos personales, perfil ciclista, zonas y preferencias nutricionales." },
+    { property: "og:title", content: "Perfil — Globero" },
+    { property: "og:description", content: "Gestiona tus datos personales, perfil ciclista, zonas y preferencias nutricionales." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: PerfilPage
 });
 
@@ -47,29 +49,6 @@ function PerfilPage() {
 
   const [form, setForm] = useState<any>({});
   useEffect(() => {if (profileQ.data) setForm(profileQ.data);}, [profileQ.data]);
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const status = params.get("intervals");
-    const strava = params.get("strava");
-    if (status) {
-      if (status === "success") {
-        toast.success(tr("¡Cuenta de Intervals.icu conectada correctamente!"));
-        qc.invalidateQueries({ queryKey: ["profile"] });
-      } else {
-        toast.error(tr("No se pudo vincular Intervals.icu"));
-      }
-    }
-    if (strava) {
-      if (strava === "success") {
-        toast.success(tr("¡Cuenta de Strava conectada correctamente!"));
-        qc.invalidateQueries({ queryKey: ["profile"] });
-      } else {
-        toast.error(tr("No se pudo vincular Strava"));
-      }
-    }
-    if (status || strava) window.history.replaceState({}, "", window.location.pathname);
-  }, [qc]);
-
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,19 +68,8 @@ function PerfilPage() {
       cyclist_type: form.cyclist_type || "mixto",
       strengths: form.strengths || null,
       weaknesses: form.weaknesses || null,
-      location_city: form.location_city || null,
       country: form.country || "ES",
-      weather_auto_indoor: form.weather_auto_indoor ?? true,
-      weather_wind_threshold_kmh: form.weather_wind_threshold_kmh != null && form.weather_wind_threshold_kmh !== "" ? Number(form.weather_wind_threshold_kmh) : 25,
-      notify_weather_alerts: form.notify_weather_alerts ?? true,
-      // Fuerza volver a localizar si cambia la población o el país
-      ...(form.location_city !== profileQ.data?.location_city || (form.country || "ES") !== profileQ.data?.country ?
-      { location_lat: null, location_lon: null, location_resolved: null } :
-      {}),
-
-      dietary_preferences: form.dietary_preferences,
-      readiness_push_enabled: form.readiness_push_enabled ?? true,
-      readiness_push_hour: form.readiness_push_hour != null && form.readiness_push_hour !== "" ? Number(form.readiness_push_hour) : 7
+      dietary_preferences: form.dietary_preferences
     }, { onConflict: "id" });
     if (error) toast.error(error.message);else
     {
@@ -243,46 +211,6 @@ function PerfilPage() {
 
         <AthleteProfileSection />
 
-        <Section title={tr("Meteorología")}>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label={tr("Ciudad base para previsión")}>
-              <input className="input" placeholder={tr("Madrid, Barcelona, Sevilla…")} value={form.location_city ?? ""} onChange={(e) => setForm({ ...form, location_city: e.target.value })} />
-            </Field>
-            <Field label={tr("País")}>
-              <select className="input" value={form.country ?? "ES"} onChange={(e) => setForm({ ...form, country: e.target.value })}>
-                {COUNTRIES.map((c) =>
-                <option key={c.code} value={c.code}>{c.name}</option>
-                )}
-              </select>
-            </Field>
-          </div>
-          <WeatherStatus city={profileQ.data?.location_city} />
-          <div className="grid grid-cols-2 gap-3">
-            <Field label={tr("Umbral de viento (km/h)")}>
-              <input type="number" min={10} max={60} className="input" value={form.weather_wind_threshold_kmh ?? 25} onChange={(e) => setForm({ ...form, weather_wind_threshold_kmh: e.target.value })} />
-            </Field>
-            <label className="flex items-center gap-2 text-sm self-end pb-2">
-              <input
-                type="checkbox"
-                checked={form.weather_auto_indoor ?? true}
-                onChange={(e) => setForm({ ...form, weather_auto_indoor: e.target.checked })} />
-              
-              <span>{tr("Sugerir rodillo en mal tiempo")}</span>
-            </label>
-          </div>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.notify_weather_alerts ?? true}
-              onChange={(e) => setForm({ ...form, notify_weather_alerts: e.target.checked })} />
-            
-            <span>{tr("Avisarme cada mañana si hay alerta o mal tiempo")}</span>
-          </label>
-          <p className="text-[11px] text-muted-foreground">
-            {tr("El aviso llega justo después del resumen de la sesión del día, por app y/o Telegram. Incluye los avisos oficiales vigentes (amarillo, naranja o rojo) por lluvias, inundaciones, viento, tormenta o temperaturas extremas, además de la previsión de tu localidad.")}
-          </p>
-        </Section>
-
         <Section title={tr("Nutrición")}>
           <Field label={tr("Preferencias / intolerancias")}>
             <textarea className="input min-h-[80px]" placeholder={tr("Vegano, intolerancia lactosa, sin gluten…")} value={form.dietary_preferences ?? ""} onChange={(e) => setForm({ ...form, dietary_preferences: e.target.value })} />
@@ -290,53 +218,6 @@ function PerfilPage() {
           <p className="text-[11px] text-muted-foreground">{tr("Se tienen en cuenta siempre en el plan semanal y en el plan de competición (se adapta 5 días antes de cada carrera).")}</p>
         </Section>
 
-
-        <Section title={tr("Conexión Intervals.icu")} className="lg:col-span-2">
-          <IntervalsConnection profile={profileQ.data} />
-        </Section>
-
-        <Section title={tr("Conexión Strava")} className="lg:col-span-2">
-          <StravaConnection profile={profileQ.data} />
-        </Section>
-
-
-
-        <Section title={tr("Conectar Telegram")} className="lg:col-span-2">
-          <TelegramSection />
-        </Section>
-
-        <Section title={tr("Notificaciones")} className="lg:col-span-2">
-          <NotificationsPrefs />
-        </Section>
-
-
-        <Section title={tr("Readiness diario")} className="lg:col-span-2">
-          <p className="text-sm text-muted-foreground"> {tr("Cada día recibirás un Push preguntándote cómo te encuentras (1 Nada preparado · 2 Paseo relajado · 3 Entreno normal · 4 Entreno exigente · 5 Dar lo máximo). La IA adaptará el entrenamiento de ese día según tu respuesta; si respondes 1, te sugerirá eliminarlo.")} 
-
-          </p>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.readiness_push_enabled ?? true}
-              onChange={(e) => setForm({ ...form, readiness_push_enabled: e.target.checked })} />
-            
-            <span>{tr("Recibir Push diario de Readiness")}</span>
-          </label>
-          <Field label={tr("Hora del Push (Europa / España peninsular)")}>
-            <select
-              className="input"
-              value={form.readiness_push_hour ?? 7}
-              onChange={(e) => setForm({ ...form, readiness_push_hour: e.target.value })}>
-              
-              {Array.from({ length: 24 }, (_, h) =>
-              <option key={h} value={h}>{String(h).padStart(2, "0")}:00</option>
-              )}
-            </select>
-          </Field>
-          <p className="text-[11px] text-muted-foreground">
-            {tr("Necesitas tener el Push del servidor activado (arriba, en Notificaciones). El aviso solo se envía si aún no has respondido el Readiness del día.")}
-          </p>
-        </Section>
 
         <div className="lg:col-span-2 flex justify-end">
           <button type="submit" className="bg-primary text-primary-foreground px-6 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90">

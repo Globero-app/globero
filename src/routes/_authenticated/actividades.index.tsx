@@ -78,10 +78,10 @@ function ActividadesPage() {
       <div className="max-w-xl mx-auto text-center py-20">
         <Activity className="size-12 text-muted-foreground mx-auto mb-4" />
         <h1 className="font-display text-3xl font-bold uppercase tracking-tight mb-2">{tr("Actividades")}</h1>
-        <p className="text-muted-foreground mb-6">{tr("Conecta tu cuenta Intervals.icu desde el Perfil para ver tus actividades y gráficos.")}</p>
-        <a href="/perfil" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold"> {tr("Ir al Perfil")} 
+        <p className="text-muted-foreground mb-6">{tr("Conecta tu cuenta Intervals.icu desde Ajustes para ver tus actividades y gráficos.")}</p>
+        <Link to="/ajustes" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold"> {tr("Ir a Ajustes")} 
 
-        </a>
+        </Link>
       </div>);
 
   }

@@ -3,7 +3,7 @@ import { tr } from "@/lib/i18n";import { createFileRoute } from "@tanstack/react
 const APP_ORIGIN = "https://globero.app";
 
 function redirectToProfile(status: "success" | "error", reason?: string) {
-  const url = new URL("/perfil", APP_ORIGIN);
+  const url = new URL("/ajustes", APP_ORIGIN);
   url.searchParams.set("strava", status);
   if (reason) url.searchParams.set("reason", reason);
   return new Response(null, { status: 302, headers: { Location: url.toString() } });
