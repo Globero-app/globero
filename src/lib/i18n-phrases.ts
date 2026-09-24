@@ -846,6 +846,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Confirm and you'll find the icon next to your apps.",
     "Bestätigen sie und sie finden das symbol neben ihren apps."
   ],
+  "Conservación": [
+    "Conservador",
+    "Conservation",
+    "Conservation",
+    "Erhaltung"
+  ],
   "Contrarrelojista": [
     "Contrarellotgista",
     "Rouleur chrono",
@@ -978,6 +984,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Personal details",
     "Persönliche Daten"
   ],
+  "Datos que tratamos": [
+    "Dades que intentem",
+    "Données que nous essayons",
+    "Data we're trying",
+    "Daten, die wir versuchen"
+  ],
   "Debes aceptar la política de privacidad": [
     "Heu d' acceptar la política de privacitat",
     "Vous devez accepter la politique de confidentialité",
@@ -1091,6 +1103,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Disponible sans connexion",
     "Available without connection",
     "Ohne Verbindung verfügbar"
+  ],
+  "Dispositivos": [
+    "Dispositius",
+    "Dispositifs",
+    "Devices",
+    "Geräte"
   ],
   "Distancia": [
     "Distància",
@@ -1433,6 +1451,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Formation remplacée",
     "Replaced training",
     "Ersetzte Ausbildung"
+  ],
+  "Entrenamientos con IA": [
+    "Exercici amb IA",
+    "Formation avec IA",
+    "Training with IA",
+    "Training mit IA"
   ],
   "Entrenamientos personalizados, nutrición semanal, readiness diario y análisis de tus actividades. Todo conectado con Intervals.icu.": [
     "L'entrenament personalitzat, la desaparició setmanal, la lectura i l'anàlisi diari de les teves activitats. Tots connectats amb Interval.",
@@ -2045,6 +2069,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "À VOUS PERSONNEL DANS",
     "TO YOU PERSONAL INTO",
     "ZU IHRER PERSÖNLICHEN"
+  ],
+  "IA vs Entrenador Personal": [
+    "Exercici personal IA contra I.",
+    "Formation personnelle",
+    "IA vs. Personal Training",
+    "IA vs. Personal Training"
   ],
   "Icono (lucide)": [
     "Icona (llucide)",
@@ -2982,6 +3012,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Nutrition",
     "Ernährung"
   ],
+  "Nutrición semanal": [
+    "Expulsió setmanal",
+    "Nutrition hebdomadaire",
+    "Weekly nutrition",
+    "Wöchentliche Ernährung"
+  ],
   "O abre el menú del navegador y selecciona": [
     "O obriu el menú del navegador i seleccioneu",
     "Ou ouvrez le menu du navigateur et sélectionnez",
@@ -3534,6 +3570,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Requires connection",
     "Erfordert Verbindung"
   ],
+  "Responsable del tratamiento": [
+    "Responsable del tractament",
+    "Responsable du traitement",
+    "Responsible for treatment",
+    "Verantwortlich für die Behandlung"
+  ],
   "Respuesta de la IA": [
     "Una resposta",
     "Réponse",
@@ -3857,6 +3899,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Pas encore de route.",
     "No routes yet.",
     "Noch keine Routen."
+  ],
+  "Sincronización Intervals.icu": [
+    "Intervals. iu sincronització",
+    "Synchronisation Intervals.icu",
+    "Intervals.icu sync",
+    "Intervals.icu sync"
   ],
   "Sincronización de zonas y umbrales (FTP, LTHR, FC máx) con Intervals.icu al guardar el perfil": [
     "Sincronització de zones i llindar (FTP, LTRTR, max FC) amb intervals. icu en desar el perfil",
