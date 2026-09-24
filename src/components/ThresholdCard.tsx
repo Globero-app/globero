@@ -40,16 +40,16 @@ export function ThresholdCard({ status, compact }: {status: ThresholdStatusView;
   }
 
   const handle = async () => {
-    if (!date) {toast.error("Elige la fecha del test");return;}
+    if (!date) {toast.error(tr("Elige la fecha del test"));return;}
     setBusy(true);
     try {
       const r: any = await schedule({ data: { date, basis } });
-      toast.success(r?.intervals_synced ? "Test programado y enviado a Intervals.icu" : "Test programado en tu calendario");
+      toast.success(r?.intervals_synced ? tr("Test programado y enviado a Intervals.icu") : tr("Test programado en tu calendario"));
       qc.invalidateQueries({ queryKey: ["workouts"] });
       qc.invalidateQueries({ queryKey: ["calendar"] });
       qc.invalidateQueries({ queryKey: ["threshold-status"] });
     } catch (e: any) {
-      toast.error(e?.message ?? "No se pudo programar el test");
+      toast.error(e?.message ?? tr("No se pudo programar el test"));
     } finally {
       setBusy(false);
     }

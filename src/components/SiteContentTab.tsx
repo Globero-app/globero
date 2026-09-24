@@ -18,10 +18,10 @@ export function SiteContentTab() {
   const blocks = (q.data ?? []).filter((b) => b.section === section);
 
   const persist = async (d: Draft) => {
-    if (!d.block_key?.trim()) return toast.error("La clave del bloque es obligatoria");
+    if (!d.block_key?.trim()) return toast.error(tr("La clave del bloque es obligatoria"));
     try {
       await save({ data: d });
-      toast.success("Guardado");
+      toast.success(tr("Guardado"));
       qc.invalidateQueries({ queryKey: ["site_content_admin"] });
     } catch (e: any) {toast.error(e.message);}
   };
@@ -30,7 +30,7 @@ export function SiteContentTab() {
     if (!confirm(tr("¿Eliminar este bloque?"))) return;
     try {
       await del({ data: { id } });
-      toast.success("Eliminado");
+      toast.success(tr("Eliminado"));
       qc.invalidateQueries({ queryKey: ["site_content_admin"] });
     } catch (e: any) {toast.error(e.message);}
   };
@@ -53,7 +53,7 @@ export function SiteContentTab() {
           {([["landing", "Página principal"], ["privacy", "Política de Privacidad"]] as const).map(([k, l]) =>
           <button key={k} onClick={() => setSection(k)}
           className={`px-3 py-1.5 text-xs font-semibold rounded-md ${section === k ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>
-              {l}
+              {tr(l)}
             </button>
           )}
         </div>

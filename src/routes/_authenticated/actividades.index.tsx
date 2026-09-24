@@ -43,7 +43,7 @@ function ActividadesPage() {
   const handleSync = async () => {
     try {
       const r = await sync({ data: undefined });
-      toast.success(`Sincronizadas ${r.count} actividades`);
+      toast.success(`${tr("Sincronizadas")} ${r.count} ${tr("actividades")}`);
       qc.invalidateQueries({ queryKey: ["intervals_activities"] });
       qc.invalidateQueries({ queryKey: ["activity-matches"] });
       qc.invalidateQueries({ queryKey: ["weekly-stats"] });

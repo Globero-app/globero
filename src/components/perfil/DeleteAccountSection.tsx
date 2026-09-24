@@ -16,7 +16,7 @@ export function DeleteAccountSection() {
       await supabase.auth.signOut();
       window.location.href = "/";
     } catch (e: any) {
-      toast.error(e?.message || "No se ha podido eliminar el perfil");
+      toast.error(e?.message || tr("No se ha podido eliminar el perfil"));
       setLoading(false);
     }
   };

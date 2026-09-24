@@ -31,7 +31,7 @@ function CompetitionsPage() {
     if (!confirm(tr("¿Eliminar competición?"))) return;
     const { error } = await supabase.from("competitions").delete().eq("id", id);
     if (error) toast.error(error.message);else
-    {toast.success("Eliminada");qc.invalidateQueries({ queryKey: ["competitions"] });}
+    {toast.success(tr("Eliminada"));qc.invalidateQueries({ queryKey: ["competitions"] });}
   };
 
   return (
@@ -108,7 +108,7 @@ function CompetitionForm({ initial, onClose, onSaved }: any) {
     await supabase.from("competitions").insert(payload);
     setSaving(false);
     if (error) toast.error(error.message);else
-    {toast.success(initial ? "Actualizada" : "Creada");onSaved();}
+    {toast.success(initial ? tr("Actualizada") : tr("Creada"));onSaved();}
   };
 
   return (

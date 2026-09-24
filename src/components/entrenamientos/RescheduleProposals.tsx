@@ -27,11 +27,11 @@ export function RescheduleProposals() {
     setBusy(id);
     try {
       await resolve({ data: { workout_id: id, accept } });
-      toast.success(accept ? "Entrenamiento reubicado" : "Semana ajustada sin ese entrenamiento");
+      toast.success(accept ? tr("Entrenamiento reubicado") : tr("Semana ajustada sin ese entrenamiento"));
       qc.invalidateQueries({ queryKey: ["reschedule-proposals"] });
       qc.invalidateQueries({ queryKey: ["workouts"] });
     } catch (e: any) {
-      toast.error(e?.message ?? "No se ha podido completar");
+      toast.error(e?.message ?? tr("No se ha podido completar"));
     } finally {
       setBusy(null);
     }

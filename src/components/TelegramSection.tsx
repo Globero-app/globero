@@ -37,7 +37,7 @@ export function TelegramSection() {
           type="button"
           onClick={async () => {
             await disconnect({ data: undefined });
-            toast.success("Telegram desconectado");
+            toast.success(tr("Telegram desconectado"));
             qc.invalidateQueries({ queryKey: ["telegram-status"] });
           }}
           className="text-xs font-semibold text-destructive hover:underline flex items-center gap-1">

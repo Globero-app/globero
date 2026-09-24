@@ -92,7 +92,7 @@ export function BikesManager() {
       }
     },
     onSuccess: () => {
-      toast.success("Bici guardada");
+      toast.success(tr("Bici guardada"));
       qc.invalidateQueries({ queryKey: ["bikes"] });
       qc.invalidateQueries({ queryKey: ["maintenance_alerts"] });
       setAddingBike(false);setEditingBike(null);
@@ -105,7 +105,7 @@ export function BikesManager() {
       const { error } = await supabase.from("bikes").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {toast.success("Bici eliminada");qc.invalidateQueries({ queryKey: ["bikes"] });qc.invalidateQueries({ queryKey: ["bike_components"] });}
+    onSuccess: () => {toast.success(tr("Bici eliminada"));qc.invalidateQueries({ queryKey: ["bikes"] });qc.invalidateQueries({ queryKey: ["bike_components"] });}
   });
 
   if (!user) return null;
@@ -229,7 +229,7 @@ function BikeCard({ bike, components, rides, isEditing, onEdit, onCancelEdit, on
       });
       if (e2) throw e2;
     },
-    onSuccess: () => {toast.success("Componente sustituido");qc.invalidateQueries({ queryKey: ["bike_components"] });}
+    onSuccess: () => {toast.success(tr("Componente sustituido"));qc.invalidateQueries({ queryKey: ["bike_components"] });}
   });
 
   const delComp = useMutation({
@@ -370,7 +370,7 @@ function ComponentForm({ bikeKm, onCancel, onSave }: {bikeKm: number;onCancel: (
       <div className="grid md:grid-cols-2 gap-3">
         <Field label={tr("Tipo")}>
           <select className="inp2" value={type} onChange={(e) => changeType(e.target.value)}>
-            {Object.entries(COMPONENT_TYPES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+            {Object.entries(COMPONENT_TYPES).map(([k, v]) => <option key={k} value={k}>{tr(v.label)}</option>)}
           </select>
         </Field>
         <Field label={tr("Nombre / detalle (opcional)")}><input className="inp2" value={name} onChange={(e) => setName(e.target.value)} placeholder={tr("Ej. Shimano Ultegra")} /></Field>

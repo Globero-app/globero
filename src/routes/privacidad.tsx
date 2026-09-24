@@ -31,9 +31,9 @@ function PrivacyPage() {
         {blocks.map((b) =>
         <section key={b.id}>
             {b.title && b.block_key !== "intro" &&
-          <h2 className="font-display text-xl font-bold uppercase tracking-tight">{b.title}</h2>
+          <h2 className="font-display text-xl font-bold uppercase tracking-tight">{tr(b.title.trim())}</h2>
           }
-            {b.body && <p className="mt-2 text-sm text-muted-foreground whitespace-pre-line">{b.body}</p>}
+            {b.body && <p className="mt-2 text-sm text-muted-foreground whitespace-pre-line">{tr(b.body.trim())}</p>}
           </section>
         )}
       </div>

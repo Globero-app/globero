@@ -49,10 +49,10 @@ function AuthPage() {
       await fetch("/api/public/setup-admin", { method: "POST" }).catch(() => {});
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      toast.success("Bienvenido");
+      toast.success(tr("Bienvenido"));
       navigate({ to: "/app" });
     } catch (err: any) {
-      toast.error(err.message || "Credenciales incorrectas");
+      toast.error(err.message || tr("Credenciales incorrectas"));
     } finally {
       setLoading(false);
     }

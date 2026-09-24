@@ -34,13 +34,13 @@ export function UsersTab() {
   const toggleRole = async (uid: string, current: string[]) => {
     const next = current.includes("admin") ? "user" : "admin";
     await setRole({ data: { userId: uid, role: next } });
-    toast.success(`Rol cambiado a ${next}`);
+    toast.success(`${tr("Rol cambiado a")} ${next}`);
     qc.invalidateQueries({ queryKey: ["all_users"] });
   };
 
   const remove = async (uid: string) => {
     if (!confirm(tr("¿Eliminar usuario? Sus datos se perderán."))) return;
-    try {await del({ data: { userId: uid } });toast.success("Eliminado");qc.invalidateQueries({ queryKey: ["all_users"] });}
+    try {await del({ data: { userId: uid } });toast.success(tr("Eliminado"));qc.invalidateQueries({ queryKey: ["all_users"] });}
     catch (e: any) {toast.error(e.message);}
   };
 

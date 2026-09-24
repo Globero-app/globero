@@ -68,7 +68,7 @@ export function TodayPanel() {
     mutationFn: (score: number) => save({ data: { score, note: null } }),
     onSuccess: (r: any) => {
       if (r?.action === "suggest_delete" && r?.workout_id) setPendingDeletionId(r.workout_id);
-      toast.success(r?.message ? String(r.message).slice(0, 160) : "Readiness registrado");
+      toast.success(r?.message ? String(r.message).slice(0, 160) : tr("Readiness registrado"));
       qc.invalidateQueries({ queryKey: ["readiness-today"] });
       qc.invalidateQueries({ queryKey: ["today-workout"] });
       qc.invalidateQueries({ queryKey: ["workouts"] });

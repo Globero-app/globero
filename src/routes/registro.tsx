@@ -63,7 +63,7 @@ function SignUpPage() {
       if (error) throw error;
       setDone(true);
     } catch (err: any) {
-      toast.error(err.message || "No se ha podido crear la cuenta");
+      toast.error(err.message || tr("No se ha podido crear la cuenta"));
     } finally {
       setLoading(false);
     }
@@ -80,7 +80,7 @@ function SignUpPage() {
       if (error) throw error;
       toast.success(tr("Email de confirmación reenviado"));
     } catch (err: any) {
-      toast.error(err.message || "No se ha podido reenviar el email");
+      toast.error(err.message || tr("No se ha podido reenviar el email"));
     } finally {
       setResending(false);
     }

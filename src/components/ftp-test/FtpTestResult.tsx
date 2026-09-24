@@ -36,7 +36,7 @@ export function FtpTestResult({ profile, onRepeat }: {profile: any;onRepeat: () 
 
   const save = async () => {
     if (!user) {toast.error(tr("Debes iniciar sesión"));return;}
-    if (!estimatedFtp && !estimatedLthr) {toast.error("Introduce potencia media o FC media de los 20 min");return;}
+    if (!estimatedFtp && !estimatedLthr) {toast.error(tr("Introduce potencia media o FC media de los 20 min"));return;}
     try {
       await saveTest({
         data: {
@@ -48,7 +48,7 @@ export function FtpTestResult({ profile, onRepeat }: {profile: any;onRepeat: () 
         }
       } as any);
     } catch (e: any) {
-      return toast.error(e?.message ?? "No se pudo guardar el test");
+      return toast.error(e?.message ?? tr("No se pudo guardar el test"));
     }
     setSaved(estimatedFtp ?? 0);
     qc.invalidateQueries({ queryKey: ["profile"] });
@@ -60,7 +60,7 @@ export function FtpTestResult({ profile, onRepeat }: {profile: any;onRepeat: () 
     estimatedFtp ? `FTP: ${estimatedFtp} W` : null,
     estimatedLthr ? `LTHR: ${estimatedLthr} bpm` : null].
     filter(Boolean).join(" · ");
-    toast.success(`Guardado (${parts}). Zonas calculadas.`);
+    toast.success(`${tr("Guardado")} (${parts}). ${tr("Zonas calculadas.")}`);
   };
 
   return (

@@ -58,7 +58,7 @@ function ReadinessPage() {
     try {
       const r = (await save({ data: { score: selected, note: note || null } })) as any;
       setResult({ action: r.action, message: r.message, workout_id: r.workout_id });
-      toast.success(r.action === "adapted" ? "Entreno de hoy adaptado por la IA" : "Readiness registrado");
+      toast.success(r.action === "adapted" ? tr("Entreno de hoy adaptado por la IA") : tr("Readiness registrado"));
       qc.invalidateQueries({ queryKey: ["readiness-recent"] });
       qc.invalidateQueries({ queryKey: ["workouts"] });
       qc.invalidateQueries({ queryKey: ["today-workout"] });

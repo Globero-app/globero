@@ -37,7 +37,7 @@ function RecoverPage() {
       if (error) throw error;
       setSent(true);
     } catch (err: any) {
-      toast.error(err.message || "No se ha podido enviar el email");
+      toast.error(err.message || tr("No se ha podido enviar el email"));
     } finally {
       setLoading(false);
     }
@@ -60,7 +60,7 @@ function RecoverPage() {
               <p className="text-sm text-muted-foreground">{tr("Introduce tu email y te enviaremos un enlace.")}</p>
             </div>
             <div>
-              <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</label>
+              <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{tr("Email")}</label>
               <input
               type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
               placeholder={tr("tucorreo@ejemplo.com")}

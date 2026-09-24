@@ -24,7 +24,7 @@ export function StravaConnection({ profile }: {profile: any;}) {
             type="button"
             onClick={async () => {
               await disconnect({ data: undefined });
-              toast.success("Strava desconectado");
+               toast.success(tr("Strava desconectado"));
               qc.invalidateQueries({ queryKey: ["profile"] });
             }}
             className="text-xs font-semibold text-destructive hover:underline flex items-center gap-1">
@@ -52,7 +52,7 @@ export function StravaConnection({ profile }: {profile: any;}) {
             const { url } = await authorize({ data: undefined });
             window.location.href = url;
           } catch (e: any) {
-            toast.error(e?.message ?? "No se pudo iniciar la conexión");
+             toast.error(e?.message ?? tr("No se pudo iniciar la conexión"));
           }
         }}
         className="inline-flex items-center gap-2 bg-[#FC4C02] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90">

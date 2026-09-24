@@ -37,7 +37,7 @@ export function FtpTestImport({ icuConnected, onImported }: {icuConnected: boole
     setImportingId(activityId);
     try {
       const r = await importFromIntervals({ data: { activity_id: activityId } });
-      toast.success(`FTP calculado: ${r.ftp} W (mejor 20' = ${r.avg_watts_20min} W)`);
+      toast.success(`${tr("FTP calculado:")} ${r.ftp} W (${tr("mejor 20 min")} = ${r.avg_watts_20min} W)`);
       onImported(r.ftp);
       qc.invalidateQueries({ queryKey: ["profile"] });
     } catch (e: any) {toast.error(e.message);} finally

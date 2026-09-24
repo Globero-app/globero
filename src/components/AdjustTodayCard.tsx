@@ -38,7 +38,7 @@ export function AdjustTodayCard() {
     try {
       const r: any = await adjust({ data: { minutes, easier } });
       toast.success(
-        `Sesión ajustada: ${r.minutes} min · ${r.tss} TSS${r.intervals_synced ? " · actualizada en Intervals.icu" : ""}`
+        `${tr("Sesión ajustada:")} ${r.minutes} min · ${r.tss} TSS${r.intervals_synced ? ` · ${tr("actualizada en Intervals.icu")}` : ""}`
       );
       setOpen(false);
       setMinutes(null);
@@ -47,7 +47,7 @@ export function AdjustTodayCard() {
       qc.invalidateQueries({ queryKey: ["workouts"] });
       qc.invalidateQueries({ queryKey: ["calendar"] });
     } catch (e: any) {
-      toast.error(e?.message ?? "No se pudo ajustar la sesión");
+      toast.error(e?.message ?? tr("No se pudo ajustar la sesión"));
     } finally {
       setBusy(false);
     }

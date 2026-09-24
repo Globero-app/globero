@@ -76,7 +76,7 @@ export function SponsorsTab() {
     if (!confirm(tr("¿Eliminar este patrocinador?"))) return;
     const { error } = await supabase.from("sponsors").delete().eq("id", id);
     if (error) return toast.error(error.message);
-    toast.success("Eliminado");
+    toast.success(tr("Eliminado"));
     refresh();
   };
 
