@@ -1,0 +1,12 @@
+CREATE TABLE public.announcements (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), title text NOT NULL, body text NOT NULL, active boolean NOT NULL DEFAULT true, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now());
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.announcements TO authenticated;
+GRANT ALL ON public.announcements TO service_role;
+ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "read active or admin" ON public.announcements FOR SELECT TO authenticated USING (active OR public.has_role(auth.uid(),'admin'));
+CREATE POLICY "admin manage" ON public.announcements FOR ALL TO authenticated USING (public.has_role(auth.uid(),'admin')) WITH CHECK (public.has_role(auth.uid(),'admin'));
+CREATE TRIGGER announcements_updated_at BEFORE UPDATE ON public.announcements FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TABLE public.announcement_dismissals (user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE, announcement_id uuid NOT NULL REFERENCES public.announcements(id) ON DELETE CASCADE, created_at timestamptz NOT NULL DEFAULT now(), PRIMARY KEY (user_id, announcement_id));
+GRANT SELECT, INSERT, DELETE ON public.announcement_dismissals TO authenticated;
+GRANT ALL ON public.announcement_dismissals TO service_role;
+ALTER TABLE public.announcement_dismissals ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "own dismissals" ON public.announcement_dismissals FOR ALL TO authenticated USING (auth.uid()=user_id) WITH CHECK (auth.uid()=user_id);

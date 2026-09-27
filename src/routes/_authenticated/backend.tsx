@@ -5,6 +5,7 @@ import { SiteContentTab } from "@/components/SiteContentTab";
 import { ConfigTab } from "@/components/backend/ConfigTab";
 import { UsersTab } from "@/components/backend/UsersTab";
 import { SponsorsTab } from "@/components/backend/SponsorsTab";
+import { AnnouncementsTab } from "@/components/backend/AnnouncementsTab";
 import { ErrorsTab } from "@/components/backend/ErrorsTab";
 import { AiUsageTab } from "@/components/backend/AiUsageTab";
 
@@ -20,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/backend")({
 });
 
 function BackendPage() {
-  const [tab, setTab] = useState<"config" | "users" | "sponsors" | "site" | "errors" | "ia">("config");
+  const [tab, setTab] = useState<"config" | "users" | "sponsors" | "avisos" | "site" | "errors" | "ia">("config");
   return (
     <div className="space-y-6">
       <div>
@@ -28,13 +29,13 @@ function BackendPage() {
         <h1 className="font-display text-4xl font-bold uppercase tracking-tight">{tr("Backend")}</h1>
       </div>
       <div className="border-b flex gap-1 flex-wrap">
-        {[["config", "Configuración visual"], ["users", "Usuarios"], ["sponsors", "Patrocinadores"], ["site", "Web pública"], ["errors", "Errores"], ["ia", "Uso de IA"]].map(([k, l]) =>
+        {[["config", "Configuración visual"], ["users", "Usuarios"], ["sponsors", "Patrocinadores"], ["avisos", "Avisos"], ["site", "Web pública"], ["errors", "Errores"], ["ia", "Uso de IA"]].map(([k, l]) =>
         <button key={k} onClick={() => setTab(k as any)} className={`px-4 py-2 text-sm font-semibold border-b-2 transition-colors ${tab === k ? "border-primary text-primary" : "border-transparent text-muted-foreground"}`}>
             {l}
           </button>
         )}
       </div>
-      {tab === "config" ? <ConfigTab /> : tab === "users" ? <UsersTab /> : tab === "sponsors" ? <SponsorsTab /> : tab === "errors" ? <ErrorsTab /> : tab === "ia" ? <AiUsageTab /> : <SiteContentTab />}
+      {tab === "config" ? <ConfigTab /> : tab === "users" ? <UsersTab /> : tab === "sponsors" ? <SponsorsTab /> : tab === "avisos" ? <AnnouncementsTab /> : tab === "errors" ? <ErrorsTab /> : tab === "ia" ? <AiUsageTab /> : <SiteContentTab />}
     </div>);
 
 }
