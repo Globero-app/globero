@@ -59,6 +59,12 @@ type DetectResult = { auto: number; asked: number };
 export async function detectAndAssign(admin: any, userId: string, todayISO: string): Promise<DetectResult> {
   const out: DetectResult = { auto: 0, asked: 0 };
   await pullIntervals(admin, userId);
+  try {
+    const { pullDeviceActivities } = await import("./devices.server");
+    await pullDeviceActivities(admin, userId);
+  } catch (e) {
+    console.error("[activity-detect] devices", e);
+  }
 
   const sinceISO = new Date(Date.now() - 2 * 86400000).toISOString();
   const sinceDay = sinceISO.slice(0, 10);
