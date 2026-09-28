@@ -38,6 +38,7 @@ import { Route as AuthenticatedCompeticionesIdRouteImport } from './routes/_auth
 import { Route as AuthenticatedActividadesIdRouteImport } from './routes/_authenticated/actividades.$id'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as ApiPublicWahooWebhookRouteImport } from './routes/api/public/wahoo/webhook'
 import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
 import { Route as ApiPublicHooksWeeklyWorkoutsRouteImport } from './routes/api/public/hooks/weekly-workouts'
 import { Route as ApiPublicHooksReadinessPushRouteImport } from './routes/api/public/hooks/readiness-push'
@@ -195,6 +196,11 @@ const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   path: '/lovable/email/auth/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWahooWebhookRoute = ApiPublicWahooWebhookRouteImport.update({
+  id: '/api/public/wahoo/webhook',
+  path: '/api/public/wahoo/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicTelegramWebhookRoute =
   ApiPublicTelegramWebhookRouteImport.update({
     id: '/api/public/telegram/webhook',
@@ -272,6 +278,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
+  '/api/public/wahoo/webhook': typeof ApiPublicWahooWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
@@ -309,6 +316,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
+  '/api/public/wahoo/webhook': typeof ApiPublicWahooWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
@@ -348,6 +356,7 @@ export interface FileRoutesById {
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
+  '/api/public/wahoo/webhook': typeof ApiPublicWahooWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
 }
@@ -387,6 +396,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/readiness-push'
     | '/api/public/hooks/weekly-workouts'
     | '/api/public/telegram/webhook'
+    | '/api/public/wahoo/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -424,6 +434,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/readiness-push'
     | '/api/public/hooks/weekly-workouts'
     | '/api/public/telegram/webhook'
+    | '/api/public/wahoo/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
   id:
@@ -462,6 +473,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/readiness-push'
     | '/api/public/hooks/weekly-workouts'
     | '/api/public/telegram/webhook'
+    | '/api/public/wahoo/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
   fileRoutesById: FileRoutesById
@@ -485,6 +497,7 @@ export interface RootRouteChildren {
   ApiPublicHooksReadinessPushRoute: typeof ApiPublicHooksReadinessPushRoute
   ApiPublicHooksWeeklyWorkoutsRoute: typeof ApiPublicHooksWeeklyWorkoutsRoute
   ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
+  ApiPublicWahooWebhookRoute: typeof ApiPublicWahooWebhookRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
 }
@@ -694,6 +707,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/wahoo/webhook': {
+      id: '/api/public/wahoo/webhook'
+      path: '/api/public/wahoo/webhook'
+      fullPath: '/api/public/wahoo/webhook'
+      preLoaderRoute: typeof ApiPublicWahooWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/telegram/webhook': {
       id: '/api/public/telegram/webhook'
       path: '/api/public/telegram/webhook'
@@ -806,6 +826,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksReadinessPushRoute: ApiPublicHooksReadinessPushRoute,
   ApiPublicHooksWeeklyWorkoutsRoute: ApiPublicHooksWeeklyWorkoutsRoute,
   ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
+  ApiPublicWahooWebhookRoute: ApiPublicWahooWebhookRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
 }
