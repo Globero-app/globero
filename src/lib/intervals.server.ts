@@ -275,6 +275,12 @@ export async function syncWorkoutEvent(
     .select("intervals_athlete_id,intervals_api_key,intervals_oauth,ftp,lthr,max_hr")
     .eq("id", userId)
     .maybeSingle();
+  try {
+    const { syncWorkoutToDevices } = await import("./devices.server");
+    await syncWorkoutToDevices(supabase, userId, workout);
+  } catch (e) {
+    console.error("device sync error", e);
+  }
   const creds = credsFromProfile(profile);
   if (!creds) return null;
   const date = workout?.plan?.scheduled_date;
@@ -318,6 +324,12 @@ export async function removeWorkoutEvent(
   workout: any,
   options: { strict?: boolean } = {},
 ): Promise<void> {
+  try {
+    const { removeWorkoutFromDevices } = await import("./devices.server");
+    await removeWorkoutFromDevices(supabase, userId, workout);
+  } catch (e) {
+    console.error("device delete error", e);
+  }
   const eventId = workout?.plan?.intervals_event_id;
   if (!eventId) return;
   const { data: profile } = await supabase
