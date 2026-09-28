@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { syncIntervalsZones, intervalsEstimateFtp, intervalsEstimateHr } from "@/lib/intervals.functions";
 import { Wand2 } from "lucide-react";
+import { syncWahooZones } from "@/lib/wahoo.functions";
 import { Link } from "@tanstack/react-router";
 import { Section, Field } from "@/components/perfil/Section";
 import { ZonesPreview } from "@/components/perfil/ZonesPreview";
@@ -36,6 +37,7 @@ function PerfilPage() {
   const estimateFtp = useServerFn(intervalsEstimateFtp);
   const estimateHr = useServerFn(intervalsEstimateHr);
   const syncZonesIcu = useServerFn(syncIntervalsZones);
+  const syncZonesWahoo = useServerFn(syncWahooZones);
 
 
   const profileQ = useQuery({
@@ -80,6 +82,13 @@ function PerfilPage() {
           const r = await syncZonesIcu({ data: undefined });
           if (r.ok) toast.success(tr("Zonas sincronizadas con Intervals.icu"));
         } catch (err: any) {toast.error(`Intervals.icu: ${err.message}`);}
+      }
+      const zonesChanged = ["ftp", "lthr", "max_hr"].some((k) => String(form[k] ?? "") !== String((profileQ.data as any)?.[k] ?? ""));
+      if (zonesChanged && (profileQ.data as any)?.wahoo_access_token) {
+        try {
+          const r = await syncZonesWahoo({ data: undefined });
+          if (r.ok) toast.success(tr("Zonas sincronizadas con Wahoo"));
+        } catch (err: any) {toast.error(`Wahoo: ${err.message}`);}
       }
     }
   };

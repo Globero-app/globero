@@ -384,3 +384,23 @@ export async function garminTokenFor(supabase: any, garminUserId: string): Promi
   const { data: profile } = await supabase.from("profiles").select(PROFILE_COLS).eq("garmin_user_id", garminUserId).maybeSingle();
   return profile ? refreshToken(supabase, profile, "garmin") : null;
 }
+
+/** Envía FTP y zonas de potencia (Coggan) a Wahoo. La API de Wahoo no admite zonas de FC. */
+export async function pushZonesToWahoo(supabase: any, userId: string): Promise<boolean> {
+  const profile = await loadProfile(supabase, userId);
+  const ftp = Number(profile?.ftp) || 0;
+  if (!profile?.wahoo_access_token || ftp <= 0) return false;
+  const token = await refreshToken(supabase, profile, "wahoo");
+  if (!token) return false;
+  const pct = [55, 75, 90, 105, 120, 150];
+  const body = new URLSearchParams({ "power_zone[ftp]": String(ftp), "power_zone[zone_count]": "7", "power_zone[zone_1]": "0" });
+  pct.forEach((p, i) => body.set(`power_zone[zone_${i + 2}]`, String(Math.round((p / 100) * ftp) + 1)));
+  const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/x-www-form-urlencoded" };
+  const list = await fetch(`${WAHOO}/v1/power_zones`, { headers: { Authorization: `Bearer ${token}` } }).catch(() => null);
+  const existing = list?.ok ? ((await list.json())?.power_zones ?? [])[0] : null;
+  const res = await fetch(existing?.id ? `${WAHOO}/v1/power_zones/${existing.id}` : `${WAHOO}/v1/power_zones`, {
+    method: existing?.id ? "PUT" : "POST", headers, body,
+  });
+  if (!res.ok) console.error(`[devices] wahoo zones ${res.status} ${await res.text().catch(() => "")}`);
+  return res.ok;
+}
