@@ -66,7 +66,13 @@ function AjustesPage() {
       );
       qc.invalidateQueries({ queryKey: ["profile"] });
     }
-    if (intervals || strava || wahoo) window.history.replaceState({}, "", window.location.pathname);
+    const garmin = params.get("garmin");
+    if (garmin) {
+      toast[garmin === "success" ? "success" : "error"](
+        tr(garmin === "success" ? "¡Cuenta de Garmin conectada correctamente!" : "No se pudo vincular Garmin"),
+      );
+    }
+    if (intervals || strava || wahoo || garmin) window.history.replaceState({}, "", window.location.pathname);
   }, [qc]);
 
   const save = async (event: React.FormEvent) => {
@@ -143,7 +149,7 @@ function AjustesPage() {
           <WahooConnection profile={profileQ.data} />
         </Section>
         <Section title={tr("Conexión Garmin Connect")}>
-          <GarminConnection />
+          <GarminConnection profile={profile} />
         </Section>
         <Section title={tr("Conexión Telegram")} className="lg:col-span-2">
           <TelegramSection />
