@@ -10,6 +10,7 @@ import { TelegramSection } from "@/components/TelegramSection";
 import { Section, Field } from "@/components/perfil/Section";
 import { IntervalsConnection } from "@/components/perfil/IntervalsConnection";
 import { StravaConnection } from "@/components/perfil/StravaConnection";
+import { WahooConnection, GarminConnection } from "@/components/perfil/DeviceConnections";
 import { WeatherStatus } from "@/components/perfil/WeatherStatus";
 import { COUNTRIES } from "@/lib/countries";
 
@@ -46,6 +47,7 @@ function AjustesPage() {
     const params = new URLSearchParams(window.location.search);
     const intervals = params.get("intervals");
     const strava = params.get("strava");
+    const wahoo = params.get("wahoo");
     if (intervals) {
       toast[intervals === "success" ? "success" : "error"](
         tr(intervals === "success" ? "¡Cuenta de Intervals.icu conectada correctamente!" : "No se pudo vincular Intervals.icu"),
@@ -58,7 +60,13 @@ function AjustesPage() {
       );
       qc.invalidateQueries({ queryKey: ["profile"] });
     }
-    if (intervals || strava) window.history.replaceState({}, "", window.location.pathname);
+    if (wahoo) {
+      toast[wahoo === "success" ? "success" : "error"](
+        tr(wahoo === "success" ? "¡Cuenta de Wahoo conectada correctamente!" : "No se pudo vincular Wahoo"),
+      );
+      qc.invalidateQueries({ queryKey: ["profile"] });
+    }
+    if (intervals || strava || wahoo) window.history.replaceState({}, "", window.location.pathname);
   }, [qc]);
 
   const save = async (event: React.FormEvent) => {
@@ -130,6 +138,12 @@ function AjustesPage() {
         </Section>
         <Section title={tr("Conexión Strava")} className="lg:col-span-2">
           <StravaConnection profile={profileQ.data} />
+        </Section>
+        <Section title={tr("Conexión Wahoo ELEMNT")}>
+          <WahooConnection profile={profileQ.data} />
+        </Section>
+        <Section title={tr("Conexión Garmin Connect")}>
+          <GarminConnection />
         </Section>
         <Section title={tr("Conexión Telegram")} className="lg:col-span-2">
           <TelegramSection />
