@@ -20,7 +20,7 @@ export const createWahooAuthorizeUrl = createServerFn({ method: "POST" })
       client_id: clientId,
       redirect_uri: "https://globero.app/auth/wahoo/callback",
       response_type: "code",
-      scope: "user_read workouts_read workouts_write plans_read plans_write power_zones_read offline_data",
+      scope: "user_read workouts_read plans_read plans_write offline_data",
       state: `${payload}.${encoded}`,
     });
     return { url: `https://api.wahooligan.com/oauth/authorize?${params.toString()}` };
