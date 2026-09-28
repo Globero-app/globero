@@ -44,6 +44,12 @@ export const saveFtpTest = createServerFn({ method: "POST" })
       /* no bloquea el guardado */
     }
 
+    try {
+      const { intervalsPushZones } = await import("./intervals.server");
+      const { pushZonesToWahoo } = await import("./devices.server");
+      await Promise.all([intervalsPushZones(supabase, userId), pushZonesToWahoo(supabase, userId)]);
+    } catch { /* no bloquea el guardado */ }
+
     return { ok: true, ftp: data.ftp ?? null, lthr: data.lthr ?? null };
   });
 

@@ -60,10 +60,11 @@ export const adjustTodayWorkout = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
 
     let synced = false;
-    if ((profile as any)?.intervals_athlete_id && updated) {
+    if (updated) {
       try {
         const { syncWorkoutEvent } = await import("./intervals.server");
-        synced = !!(await syncWorkoutEvent(supabase, userId, updated));
+        await syncWorkoutEvent(supabase, userId, updated);
+        synced = true;
       } catch { /* noop */ }
     }
 

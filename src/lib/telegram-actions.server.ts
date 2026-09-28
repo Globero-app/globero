@@ -226,15 +226,16 @@ export async function updateProfileFields(opts: {
   const { error } = await supabaseAdmin.from("profiles").update(updates as any).eq("id", userId);
   if (error) throw new Error(error.message);
 
-  // Si cambian FTP/LTHR/FCmáx, actualiza zonas en Intervals.icu
+  // Si cambian FTP/LTHR/FCmáx, actualiza zonas en las plataformas conectadas
   let extra = "";
   if (["ftp", "lthr", "max_hr"].some((k) => k in updates)) {
     try {
       const { intervalsPushZones } = await import("./intervals.server");
-      await intervalsPushZones(supabaseAdmin, userId);
-      extra = "\nZonas sincronizadas con Intervals.icu.";
+      const { pushZonesToWahoo } = await import("./devices.server");
+      await Promise.all([intervalsPushZones(supabaseAdmin, userId), pushZonesToWahoo(supabaseAdmin, userId)]);
+      extra = "\nZonas sincronizadas con las plataformas conectadas.";
     } catch {
-      extra = "\n(No se han podido sincronizar las zonas con Intervals.icu)";
+      extra = "\n(No se han podido sincronizar las zonas con las plataformas conectadas)";
     }
   }
   const list = Object.entries(updates)

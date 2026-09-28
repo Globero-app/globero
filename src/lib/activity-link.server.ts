@@ -51,15 +51,19 @@ export async function linkWorkoutActivity(
     }
   }
 
-  // Al asignar: borrar el evento planificado en Intervals.icu para no duplicar
-  if (accept && plan.intervals_event_id) {
+  // Al asignar: borrar los eventos planificados para no duplicar la actividad realizada
+  if (accept && (plan.intervals_event_id || plan.wahoo_workout_id || plan.wahoo_plan_id || plan.garmin_workout_id)) {
     try {
       const { removeWorkoutEvent } = await import("./intervals.server");
-      await removeWorkoutEvent(supabase, userId, { plan: { intervals_event_id: plan.intervals_event_id } });
+      await removeWorkoutEvent(supabase, userId, { plan });
     } catch (e) {
       console.error("[activity-link] delete planned event", e);
     }
     plan.intervals_event_id = null;
+    plan.wahoo_workout_id = null;
+    plan.wahoo_plan_id = null;
+    plan.garmin_workout_id = null;
+    plan.garmin_schedule_id = null;
     plan.intervals_unlinked_at = new Date().toISOString();
     update.plan = plan;
   }

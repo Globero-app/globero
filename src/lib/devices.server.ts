@@ -412,13 +412,15 @@ export async function pushZonesToWahooDetailed(supabase: any, userId: string): P
   const token = await refreshToken(supabase, profile, "wahoo");
   if (!token) return { ok: false, status: 0, response: "No se pudo renovar el token de Wahoo" };
   const pct = [55, 75, 90, 105, 120, 150];
-  const body = new URLSearchParams({ "power_zone[ftp]": String(ftp), "power_zone[zone_count]": "7", "power_zone[zone_1]": "0" });
-  pct.forEach((p, i) => body.set(`power_zone[zone_${i + 2}]`, String(Math.round((p / 100) * ftp) + 1)));
-  const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/x-www-form-urlencoded" };
+  const body: Record<string, number> = { ftp, critical_power: ftp, workout_type_family_id: 0, zone_1: 0 };
+  pct.forEach((p, i) => { body[`zone_${i + 2}`] = Math.round((p / 100) * ftp) + 1; });
+  const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
   const list = await fetch(`${WAHOO}/v1/power_zones`, { headers: { Authorization: `Bearer ${token}` } }).catch(() => null);
-  const existing = list?.ok ? ((await list.json())?.power_zones ?? [])[0] : null;
+  const listJson = list?.ok ? await list.json().catch(() => []) : [];
+  const zones = Array.isArray(listJson) ? listJson : Array.isArray(listJson?.power_zones) ? listJson.power_zones : [];
+  const existing = zones.find((z: any) => Number(z?.workout_type_family_id) === 0) ?? zones[0] ?? null;
   const res = await fetch(existing?.id ? `${WAHOO}/v1/power_zones/${existing.id}` : `${WAHOO}/v1/power_zones`, {
-    method: existing?.id ? "PUT" : "POST", headers, body,
+    method: existing?.id ? "PUT" : "POST", headers, body: JSON.stringify(body),
   });
   const response = await res.text().catch(() => "");
   if (!res.ok) console.error(`[devices] wahoo zones ${res.status} ${response}`);
