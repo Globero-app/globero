@@ -22,7 +22,8 @@ export const createWahooAuthorizeUrl = createServerFn({ method: "POST" })
       response_type: "code",
       state: `${payload}.${encoded}`,
     });
-    return { url: `https://api.wahooligan.com/oauth/authorize?${params.toString()}` };
+    const scope = ["user_read", "workouts_read", "plans_read", "plans_write", "power_zones_read", "power_zones_write", "offline_data"].join("%20");
+    return { url: `https://api.wahooligan.com/oauth/authorize?${params.toString()}&scope=${scope}` };
   });
 
 /** Desconecta la cuenta de Wahoo del usuario. */
