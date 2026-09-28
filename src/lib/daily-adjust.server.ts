@@ -285,7 +285,7 @@ export async function adjustTodayByReadiness(supabase: any, userId: string, toda
     .select()
     .maybeSingle();
 
-  if (updated && (profile as any)?.intervals_athlete_id) {
+  if (updated) {
     try {
       const { syncWorkoutEvent } = await import("./intervals.server");
       await syncWorkoutEvent(supabase, userId, updated);

@@ -56,7 +56,7 @@ export const quickAdjustWorkout = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error) throw new Error(error.message);
 
-    if ((profile as any)?.intervals_athlete_id && updated) {
+    if (updated) {
       try {
         const { syncWorkoutEvent } = await import("./intervals.server");
         await syncWorkoutEvent(supabase, userId, updated);
