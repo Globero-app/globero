@@ -36,3 +36,11 @@ export const disconnectWahoo = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/** Sincroniza FTP y zonas de potencia con Wahoo. */
+export const syncWahooZones = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { pushZonesToWahoo } = await import("./devices.server");
+    return { ok: await pushZonesToWahoo(context.supabase, context.userId) };
+  });
