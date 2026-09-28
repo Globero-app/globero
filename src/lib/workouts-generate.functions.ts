@@ -94,6 +94,16 @@ export const generateWorkouts = createServerFn({ method: "POST" })
       nutrition_goal: data.nutrition_enabled ? (data.nutrition_goal ?? "mantenimiento") : null,
     });
 
+    const { data: deviceProfile } = await supabase
+      .from("profiles")
+      .select("wahoo_access_token,garmin_access_token")
+      .eq("id", userId)
+      .maybeSingle();
+    if (deviceProfile?.wahoo_access_token || (deviceProfile as any)?.garmin_access_token) {
+      const { syncWorkoutToDevices } = await import("./devices.server");
+      for (const workout of inserted ?? []) await syncWorkoutToDevices(supabase, userId, workout);
+    }
+
     // Plan nutricional: se regenera para todas las semanas afectadas por los nuevos días
     let nutritionOn = data.nutrition_enabled;
     let nutritionGoal: string = data.nutrition_goal ?? "mantenimiento";

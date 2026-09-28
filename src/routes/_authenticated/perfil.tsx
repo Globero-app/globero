@@ -87,7 +87,7 @@ function PerfilPage() {
       if (zonesChanged && (profileQ.data as any)?.wahoo_access_token) {
         try {
           const r = await syncZonesWahoo({ data: undefined });
-          if (r.ok) toast.success(tr("Zonas sincronizadas con Wahoo"));
+          if (r.ok) toast.success(tr("Zonas actualizadas en Wahoo. Abre la app Wahoo cerca del ELEMNT para sincronizar el dispositivo."));
         } catch (err: any) {toast.error(`Wahoo: ${err.message}`);}
       }
     }
