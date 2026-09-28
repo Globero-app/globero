@@ -796,6 +796,10 @@ export type Database = {
           strengths: string | null
           telegram_chat_id: string | null
           updated_at: string
+          wahoo_access_token: string | null
+          wahoo_refresh_token: string | null
+          wahoo_token_expires_at: string | null
+          wahoo_user_id: string | null
           weaknesses: string | null
           weather_auto_indoor: boolean
           weather_wind_threshold_kmh: number
@@ -863,6 +867,10 @@ export type Database = {
           strengths?: string | null
           telegram_chat_id?: string | null
           updated_at?: string
+          wahoo_access_token?: string | null
+          wahoo_refresh_token?: string | null
+          wahoo_token_expires_at?: string | null
+          wahoo_user_id?: string | null
           weaknesses?: string | null
           weather_auto_indoor?: boolean
           weather_wind_threshold_kmh?: number
@@ -930,6 +938,10 @@ export type Database = {
           strengths?: string | null
           telegram_chat_id?: string | null
           updated_at?: string
+          wahoo_access_token?: string | null
+          wahoo_refresh_token?: string | null
+          wahoo_token_expires_at?: string | null
+          wahoo_user_id?: string | null
           weaknesses?: string | null
           weather_auto_indoor?: boolean
           weather_wind_threshold_kmh?: number

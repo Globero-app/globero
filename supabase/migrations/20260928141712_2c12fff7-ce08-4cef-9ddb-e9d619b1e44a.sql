@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS wahoo_user_id text, ADD COLUMN IF NOT EXISTS wahoo_access_token text, ADD COLUMN IF NOT EXISTS wahoo_refresh_token text, ADD COLUMN IF NOT EXISTS wahoo_token_expires_at timestamptz;
