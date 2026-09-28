@@ -79,6 +79,20 @@ export const Route = createFileRoute("/auth/wahoo/callback")({
           console.error(`Wahoo profile update failed: ${error.message}`);
           return back("error", "profile_update");
         }
+        const today = new Intl.DateTimeFormat("en-CA", {
+          timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit",
+        }).format(new Date());
+        const { data: pending } = await supabaseAdmin
+          .from("workouts")
+          .select("*")
+          .eq("user_id", userId)
+          .eq("status", "pending")
+          .limit(120);
+        const { syncWorkoutToDevices } = await import("@/lib/devices.server");
+        for (const workout of pending ?? []) {
+          if (String((workout.plan as any)?.scheduled_date ?? "") < today) continue;
+          await syncWorkoutToDevices(supabaseAdmin, userId, workout);
+        }
         return back("success");
       },
     },
