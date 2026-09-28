@@ -44,3 +44,13 @@ export const syncWahooZones = createServerFn({ method: "POST" })
     const { pushZonesToWahoo } = await import("./devices.server");
     return { ok: await pushZonesToWahoo(context.supabase, context.userId) };
   });
+
+/** Solo admin: sincroniza zonas con Wahoo y devuelve la respuesta exacta. */
+export const syncWahooZonesDebug = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (!isAdmin) throw new Error("Forbidden");
+    const { pushZonesToWahooDetailed } = await import("./devices.server");
+    return await pushZonesToWahooDetailed(context.supabase, context.userId);
+  });

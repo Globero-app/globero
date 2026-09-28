@@ -3,16 +3,22 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { CheckCircle2, Link as LinkIcon, Unlink } from "lucide-react";
-import { createWahooAuthorizeUrl, disconnectWahoo } from "@/lib/wahoo.functions";
+import { createWahooAuthorizeUrl, disconnectWahoo, syncWahooZonesDebug } from "@/lib/wahoo.functions";
+import { useAuth } from "@/lib/use-auth";
+import { useState } from "react";
 import { createGarminAuthorizeUrl, disconnectGarmin, getGarminStatus } from "@/lib/garmin.functions";
 
 export function WahooConnection({ profile }: { profile: any }) {
   const qc = useQueryClient();
   const disconnect = useServerFn(disconnectWahoo);
   const authorize = useServerFn(createWahooAuthorizeUrl);
+  const syncDebug = useServerFn(syncWahooZonesDebug);
+  const { isAdmin } = useAuth();
+  const [debug, setDebug] = useState<{ ok: boolean; status: number; response: string } | null>(null);
 
   if (profile?.wahoo_access_token) {
     return (
+      <>
       <div className="flex items-center justify-between bg-muted border border-border rounded-lg p-4">
         <div className="flex items-center gap-3">
           <CheckCircle2 className="size-5 text-primary" />
@@ -30,6 +36,21 @@ export function WahooConnection({ profile }: { profile: any }) {
           <Unlink className="size-3" /> {tr("Desconectar")}
         </button>
       </div>
+      {isAdmin && (
+        <div className="mt-2 space-y-2">
+          <button type="button" className="text-xs font-semibold text-primary hover:underline"
+            onClick={async () => { try { setDebug(await syncDebug({ data: undefined })); } catch (e: any) { setDebug({ ok: false, status: 0, response: e.message }); } }}>
+            Sincronizar zonas con Wahoo (admin)
+          </button>
+          {debug && (
+            <div className={`text-xs rounded-lg border p-2 ${debug.ok ? "border-primary" : "border-destructive"}`}>
+              <p className="font-semibold">{debug.ok ? "OK" : "Error"} · HTTP {debug.status}</p>
+              <pre className="whitespace-pre-wrap break-all font-mono text-[10px]">{debug.response || "(sin cuerpo)"}</pre>
+            </div>
+          )}
+        </div>
+      )}
+      </>
     );
   }
 
