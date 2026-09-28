@@ -170,6 +170,19 @@ async function wahooDeletePlanned(token: string, plan: any) {
   }
 }
 
+/** Elimina entrenos planificados (sin realizar) del mismo día creados por otra vía (p. ej. Intervals.icu). */
+async function wahooDeleteStaleSameDay(token: string, date: string, keepId: string) {
+  const res = await fetch(`${WAHOO}/v1/workouts?page=1&per_page=50`, { headers: { Authorization: `Bearer ${token}` } }).catch(() => null);
+  if (!res?.ok) return;
+  const list = ((await res.json().catch(() => null))?.workouts ?? []) as any[];
+  for (const w of list) {
+    if (String(w.id) === keepId || w.workout_summary) continue;
+    if (!String(w.starts ?? "").startsWith(date)) continue;
+    await fetch(`${WAHOO}/v1/workouts/${w.id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
+    if (w.plan_id) await fetch(`${WAHOO}/v1/plans/${w.plan_id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
+  }
+}
+
 async function wahooCreatePlanned(token: string, workout: any, refs: ZoneRefs, date: string) {
   const json = JSON.stringify(wahooPlanJson(workout, refs));
   const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(json)));
@@ -241,6 +254,7 @@ export async function syncWorkoutToDevices(supabase: any, userId: string, workou
       await wahooDeletePlanned(wToken, plan);
       plan = { ...plan, ...(await wahooCreatePlanned(wToken, workout, refs, date)) };
       changed = true;
+      await wahooDeleteStaleSameDay(wToken, date, String(plan.wahoo_workout_id ?? ""));
     } catch (e) {
       console.error("[devices] wahoo sync", e);
     }
