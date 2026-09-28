@@ -149,7 +149,7 @@ function AjustesPage() {
           <WahooConnection profile={profileQ.data} />
         </Section>
         <Section title={tr("Conexión Garmin Connect")}>
-          <GarminConnection profile={profile} />
+          <GarminConnection profile={profileQ.data} />
         </Section>
         <Section title={tr("Conexión Telegram")} className="lg:col-span-2">
           <TelegramSection />
