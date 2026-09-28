@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS garmin_user_id text, ADD COLUMN IF NOT EXISTS garmin_access_token text, ADD COLUMN IF NOT EXISTS garmin_refresh_token text, ADD COLUMN IF NOT EXISTS garmin_token_expires_at timestamptz;

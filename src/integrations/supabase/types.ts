@@ -754,6 +754,10 @@ export type Database = {
           ftp: number | null
           ftp_test_completed_at: string | null
           full_name: string | null
+          garmin_access_token: string | null
+          garmin_refresh_token: string | null
+          garmin_token_expires_at: string | null
+          garmin_user_id: string | null
           gender: string | null
           height_cm: number | null
           id: string
@@ -825,6 +829,10 @@ export type Database = {
           ftp?: number | null
           ftp_test_completed_at?: string | null
           full_name?: string | null
+          garmin_access_token?: string | null
+          garmin_refresh_token?: string | null
+          garmin_token_expires_at?: string | null
+          garmin_user_id?: string | null
           gender?: string | null
           height_cm?: number | null
           id: string
@@ -896,6 +904,10 @@ export type Database = {
           ftp?: number | null
           ftp_test_completed_at?: string | null
           full_name?: string | null
+          garmin_access_token?: string | null
+          garmin_refresh_token?: string | null
+          garmin_token_expires_at?: string | null
+          garmin_user_id?: string | null
           gender?: string | null
           height_cm?: number | null
           id?: string
