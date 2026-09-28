@@ -387,11 +387,16 @@ export async function garminTokenFor(supabase: any, garminUserId: string): Promi
 
 /** Envía FTP y zonas de potencia (Coggan) a Wahoo. La API de Wahoo no admite zonas de FC. */
 export async function pushZonesToWahoo(supabase: any, userId: string): Promise<boolean> {
+  return (await pushZonesToWahooDetailed(supabase, userId)).ok;
+}
+
+export async function pushZonesToWahooDetailed(supabase: any, userId: string): Promise<{ ok: boolean; status: number; response: string }> {
   const profile = await loadProfile(supabase, userId);
   const ftp = Number(profile?.ftp) || 0;
-  if (!profile?.wahoo_access_token || ftp <= 0) return false;
+  if (!profile?.wahoo_access_token) return { ok: false, status: 0, response: "Wahoo no conectado" };
+  if (ftp <= 0) return { ok: false, status: 0, response: "Sin FTP en el perfil" };
   const token = await refreshToken(supabase, profile, "wahoo");
-  if (!token) return false;
+  if (!token) return { ok: false, status: 0, response: "No se pudo renovar el token de Wahoo" };
   const pct = [55, 75, 90, 105, 120, 150];
   const body = new URLSearchParams({ "power_zone[ftp]": String(ftp), "power_zone[zone_count]": "7", "power_zone[zone_1]": "0" });
   pct.forEach((p, i) => body.set(`power_zone[zone_${i + 2}]`, String(Math.round((p / 100) * ftp) + 1)));
@@ -401,6 +406,7 @@ export async function pushZonesToWahoo(supabase: any, userId: string): Promise<b
   const res = await fetch(existing?.id ? `${WAHOO}/v1/power_zones/${existing.id}` : `${WAHOO}/v1/power_zones`, {
     method: existing?.id ? "PUT" : "POST", headers, body,
   });
-  if (!res.ok) console.error(`[devices] wahoo zones ${res.status} ${await res.text().catch(() => "")}`);
-  return res.ok;
+  const response = await res.text().catch(() => "");
+  if (!res.ok) console.error(`[devices] wahoo zones ${res.status} ${response}`);
+  return { ok: res.ok, status: res.status, response: response.slice(0, 2000) };
 }
