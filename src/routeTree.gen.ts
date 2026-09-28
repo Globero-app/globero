@@ -31,6 +31,7 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/ap
 import { Route as AuthenticatedAjustesRouteImport } from './routes/_authenticated/ajustes'
 import { Route as AuthenticatedCompeticionesIndexRouteImport } from './routes/_authenticated/competiciones.index'
 import { Route as AuthenticatedActividadesIndexRouteImport } from './routes/_authenticated/actividades.index'
+import { Route as AuthWahooCallbackRouteImport } from './routes/auth/wahoo/callback'
 import { Route as AuthStravaCallbackRouteImport } from './routes/auth/strava/callback'
 import { Route as AuthIntervalsCallbackRouteImport } from './routes/auth/intervals/callback'
 import { Route as AuthenticatedCompeticionesIdRouteImport } from './routes/_authenticated/competiciones.$id'
@@ -157,6 +158,11 @@ const AuthenticatedActividadesIndexRoute =
     path: '/actividades/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthWahooCallbackRoute = AuthWahooCallbackRouteImport.update({
+  id: '/auth/wahoo/callback',
+  path: '/auth/wahoo/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthStravaCallbackRoute = AuthStravaCallbackRouteImport.update({
   id: '/auth/strava/callback',
   path: '/auth/strava/callback',
@@ -256,6 +262,7 @@ export interface FileRoutesByFullPath {
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/auth/intervals/callback': typeof AuthIntervalsCallbackRoute
   '/auth/strava/callback': typeof AuthStravaCallbackRoute
+  '/auth/wahoo/callback': typeof AuthWahooCallbackRoute
   '/actividades/': typeof AuthenticatedActividadesIndexRoute
   '/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
@@ -292,6 +299,7 @@ export interface FileRoutesByTo {
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/auth/intervals/callback': typeof AuthIntervalsCallbackRoute
   '/auth/strava/callback': typeof AuthStravaCallbackRoute
+  '/auth/wahoo/callback': typeof AuthWahooCallbackRoute
   '/actividades': typeof AuthenticatedActividadesIndexRoute
   '/competiciones': typeof AuthenticatedCompeticionesIndexRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
@@ -330,6 +338,7 @@ export interface FileRoutesById {
   '/_authenticated/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/auth/intervals/callback': typeof AuthIntervalsCallbackRoute
   '/auth/strava/callback': typeof AuthStravaCallbackRoute
+  '/auth/wahoo/callback': typeof AuthWahooCallbackRoute
   '/_authenticated/actividades/': typeof AuthenticatedActividadesIndexRoute
   '/_authenticated/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
@@ -368,6 +377,7 @@ export interface FileRouteTypes {
     | '/competiciones/$id'
     | '/auth/intervals/callback'
     | '/auth/strava/callback'
+    | '/auth/wahoo/callback'
     | '/actividades/'
     | '/competiciones/'
     | '/api/public/hooks/activity-detect'
@@ -404,6 +414,7 @@ export interface FileRouteTypes {
     | '/competiciones/$id'
     | '/auth/intervals/callback'
     | '/auth/strava/callback'
+    | '/auth/wahoo/callback'
     | '/actividades'
     | '/competiciones'
     | '/api/public/hooks/activity-detect'
@@ -441,6 +452,7 @@ export interface FileRouteTypes {
     | '/_authenticated/competiciones/$id'
     | '/auth/intervals/callback'
     | '/auth/strava/callback'
+    | '/auth/wahoo/callback'
     | '/_authenticated/actividades/'
     | '/_authenticated/competiciones/'
     | '/api/public/hooks/activity-detect'
@@ -465,6 +477,7 @@ export interface RootRouteChildren {
   AuthIndexRoute: typeof AuthIndexRoute
   AuthIntervalsCallbackRoute: typeof AuthIntervalsCallbackRoute
   AuthStravaCallbackRoute: typeof AuthStravaCallbackRoute
+  AuthWahooCallbackRoute: typeof AuthWahooCallbackRoute
   ApiPublicHooksActivityDetectRoute: typeof ApiPublicHooksActivityDetectRoute
   ApiPublicHooksDailyAdjustRoute: typeof ApiPublicHooksDailyAdjustRoute
   ApiPublicHooksIntervalsDetectRoute: typeof ApiPublicHooksIntervalsDetectRoute
@@ -632,6 +645,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedActividadesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/auth/wahoo/callback': {
+      id: '/auth/wahoo/callback'
+      path: '/auth/wahoo/callback'
+      fullPath: '/auth/wahoo/callback'
+      preLoaderRoute: typeof AuthWahooCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/strava/callback': {
       id: '/auth/strava/callback'
       path: '/auth/strava/callback'
@@ -778,6 +798,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthIndexRoute: AuthIndexRoute,
   AuthIntervalsCallbackRoute: AuthIntervalsCallbackRoute,
   AuthStravaCallbackRoute: AuthStravaCallbackRoute,
+  AuthWahooCallbackRoute: AuthWahooCallbackRoute,
   ApiPublicHooksActivityDetectRoute: ApiPublicHooksActivityDetectRoute,
   ApiPublicHooksDailyAdjustRoute: ApiPublicHooksDailyAdjustRoute,
   ApiPublicHooksIntervalsDetectRoute: ApiPublicHooksIntervalsDetectRoute,
