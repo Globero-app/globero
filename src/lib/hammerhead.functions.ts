@@ -36,3 +36,11 @@ export const disconnectHammerhead = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/** Sincroniza FTP, zonas, FC y peso con Hammerhead. */
+export const syncHammerheadMetrics = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { pushMetricsToHammerhead } = await import("./devices.server");
+    return { ok: await pushMetricsToHammerhead(context.supabase, context.userId) };
+  });
