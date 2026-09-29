@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS hammerhead_user_id text, ADD COLUMN IF NOT EXISTS hammerhead_access_token text, ADD COLUMN IF NOT EXISTS hammerhead_refresh_token text, ADD COLUMN IF NOT EXISTS hammerhead_token_expires_at timestamptz;

@@ -34,6 +34,7 @@ import { Route as AuthenticatedActividadesIndexRouteImport } from './routes/_aut
 import { Route as AuthWahooCallbackRouteImport } from './routes/auth/wahoo/callback'
 import { Route as AuthStravaCallbackRouteImport } from './routes/auth/strava/callback'
 import { Route as AuthIntervalsCallbackRouteImport } from './routes/auth/intervals/callback'
+import { Route as AuthHammerheadCallbackRouteImport } from './routes/auth/hammerhead/callback'
 import { Route as AuthGarminCallbackRouteImport } from './routes/auth/garmin/callback'
 import { Route as AuthenticatedCompeticionesIdRouteImport } from './routes/_authenticated/competiciones.$id'
 import { Route as AuthenticatedActividadesIdRouteImport } from './routes/_authenticated/actividades.$id'
@@ -47,6 +48,7 @@ import { Route as ApiPublicHooksIntervalsSyncRouteImport } from './routes/api/pu
 import { Route as ApiPublicHooksIntervalsDetectRouteImport } from './routes/api/public/hooks/intervals-detect'
 import { Route as ApiPublicHooksDailyAdjustRouteImport } from './routes/api/public/hooks/daily-adjust'
 import { Route as ApiPublicHooksActivityDetectRouteImport } from './routes/api/public/hooks/activity-detect'
+import { Route as ApiPublicHammerheadWebhookRouteImport } from './routes/api/public/hammerhead/webhook'
 import { Route as ApiPublicGarminWebhookRouteImport } from './routes/api/public/garmin/webhook'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -176,6 +178,11 @@ const AuthIntervalsCallbackRoute = AuthIntervalsCallbackRouteImport.update({
   path: '/auth/intervals/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthHammerheadCallbackRoute = AuthHammerheadCallbackRouteImport.update({
+  id: '/auth/hammerhead/callback',
+  path: '/auth/hammerhead/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthGarminCallbackRoute = AuthGarminCallbackRouteImport.update({
   id: '/auth/garmin/callback',
   path: '/auth/garmin/callback',
@@ -250,6 +257,12 @@ const ApiPublicHooksActivityDetectRoute =
     path: '/api/public/hooks/activity-detect',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHammerheadWebhookRoute =
+  ApiPublicHammerheadWebhookRouteImport.update({
+    id: '/api/public/hammerhead/webhook',
+    path: '/api/public/hammerhead/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicGarminWebhookRoute = ApiPublicGarminWebhookRouteImport.update({
   id: '/api/public/garmin/webhook',
   path: '/api/public/garmin/webhook',
@@ -279,12 +292,14 @@ export interface FileRoutesByFullPath {
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/auth/garmin/callback': typeof AuthGarminCallbackRoute
+  '/auth/hammerhead/callback': typeof AuthHammerheadCallbackRoute
   '/auth/intervals/callback': typeof AuthIntervalsCallbackRoute
   '/auth/strava/callback': typeof AuthStravaCallbackRoute
   '/auth/wahoo/callback': typeof AuthWahooCallbackRoute
   '/actividades/': typeof AuthenticatedActividadesIndexRoute
   '/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
   '/api/public/garmin/webhook': typeof ApiPublicGarminWebhookRoute
+  '/api/public/hammerhead/webhook': typeof ApiPublicHammerheadWebhookRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
   '/api/public/hooks/daily-adjust': typeof ApiPublicHooksDailyAdjustRoute
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
@@ -319,12 +334,14 @@ export interface FileRoutesByTo {
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/auth/garmin/callback': typeof AuthGarminCallbackRoute
+  '/auth/hammerhead/callback': typeof AuthHammerheadCallbackRoute
   '/auth/intervals/callback': typeof AuthIntervalsCallbackRoute
   '/auth/strava/callback': typeof AuthStravaCallbackRoute
   '/auth/wahoo/callback': typeof AuthWahooCallbackRoute
   '/actividades': typeof AuthenticatedActividadesIndexRoute
   '/competiciones': typeof AuthenticatedCompeticionesIndexRoute
   '/api/public/garmin/webhook': typeof ApiPublicGarminWebhookRoute
+  '/api/public/hammerhead/webhook': typeof ApiPublicHammerheadWebhookRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
   '/api/public/hooks/daily-adjust': typeof ApiPublicHooksDailyAdjustRoute
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
@@ -361,12 +378,14 @@ export interface FileRoutesById {
   '/_authenticated/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/_authenticated/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/auth/garmin/callback': typeof AuthGarminCallbackRoute
+  '/auth/hammerhead/callback': typeof AuthHammerheadCallbackRoute
   '/auth/intervals/callback': typeof AuthIntervalsCallbackRoute
   '/auth/strava/callback': typeof AuthStravaCallbackRoute
   '/auth/wahoo/callback': typeof AuthWahooCallbackRoute
   '/_authenticated/actividades/': typeof AuthenticatedActividadesIndexRoute
   '/_authenticated/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
   '/api/public/garmin/webhook': typeof ApiPublicGarminWebhookRoute
+  '/api/public/hammerhead/webhook': typeof ApiPublicHammerheadWebhookRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
   '/api/public/hooks/daily-adjust': typeof ApiPublicHooksDailyAdjustRoute
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
@@ -403,12 +422,14 @@ export interface FileRouteTypes {
     | '/actividades/$id'
     | '/competiciones/$id'
     | '/auth/garmin/callback'
+    | '/auth/hammerhead/callback'
     | '/auth/intervals/callback'
     | '/auth/strava/callback'
     | '/auth/wahoo/callback'
     | '/actividades/'
     | '/competiciones/'
     | '/api/public/garmin/webhook'
+    | '/api/public/hammerhead/webhook'
     | '/api/public/hooks/activity-detect'
     | '/api/public/hooks/daily-adjust'
     | '/api/public/hooks/intervals-detect'
@@ -443,12 +464,14 @@ export interface FileRouteTypes {
     | '/actividades/$id'
     | '/competiciones/$id'
     | '/auth/garmin/callback'
+    | '/auth/hammerhead/callback'
     | '/auth/intervals/callback'
     | '/auth/strava/callback'
     | '/auth/wahoo/callback'
     | '/actividades'
     | '/competiciones'
     | '/api/public/garmin/webhook'
+    | '/api/public/hammerhead/webhook'
     | '/api/public/hooks/activity-detect'
     | '/api/public/hooks/daily-adjust'
     | '/api/public/hooks/intervals-detect'
@@ -484,12 +507,14 @@ export interface FileRouteTypes {
     | '/_authenticated/actividades/$id'
     | '/_authenticated/competiciones/$id'
     | '/auth/garmin/callback'
+    | '/auth/hammerhead/callback'
     | '/auth/intervals/callback'
     | '/auth/strava/callback'
     | '/auth/wahoo/callback'
     | '/_authenticated/actividades/'
     | '/_authenticated/competiciones/'
     | '/api/public/garmin/webhook'
+    | '/api/public/hammerhead/webhook'
     | '/api/public/hooks/activity-detect'
     | '/api/public/hooks/daily-adjust'
     | '/api/public/hooks/intervals-detect'
@@ -512,10 +537,12 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   AuthIndexRoute: typeof AuthIndexRoute
   AuthGarminCallbackRoute: typeof AuthGarminCallbackRoute
+  AuthHammerheadCallbackRoute: typeof AuthHammerheadCallbackRoute
   AuthIntervalsCallbackRoute: typeof AuthIntervalsCallbackRoute
   AuthStravaCallbackRoute: typeof AuthStravaCallbackRoute
   AuthWahooCallbackRoute: typeof AuthWahooCallbackRoute
   ApiPublicGarminWebhookRoute: typeof ApiPublicGarminWebhookRoute
+  ApiPublicHammerheadWebhookRoute: typeof ApiPublicHammerheadWebhookRoute
   ApiPublicHooksActivityDetectRoute: typeof ApiPublicHooksActivityDetectRoute
   ApiPublicHooksDailyAdjustRoute: typeof ApiPublicHooksDailyAdjustRoute
   ApiPublicHooksIntervalsDetectRoute: typeof ApiPublicHooksIntervalsDetectRoute
@@ -705,6 +732,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIntervalsCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/hammerhead/callback': {
+      id: '/auth/hammerhead/callback'
+      path: '/auth/hammerhead/callback'
+      fullPath: '/auth/hammerhead/callback'
+      preLoaderRoute: typeof AuthHammerheadCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/garmin/callback': {
       id: '/auth/garmin/callback'
       path: '/auth/garmin/callback'
@@ -796,6 +830,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksActivityDetectRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hammerhead/webhook': {
+      id: '/api/public/hammerhead/webhook'
+      path: '/api/public/hammerhead/webhook'
+      fullPath: '/api/public/hammerhead/webhook'
+      preLoaderRoute: typeof ApiPublicHammerheadWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/garmin/webhook': {
       id: '/api/public/garmin/webhook'
       path: '/api/public/garmin/webhook'
@@ -857,10 +898,12 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   AuthIndexRoute: AuthIndexRoute,
   AuthGarminCallbackRoute: AuthGarminCallbackRoute,
+  AuthHammerheadCallbackRoute: AuthHammerheadCallbackRoute,
   AuthIntervalsCallbackRoute: AuthIntervalsCallbackRoute,
   AuthStravaCallbackRoute: AuthStravaCallbackRoute,
   AuthWahooCallbackRoute: AuthWahooCallbackRoute,
   ApiPublicGarminWebhookRoute: ApiPublicGarminWebhookRoute,
+  ApiPublicHammerheadWebhookRoute: ApiPublicHammerheadWebhookRoute,
   ApiPublicHooksActivityDetectRoute: ApiPublicHooksActivityDetectRoute,
   ApiPublicHooksDailyAdjustRoute: ApiPublicHooksDailyAdjustRoute,
   ApiPublicHooksIntervalsDetectRoute: ApiPublicHooksIntervalsDetectRoute,

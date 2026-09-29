@@ -5,18 +5,22 @@
  *   (tabla común de análisis) para que informes, gráficos y detección funcionen igual.
  * Garmin se activa solo con GARMIN_CLIENT_ID y GARMIN_CLIENT_SECRET configurados.
  */
+import { encodeWorkoutFit } from "./fit-writer";
 import { credsFromProfile, hrRangeToLthrPct, type ZoneRefs } from "./intervals.server";
 
 const WAHOO = "https://api.wahooligan.com";
 const GARMIN_API = "https://apis.garmin.com";
 export const GARMIN_TOKEN_URL = "https://diauth.garmin.com/di-oauth2-service/oauth/token";
 
+const HAMMERHEAD_API = "https://api.hammerhead.io/v1/api";
+const HAMMERHEAD_TOKEN_URL = "https://api.hammerhead.io/v1/auth/oauth/token";
+
 export function garminConfigured() {
   return !!(process.env["GARMIN_CLIENT_ID"] && process.env["GARMIN_CLIENT_SECRET"]);
 }
 
 const PROFILE_COLS =
-  "id,ftp,lthr,max_hr,intervals_athlete_id,intervals_api_key,intervals_oauth,wahoo_user_id,wahoo_access_token,wahoo_refresh_token,wahoo_token_expires_at,garmin_user_id,garmin_access_token,garmin_refresh_token,garmin_token_expires_at";
+  "id,ftp,lthr,max_hr,intervals_athlete_id,intervals_api_key,intervals_oauth,wahoo_user_id,wahoo_access_token,wahoo_refresh_token,wahoo_token_expires_at,garmin_user_id,garmin_access_token,garmin_refresh_token,garmin_token_expires_at,hammerhead_user_id,hammerhead_access_token,hammerhead_refresh_token,hammerhead_token_expires_at";
 
 async function loadProfile(supabase: any, userId: string) {
   const { data } = await supabase.from("profiles").select(PROFILE_COLS).eq("id", userId).maybeSingle();
@@ -27,7 +31,7 @@ async function loadProfile(supabase: any, userId: string) {
 async function refreshToken(
   supabase: any,
   profile: any,
-  kind: "wahoo" | "garmin",
+  kind: "wahoo" | "garmin" | "hammerhead",
 ): Promise<string | null> {
   const access = profile?.[`${kind}_access_token`];
   if (!access) return null;
@@ -35,10 +39,10 @@ async function refreshToken(
   if (exp && exp - Date.now() > 120_000) return access;
   const refresh = profile?.[`${kind}_refresh_token`];
   if (!refresh) return access;
-  const clientId = process.env[kind === "wahoo" ? "WAHOO_CLIENT_ID" : "GARMIN_CLIENT_ID"];
-  const clientSecret = process.env[kind === "wahoo" ? "WAHOO_CLIENT_SECRET" : "GARMIN_CLIENT_SECRET"];
+  const clientId = process.env[`${kind.toUpperCase()}_CLIENT_ID`];
+  const clientSecret = process.env[`${kind.toUpperCase()}_CLIENT_SECRET`];
   if (!clientId || !clientSecret) return access;
-  const res = await fetch(kind === "wahoo" ? `${WAHOO}/oauth/token` : GARMIN_TOKEN_URL, {
+  const res = await fetch(kind === "wahoo" ? `${WAHOO}/oauth/token` : kind === "hammerhead" ? HAMMERHEAD_TOKEN_URL : GARMIN_TOKEN_URL, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({ client_id: clientId, client_secret: clientSecret, grant_type: "refresh_token", refresh_token: refresh }),
@@ -238,6 +242,44 @@ async function garminCreatePlanned(token: string, workout: any, refs: ZoneRefs, 
   return { garmin_workout_id: workoutId, garmin_schedule_id: scheduleId || null };
 }
 
+// ---------------- Hammerhead Karoo: planificados (archivo FIT) ----------------
+function hammerheadFit(workout: any): Uint8Array {
+  const plan = workout?.plan ?? {};
+  return encodeWorkoutFit({
+    name: String(plan.title ?? plan.name ?? "Globero"),
+    sport: "cycling",
+    steps: (plan.steps ?? []).map((s: any) => ({
+      name: s.name,
+      duration_type: s.duration_type === "open" ? "open" : "time",
+      duration_value: s.duration_seconds,
+      target: s.target,
+      target_low: s.target_low ?? 0,
+      target_high: s.target_high ?? 0,
+      intensity: s.intensity,
+    })),
+  });
+}
+
+async function hammerheadDeletePlanned(token: string, plan: any) {
+  if (plan?.hammerhead_workout_id) {
+    await fetch(`${HAMMERHEAD_API}/workouts/${plan.hammerhead_workout_id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
+  }
+}
+
+async function hammerheadCreatePlanned(token: string, workout: any, _refs: ZoneRefs, date: string) {
+  const form = new FormData();
+  const safe = String(workout?.plan?.title ?? "globero").replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 40);
+  form.append("file", new Blob([hammerheadFit(workout) as unknown as BlobPart], { type: "application/octet-stream" }), `${safe}.fit`);
+  const res = await fetch(`${HAMMERHEAD_API}/workouts/file?plannedDate=${date}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+  });
+  if (!res.ok) throw new Error(`Hammerhead workout ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  const j = (await res.json().catch(() => null)) as any;
+  return { hammerhead_workout_id: String(j?.id ?? j?.workoutId ?? "") || null };
+}
+
 /** Crea/recrea el entreno en Wahoo/Garmin. Actualiza `workout.plan` con los ids. */
 export async function syncWorkoutToDevices(supabase: any, userId: string, workout: any) {
   const date = workout?.plan?.scheduled_date;
@@ -257,6 +299,17 @@ export async function syncWorkoutToDevices(supabase: any, userId: string, workou
       await wahooDeleteStaleSameDay(wToken, date, String(plan.wahoo_workout_id ?? ""));
     } catch (e) {
       console.error("[devices] wahoo sync", e);
+    }
+  }
+  const hToken = await refreshToken(supabase, profile, "hammerhead");
+  if (hToken) {
+    try {
+      const created = await hammerheadCreatePlanned(hToken, workout, refs, date);
+      await hammerheadDeletePlanned(hToken, plan);
+      plan = { ...plan, ...created };
+      changed = true;
+    } catch (e) {
+      console.error("[devices] hammerhead sync", e);
     }
   }
   if (garminConfigured()) {
@@ -280,11 +333,13 @@ export async function syncWorkoutToDevices(supabase: any, userId: string, workou
 /** Elimina el entreno planificado de Wahoo/Garmin. */
 export async function removeWorkoutFromDevices(supabase: any, userId: string, workout: any) {
   const plan = workout?.plan ?? {};
-  if (!plan.wahoo_workout_id && !plan.wahoo_plan_id && !plan.garmin_workout_id) return;
+  if (!plan.wahoo_workout_id && !plan.wahoo_plan_id && !plan.garmin_workout_id && !plan.hammerhead_workout_id) return;
   const profile = await loadProfile(supabase, userId);
   if (!profile) return;
   const wToken = await refreshToken(supabase, profile, "wahoo");
   if (wToken) await wahooDeletePlanned(wToken, plan);
+  const hToken = await refreshToken(supabase, profile, "hammerhead");
+  if (hToken) await hammerheadDeletePlanned(hToken, plan);
   if (garminConfigured()) {
     const gToken = await refreshToken(supabase, profile, "garmin");
     if (gToken) await garminDeletePlanned(gToken, plan);
@@ -380,6 +435,63 @@ export async function pullDeviceActivities(supabase: any, userId: string): Promi
   if (!rows.length) return 0;
   const { error } = await supabase.from("intervals_activities").upsert(rows, { onConflict: "id" });
   if (error) console.error("[devices] upsert", error);
+  return error ? 0 : rows.length;
+}
+
+function hammerheadRow(a: any, userId: string, refs: ZoneRefs) {
+  const dur = Number(a?.movingTime ?? a?.duration ?? a?.elapsedTime ?? 0);
+  if (!a?.id || !dur) return null;
+  const np = Number(a.normalizedPower ?? a.avgPower ?? 0);
+  const avgHr = Number(a.avgHeartRate ?? 0);
+  const est = estimateLoad(dur, np, avgHr, refs);
+  return {
+    id: `hammerhead_${a.id}`,
+    user_id: userId,
+    name: a.name ?? "Karoo",
+    type: a.indoor ? "VirtualRide" : "Ride",
+    start_date: new Date(a.startTime ?? a.createdAt ?? Date.now()).toISOString(),
+    moving_time: Math.round(dur),
+    distance: Number(a.distance ?? 0) || null,
+    total_elevation_gain: Number(a.elevationGain ?? a.ascent ?? 0) || null,
+    average_speed: Number(a.avgSpeed ?? 0) || null,
+    average_heartrate: avgHr || null,
+    max_heartrate: Number(a.maxHeartRate ?? 0) || null,
+    average_watts: Number(a.avgPower ?? 0) || null,
+    icu_training_load: Number(a.tss ?? a.trainingStressScore ?? 0) || est.load,
+    icu_intensity: est.intensity,
+    raw: { source: "hammerhead", ...a },
+    synced_at: new Date().toISOString(),
+  };
+}
+
+/** Descarga actividades de Hammerhead (GET /activities y GET /activities/{id}/file) si no hay Intervals.icu. */
+export async function pullHammerheadActivities(supabase: any, userId: string, activityId?: string): Promise<number> {
+  const profile = await loadProfile(supabase, userId);
+  if (!profile || credsFromProfile(profile)) return 0;
+  const token = await refreshToken(supabase, profile, "hammerhead");
+  if (!token) return 0;
+  const headers = { Authorization: `Bearer ${token}` };
+  const res = await fetch(`${HAMMERHEAD_API}/activities?page=1&perPage=30`, { headers });
+  if (!res.ok) {
+    console.error(`[devices] hammerhead list ${res.status}`);
+    return 0;
+  }
+  const j = (await res.json()) as any;
+  const list = (Array.isArray(j) ? j : j?.data ?? j?.activities ?? []) as any[];
+  const refs = refsOf(profile);
+  const rows: any[] = [];
+  for (const a of list) {
+    const row = hammerheadRow(a, userId, refs);
+    if (!row) continue;
+    if (activityId && String(a.id) === String(activityId)) {
+      const f = await fetch(`${HAMMERHEAD_API}/activities/${a.id}/file`, { headers }).catch(() => null);
+      (row.raw as any).file_available = !!f?.ok;
+    }
+    rows.push(row);
+  }
+  if (!rows.length) return 0;
+  const { error } = await supabase.from("intervals_activities").upsert(rows, { onConflict: "id" });
+  if (error) console.error("[devices] hammerhead upsert", error);
   return error ? 0 : rows.length;
 }
 

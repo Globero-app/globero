@@ -11,3 +11,4 @@
 - [x] Enviar entrenamientos a Wahoo y calcular informes/gráficos con sus actividades cuando no haya Intervals.icu
 - [x] Corregir actualización directa de entrenamientos y zonas en Wahoo sin Intervals.icu
 - [ ] Garmin Connect: código listo; se activa al añadir GARMIN_CLIENT_ID y GARMIN_CLIENT_SECRET (bloqueado: aprobación de Garmin)
+- [x] Hammerhead Karoo: OAuth, envío FIT, webhook y actividades (pendiente claves)
