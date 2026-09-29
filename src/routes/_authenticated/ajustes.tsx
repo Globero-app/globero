@@ -47,6 +47,15 @@ function AjustesPage() {
 
   useEffect(() => { if (profileQ.data) setForm(profileQ.data); }, [profileQ.data]);
   useEffect(() => {
+    if (!user?.id) return;
+    const conectar = new URLSearchParams(window.location.search).get("conectar");
+    if (conectar !== "hammerhead") return;
+    window.history.replaceState({}, "", window.location.pathname);
+    authorizeHammerhead({ data: undefined })
+      .then(({ url }) => { window.location.href = url; })
+      .catch((e: any) => toast.error(e?.message ?? tr("No se pudo iniciar la conexión")));
+  }, [user?.id, authorizeHammerhead]);
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const intervals = params.get("intervals");
     const strava = params.get("strava");
