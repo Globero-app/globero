@@ -269,7 +269,7 @@ async function hammerheadDeletePlanned(token: string, plan: any) {
 async function hammerheadCreatePlanned(token: string, workout: any, _refs: ZoneRefs, date: string) {
   const form = new FormData();
   const safe = String(workout?.plan?.title ?? "globero").replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 40);
-  form.append("file", new Blob([hammerheadFit(workout)], { type: "application/octet-stream" }), `${safe}.fit`);
+  form.append("file", new Blob([hammerheadFit(workout) as unknown as BlobPart], { type: "application/octet-stream" }), `${safe}.fit`);
   const res = await fetch(`${HAMMERHEAD_API}/workouts/file?plannedDate=${date}`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
