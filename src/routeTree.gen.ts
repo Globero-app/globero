@@ -34,6 +34,7 @@ import { Route as AuthenticatedActividadesIndexRouteImport } from './routes/_aut
 import { Route as AuthWahooCallbackRouteImport } from './routes/auth/wahoo/callback'
 import { Route as AuthStravaCallbackRouteImport } from './routes/auth/strava/callback'
 import { Route as AuthIntervalsCallbackRouteImport } from './routes/auth/intervals/callback'
+import { Route as AuthHammerheadCallbackRouteImport } from './routes/auth/hammerhead/callback'
 import { Route as AuthGarminCallbackRouteImport } from './routes/auth/garmin/callback'
 import { Route as AuthenticatedCompeticionesIdRouteImport } from './routes/_authenticated/competiciones.$id'
 import { Route as AuthenticatedActividadesIdRouteImport } from './routes/_authenticated/actividades.$id'
@@ -176,6 +177,11 @@ const AuthIntervalsCallbackRoute = AuthIntervalsCallbackRouteImport.update({
   path: '/auth/intervals/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthHammerheadCallbackRoute = AuthHammerheadCallbackRouteImport.update({
+  id: '/auth/hammerhead/callback',
+  path: '/auth/hammerhead/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthGarminCallbackRoute = AuthGarminCallbackRouteImport.update({
   id: '/auth/garmin/callback',
   path: '/auth/garmin/callback',
@@ -279,6 +285,7 @@ export interface FileRoutesByFullPath {
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/auth/garmin/callback': typeof AuthGarminCallbackRoute
+  '/auth/hammerhead/callback': typeof AuthHammerheadCallbackRoute
   '/auth/intervals/callback': typeof AuthIntervalsCallbackRoute
   '/auth/strava/callback': typeof AuthStravaCallbackRoute
   '/auth/wahoo/callback': typeof AuthWahooCallbackRoute
@@ -319,6 +326,7 @@ export interface FileRoutesByTo {
   '/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/auth/garmin/callback': typeof AuthGarminCallbackRoute
+  '/auth/hammerhead/callback': typeof AuthHammerheadCallbackRoute
   '/auth/intervals/callback': typeof AuthIntervalsCallbackRoute
   '/auth/strava/callback': typeof AuthStravaCallbackRoute
   '/auth/wahoo/callback': typeof AuthWahooCallbackRoute
@@ -361,6 +369,7 @@ export interface FileRoutesById {
   '/_authenticated/actividades/$id': typeof AuthenticatedActividadesIdRoute
   '/_authenticated/competiciones/$id': typeof AuthenticatedCompeticionesIdRoute
   '/auth/garmin/callback': typeof AuthGarminCallbackRoute
+  '/auth/hammerhead/callback': typeof AuthHammerheadCallbackRoute
   '/auth/intervals/callback': typeof AuthIntervalsCallbackRoute
   '/auth/strava/callback': typeof AuthStravaCallbackRoute
   '/auth/wahoo/callback': typeof AuthWahooCallbackRoute
@@ -403,6 +412,7 @@ export interface FileRouteTypes {
     | '/actividades/$id'
     | '/competiciones/$id'
     | '/auth/garmin/callback'
+    | '/auth/hammerhead/callback'
     | '/auth/intervals/callback'
     | '/auth/strava/callback'
     | '/auth/wahoo/callback'
@@ -443,6 +453,7 @@ export interface FileRouteTypes {
     | '/actividades/$id'
     | '/competiciones/$id'
     | '/auth/garmin/callback'
+    | '/auth/hammerhead/callback'
     | '/auth/intervals/callback'
     | '/auth/strava/callback'
     | '/auth/wahoo/callback'
@@ -484,6 +495,7 @@ export interface FileRouteTypes {
     | '/_authenticated/actividades/$id'
     | '/_authenticated/competiciones/$id'
     | '/auth/garmin/callback'
+    | '/auth/hammerhead/callback'
     | '/auth/intervals/callback'
     | '/auth/strava/callback'
     | '/auth/wahoo/callback'
@@ -512,6 +524,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   AuthIndexRoute: typeof AuthIndexRoute
   AuthGarminCallbackRoute: typeof AuthGarminCallbackRoute
+  AuthHammerheadCallbackRoute: typeof AuthHammerheadCallbackRoute
   AuthIntervalsCallbackRoute: typeof AuthIntervalsCallbackRoute
   AuthStravaCallbackRoute: typeof AuthStravaCallbackRoute
   AuthWahooCallbackRoute: typeof AuthWahooCallbackRoute
@@ -705,6 +718,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIntervalsCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/hammerhead/callback': {
+      id: '/auth/hammerhead/callback'
+      path: '/auth/hammerhead/callback'
+      fullPath: '/auth/hammerhead/callback'
+      preLoaderRoute: typeof AuthHammerheadCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/garmin/callback': {
       id: '/auth/garmin/callback'
       path: '/auth/garmin/callback'
@@ -857,6 +877,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   AuthIndexRoute: AuthIndexRoute,
   AuthGarminCallbackRoute: AuthGarminCallbackRoute,
+  AuthHammerheadCallbackRoute: AuthHammerheadCallbackRoute,
   AuthIntervalsCallbackRoute: AuthIntervalsCallbackRoute,
   AuthStravaCallbackRoute: AuthStravaCallbackRoute,
   AuthWahooCallbackRoute: AuthWahooCallbackRoute,
