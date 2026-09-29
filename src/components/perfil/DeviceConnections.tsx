@@ -7,6 +7,7 @@ import { createWahooAuthorizeUrl, disconnectWahoo, syncWahooZonesDebug } from "@
 import { useAuth } from "@/lib/use-auth";
 import { useState } from "react";
 import { createGarminAuthorizeUrl, disconnectGarmin, getGarminStatus } from "@/lib/garmin.functions";
+import { createHammerheadAuthorizeUrl, disconnectHammerhead } from "@/lib/hammerhead.functions";
 
 export function WahooConnection({ profile }: { profile: any }) {
   const qc = useQueryClient();
@@ -124,6 +125,54 @@ export function GarminConnection({ profile }: { profile?: any }) {
         className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90"
       >
         <LinkIcon className="size-4" /> {tr("Conectar con Garmin")}
+      </button>
+    </div>
+  );
+}
+
+export function HammerheadConnection({ profile }: { profile?: any }) {
+  const qc = useQueryClient();
+  const authorize = useServerFn(createHammerheadAuthorizeUrl);
+  const disconnect = useServerFn(disconnectHammerhead);
+
+  if (profile?.hammerhead_access_token) {
+    return (
+      <div className="flex items-center justify-between bg-muted border border-border rounded-lg p-4">
+        <div className="flex items-center gap-3">
+          <CheckCircle2 className="size-5 text-primary" />
+          <p className="font-semibold">{tr("Hammerhead conectado")}</p>
+        </div>
+        <button
+          type="button"
+          onClick={async () => {
+            await disconnect({ data: undefined });
+            toast.success(tr("Hammerhead desconectado"));
+            qc.invalidateQueries({ queryKey: ["profile"] });
+          }}
+          className="text-xs font-semibold text-destructive hover:underline flex items-center gap-1"
+        >
+          <Unlink className="size-3" /> {tr("Desconectar")}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-muted-foreground">{tr("Conecta tu Hammerhead Karoo para enviar los entrenamientos al ciclocomputador y recibir tus actividades.")}</p>
+      <button
+        type="button"
+        onClick={async () => {
+          try {
+            const { url } = await authorize({ data: undefined });
+            window.location.href = url;
+          } catch (e: any) {
+            toast.error(e?.message ?? tr("No se pudo iniciar la conexión"));
+          }
+        }}
+        className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90"
+      >
+        <LinkIcon className="size-4" /> {tr("Conectar con Hammerhead")}
       </button>
     </div>
   );

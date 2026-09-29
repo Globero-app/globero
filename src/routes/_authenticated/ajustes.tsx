@@ -10,7 +10,7 @@ import { TelegramSection } from "@/components/TelegramSection";
 import { Section, Field } from "@/components/perfil/Section";
 import { IntervalsConnection } from "@/components/perfil/IntervalsConnection";
 import { StravaConnection } from "@/components/perfil/StravaConnection";
-import { WahooConnection, GarminConnection } from "@/components/perfil/DeviceConnections";
+import { WahooConnection, GarminConnection, HammerheadConnection } from "@/components/perfil/DeviceConnections";
 import { WeatherStatus } from "@/components/perfil/WeatherStatus";
 import { COUNTRIES } from "@/lib/countries";
 
@@ -66,13 +66,20 @@ function AjustesPage() {
       );
       qc.invalidateQueries({ queryKey: ["profile"] });
     }
+    const hammerhead = params.get("hammerhead");
+    if (hammerhead) {
+      toast[hammerhead === "success" ? "success" : "error"](
+        tr(hammerhead === "success" ? "¡Cuenta de Hammerhead conectada correctamente!" : "No se pudo vincular Hammerhead"),
+      );
+      qc.invalidateQueries({ queryKey: ["profile"] });
+    }
     const garmin = params.get("garmin");
     if (garmin) {
       toast[garmin === "success" ? "success" : "error"](
         tr(garmin === "success" ? "¡Cuenta de Garmin conectada correctamente!" : "No se pudo vincular Garmin"),
       );
     }
-    if (intervals || strava || wahoo || garmin) window.history.replaceState({}, "", window.location.pathname);
+    if (intervals || strava || wahoo || garmin || hammerhead) window.history.replaceState({}, "", window.location.pathname);
   }, [qc]);
 
   const save = async (event: React.FormEvent) => {
@@ -150,6 +157,9 @@ function AjustesPage() {
         </Section>
         <Section title={tr("Conexión Garmin Connect")}>
           <GarminConnection profile={profileQ.data} />
+        </Section>
+        <Section title={tr("Conexión Hammerhead Karoo")} className="lg:col-span-2">
+          <HammerheadConnection profile={profileQ.data} />
         </Section>
         <Section title={tr("Conexión Telegram")} className="lg:col-span-2">
           <TelegramSection />

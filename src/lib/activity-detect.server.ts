@@ -62,6 +62,8 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
   try {
     const { pullDeviceActivities } = await import("./devices.server");
     await pullDeviceActivities(admin, userId);
+    const { pullHammerheadActivities } = await import("./devices.server");
+    await pullHammerheadActivities(admin, userId);
   } catch (e) {
     console.error("[activity-detect] devices", e);
   }
