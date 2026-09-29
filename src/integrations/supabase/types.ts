@@ -759,6 +759,10 @@ export type Database = {
           garmin_token_expires_at: string | null
           garmin_user_id: string | null
           gender: string | null
+          hammerhead_access_token: string | null
+          hammerhead_refresh_token: string | null
+          hammerhead_token_expires_at: string | null
+          hammerhead_user_id: string | null
           height_cm: number | null
           id: string
           intervals_api_key: string | null
@@ -834,6 +838,10 @@ export type Database = {
           garmin_token_expires_at?: string | null
           garmin_user_id?: string | null
           gender?: string | null
+          hammerhead_access_token?: string | null
+          hammerhead_refresh_token?: string | null
+          hammerhead_token_expires_at?: string | null
+          hammerhead_user_id?: string | null
           height_cm?: number | null
           id: string
           intervals_api_key?: string | null
@@ -909,6 +917,10 @@ export type Database = {
           garmin_token_expires_at?: string | null
           garmin_user_id?: string | null
           gender?: string | null
+          hammerhead_access_token?: string | null
+          hammerhead_refresh_token?: string | null
+          hammerhead_token_expires_at?: string | null
+          hammerhead_user_id?: string | null
           height_cm?: number | null
           id?: string
           intervals_api_key?: string | null
