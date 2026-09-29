@@ -11,6 +11,7 @@ import { Section, Field } from "@/components/perfil/Section";
 import { IntervalsConnection } from "@/components/perfil/IntervalsConnection";
 import { StravaConnection } from "@/components/perfil/StravaConnection";
 import { WahooConnection, GarminConnection, HammerheadConnection } from "@/components/perfil/DeviceConnections";
+import { createHammerheadAuthorizeUrl, disconnectHammerhead } from "@/lib/hammerhead.functions";
 import { WeatherStatus } from "@/components/perfil/WeatherStatus";
 import { COUNTRIES } from "@/lib/countries";
 
