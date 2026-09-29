@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { tr, LanguageSelector } from "@/lib/i18n";
@@ -11,6 +12,7 @@ import { Section, Field } from "@/components/perfil/Section";
 import { IntervalsConnection } from "@/components/perfil/IntervalsConnection";
 import { StravaConnection } from "@/components/perfil/StravaConnection";
 import { WahooConnection, GarminConnection, HammerheadConnection } from "@/components/perfil/DeviceConnections";
+import { createHammerheadAuthorizeUrl, disconnectHammerhead } from "@/lib/hammerhead.functions";
 import { WeatherStatus } from "@/components/perfil/WeatherStatus";
 import { COUNTRIES } from "@/lib/countries";
 
@@ -31,6 +33,7 @@ export const Route = createFileRoute("/_authenticated/ajustes")({
 function AjustesPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const authorizeHammerhead = useServerFn(createHammerheadAuthorizeUrl);
   const profileQ = useQuery({
     queryKey: ["profile", user?.id],
     queryFn: async () => {
@@ -43,6 +46,15 @@ function AjustesPage() {
   const [form, setForm] = useState<any>({});
 
   useEffect(() => { if (profileQ.data) setForm(profileQ.data); }, [profileQ.data]);
+  useEffect(() => {
+    if (!user?.id) return;
+    const conectar = new URLSearchParams(window.location.search).get("conectar");
+    if (conectar !== "hammerhead") return;
+    window.history.replaceState({}, "", window.location.pathname);
+    authorizeHammerhead({ data: undefined })
+      .then(({ url }) => { window.location.href = url; })
+      .catch((e: any) => toast.error(e?.message ?? tr("No se pudo iniciar la conexión")));
+  }, [user?.id, authorizeHammerhead]);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const intervals = params.get("intervals");
