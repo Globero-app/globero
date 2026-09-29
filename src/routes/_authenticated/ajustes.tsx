@@ -33,6 +33,7 @@ export const Route = createFileRoute("/_authenticated/ajustes")({
 function AjustesPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const authorizeHammerhead = useServerFn(createHammerheadAuthorizeUrl);
   const profileQ = useQuery({
     queryKey: ["profile", user?.id],
     queryFn: async () => {
