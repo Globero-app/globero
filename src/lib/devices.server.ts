@@ -538,3 +538,27 @@ export async function pushZonesToWahooDetailed(supabase: any, userId: string): P
   if (!res.ok) console.error(`[devices] wahoo zones ${res.status} ${response}`);
   return { ok: res.ok, status: res.status, response: response.slice(0, 2000) };
 }
+
+/** Envía FTP, zonas de potencia, FC máx, zonas de FC y peso a Hammerhead (POST /metrics). */
+export async function pushMetricsToHammerhead(supabase: any, userId: string): Promise<boolean> {
+  const { data: profile } = await supabase.from("profiles").select(`${PROFILE_COLS},weight_kg`).eq("id", userId).maybeSingle();
+  if (!profile) return false;
+  const token = await refreshToken(supabase, profile, "hammerhead");
+  if (!token) return false;
+  const { computePowerZones, computeHrZones } = await import("./zones");
+  const toZones = (zs: any[] | null) => zs?.map((z) => ({ min: z.low, max: Number.isFinite(z.high) ? z.high : null })) ?? undefined;
+  const body: Record<string, unknown> = {};
+  if (profile.ftp) { body.powerFtp = profile.ftp; body.powerZones = toZones(computePowerZones(profile.ftp)); }
+  if (profile.max_hr) body.maxHr = profile.max_hr;
+  const hz = computeHrZones(profile.lthr, profile.max_hr);
+  if (hz) body.heartRateZones = toZones(hz);
+  if (profile.weight_kg) body.weightInKilograms = Number(profile.weight_kg);
+  if (!Object.keys(body).length) return false;
+  const res = await fetch(`${HAMMERHEAD_API}/metrics`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) console.error(`[devices] hammerhead metrics ${res.status} ${(await res.text().catch(() => "")).slice(0, 300)}`);
+  return res.ok;
+}

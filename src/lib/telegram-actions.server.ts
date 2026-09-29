@@ -231,8 +231,8 @@ export async function updateProfileFields(opts: {
   if (["ftp", "lthr", "max_hr"].some((k) => k in updates)) {
     try {
       const { intervalsPushZones } = await import("./intervals.server");
-      const { pushZonesToWahoo } = await import("./devices.server");
-      await Promise.all([intervalsPushZones(supabaseAdmin, userId), pushZonesToWahoo(supabaseAdmin, userId)]);
+      const { pushZonesToWahoo, pushMetricsToHammerhead } = await import("./devices.server");
+      await Promise.all([intervalsPushZones(supabaseAdmin, userId), pushZonesToWahoo(supabaseAdmin, userId), pushMetricsToHammerhead(supabaseAdmin, userId)]);
       extra = "\nZonas sincronizadas con las plataformas conectadas.";
     } catch {
       extra = "\n(No se han podido sincronizar las zonas con las plataformas conectadas)";

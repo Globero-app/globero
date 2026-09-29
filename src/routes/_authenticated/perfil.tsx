@@ -9,6 +9,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { syncIntervalsZones, intervalsEstimateFtp, intervalsEstimateHr } from "@/lib/intervals.functions";
 import { Wand2 } from "lucide-react";
 import { syncWahooZones } from "@/lib/wahoo.functions";
+import { syncHammerheadMetrics } from "@/lib/hammerhead.functions";
 import { Link } from "@tanstack/react-router";
 import { Section, Field } from "@/components/perfil/Section";
 import { ZonesPreview } from "@/components/perfil/ZonesPreview";
@@ -38,6 +39,7 @@ function PerfilPage() {
   const estimateHr = useServerFn(intervalsEstimateHr);
   const syncZonesIcu = useServerFn(syncIntervalsZones);
   const syncZonesWahoo = useServerFn(syncWahooZones);
+  const syncHammerhead = useServerFn(syncHammerheadMetrics);
 
 
   const profileQ = useQuery({
@@ -89,6 +91,13 @@ function PerfilPage() {
           const r = await syncZonesWahoo({ data: undefined });
           if (r.ok) toast.success(tr("Zonas actualizadas en Wahoo. Abre la app Wahoo cerca del ELEMNT para sincronizar el dispositivo."));
         } catch (err: any) {toast.error(`Wahoo: ${err.message}`);}
+      }
+      const metricsChanged = zonesChanged || String(form.weight_kg ?? "") !== String((profileQ.data as any)?.weight_kg ?? "");
+      if (metricsChanged && (profileQ.data as any)?.hammerhead_access_token) {
+        try {
+          const r = await syncHammerhead({ data: undefined });
+          if (r.ok) toast.success(tr("Zonas y peso actualizados en Hammerhead"));
+        } catch (err: any) {toast.error(`Hammerhead: ${err.message}`);}
       }
     }
   };
