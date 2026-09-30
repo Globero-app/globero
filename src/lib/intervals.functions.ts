@@ -68,7 +68,7 @@ export const intervalsSyncActivities = createServerFn({ method: "POST" })
     const { syncIntervalsActivities } = await import("./intervals-activities.server");
     let count = 0;
     try {
-      count = await syncIntervalsActivities(supabase, userId, { days: 30 });
+      count = await syncIntervalsActivities(supabase, userId, { days: 30, limit: 30 });
     } catch (e: any) {
       await supabase.from("sync_log").insert({ user_id: userId, kind: "activities", ok: false, items: 0, message: String(e?.message ?? e).slice(0, 300) });
       throw e;
