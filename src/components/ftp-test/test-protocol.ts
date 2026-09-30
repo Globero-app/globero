@@ -55,7 +55,7 @@ export function buildTestSteps(referenceFtp: number): Array<ZwoStep & FitWorkout
     name: "FTP 20 min",
     description: "Máximo sostenible 20 min",
     duration_type: "time", duration_seconds: 20 * 60, duration_value: 20 * 60,
-    target: "power", target_low: pct(95), target_high: pct(105),
+    target: "open", target_low: 0, target_high: 0,
     intensity: "interval",
   });
   steps.push({

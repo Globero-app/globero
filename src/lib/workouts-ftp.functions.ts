@@ -28,7 +28,7 @@ function buildFtpTestSteps(basis: "power" | "hr", ftp: number, hrRef: number) {
     description: basis === "hr"
       ? "Máximo esfuerzo sostenible 20 min. Apunta la FC media (LTHR ≈ 95% de esa media)."
       : "Máximo esfuerzo sostenible 20 min. Apunta la potencia media (FTP ≈ 95% de esa media).",
-    duration_type: "time", duration_seconds: 1200, intensity: "interval", ...v(95, 95),
+    duration_type: "time", duration_seconds: 1200, intensity: "interval", target: "open", target_low: 0, target_high: 0,
   });
   steps.push({ name: "Vuelta calma", description: "Z1 muy suave", duration_type: "time", duration_seconds: 600, intensity: "cooldown", ...v(40, 55) });
   return steps;
