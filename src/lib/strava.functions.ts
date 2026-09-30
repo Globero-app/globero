@@ -27,7 +27,7 @@ export const createStravaAuthorizeUrl = createServerFn({ method: "POST" })
 
     const params = new URLSearchParams({
       client_id: clientId,
-      redirect_uri: "https://globero.app/auth/strava/callback",
+      redirect_uri: "https://coach.globero.app/auth/strava/callback",
       response_type: "code",
       approval_prompt: "auto",
       scope: "read,activity:read_all,activity:write",
