@@ -31,7 +31,7 @@ export const Route = createFileRoute("/auth/strava/callback")({
         const expiresAt = Number(expiresValue);
         const stateSecret = process.env["INTERVALS_OAUTH_STATE_SECRET"];
         if (extra.length || !userId || !expiresAt || !suppliedSignature || !stateSecret || expiresAt < Date.now()) {
-          return redirectToProfile("error", "invalid_state");
+          return redirectToProfile("error", "invalid_state", url.origin);
         }
 
         const payload = `${userId}.${expiresAt}`;
@@ -48,12 +48,12 @@ export const Route = createFileRoute("/auth/strava/callback")({
         replaceAll("/", "_").
         replaceAll("=", "");
         if (!signaturesMatch(suppliedSignature, expectedSignature)) {
-          return redirectToProfile("error", "invalid_state");
+          return redirectToProfile("error", "invalid_state", url.origin);
         }
 
         const clientId = process.env["STRAVA_CLIENT_ID"];
         const clientSecret = process.env["STRAVA_CLIENT_SECRET"];
-        if (!clientId || !clientSecret) return redirectToProfile("error", "configuration");
+        if (!clientId || !clientSecret) return redirectToProfile("error", "configuration", url.origin);
 
         const response = await fetch("https://www.strava.com/oauth/token", {
           method: "POST",
@@ -67,7 +67,7 @@ export const Route = createFileRoute("/auth/strava/callback")({
         });
         if (!response.ok) {
           console.error(`Strava OAuth token exchange failed with status ${response.status}`);
-          return redirectToProfile("error", "token_exchange");
+          return redirectToProfile("error", "token_exchange", url.origin);
         }
 
         const token = (await response.json()) as {
@@ -76,7 +76,7 @@ export const Route = createFileRoute("/auth/strava/callback")({
           expires_at?: number;
           athlete?: {id?: string | number;};
         };
-        if (!token.access_token) return redirectToProfile("error", "invalid_response");
+        if (!token.access_token) return redirectToProfile("error", "invalid_response", url.origin);
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { error } = await supabaseAdmin.
@@ -90,9 +90,9 @@ export const Route = createFileRoute("/auth/strava/callback")({
         eq("id", userId);
         if (error) {
           console.error(`Strava OAuth profile update failed: ${error.message}`);
-          return redirectToProfile("error", "profile_update");
+          return redirectToProfile("error", "profile_update", url.origin);
         }
-        return redirectToProfile("success");
+        return redirectToProfile("success", url.origin);
       }
     }
   },
