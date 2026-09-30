@@ -326,9 +326,14 @@ export async function assessThresholds(supabase: any, userId: string, profile: a
     .limit(200);
 
   const reasons: string[] = [];
-  const ftp_age_days = lastTest
-    ? Math.round((todayMs - new Date(lastTest).getTime()) / DAY)
-    : null;
+  const { data: lastRow } = await supabase
+    .from("ftp_tests").select("test_date,created_at").eq("user_id", userId)
+    .order("test_date", { ascending: false }).limit(1).maybeSingle();
+  const candidates = [lastTest, lastRow?.test_date ? `${lastRow.test_date}T12:00:00Z` : null]
+    .filter(Boolean).map((d) => new Date(d as string).getTime()).filter((n) => !isNaN(n));
+  const lastMs = candidates.length ? Math.max(...candidates) : null;
+  const ftp_age_days = lastMs !== null ? Math.max(0, Math.round((todayMs - lastMs) / DAY)) : null;
+  const recentTest = ftp_age_days !== null && ftp_age_days <= 21;
 
   // Mejor esfuerzo largo reciente → FTP estimado (95% de un ≥20 min duro)
   let bestWatts = 0;
@@ -339,20 +344,17 @@ export async function assessThresholds(supabase: any, userId: string, profile: a
       bestHr = Math.max(bestHr, Number(a.average_heartrate) || 0);
     }
   }
-  const suggested_ftp = bestWatts > 0 ? Math.round(bestWatts * 0.95) : null;
-  const suggested_lthr = bestHr > 0 ? Math.round(bestHr * 0.98) : null;
+  const suggested_ftp = !recentTest && bestWatts > 0 ? Math.round(bestWatts * 0.95) : null;
+  const suggested_lthr = !recentTest && bestHr > 0 ? Math.round(bestHr * 0.98) : null;
 
   if (!ftp || ftp <= 0) reasons.push("No tienes un FTP definido en el perfil.");
   if (!lthr && !maxHr) reasons.push("No tienes umbral de FC (LTHR) ni FC máxima.");
   if (ftp_age_days === null && ftp) reasons.push("No consta ningún test de umbral realizado.");
   if (ftp_age_days !== null && ftp_age_days > 56) reasons.push(`Han pasado ${ftp_age_days} días desde tu último test (recomendado cada 6-8 semanas).`);
-  if (ftp && suggested_ftp && suggested_ftp > ftp * 1.04) {
+  if (!recentTest && ftp && suggested_ftp && suggested_ftp > ftp * 1.04) {
     reasons.push(`Tus salidas recientes sugieren un FTP cercano a ${suggested_ftp} W (actual ${ftp} W): probablemente te has quedado corto.`);
   }
-  if (ftp && suggested_ftp && suggested_ftp < ftp * 0.9 && bestWatts > 0) {
-    reasons.push(`Tus salidas recientes rinden por debajo de tu FTP registrado (${ftp} W): puede estar sobreestimado.`);
-  }
-  if (lthr && bestHr > lthr * 1.06) {
+  if (!recentTest && lthr && bestHr > lthr * 1.06) {
     reasons.push(`Has sostenido ${Math.round(bestHr)} ppm de media en salidas largas, por encima de tu LTHR actual (${lthr} ppm).`);
   }
 
