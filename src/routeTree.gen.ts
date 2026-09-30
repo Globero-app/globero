@@ -46,6 +46,7 @@ import { Route as ApiPublicHooksWeeklyWorkoutsRouteImport } from './routes/api/p
 import { Route as ApiPublicHooksReadinessPushRouteImport } from './routes/api/public/hooks/readiness-push'
 import { Route as ApiPublicHooksIntervalsSyncRouteImport } from './routes/api/public/hooks/intervals-sync'
 import { Route as ApiPublicHooksIntervalsDetectRouteImport } from './routes/api/public/hooks/intervals-detect'
+import { Route as ApiPublicHooksFtpReprocessRouteImport } from './routes/api/public/hooks/ftp-reprocess'
 import { Route as ApiPublicHooksDailyAdjustRouteImport } from './routes/api/public/hooks/daily-adjust'
 import { Route as ApiPublicHooksActivityDetectRouteImport } from './routes/api/public/hooks/activity-detect'
 import { Route as ApiPublicHammerheadWebhookRouteImport } from './routes/api/public/hammerhead/webhook'
@@ -245,6 +246,12 @@ const ApiPublicHooksIntervalsDetectRoute =
     path: '/api/public/hooks/intervals-detect',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksFtpReprocessRoute =
+  ApiPublicHooksFtpReprocessRouteImport.update({
+    id: '/api/public/hooks/ftp-reprocess',
+    path: '/api/public/hooks/ftp-reprocess',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksDailyAdjustRoute =
   ApiPublicHooksDailyAdjustRouteImport.update({
     id: '/api/public/hooks/daily-adjust',
@@ -302,6 +309,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hammerhead/webhook': typeof ApiPublicHammerheadWebhookRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
   '/api/public/hooks/daily-adjust': typeof ApiPublicHooksDailyAdjustRoute
+  '/api/public/hooks/ftp-reprocess': typeof ApiPublicHooksFtpReprocessRoute
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
   '/api/public/hooks/intervals-sync': typeof ApiPublicHooksIntervalsSyncRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
@@ -344,6 +352,7 @@ export interface FileRoutesByTo {
   '/api/public/hammerhead/webhook': typeof ApiPublicHammerheadWebhookRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
   '/api/public/hooks/daily-adjust': typeof ApiPublicHooksDailyAdjustRoute
+  '/api/public/hooks/ftp-reprocess': typeof ApiPublicHooksFtpReprocessRoute
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
   '/api/public/hooks/intervals-sync': typeof ApiPublicHooksIntervalsSyncRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
@@ -388,6 +397,7 @@ export interface FileRoutesById {
   '/api/public/hammerhead/webhook': typeof ApiPublicHammerheadWebhookRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
   '/api/public/hooks/daily-adjust': typeof ApiPublicHooksDailyAdjustRoute
+  '/api/public/hooks/ftp-reprocess': typeof ApiPublicHooksFtpReprocessRoute
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
   '/api/public/hooks/intervals-sync': typeof ApiPublicHooksIntervalsSyncRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
@@ -432,6 +442,7 @@ export interface FileRouteTypes {
     | '/api/public/hammerhead/webhook'
     | '/api/public/hooks/activity-detect'
     | '/api/public/hooks/daily-adjust'
+    | '/api/public/hooks/ftp-reprocess'
     | '/api/public/hooks/intervals-detect'
     | '/api/public/hooks/intervals-sync'
     | '/api/public/hooks/readiness-push'
@@ -474,6 +485,7 @@ export interface FileRouteTypes {
     | '/api/public/hammerhead/webhook'
     | '/api/public/hooks/activity-detect'
     | '/api/public/hooks/daily-adjust'
+    | '/api/public/hooks/ftp-reprocess'
     | '/api/public/hooks/intervals-detect'
     | '/api/public/hooks/intervals-sync'
     | '/api/public/hooks/readiness-push'
@@ -517,6 +529,7 @@ export interface FileRouteTypes {
     | '/api/public/hammerhead/webhook'
     | '/api/public/hooks/activity-detect'
     | '/api/public/hooks/daily-adjust'
+    | '/api/public/hooks/ftp-reprocess'
     | '/api/public/hooks/intervals-detect'
     | '/api/public/hooks/intervals-sync'
     | '/api/public/hooks/readiness-push'
@@ -545,6 +558,7 @@ export interface RootRouteChildren {
   ApiPublicHammerheadWebhookRoute: typeof ApiPublicHammerheadWebhookRoute
   ApiPublicHooksActivityDetectRoute: typeof ApiPublicHooksActivityDetectRoute
   ApiPublicHooksDailyAdjustRoute: typeof ApiPublicHooksDailyAdjustRoute
+  ApiPublicHooksFtpReprocessRoute: typeof ApiPublicHooksFtpReprocessRoute
   ApiPublicHooksIntervalsDetectRoute: typeof ApiPublicHooksIntervalsDetectRoute
   ApiPublicHooksIntervalsSyncRoute: typeof ApiPublicHooksIntervalsSyncRoute
   ApiPublicHooksReadinessPushRoute: typeof ApiPublicHooksReadinessPushRoute
@@ -816,6 +830,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksIntervalsDetectRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/ftp-reprocess': {
+      id: '/api/public/hooks/ftp-reprocess'
+      path: '/api/public/hooks/ftp-reprocess'
+      fullPath: '/api/public/hooks/ftp-reprocess'
+      preLoaderRoute: typeof ApiPublicHooksFtpReprocessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/daily-adjust': {
       id: '/api/public/hooks/daily-adjust'
       path: '/api/public/hooks/daily-adjust'
@@ -906,6 +927,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHammerheadWebhookRoute: ApiPublicHammerheadWebhookRoute,
   ApiPublicHooksActivityDetectRoute: ApiPublicHooksActivityDetectRoute,
   ApiPublicHooksDailyAdjustRoute: ApiPublicHooksDailyAdjustRoute,
+  ApiPublicHooksFtpReprocessRoute: ApiPublicHooksFtpReprocessRoute,
   ApiPublicHooksIntervalsDetectRoute: ApiPublicHooksIntervalsDetectRoute,
   ApiPublicHooksIntervalsSyncRoute: ApiPublicHooksIntervalsSyncRoute,
   ApiPublicHooksReadinessPushRoute: ApiPublicHooksReadinessPushRoute,
