@@ -18,7 +18,7 @@ export const createWahooAuthorizeUrl = createServerFn({ method: "POST" })
 
     const params = new URLSearchParams({
       client_id: clientId,
-      redirect_uri: "https://globero.app/auth/wahoo/callback",
+      redirect_uri: "https://coach.globero.app/auth/wahoo/callback",
       response_type: "code",
       state: `${payload}.${encoded}`,
     });

@@ -3,7 +3,7 @@
 const TOKEN_URL = "https://www.strava.com/oauth/token";
 const API = "https://www.strava.com/api/v3";
 
-export const STRAVA_DESCRIPTION_LINE = "atleta de https://globero.app/";
+export const STRAVA_DESCRIPTION_LINE = "atleta de https://coach.globero.app/";
 
 type StravaProfile = {
   strava_access_token?: string | null;
