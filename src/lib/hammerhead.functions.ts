@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-export const HAMMERHEAD_REDIRECT = "https://globero.app/auth/hammerhead/callback";
+export const HAMMERHEAD_REDIRECT = "https://coach.globero.app/auth/hammerhead/callback";
 
 /** URL de autorización OAuth de Hammerhead con state firmado (HMAC). */
 export const createHammerheadAuthorizeUrl = createServerFn({ method: "POST" })
