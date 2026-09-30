@@ -76,12 +76,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "Globero — Gestión del ciclista" },
       { property: "og:description", content: "Plataforma de IA para ciclistas: entrenamientos, nutrición, competiciones y readiness." },
       { name: "twitter:description", content: "Plataforma de IA para ciclistas: entrenamientos, nutrición, competiciones y readiness." },
-      { property: "og:image", content: "https://globero.app/og-image.jpg" },
-      { name: "twitter:image", content: "https://globero.app/og-image.jpg" },
+      { property: "og:image", content: "https://coach.globero.app/og-image.jpg" },
+      { name: "twitter:image", content: "https://coach.globero.app/og-image.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Globero" },
-      { property: "og:url", content: "https://globero.app/" },
+      { property: "og:url", content: "https://coach.globero.app/" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       { property: "og:image:alt", content: "Logo de Globero" },
@@ -109,7 +109,7 @@ function RootShell({ children }: { children: ReactNode }) {
   // La sesión se guarda en el navegador por dominio: globero.app y
   // www.globero.app tienen almacenamientos distintos. Forzamos un único
   // dominio canónico para que la sesión sobreviva a las publicaciones.
-  const canonicalHost = `(function(){try{if(location.hostname==='www.globero.app'){location.replace('https://globero.app'+location.pathname+location.search+location.hash);}}catch(e){}})();`;
+  const canonicalHost = `(function(){try{if(location.hostname==='www.globero.app'){location.replace('https://coach.globero.app'+location.pathname+location.search+location.hash);}}catch(e){}})();`;
   return (
     <html lang="es">
       <head>

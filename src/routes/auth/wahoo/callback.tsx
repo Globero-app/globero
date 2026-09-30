@@ -1,7 +1,7 @@
 import { tr } from "@/lib/i18n";
 import { createFileRoute } from "@tanstack/react-router";
 
-const APP_ORIGIN = "https://globero.app";
+const APP_ORIGIN = "https://coach.globero.app";
 
 function back(status: "success" | "error", reason?: string) {
   const url = new URL("/ajustes", APP_ORIGIN);
@@ -48,7 +48,7 @@ export const Route = createFileRoute("/auth/wahoo/callback")({
             client_secret: clientSecret,
             code,
             grant_type: "authorization_code",
-            redirect_uri: "https://globero.app/auth/wahoo/callback",
+            redirect_uri: "https://coach.globero.app/auth/wahoo/callback",
           }),
         });
         if (!res.ok) {

@@ -16,8 +16,8 @@ import {
 
 export const BRAND = {
   name: 'Globero IA',
-  url: 'https://globero.app',
-  logo: 'https://globero.app/icon-512.png',
+  url: 'https://coach.globero.app',
+  logo: 'https://coach.globero.app/icon-512.png',
   primary: '#e11d48',
   accent: '#0f172a',
 }

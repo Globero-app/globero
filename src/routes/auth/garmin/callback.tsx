@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const APP_ORIGIN = "https://globero.app";
-const REDIRECT = "https://globero.app/auth/garmin/callback";
+const APP_ORIGIN = "https://coach.globero.app";
+const REDIRECT = "https://coach.globero.app/auth/garmin/callback";
 
 function back(status: "success" | "error", reason?: string) {
   const url = new URL("/ajustes", APP_ORIGIN);

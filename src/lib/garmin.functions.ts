@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { setResponseHeader } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-export const GARMIN_REDIRECT = "https://globero.app/auth/garmin/callback";
+export const GARMIN_REDIRECT = "https://coach.globero.app/auth/garmin/callback";
 
 function b64url(buf: ArrayBuffer | Uint8Array) {
   const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
