@@ -1,9 +1,7 @@
 import { tr } from "@/lib/i18n";import { createFileRoute } from "@tanstack/react-router";
 
-const APP_ORIGIN = "https://globero.app";
-
-function redirectToProfile(status: "success" | "error", reason?: string) {
-  const url = new URL("/ajustes", APP_ORIGIN);
+function redirectToProfile(status: "success" | "error", reason?: string, origin = "https://coach.globero.app") {
+  const url = new URL("/ajustes", origin);
   url.searchParams.set("strava", status);
   if (reason) url.searchParams.set("reason", reason);
   return new Response(null, { status: 302, headers: { Location: url.toString() } });
