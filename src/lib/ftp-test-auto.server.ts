@@ -98,7 +98,7 @@ export async function processFtpTestWorkout(
   }
   if (basis === "hr") w20 = 0;
   if (!w20 && Number(act?.average_watts) > 0) w20 = Number(act!.average_watts);
-  if (!hr20 && Number(act?.average_heartrate) > 0) hr20 = Number(act!.average_heartrate);
+  if (!hr20 && basis === "hr" && Number(act?.average_heartrate) > 0) hr20 = Number(act!.average_heartrate);
   if (!w20 && !hr20) return null;
 
   const prevFtp = profile?.ftp ? Number(profile.ftp) : null;
