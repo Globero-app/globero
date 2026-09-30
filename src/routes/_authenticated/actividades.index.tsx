@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { useServerFn } from "@tanstack/react-start";
 import { intervalsSyncActivities } from "@/lib/intervals.functions";
+import { syncActivitiesFromSources } from "@/lib/activities-sync.functions";
 import { toast } from "sonner";
 import { RefreshCw, Activity, ExternalLink } from "lucide-react";
 import { useEffect, useRef } from "react";
@@ -20,12 +21,13 @@ export const Route = createFileRoute("/_authenticated/actividades/")({
 function ActividadesPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const sync = useServerFn(intervalsSyncActivities);
+  const syncIcu = useServerFn(intervalsSyncActivities);
+  const syncOther = useServerFn(syncActivitiesFromSources);
 
   const profile = useQuery({
     queryKey: ["profile", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("intervals_api_key").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("intervals_api_key,strava_access_token,strava_refresh_token,wahoo_access_token,garmin_access_token,hammerhead_access_token").eq("id", user!.id).maybeSingle();
       return data;
     },
     enabled: !!user
@@ -35,10 +37,14 @@ function ActividadesPage() {
     queryKey: ["intervals_activities", user?.id],
     queryFn: async () => {
       const { data } = await supabase.from("intervals_activities").select("*").eq("user_id", user!.id).order("start_date", { ascending: false }).limit(20);
-      return data ?? [];
+      return dedupeStravaFirst(data ?? []);
     },
     enabled: !!user
   });
+  const p: any = profile.data;
+  const icu = !!p?.intervals_api_key;
+  const hasSource = icu || !!(p?.strava_access_token || p?.strava_refresh_token || p?.wahoo_access_token || p?.garmin_access_token || p?.hammerhead_access_token);
+  const sync = (a: { data: undefined }) => (icu ? syncIcu(a) : syncOther(a));
 
   const handleSync = async () => {
     try {
@@ -55,7 +61,7 @@ function ActividadesPage() {
   // Auto-sync al entrar si hay Intervals.icu conectado (una vez cada 10 min)
   const autoSyncedRef = useRef(false);
   useEffect(() => {
-    if (!user || !profile.data?.intervals_api_key || autoSyncedRef.current) return;
+    if (!user || !hasSource || autoSyncedRef.current) return;
     const key = `intervals:lastSync:${user.id}`;
     const last = Number(localStorage.getItem(key) ?? 0);
     if (Date.now() - last < 10 * 60 * 1000) return;
@@ -68,17 +74,17 @@ function ActividadesPage() {
       qc.invalidateQueries({ queryKey: ["weekly-stats"] });
     }).
     catch(() => {});
-  }, [user, profile.data?.intervals_api_key, sync, qc]);
+  }, [user, hasSource, icu]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Calcula CTL (carga crónica, 42 días) y ATL (fatiga, 7 días) con suffer_score
   const chartData = buildCtlAtl(acts.data ?? []);
 
-  if (!profile.data?.intervals_api_key) {
+  if (profile.data !== undefined && !hasSource) {
     return (
       <div className="max-w-xl mx-auto text-center py-20">
         <Activity className="size-12 text-muted-foreground mx-auto mb-4" />
         <h1 className="font-display text-3xl font-bold uppercase tracking-tight mb-2">{tr("Actividades")}</h1>
-        <p className="text-muted-foreground mb-6">{tr("Conecta tu cuenta Intervals.icu desde Ajustes para ver tus actividades y gráficos.")}</p>
+        <p className="text-muted-foreground mb-6">{tr("Conecta Strava, Intervals.icu o tu ciclocomputador desde Ajustes para ver tus actividades y gráficos.")}</p>
         <Link to="/ajustes" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold"> {tr("Ir a Ajustes")} 
 
         </Link>
@@ -90,7 +96,7 @@ function ActividadesPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">Intervals.icu</p>
+          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">{icu ? "Intervals.icu" : "Strava · " + tr("Ciclocomputador")}</p>
           <h1 className="font-display text-4xl font-bold uppercase tracking-tight">{tr("Actividades")}</h1>
         </div>
         <button onClick={handleSync} className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-lg text-sm font-semibold">
@@ -136,7 +142,7 @@ function ActividadesPage() {
               <div className="text-right hidden md:block"><p className="text-muted-foreground">{tr("Desnivel")}</p><p className="font-semibold">+{Math.round(a.total_elevation_gain ?? 0)}{tr("m")}</p></div>
               <div className="text-right hidden md:block"><p className="text-muted-foreground">{tr("Carga")}</p><p className="font-semibold">{a.icu_training_load ?? "—"}</p></div>
               <a
-              href={`https://intervals.icu/activities/${a.id}`}
+              href={activityUrl(String(a.id))}
               target="_blank"
               rel="noopener"
               onClick={(e) => e.stopPropagation()}
@@ -181,4 +187,21 @@ function buildCtlAtl(acts: any[]) {
     });
   });
   return result;
+}
+
+function activityUrl(id: string) {
+  if (id.startsWith("strava_")) return `https://www.strava.com/activities/${id.slice(7)}`;
+  if (id.startsWith("wahoo_") || id.startsWith("garmin_") || id.startsWith("hammerhead_")) return `https://www.strava.com/athlete/training`;
+  return `https://intervals.icu/activities/${id}`;
+}
+
+/** Si Strava y un ciclocomputador registran la misma salida (±20 min), prioriza Strava. */
+function dedupeStravaFirst(list: any[]) {
+  const strava = list.filter((a) => String(a.id).startsWith("strava_")).map((a) => new Date(a.start_date).getTime());
+  return list.filter((a) => {
+    const id = String(a.id);
+    if (!/^(wahoo|garmin|hammerhead|igpsport)_/.test(id)) return true;
+    const t = new Date(a.start_date).getTime();
+    return !strava.some((s) => Math.abs(s - t) <= 20 * 60_000);
+  });
 }
