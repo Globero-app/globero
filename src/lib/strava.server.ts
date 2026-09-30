@@ -145,3 +145,40 @@ export async function stravaStreamsForActivity(
   for (const k of ["watts", "heartrate", "time"]) if (Array.isArray(j?.[k]?.data)) out[k] = j[k].data;
   return out;
 }
+
+/** Descarga las últimas actividades de Strava a intervals_activities (id strava_<id>). */
+export async function pullStravaActivities(supabase: any, userId: string, days = 30): Promise<number> {
+  const token = await getStravaAccessToken(supabase, userId);
+  if (!token) return 0;
+  const after = Math.floor((Date.now() - days * 86400_000) / 1000);
+  const res = await fetch(`${API}/athlete/activities?after=${after}&per_page=50`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) {
+    console.error("[strava] pull", res.status);
+    return 0;
+  }
+  const list = ((await res.json()) ?? []) as any[];
+  const rows = list
+    .filter((a) => /ride|bike|cycl/i.test(String(a.sport_type ?? a.type ?? "")))
+    .map((a) => ({
+      id: `strava_${a.id}`,
+      user_id: userId,
+      name: a.name ?? "Strava",
+      type: a.sport_type ?? a.type ?? "Ride",
+      start_date: new Date(a.start_date).toISOString(),
+      moving_time: Number(a.moving_time) || null,
+      distance: Number(a.distance) || null,
+      total_elevation_gain: Number(a.total_elevation_gain) || null,
+      average_speed: Number(a.average_speed) || null,
+      average_heartrate: Number(a.average_heartrate) || null,
+      max_heartrate: Number(a.max_heartrate) || null,
+      average_watts: Number(a.weighted_average_watts ?? a.average_watts) || null,
+      icu_training_load: Number(a.suffer_score) || null,
+      icu_intensity: null,
+      raw: { source: "strava", ...a },
+      synced_at: new Date().toISOString(),
+    }));
+  if (!rows.length) return 0;
+  const { error } = await supabase.from("intervals_activities").upsert(rows, { onConflict: "id" });
+  if (error) console.error("[strava] upsert", error);
+  return error ? 0 : rows.length;
+}
