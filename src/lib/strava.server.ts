@@ -125,3 +125,23 @@ export async function renameStravaActivity(
     return false;
   }
 }
+
+/** Streams (watts, heartrate, time) de Strava para una actividad local (Wahoo/Garmin/Hammerhead/Intervals). */
+export async function stravaStreamsForActivity(
+  supabase: any,
+  userId: string,
+  activityId: string,
+): Promise<Record<string, number[]>> {
+  const token = await getStravaAccessToken(supabase, userId);
+  if (!token) return {};
+  const sid = await resolveStravaActivityId(supabase, userId, activityId, token);
+  if (!sid) return {};
+  const res = await fetch(`${API}/activities/${sid}/streams?keys=watts,heartrate,time&key_by_type=true`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return {};
+  const j = (await res.json()) as any;
+  const out: Record<string, number[]> = {};
+  for (const k of ["watts", "heartrate", "time"]) if (Array.isArray(j?.[k]?.data)) out[k] = j[k].data;
+  return out;
+}

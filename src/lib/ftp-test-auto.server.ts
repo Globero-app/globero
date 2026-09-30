@@ -48,13 +48,15 @@ export async function processFtpTestWorkout(
   const plan: any = w?.plan ?? {};
   if (!w || !plan.is_ftp_test) return null;
 
-  const activityId = plan.intervals_activity_id ? String(plan.intervals_activity_id) : null;
+  const rawId = plan.intervals_activity_id ?? plan.strava_activity_id ?? null;
+  const activityId = rawId ? String(rawId) : null;
+  const basis: "power" | "hr" = plan.target_basis === "hr" ? "hr" : "power";
   if (!activityId) return null;
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
   const { data: act } = await supabase
     .from("intervals_activities")
-    .select("name,start_date,average_watts,average_heartrate,max_heartrate,moving_time")
+    .select("name,raw,start_date,average_watts,average_heartrate,max_heartrate,moving_time")
     .eq("id", activityId)
     .eq("user_id", userId)
     .maybeSingle();
@@ -64,7 +66,8 @@ export async function processFtpTestWorkout(
   try {
     const { credsFromProfile } = await import("./intervals.server");
     const creds = credsFromProfile(profile);
-    if (creds) {
+    const isDevice = /^(wahoo|garmin|hammerhead|igpsport)_/.test(activityId);
+    if (creds && !isDevice) {
       const { intervalsActivityStreams } = await import("./intervals-activities.server");
       const streams = await intervalsActivityStreams(creds, activityId, "watts,heartrate,time");
       const watts = streams["watts"] ?? [];
@@ -76,6 +79,24 @@ export async function processFtpTestWorkout(
   } catch {
     /* sin streams: se usan medias */
   }
+  if (!w20 && !hr20) {
+    try {
+      const { stravaStreamsForActivity } = await import("./strava.server");
+      const st = await stravaStreamsForActivity(supabase, userId, activityId);
+      const time = st["time"] ?? [];
+      w20 = best20(st["watts"] ?? [], time);
+      hr20 = best20(st["heartrate"] ?? [], time);
+    } catch {
+      /* sin Strava */
+    }
+  }
+  // Wahoo: aproximación con NP si no hay streams
+  if (!w20) {
+    const s = (act as any)?.raw?.workout_summary;
+    const np = Number(s?.power_bike_np_last ?? 0);
+    if (np > 0) w20 = np;
+  }
+  if (basis === "hr") w20 = 0;
   if (!w20 && Number(act?.average_watts) > 0) w20 = Number(act!.average_watts);
   if (!hr20 && Number(act?.average_heartrate) > 0) hr20 = Number(act!.average_heartrate);
   if (!w20 && !hr20) return null;
