@@ -24,7 +24,7 @@ export const Route = createFileRoute("/auth/strava/callback")({
         const code = url.searchParams.get("code");
         const state = url.searchParams.get("state");
         if (url.searchParams.has("error") || !code || !state) {
-          return redirectToProfile("error", "authorization_denied");
+          return redirectToProfile("error", "authorization_denied", url.origin);
         }
 
         const [userId, expiresValue, suppliedSignature, ...extra] = state.split(".");
