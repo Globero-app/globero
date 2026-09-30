@@ -146,12 +146,11 @@ export async function stravaStreamsForActivity(
   return out;
 }
 
-/** Descarga las últimas actividades de Strava a intervals_activities (id strava_<id>). */
-export async function pullStravaActivities(supabase: any, userId: string, days = 30): Promise<number> {
+/** Descarga las últimas N actividades de Strava a intervals_activities (id strava_<id>). */
+export async function pullStravaActivities(supabase: any, userId: string, limit = 30): Promise<number> {
   const token = await getStravaAccessToken(supabase, userId);
   if (!token) return 0;
-  const after = Math.floor((Date.now() - days * 86400_000) / 1000);
-  const res = await fetch(`${API}/athlete/activities?after=${after}&per_page=50`, { headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(`${API}/athlete/activities?per_page=100`, { headers: { Authorization: `Bearer ${token}` } });
   if (!res.ok) {
     console.error("[strava] pull", res.status);
     return 0;
@@ -159,6 +158,7 @@ export async function pullStravaActivities(supabase: any, userId: string, days =
   const list = ((await res.json()) ?? []) as any[];
   const rows = list
     .filter((a) => /ride|bike|cycl/i.test(String(a.sport_type ?? a.type ?? "")))
+    .slice(0, limit)
     .map((a) => ({
       id: `strava_${a.id}`,
       user_id: userId,
