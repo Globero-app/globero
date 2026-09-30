@@ -39,7 +39,7 @@ export function mapActivityRow(a: any, userId: string) {
 export async function syncIntervalsActivities(
   supabase: any,
   userId: string,
-  opts: { days?: number; creds?: IntervalsCreds | null } = {},
+  opts: { days?: number; limit?: number; creds?: IntervalsCreds | null } = {},
 ): Promise<number> {
   let creds = opts.creds ?? null;
   if (!creds) {
@@ -53,6 +53,7 @@ export async function syncIntervalsActivities(
   if (!creds) return 0;
 
   let days = opts.days ?? 14;
+  if (opts.limit) days = Math.max(days, 180);
   // Primera sincronización: trae un año completo
   const { count } = await supabase
     .from("intervals_activities")
@@ -67,7 +68,12 @@ export async function syncIntervalsActivities(
     console.error("[intervals-activities] list", e);
     return 0;
   }
-  const rows = acts.filter((a) => a?.id).map((a) => mapActivityRow(a, userId));
+  let rows = acts.filter((a) => a?.id).map((a) => mapActivityRow(a, userId));
+  if (opts.limit) {
+    rows = rows
+      .sort((a, b) => new Date(b.start_date ?? 0).getTime() - new Date(a.start_date ?? 0).getTime())
+      .slice(0, opts.limit);
+  }
   if (!rows.length) return 0;
   const { error } = await supabase.from("intervals_activities").upsert(rows, { onConflict: "id" });
   if (error) {
