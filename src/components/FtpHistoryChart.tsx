@@ -13,10 +13,12 @@ export interface FtpTestPoint {
 }
 
 export function FtpHistoryChart({ history, weightKg }: {history: FtpTestPoint[];weightKg?: number | null;}) {
-  const data = (history ?? []).map((t) => ({
-    ...t,
-    label: format(new Date(`${t.date}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })
-  }));
+  const data = (history ?? []).map((t: any) => ({ ...t, date: String(t.date ?? t.test_date ?? "").slice(0, 10) }))
+    .filter((t) => !isNaN(new Date(`${t.date}T12:00:00Z`).getTime()))
+    .map((t) => ({
+      ...t,
+      label: format(new Date(`${t.date}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })
+    }));
 
   const last = data[data.length - 1];
   const prev = data[data.length - 2];
