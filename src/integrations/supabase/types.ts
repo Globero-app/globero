@@ -1061,6 +1061,33 @@ export type Database = {
           },
         ]
       }
+      recipe_feedback: {
+        Row: {
+          created_at: string
+          id: string
+          liked: boolean
+          recipe_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          liked: boolean
+          recipe_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          liked?: boolean
+          recipe_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       site_content: {
         Row: {
           active: boolean

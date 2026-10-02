@@ -5,7 +5,8 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { generateWeeklyNutrition } from "@/lib/nutrition.functions";
-import { ChefHat, ChevronRight, Loader2, Sparkles } from "lucide-react";
+import { swapWeeklyMeal } from "@/lib/nutrition-swap.functions";
+import { ChefHat, ChevronRight, Loader2, Sparkles, RefreshCw, ThumbsUp, ThumbsDown } from "lucide-react";
 import { format } from "date-fns";
 import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { toast } from "sonner";
@@ -82,6 +83,41 @@ function MenusPage() {
   });
 
   const withMenu = (comps.data ?? []).filter((c) => c.menu_plan);
+
+  const swapMeal = useServerFn(swapWeeklyMeal);
+  const [swapping, setSwapping] = useState<string | null>(null);
+  const fb = useQuery({
+    queryKey: ["recipe-feedback", user?.id],
+    queryFn: async () => {
+      const { data } = await (supabase as any).from("recipe_feedback").select("recipe_name,liked").eq("user_id", user!.id);
+      return Object.fromEntries((data ?? []).map((r: any) => [r.recipe_name, r.liked])) as Record<string, boolean>;
+    },
+    enabled: !!user
+  });
+  const rate = async (name: string, liked: boolean) => {
+    if (!user || !name) return;
+    const cur = fb.data?.[name];
+    const q = (supabase as any).from("recipe_feedback");
+    const { error } = cur === liked ?
+    await q.delete().eq("user_id", user.id).eq("recipe_name", name) :
+    await q.upsert({ user_id: user.id, recipe_name: name, liked }, { onConflict: "user_id,recipe_name" });
+    if (error) return toast.error(error.message);
+    if (cur !== liked) toast.success(liked ? tr("Receta guardada como favorita") : tr("Intentaremos no volver a mostrarla"));
+    qc.invalidateQueries({ queryKey: ["recipe-feedback"] });
+  };
+  const swap = async (planId: string, dayIndex: number, mealKey: any) => {
+    setSwapping(`${planId}-${dayIndex}-${mealKey}`);
+    try {
+      await swapMeal({ data: { planId, dayIndex, mealKey } });
+      toast.success(tr("Receta regenerada"));
+      qc.invalidateQueries({ queryKey: ["weekly-nutrition"] });
+      qc.invalidateQueries({ queryKey: ["menu-today"] });
+    } catch (e: any) {
+      toast.error(e.message ?? tr("No se pudo regenerar"));
+    } finally {
+      setSwapping(null);
+    }
+  };
 
   const generate = async () => {
     setBusy(true);
@@ -168,7 +204,14 @@ function MenusPage() {
                     if (!meal) return null;
                     return (
                       <div key={m.key} className="bg-secondary rounded-lg p-3">
-                            <p className="text-[9px] uppercase font-bold text-primary tracking-widest">{m.label}</p>
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-[9px] uppercase font-bold text-primary tracking-widest">{tr(m.label)}</p>
+                              <div className="flex items-center gap-1">
+                                <button type="button" title={tr("Me gusta")} onClick={() => rate(meal.nombre, true)} className={`p-1 rounded hover:bg-background ${fb.data?.[meal.nombre] === true ? "text-primary" : "text-muted-foreground"}`}><ThumbsUp className="size-3.5" /></button>
+                                <button type="button" title={tr("No me gusta")} onClick={() => rate(meal.nombre, false)} className={`p-1 rounded hover:bg-background ${fb.data?.[meal.nombre] === false ? "text-destructive" : "text-muted-foreground"}`}><ThumbsDown className="size-3.5" /></button>
+                                <button type="button" title={tr("Regenerar receta")} disabled={!!swapping} onClick={() => swap(w.id, i, m.key)} className="p-1 rounded hover:bg-background text-muted-foreground disabled:opacity-50">{swapping === `${w.id}-${i}-${m.key}` ? <Loader2 className="size-3.5 animate-spin" /> : <RefreshCw className="size-3.5" />}</button>
+                              </div>
+                            </div>
                             <p className="text-sm font-semibold">{meal.nombre}</p>
                             <ul className="mt-1 text-xs text-muted-foreground list-disc list-inside">
                               {(meal.ingredientes ?? []).map((ing: string, k: number) => <li key={k}>{ing}</li>)}
