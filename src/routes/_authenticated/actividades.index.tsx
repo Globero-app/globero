@@ -8,10 +8,7 @@ import { syncActivitiesFromSources } from "@/lib/activities-sync.functions";
 import { toast } from "sonner";
 import { RefreshCw, Activity, ExternalLink } from "lucide-react";
 import { useEffect, useRef } from "react";
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from
-"recharts";
-import { format, eachDayOfInterval } from "date-fns";
+import { format } from "date-fns";
 import { es, ca, fr, enGB, de } from "date-fns/locale";
 
 export const Route = createFileRoute("/_authenticated/actividades/")({
@@ -148,36 +145,6 @@ function ActividadesPage() {
       </div>
     </div>);
 
-}
-
-function buildCtlAtl(acts: any[]) {
-  if (acts.length === 0) return [];
-  const sorted = [...acts].sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
-  const dayMap = new Map<string, number>();
-  sorted.forEach((a) => {
-    const d = format(new Date(a.start_date), "yyyy-MM-dd");
-    dayMap.set(d, (dayMap.get(d) ?? 0) + (a.icu_training_load ?? 0));
-  });
-  const start = new Date(sorted[0].start_date);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date();
-  end.setHours(0, 0, 0, 0);
-  const allDays = eachDayOfInterval({ start, end });
-  const result: any[] = [];
-  let ctl = 0,atl = 0;
-  allDays.forEach((day) => {
-    const key = format(day, "yyyy-MM-dd");
-    const tss = dayMap.get(key) ?? 0; // día sin actividad = descanso
-    ctl = ctl + (tss - ctl) * (1 - Math.exp(-1 / 42));
-    atl = atl + (tss - atl) * (1 - Math.exp(-1 / 7));
-    result.push({
-      label: format(day, "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] }),
-      carga: Math.round(ctl),
-      fatiga: Math.round(atl),
-      tsb: Math.round(ctl - atl)
-    });
-  });
-  return result;
 }
 
 function activityUrl(id: string, icu: boolean) {
