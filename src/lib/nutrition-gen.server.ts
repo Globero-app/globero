@@ -123,6 +123,11 @@ export async function generateWeeklyNutritionCore(
 
   const goal = opts.goal in GOAL_RULES ? opts.goal : "mantenimiento";
 
+  const { data: fb } = await supabase.from("recipe_feedback").select("recipe_name,liked").eq("user_id", userId).order("updated_at", { ascending: false }).limit(80);
+  const liked = (fb ?? []).filter((f: any) => f.liked).map((f: any) => f.recipe_name);
+  const disliked = (fb ?? []).filter((f: any) => !f.liked).map((f: any) => f.recipe_name);
+  const tasteBlock = `${liked.length ? `\nRECETAS QUE LE GUSTAN (inclúyelas o similares de vez en cuando): ${liked.join("; ")}` : ""}${disliked.length ? `\nRECETAS QUE NO LE GUSTAN (NO incluirlas ni variantes muy parecidas): ${disliked.join("; ")}` : ""}`;
+
   const upcoming = (comps ?? []).filter((c: any) => c.date > weekEnd);
   const preRaceBlock = upcoming.length
     ? `\nCOMPETICIONES PRÓXIMAS (adaptar los 5 días previos):\n${upcoming
@@ -155,7 +160,7 @@ REGLAS DEL OBJETIVO: ${GOAL_RULES[goal]}
 
 ENTRENAMIENTOS DE LA SEMANA (${weekStart} a ${weekEnd}):
 ${daysBlock}
-${preRaceBlock}
+${preRaceBlock}${tasteBlock}
 
 INSTRUCCIONES:
 1. Devuelve EXACTAMENTE 7 días, en orden, con la fecha indicada arriba y su día de la semana en español.
