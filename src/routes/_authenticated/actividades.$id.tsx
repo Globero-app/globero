@@ -116,7 +116,9 @@ function ActivityDetailPage() {
   if (detail.isError || !activity) {
     return (
       <div className="max-w-xl mx-auto text-center py-20">
-        <p className="text-sm text-destructive mb-4">{tr("Error:")} {(detail.error as any)?.message ?? "Actividad no disponible"}</p>
+        {(detail.error as any)?.message?.includes("NO_SOURCE") ?
+        <p className="text-sm text-muted-foreground mb-4">{tr("Conecta Intervals.icu o Strava desde Ajustes para poder ver tus actividades.")} <Link to="/ajustes" className="text-primary underline">{tr("Ir a Ajustes")}</Link></p> :
+        <p className="text-sm text-destructive mb-4">{tr("Error:")} {(detail.error as any)?.message ?? "Actividad no disponible"}</p>}
         <Link to="/actividades" className="text-primary text-sm underline">{tr("Volver")}</Link>
       </div>);
 

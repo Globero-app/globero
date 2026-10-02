@@ -135,18 +135,27 @@ export const intervalsActivityDetail = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { data: profile } = await supabase
       .from("profiles")
-      .select("intervals_athlete_id,intervals_api_key,intervals_oauth")
+      .select("intervals_athlete_id,intervals_api_key,intervals_oauth,strava_access_token,strava_refresh_token")
       .eq("id", userId)
       .maybeSingle();
     const { credsFromProfile } = await import("./intervals.server");
     const creds = credsFromProfile(profile);
-    if (!creds) throw new Error("Intervals.icu no está conectado.");
-    const { intervalsActivityStreams } = await import("./intervals-activities.server");
-    const raw = await intervalsActivityStreams(
-      creds,
-      data.id,
-      "time,latlng,altitude,distance,velocity_smooth,heartrate,cadence,watts,temp,moving",
-    );
+    const hasStrava = !!((profile as any)?.strava_access_token || (profile as any)?.strava_refresh_token);
+    const isLocal = /^(strava|wahoo|garmin|hammerhead|igpsport)_/.test(data.id);
+    let raw: Record<string, any[]> = {};
+    if (creds && !isLocal) {
+      const { intervalsActivityStreams } = await import("./intervals-activities.server");
+      raw = await intervalsActivityStreams(
+        creds,
+        data.id,
+        "time,latlng,altitude,distance,velocity_smooth,heartrate,cadence,watts,temp,moving",
+      );
+    } else if (hasStrava) {
+      const { stravaStreamsForActivity } = await import("./strava.server");
+      raw = await stravaStreamsForActivity(supabase, userId, data.id);
+    } else {
+      throw new Error("NO_SOURCE");
+    }
     const streams: Record<string, { data: number[] }> = {};
     for (const [k, v] of Object.entries(raw)) streams[k] = { data: v };
     const { data: row } = await supabase
