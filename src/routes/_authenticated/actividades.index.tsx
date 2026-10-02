@@ -76,8 +76,13 @@ function ActividadesPage() {
     catch(() => {});
   }, [user, hasSource, icu]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Calcula CTL (carga crónica, 42 días) y ATL (fatiga, 7 días) con suffer_score
-  const chartData = buildCtlAtl(acts.data ?? []);
+  const strava = !!(p?.strava_access_token || p?.strava_refresh_token);
+  const canView = icu || strava;
+  const blockClick = (e: any) => {
+    if (canView) return;
+    e.preventDefault();e.stopPropagation();
+    toast.error(tr("Conecta Intervals.icu o Strava desde Ajustes para poder ver tus actividades."));
+  };
 
   if (profile.data !== undefined && !hasSource) {
     return (
@@ -104,23 +109,8 @@ function ActividadesPage() {
         </button>
       </div>
 
-      <div className="bg-surface border rounded-xl p-5">
-        <h2 className="font-display text-lg font-bold uppercase mb-4">{tr("Carga, Fatiga & Forma")}</h2>
-        <div className="h-72">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis dataKey="label" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} />
-              <Tooltip />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line type="monotone" dataKey="carga" stroke="var(--primary)" strokeWidth={2} dot={false} name="Carga (CTL)" />
-              <Line type="monotone" dataKey="fatiga" stroke="var(--accent)" strokeWidth={2} dot={false} name="Fatiga (ATL)" />
-              <Line type="monotone" dataKey="tsb" stroke="#22c55e" strokeWidth={2} dot={false} name="Forma (TSB)" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+      {!canView && (acts.data?.length ?? 0) > 0 &&
+      <div className="bg-surface border rounded-lg p-4 text-sm text-muted-foreground">{tr("Conecta Intervals.icu o Strava desde Ajustes para poder ver tus actividades.")} <Link to="/ajustes" className="text-primary underline">{tr("Ir a Ajustes")}</Link></div>}
 
       <div className="space-y-2">
         <h2 className="font-display text-lg font-bold uppercase mb-2">{tr("Últimas 20 actividades")}</h2>
@@ -129,6 +119,7 @@ function ActividadesPage() {
           key={a.id}
           to="/actividades/$id"
           params={{ id: String(a.id) }}
+          onClick={blockClick}
           className="bg-surface border rounded-lg p-4 flex items-center justify-between hover:border-primary/40 transition">
           
             <div className="min-w-0">
@@ -142,10 +133,10 @@ function ActividadesPage() {
               <div className="text-right hidden md:block"><p className="text-muted-foreground">{tr("Desnivel")}</p><p className="font-semibold">+{Math.round(a.total_elevation_gain ?? 0)}{tr("m")}</p></div>
               <div className="text-right hidden md:block"><p className="text-muted-foreground">{tr("Carga")}</p><p className="font-semibold">{a.icu_training_load ?? "—"}</p></div>
               <a
-              href={activityUrl(String(a.id))}
+              href={activityUrl(String(a.id), icu)}
               target="_blank"
               rel="noopener"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {if (!canView) return blockClick(e);e.stopPropagation();}}
               className="text-primary hover:opacity-80">
               
                 <ExternalLink className="size-4" />
@@ -189,7 +180,8 @@ function buildCtlAtl(acts: any[]) {
   return result;
 }
 
-function activityUrl(id: string) {
+function activityUrl(id: string, icu: boolean) {
+  if (!icu && !/^(strava|wahoo|garmin|hammerhead|igpsport)_/.test(id)) return `https://www.strava.com/athlete/training`;
   if (id.startsWith("strava_")) return `https://www.strava.com/activities/${id.slice(7)}`;
   if (id.startsWith("wahoo_") || id.startsWith("garmin_") || id.startsWith("hammerhead_")) return `https://www.strava.com/athlete/training`;
   return `https://intervals.icu/activities/${id}`;
