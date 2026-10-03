@@ -4,7 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, ChevronRight, Pencil, X } from "lucide-react";
+import { Plus, Trash2, ChevronRight, Pencil, X, Shuffle } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { useNavigate } from "@tanstack/react-router";
+import { generateRandomRoute } from "@/lib/random-route.functions";
 import { format } from "date-fns";
 import { es, ca, fr, enGB, de } from "date-fns/locale";
 
@@ -17,6 +20,7 @@ function CompetitionsPage() {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<any | null>(null);
   const [open, setOpen] = useState(false);
+  const [randomOpen, setRandomOpen] = useState(false);
 
   const comps = useQuery({
     queryKey: ["competitions", user?.id],
@@ -41,9 +45,14 @@ function CompetitionsPage() {
           <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">{tr("Calendario")}</p>
           <h1 className="font-display text-4xl font-bold uppercase tracking-tight">{tr("Rutas")}</h1>
         </div>
+        <div className="flex gap-2">
+        <button onClick={() => setRandomOpen(true)} className="inline-flex items-center gap-2 border px-4 py-2 rounded-lg text-sm font-semibold">
+          <Shuffle className="size-4" /> {tr("Crear ruta aleatoria")}
+        </button>
         <button onClick={() => {setEditing(null);setOpen(true);}} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold">
           <Plus className="size-4" /> {tr("Nueva")} 
         </button>
+        </div>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -76,6 +85,7 @@ function CompetitionsPage() {
         }
       </div>
 
+      {randomOpen && <RandomRouteForm onClose={() => setRandomOpen(false)} />}
       {open && <CompetitionForm initial={editing} onClose={() => setOpen(false)} onSaved={() => {setOpen(false);qc.invalidateQueries({ queryKey: ["competitions"] });}} />}
     </div>);
 
@@ -156,6 +166,53 @@ function CompetitionForm({ initial, onClose, onSaved }: any) {
       </form>
     </div>);
 
+}
+
+function RandomRouteForm({ onClose }: { onClose: () => void }) {
+  const gen = useServerFn(generateRandomRoute);
+  const navigate = useNavigate();
+  const [f, setF] = useState<any>({ name: tr("Ruta aleatoria"), date: format(new Date(), "yyyy-MM-dd"), type: "carretera", distance_km: 60, elevation_m: 800, duration_hours: "" });
+  const [saving, setSaving] = useState(false);
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const { id } = await gen({ data: { name: f.name, date: f.date, type: f.type, distance_km: Number(f.distance_km), elevation_m: Number(f.elevation_m), duration_hours: f.duration_hours ? Number(f.duration_hours) : null, intensity: "media" } });
+      toast.success(tr("Ruta generada"));
+      navigate({ to: "/competiciones/$id", params: { id } });
+    } catch (err: any) { toast.error(err?.message ?? tr("No se pudo generar la ruta")); } finally { setSaving(false); }
+  };
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 grid place-items-center p-4">
+      <form onSubmit={submit} className="bg-background rounded-xl border w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-2xl font-bold uppercase">{tr("Crear ruta aleatoria")}</h2>
+          <button type="button" onClick={onClose} className="p-1"><X className="size-5" /></button>
+        </div>
+        <p className="text-xs text-muted-foreground">{tr("Ruta circular con salida y llegada en tu ciudad base de Ajustes.")}</p>
+        <Field label={tr("Nombre")}><input required className="input" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label={tr("Fecha")}><input required type="date" className="input" value={f.date} onChange={(e) => setF({ ...f, date: e.target.value })} /></Field>
+          <Field label={tr("Tipo")}>
+            <select className="input" value={f.type} onChange={(e) => setF({ ...f, type: e.target.value })}>
+              <option value="carretera">{tr("Carretera")}</option>
+              <option value="mtb">{tr("Montaña")}</option>
+              <option value="gravel">{tr("Mixto/Gravel")}</option>
+            </select>
+          </Field>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          <Field label={tr("Distancia (km)")}><input required type="number" min={5} max={300} className="input" value={f.distance_km} onChange={(e) => setF({ ...f, distance_km: e.target.value })} /></Field>
+          <Field label={tr("Desnivel (m)")}><input type="number" min={0} className="input" value={f.elevation_m} onChange={(e) => setF({ ...f, elevation_m: e.target.value })} /></Field>
+          <Field label={tr("Tiempo (h)")}><input type="number" step="0.1" className="input" value={f.duration_hours} onChange={(e) => setF({ ...f, duration_hours: e.target.value })} /></Field>
+        </div>
+        <div className="flex gap-2 justify-end">
+          <button type="button" onClick={onClose} className="px-4 py-2 text-sm border rounded-lg">{tr("Cancelar")}</button>
+          <button type="submit" disabled={saving} className="bg-primary text-primary-foreground px-4 py-2 text-sm rounded-lg font-semibold disabled:opacity-50">{saving ? tr("Generando…") : tr("Generar")}</button>
+        </div>
+        <style>{`.input{width:100%;padding:.55rem .75rem;border-radius:.5rem;border:1px solid var(--border);background:var(--surface);font-size:.875rem;outline:none}.input:focus{box-shadow:0 0 0 2px var(--ring)}`}</style>
+      </form>
+    </div>);
 }
 
 function Field({ label, children }: any) {

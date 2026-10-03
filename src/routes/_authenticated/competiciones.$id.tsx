@@ -2,7 +2,7 @@ import { tr, activeLang } from "@/lib/i18n";import { createFileRoute, Link } fro
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { generateMenu, swapRecipe } from "@/lib/ai.functions";
@@ -51,6 +51,14 @@ function CompetitionDetail() {
   const [waterSearchComplete, setWaterSearchComplete] = useState(false);
   const [processingGpx, setProcessingGpx] = useState(false);
   const gpxInputRef = useRef<HTMLInputElement>(null);
+  const processRef = useRef<((text: string, filename: string) => Promise<void>) | null>(null);
+  const autoRan = useRef(false);
+  useEffect(() => {
+    const d: any = comp.data;
+    if (!d || autoRan.current || !d.gpx_data || (Array.isArray(d.track_points) && d.track_points.length) || !profile.data) return;
+    autoRan.current = true;
+    processRef.current?.(d.gpx_data, d.gpx_filename || `${d.name}.gpx`);
+  }, [comp.data, profile.data]);
 
   if (comp.isLoading || !comp.data) return (
     <div className="space-y-6 animate-fade-in">
@@ -76,10 +84,14 @@ function CompetitionDetail() {
   const handleGpxUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    try { await processGpxText(await file.text(), file.name); } finally { e.target.value = ""; }
+  };
+
+  const processGpxText = async (text: string, fileName: string) => {
+    const file = { name: fileName };
     setProcessingGpx(true);
     setWaterSearchComplete(false);
     try {
-      const text = await file.text();
       const { points: pts, name } = parseGpx(text);
       if (pts.length < 2) {toast.error(tr("GPX inválido"));return;}
       const stats = trackStats(pts);
@@ -146,9 +158,9 @@ function CompetitionDetail() {
       toast.error(error instanceof Error ? error.message : tr("No se pudo procesar el GPX"));
     } finally {
       setProcessingGpx(false);
-      e.target.value = "";
     }
   };
+  processRef.current = processGpxText;
 
   const downloadGpx = async () => {
     if (!c.gpx_data || !wpts.length) {toast.error(tr("Sube un GPX y genera el plan primero"));return;}
