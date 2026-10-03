@@ -42,14 +42,19 @@ export async function fetchWaterSources(points: LatLon[], signal?: AbortSignal):
 );
 out body;`;
 
-  const res = await fetch(OVERPASS_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `data=${encodeURIComponent(query)}`,
-    signal,
-  });
-  if (!res.ok) throw new Error("Overpass no disponible");
-  const json = await res.json();
+  let json: any = null;
+  for (const url of [OVERPASS_URL, "https://overpass.kumi.systems/api/interpreter", "https://overpass.private.coffee/api/interpreter"]) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `data=${encodeURIComponent(query)}`,
+        signal,
+      });
+      if (res.ok) { json = await res.json(); break; }
+    } catch { /* siguiente servidor */ }
+  }
+  if (!json) throw new Error("Overpass no disponible");
   return (json.elements ?? [])
     .filter((el: any) => typeof el.lat === "number" && typeof el.lon === "number")
     .map((el: any) => ({ lat: el.lat, lon: el.lon, name: el.tags?.name as string | undefined }));
@@ -91,6 +96,8 @@ export function filterByRouteSpacing(sources: WaterSource[], track: LatLon[], bi
       .slice(0, 3);
     bucket.forEach((e) => { if (!keep.includes(e.s)) keep.push(e.s); });
   }
+  // Ruta corta o sin fuentes en los tramos objetivo: mostrar las más cercanas al track
+  if (!keep.length) return enriched.sort((a, b) => a.dist - b.dist).slice(0, 3).map((e) => e.s);
   return keep;
 }
 
