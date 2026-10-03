@@ -28,24 +28,32 @@ export const generateRandomRoute = createServerFn({ method: "POST" })
     const geo = await geocodeCity(city);
     if (!geo) throw new Error("No se pudo localizar la ciudad base");
 
-    // Más desnivel deseado → más puntos para buscar variedad; seed aleatoria
-    const points = Math.min(10, Math.max(3, Math.round(3 + data.elevation_m / 800)));
-    const res = await fetch(`https://api.heigit.org/openrouteservice/v2/directions/${PROFILES[data.type]}/geojson`, {
-      method: "POST",
-      headers: { Authorization: key, "Content-Type": "application/json", Accept: "application/geo+json" },
-      body: JSON.stringify({
-        coordinates: [[geo.lon, geo.lat]],
-        elevation: true,
-        options: { round_trip: { length: Math.round(data.distance_km * 1000), points, seed: Math.floor(Math.random() * 1000) } },
-      }),
-    });
-    if (!res.ok) {
-      const t = await res.text();
-      console.error(`ORS failed [${res.status}]: ${t}`);
-      throw new Error(`OpenRouteService [${res.status}]: ${t.slice(0, 200)}`);
-    }
-    const json: any = await res.json();
-    const feat = json.features?.[0];
+    // Genera varias candidatas y elige la de desnivel más cercano al objetivo
+    const fetchOne = async (points: number, seed: number) => {
+      const res = await fetch(`https://api.heigit.org/openrouteservice/v2/directions/${PROFILES[data.type]}/geojson`, {
+        method: "POST",
+        headers: { Authorization: key, "Content-Type": "application/json", Accept: "application/geo+json" },
+        body: JSON.stringify({
+          coordinates: [[geo.lon, geo.lat]],
+          elevation: true,
+          options: { round_trip: { length: Math.round(data.distance_km * 1000), points, seed } },
+        }),
+      });
+      if (!res.ok) {
+        const t = await res.text();
+        console.error(`ORS failed [${res.status}]: ${t}`);
+        throw new Error(`OpenRouteService [${res.status}]: ${t.slice(0, 200)}`);
+      }
+      const json: any = await res.json();
+      return json.features?.[0];
+    };
+    const target = data.elevation_m;
+    const results = await Promise.allSettled(
+      [3, 4, 5, 6, 8, 10].map((p) => fetchOne(p, Math.floor(Math.random() * 10000))),
+    );
+    const feats = results.filter((r): r is PromiseFulfilledResult<any> => r.status === "fulfilled" && r.value).map((r) => r.value);
+    if (!feats.length) throw (results.find((r) => r.status === "rejected") as PromiseRejectedResult)?.reason ?? new Error("No se pudo generar la ruta");
+    const feat = feats.sort((a, b) => Math.abs((a.properties?.ascent ?? 0) - target) - Math.abs((b.properties?.ascent ?? 0) - target))[0];
     const coords: number[][] = feat?.geometry?.coordinates ?? [];
     if (coords.length < 2) throw new Error("No se pudo generar la ruta");
     const summary = feat.properties?.summary ?? {};

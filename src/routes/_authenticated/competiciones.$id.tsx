@@ -231,9 +231,9 @@ function CompetitionDetail() {
         <div className="bg-surface border rounded-xl p-5 space-y-4">
           <div className="flex justify-between items-center">
             <h2 className="font-display text-xl font-bold uppercase">{tr("Track GPX & Nutrición")}</h2>
-            <Button type="button" variant="secondary" size="sm" disabled={processingGpx} onClick={() => gpxInputRef.current?.click()}>
+            {!c.notes?.startsWith("Ruta aleatoria") && <Button type="button" variant="secondary" size="sm" disabled={processingGpx} onClick={() => gpxInputRef.current?.click()}>
               <Upload className="size-3.5" /> {processingGpx ? "Procesando…" : "Subir GPX"}
-            </Button>
+            </Button>}
             <input ref={gpxInputRef} type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml" className="sr-only" onChange={handleGpxUpload} />
           </div>
           {points.length > 0 ?
