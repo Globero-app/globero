@@ -28,16 +28,23 @@ export const generateRandomRoute = createServerFn({ method: "POST" })
     const geo = await geocodeCity(city);
     if (!geo) throw new Error("No se pudo localizar la ciudad base");
 
-    // Genera varias candidatas y elige la de desnivel más cercano al objetivo
-    const fetchOne = async (points: number, seed: number) => {
+    // Genera candidatas en varias rondas, corrigiendo longitud y priorizando desnivel
+    const target = data.elevation_m;
+    const targetKm = data.distance_km;
+    const mPerKm = target / targetKm;
+    const steep = mPerKm < 8 ? 0 : mPerKm < 15 ? 1 : mPerKm < 22 ? 2 : 3;
+    let useWeight = true;
+    const fetchOne = async (lengthKm: number, points: number, seed: number) => {
+      const body: any = {
+        coordinates: [[geo.lon, geo.lat]],
+        elevation: true,
+        options: { round_trip: { length: Math.round(lengthKm * 1000), points, seed } },
+      };
+      if (useWeight) body.options.profile_params = { weightings: { steepness_difficulty: steep } };
       const res = await fetch(`https://api.heigit.org/openrouteservice/v2/directions/${PROFILES[data.type]}/geojson`, {
         method: "POST",
         headers: { Authorization: key, "Content-Type": "application/json", Accept: "application/geo+json" },
-        body: JSON.stringify({
-          coordinates: [[geo.lon, geo.lat]],
-          elevation: true,
-          options: { round_trip: { length: Math.round(data.distance_km * 1000), points, seed } },
-        }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) {
         const t = await res.text();
@@ -47,13 +54,37 @@ export const generateRandomRoute = createServerFn({ method: "POST" })
       const json: any = await res.json();
       return json.features?.[0];
     };
-    const target = data.elevation_m;
-    const results = await Promise.allSettled(
-      [3, 4, 5, 6, 8, 10].map((p) => fetchOne(p, Math.floor(Math.random() * 10000))),
-    );
-    const feats = results.filter((r): r is PromiseFulfilledResult<any> => r.status === "fulfilled" && r.value).map((r) => r.value);
-    if (!feats.length) throw (results.find((r) => r.status === "rejected") as PromiseRejectedResult)?.reason ?? new Error("No se pudo generar la ruta");
-    const feat = feats.sort((a, b) => Math.abs((a.properties?.ascent ?? 0) - target) - Math.abs((b.properties?.ascent ?? 0) - target))[0];
+    const distOf = (f: any) => (f.properties?.summary?.distance ?? 0) / 1000;
+    const ascOf = (f: any) => f.properties?.ascent ?? 0;
+    const score = (f: any) =>
+      2 * (Math.abs(ascOf(f) - target) / Math.max(target, 150)) + Math.abs(distOf(f) - targetKm) / targetKm;
+    const runRound = async (lengthKm: number, pts: number[]) => {
+      const rs = await Promise.allSettled(pts.map((p) => fetchOne(lengthKm, p, Math.floor(Math.random() * 100000))));
+      return {
+        feats: rs.filter((r): r is PromiseFulfilledResult<any> => r.status === "fulfilled" && r.value).map((r) => r.value),
+        err: (rs.find((r) => r.status === "rejected") as PromiseRejectedResult | undefined)?.reason,
+      };
+    };
+    let all: any[] = [];
+    let lastErr: any;
+    let len = targetKm * 0.8; // ORS suele devolver rutas más largas que lo pedido
+    for (let round = 0; round < 3; round++) {
+      let { feats: f, err } = await runRound(len, [3, 4, 5, 6]);
+      if (!f.length && useWeight) { useWeight = false; ({ feats: f, err } = await runRound(len, [3, 4, 5, 6])); }
+      lastErr = err ?? lastErr;
+      all = all.concat(f);
+      if (!all.length) break;
+      const best = [...all].sort((a, b) => score(a) - score(b))[0];
+      const ascOk = Math.abs(ascOf(best) - target) <= Math.max(target * 0.2, 100);
+      const distOk = Math.abs(distOf(best) - targetKm) <= targetKm * 0.15;
+      if (ascOk && distOk) break;
+      // Corrige longitud según desviación de distancia y, si sobra desnivel, acorta un poco
+      const avgDist = f.length ? f.reduce((s, x) => s + distOf(x), 0) / f.length : distOf(best);
+      len = Math.max(5, len * (targetKm / Math.max(avgDist, 1)));
+      if (ascOf(best) > target * 1.2) len *= 0.9;
+    }
+    if (!all.length) throw lastErr ?? new Error("No se pudo generar la ruta");
+    const feat = all.sort((a, b) => score(a) - score(b))[0];
     const coords: number[][] = feat?.geometry?.coordinates ?? [];
     if (coords.length < 2) throw new Error("No se pudo generar la ruta");
     const summary = feat.properties?.summary ?? {};
