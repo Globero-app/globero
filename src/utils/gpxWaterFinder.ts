@@ -33,7 +33,7 @@ export async function fetchWaterSources(points: LatLon[], signal?: AbortSignal):
   if (points.length < 2) return [];
   const { minLat, minLon, maxLat, maxLon } = trackBBox(points);
   const bbox = `${minLat},${minLon},${maxLat},${maxLon}`;
-  const query = `[out:json][timeout:25];
+  const query = `[out:json][timeout:10];
 (
   node["amenity"="drinking_water"](${bbox});
   node["man_made"="water_tap"]["drinking_water"!="no"](${bbox});
@@ -49,7 +49,7 @@ out body;`;
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `data=${encodeURIComponent(query)}`,
-        signal,
+        signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(10000)]) : AbortSignal.timeout(10000),
       });
       if (res.ok) { json = await res.json(); break; }
     } catch { /* siguiente servidor */ }
