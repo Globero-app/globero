@@ -2,7 +2,8 @@ import { tr, activeLang } from "@/lib/i18n";import { createFileRoute, Link } fro
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { CityAutocomplete, type CityPick } from "@/components/perfil/CityAutocomplete";
 import { toast } from "sonner";
 import { Plus, Trash2, ChevronRight, Pencil, X, Shuffle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
@@ -172,12 +173,21 @@ function RandomRouteForm({ onClose }: { onClose: () => void }) {
   const gen = useServerFn(generateRandomRoute);
   const navigate = useNavigate();
   const [f, setF] = useState<any>({ name: tr("Ruta aleatoria"), date: format(new Date(), "yyyy-MM-dd"), type: "carretera", distance_km: 60, elevation_m: 800, duration_hours: "" });
+  const { user } = useAuth();
+  const [start, setStart] = useState<{ text: string; pick: CityPick | null; touched: boolean }>({ text: "", pick: null, touched: false });
+  useEffect(() => {
+    if (!user?.id) return;
+    supabase.from("profiles").select("location_city").eq("id", user.id).maybeSingle().then(({ data }) => {
+      setStart((s) => (s.touched ? s : { ...s, text: data?.location_city ?? "" }));
+    });
+  }, [user?.id]);
   const [saving, setSaving] = useState(false);
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (start.touched && !start.pick) { toast.error(tr("Selecciona la población de salida de la lista")); return; }
     setSaving(true);
     try {
-      const { id } = await gen({ data: { name: f.name, date: f.date, type: f.type, distance_km: Number(f.distance_km), elevation_m: Number(f.elevation_m), duration_hours: f.duration_hours ? Number(f.duration_hours) : null, intensity: "media" } });
+      const { id } = await gen({ data: { name: f.name, date: f.date, type: f.type, distance_km: Number(f.distance_km), elevation_m: Number(f.elevation_m), duration_hours: f.duration_hours ? Number(f.duration_hours) : null, intensity: "media", start: start.pick ? { lat: start.pick.lat, lon: start.pick.lon } : null, start_label: start.pick?.label ?? null } });
       toast.success(tr("Ruta generada"));
       navigate({ to: "/competiciones/$id", params: { id } });
     } catch (err: any) { toast.error(err?.message ?? tr("No se pudo generar la ruta")); } finally { setSaving(false); }
@@ -189,7 +199,13 @@ function RandomRouteForm({ onClose }: { onClose: () => void }) {
           <h2 className="font-display text-2xl font-bold uppercase">{tr("Crear ruta aleatoria")}</h2>
           <button type="button" onClick={onClose} className="p-1"><X className="size-5" /></button>
         </div>
-        <p className="text-xs text-muted-foreground">{tr("Ruta circular con salida y llegada en tu ciudad base de Ajustes.")}</p>
+        <p className="text-xs text-muted-foreground">{tr("Ruta circular con salida y llegada en la población indicada.")}</p>
+        <Field label={tr("Salida desde")}>
+          <CityAutocomplete placeholder={tr("Madrid, Barcelona, Sevilla…")} value={start.text}
+            onChange={(v) => setStart({ text: v, pick: null, touched: true })}
+            onPick={(p) => setStart({ text: p.city, pick: p, touched: true })} />
+          {start.pick && <p className="text-[11px] text-muted-foreground mt-1">{start.pick.label}</p>}
+        </Field>
         <Field label={tr("Nombre")}><input required className="input" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label={tr("Fecha")}><input required type="date" className="input" value={f.date} onChange={(e) => setF({ ...f, date: e.target.value })} /></Field>

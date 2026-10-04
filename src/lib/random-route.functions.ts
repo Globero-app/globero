@@ -15,18 +15,26 @@ export const generateRandomRoute = createServerFn({ method: "POST" })
       elevation_m: z.number().min(0).max(8000),
       duration_hours: z.number().min(0).max(24).nullable(),
       intensity: z.string().max(30),
+      start: z.object({ lat: z.number().min(-90).max(90), lon: z.number().min(-180).max(180) }).nullable().optional(),
+      start_label: z.string().max(200).nullable().optional(),
     }).parse(d),
   )
   .handler(async ({ data, context }) => {
     const key = process.env["ORS_API_KEY"];
     if (!key) throw new Error("Falta la clave de OpenRouteService");
     const { supabase, userId } = context;
-    const { data: prof } = await supabase.from("profiles").select("location_city").eq("id", userId).maybeSingle();
-    const city = prof?.location_city;
-    if (!city) throw new Error("Configura la 'Ciudad base para previsión' en Ajustes");
-    const { geocodeCity } = await import("./weather-daily.server");
-    const geo = await geocodeCity(city);
-    if (!geo) throw new Error("No se pudo localizar la ciudad base");
+    let geo: { lat: number; lon: number } | null = data.start ?? null;
+    if (!geo) {
+      const { data: prof } = await supabase.from("profiles").select("location_city, location_lat, location_lon").eq("id", userId).maybeSingle();
+      const city = prof?.location_city;
+      if (!city) throw new Error("Indica la población de salida o configura la 'Ciudad base para previsión' en Ajustes");
+      if (prof?.location_lat != null && prof?.location_lon != null) geo = { lat: Number(prof.location_lat), lon: Number(prof.location_lon) };
+      else {
+        const { geocodeCity } = await import("./weather-daily.server");
+        geo = await geocodeCity(city);
+      }
+    }
+    if (!geo) throw new Error("No se pudo localizar la población de salida");
 
     // Genera candidatas en varias rondas, corrigiendo longitud y priorizando desnivel
     const target = data.elevation_m;
@@ -113,7 +121,7 @@ ${trkpts}
       elevation_m: ascent,
       gpx_data: gpx,
       gpx_filename: `${data.name}.gpx`,
-      notes: `Ruta aleatoria desde ${geo.name}`,
+      notes: `Ruta aleatoria desde ${data.start_label || (geo as any).name || "tu ciudad base"}`,
     }).select("id").single();
     if (error) throw new Error(error.message);
     return { id: row.id as string };
