@@ -210,6 +210,7 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
     }
 
     if (notified.has(actId)) continue;
+    if (day !== todayISO) continue; // día anterior: se queda para asignar en la app, sin aviso
     const targetName = comp ? comp.name : ((wk!.plan as any)?.title ?? wk!.training_type ?? "tu entrenamiento");
     await notifyUser(userId, {
       title: "🚴 Nueva actividad detectada",
