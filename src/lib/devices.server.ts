@@ -431,7 +431,8 @@ export async function pullDeviceActivities(supabase: any, userId: string): Promi
     return 0;
   }
   const list = ((await res.json())?.workouts ?? []) as any[];
-  const rows = list.map((w) => wahooRow(w, userId, refs)).filter(Boolean);
+  const { filterDuplicateActivities } = await import("./activity-dedupe.server");
+  const rows = await filterDuplicateActivities(supabase, userId, list.map((w) => wahooRow(w, userId, refs)).filter(Boolean));
   if (!rows.length) return 0;
   const { error } = await supabase.from("intervals_activities").upsert(rows, { onConflict: "id" });
   if (error) console.error("[devices] upsert", error);
@@ -489,6 +490,10 @@ export async function pullHammerheadActivities(supabase: any, userId: string, ac
     }
     rows.push(row);
   }
+  const { filterDuplicateActivities } = await import("./activity-dedupe.server");
+  const deduped = await filterDuplicateActivities(supabase, userId, rows);
+  rows.length = 0;
+  rows.push(...deduped);
   if (!rows.length) return 0;
   const { error } = await supabase.from("intervals_activities").upsert(rows, { onConflict: "id" });
   if (error) console.error("[devices] hammerhead upsert", error);
@@ -499,7 +504,8 @@ export async function pullHammerheadActivities(supabase: any, userId: string, ac
 export async function storeGarminActivities(supabase: any, garminUserId: string, acts: any[]) {
   const { data: profile } = await supabase.from("profiles").select(PROFILE_COLS).eq("garmin_user_id", garminUserId).maybeSingle();
   if (!profile || credsFromProfile(profile)) return 0;
-  const rows = acts.map((a) => garminRow(a, profile.id, refsOf(profile))).filter(Boolean);
+  const { filterDuplicateActivities } = await import("./activity-dedupe.server");
+  const rows = await filterDuplicateActivities(supabase, profile.id, acts.map((a) => garminRow(a, profile.id, refsOf(profile))).filter(Boolean));
   if (!rows.length) return 0;
   await supabase.from("intervals_activities").upsert(rows, { onConflict: "id" });
   return rows.length;

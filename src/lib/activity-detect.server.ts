@@ -95,9 +95,13 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
   ]);
 
   // Descarta registros STRAVA sin datos reales (no disponibles vía API de Intervals)
-  const activities: any[] = (aRes.data ?? []).filter(
-    (a: any) => a.type && Number(a.moving_time ?? 0) > 0,
-  );
+  const { isSameActivity } = await import("./activity-dedupe.server");
+  const activities: any[] = [];
+  for (const a of (aRes.data ?? []) as any[]) {
+    if (!a.type || !(Number(a.moving_time ?? 0) > 0)) continue;
+    if (activities.some((k) => isSameActivity(k, a))) continue;
+    activities.push(a);
+  }
   if (!activities.length) return out;
 
   const linked = new Set<string>();
@@ -128,12 +132,13 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
     const actId = String(a.id);
     if (feedbackAsked.has(actId)) return;
     if (!String(a.type ?? "").toLowerCase().includes("ride")) return;
-    const day = String(a.start_date).slice(0, 10);
+    const day = localDay(a.start_date);
     await admin.from("daily_activities").upsert(
       { user_id: userId, activity_id: actId, date: day, notification_sent: true },
       { onConflict: "user_id,activity_id" },
     );
     feedbackAsked.add(actId);
+    if (day !== todayISO) return; // actividad de un día anterior: sin aviso inmediato
     await notifyUser(userId, {
       title: "¡Entrenamiento detectado! 🚴‍♂️",
       body: "¿Cómo te has sentido hoy? Pulsa para evaluar tu esfuerzo.",
@@ -150,7 +155,7 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
       await askFeedback(a);
       continue;
     }
-    const day = String(a.start_date).slice(0, 10);
+    const day = localDay(a.start_date);
 
     const comp = ((cRes.data ?? []) as any[]).find((c) => {
       const fb = (c.race_feedback as any) ?? {};
@@ -184,7 +189,7 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
           await linkWorkoutActivity(admin, userId, wk.id, actId, true);
           linked.add(actId);
           out.auto++;
-          await notifyUser(userId, {
+          if (day === todayISO) await notifyUser(userId, {
             title: "✅ Entrenamiento completado",
             body: `"${a.name ?? "Actividad"}" se ha asignado automáticamente a ${((wk.plan as any)?.title ?? wk.training_type) || "tu entreno"} (${Math.round(actualMin)} min). Puedes deshacerlo en Entrenamientos.`,
             tag: `auto-link-${actId}`,
@@ -205,6 +210,7 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
     }
 
     if (notified.has(actId)) continue;
+    if (day !== todayISO) continue; // día anterior: se queda para asignar en la app, sin aviso
     const targetName = comp ? comp.name : ((wk!.plan as any)?.title ?? wk!.training_type ?? "tu entrenamiento");
     await notifyUser(userId, {
       title: "🚴 Nueva actividad detectada",
@@ -258,4 +264,9 @@ export async function remindPendingWorkout(admin: any, userId: string, todayISO:
     url: "/entrenamientos",
   });
   return true;
+}
+
+/** Día local (Europe/Madrid) de inicio de la actividad. */
+function localDay(iso: string): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
 }

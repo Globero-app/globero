@@ -156,7 +156,7 @@ export async function pullStravaActivities(supabase: any, userId: string, limit 
     return 0;
   }
   const list = ((await res.json()) ?? []) as any[];
-  const rows = list
+  let rows = list
     .filter((a) => /ride|bike|cycl/i.test(String(a.sport_type ?? a.type ?? "")))
     .slice(0, limit)
     .map((a) => ({
@@ -177,6 +177,8 @@ export async function pullStravaActivities(supabase: any, userId: string, limit 
       raw: { source: "strava", ...a },
       synced_at: new Date().toISOString(),
     }));
+  const { filterDuplicateActivities } = await import("./activity-dedupe.server");
+  rows = await filterDuplicateActivities(supabase, userId, rows);
   if (!rows.length) return 0;
   const { error } = await supabase.from("intervals_activities").upsert(rows, { onConflict: "id" });
   if (error) console.error("[strava] upsert", error);
