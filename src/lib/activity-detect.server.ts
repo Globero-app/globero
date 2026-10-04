@@ -95,9 +95,13 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
   ]);
 
   // Descarta registros STRAVA sin datos reales (no disponibles vía API de Intervals)
-  const activities: any[] = (aRes.data ?? []).filter(
-    (a: any) => a.type && Number(a.moving_time ?? 0) > 0,
-  );
+  const { isSameActivity } = await import("./activity-dedupe.server");
+  const activities: any[] = [];
+  for (const a of (aRes.data ?? []) as any[]) {
+    if (!a.type || !(Number(a.moving_time ?? 0) > 0)) continue;
+    if (activities.some((k) => isSameActivity(k, a))) continue;
+    activities.push(a);
+  }
   if (!activities.length) return out;
 
   const linked = new Set<string>();
@@ -134,6 +138,7 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
       { onConflict: "user_id,activity_id" },
     );
     feedbackAsked.add(actId);
+    if (day !== todayISO) return; // actividad de un día anterior: sin aviso inmediato
     await notifyUser(userId, {
       title: "¡Entrenamiento detectado! 🚴‍♂️",
       body: "¿Cómo te has sentido hoy? Pulsa para evaluar tu esfuerzo.",
@@ -184,7 +189,7 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
           await linkWorkoutActivity(admin, userId, wk.id, actId, true);
           linked.add(actId);
           out.auto++;
-          await notifyUser(userId, {
+          if (day === todayISO) await notifyUser(userId, {
             title: "✅ Entrenamiento completado",
             body: `"${a.name ?? "Actividad"}" se ha asignado automáticamente a ${((wk.plan as any)?.title ?? wk.training_type) || "tu entreno"} (${Math.round(actualMin)} min). Puedes deshacerlo en Entrenamientos.`,
             tag: `auto-link-${actId}`,

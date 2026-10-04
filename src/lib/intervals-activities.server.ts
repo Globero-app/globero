@@ -74,6 +74,8 @@ export async function syncIntervalsActivities(
       .sort((a, b) => new Date(b.start_date ?? 0).getTime() - new Date(a.start_date ?? 0).getTime())
       .slice(0, opts.limit);
   }
+  const { filterDuplicateActivities } = await import("./activity-dedupe.server");
+  rows = await filterDuplicateActivities(supabase, userId, rows);
   if (!rows.length) return 0;
   const { error } = await supabase.from("intervals_activities").upsert(rows, { onConflict: "id" });
   if (error) {
