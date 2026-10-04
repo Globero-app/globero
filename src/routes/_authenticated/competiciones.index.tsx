@@ -187,7 +187,7 @@ function RandomRouteForm({ onClose }: { onClose: () => void }) {
     if (start.touched && !start.pick) { toast.error(tr("Selecciona la población de salida de la lista")); return; }
     setSaving(true);
     try {
-      const { id } = await gen({ data: { name: f.name, date: f.date, type: f.type, distance_km: Number(f.distance_km), elevation_m: Number(f.elevation_m), duration_hours: f.duration_hours ? Number(f.duration_hours) : null, intensity: "media", start: start.pick ? { lat: start.pick.lat, lon: start.pick.lon } : null } });
+      const { id } = await gen({ data: { name: f.name, date: f.date, type: f.type, distance_km: Number(f.distance_km), elevation_m: Number(f.elevation_m), duration_hours: f.duration_hours ? Number(f.duration_hours) : null, intensity: "media", start: start.pick ? { lat: start.pick.lat, lon: start.pick.lon } : null, start_label: start.pick?.label ?? null } });
       toast.success(tr("Ruta generada"));
       navigate({ to: "/competiciones/$id", params: { id } });
     } catch (err: any) { toast.error(err?.message ?? tr("No se pudo generar la ruta")); } finally { setSaving(false); }

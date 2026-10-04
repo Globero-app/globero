@@ -16,6 +16,7 @@ export const generateRandomRoute = createServerFn({ method: "POST" })
       duration_hours: z.number().min(0).max(24).nullable(),
       intensity: z.string().max(30),
       start: z.object({ lat: z.number().min(-90).max(90), lon: z.number().min(-180).max(180) }).nullable().optional(),
+      start_label: z.string().max(200).nullable().optional(),
     }).parse(d),
   )
   .handler(async ({ data, context }) => {
@@ -120,7 +121,7 @@ ${trkpts}
       elevation_m: ascent,
       gpx_data: gpx,
       gpx_filename: `${data.name}.gpx`,
-      notes: `Ruta aleatoria desde ${geo.name}`,
+      notes: `Ruta aleatoria desde ${data.start_label || (geo as any).name || "tu ciudad base"}`,
     }).select("id").single();
     if (error) throw new Error(error.message);
     return { id: row.id as string };
