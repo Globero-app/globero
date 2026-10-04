@@ -15,6 +15,7 @@ import { WahooConnection, GarminConnection, HammerheadConnection } from "@/compo
 import { createHammerheadAuthorizeUrl, disconnectHammerhead } from "@/lib/hammerhead.functions";
 import { WeatherStatus } from "@/components/perfil/WeatherStatus";
 import { COUNTRIES } from "@/lib/countries";
+import { CityAutocomplete } from "@/components/perfil/CityAutocomplete";
 
 export const Route = createFileRoute("/_authenticated/ajustes")({
   head: () => ({
@@ -105,7 +106,9 @@ function AjustesPage() {
       notify_weather_alerts: form.notify_weather_alerts ?? true,
       readiness_push_enabled: form.readiness_push_enabled ?? true,
       readiness_push_hour: form.readiness_push_hour !== "" ? Number(form.readiness_push_hour ?? 7) : 7,
-      ...(form.location_city !== profileQ.data?.location_city || (form.country || "ES") !== profileQ.data?.country
+      ...(form._pick && form._pick.city === form.location_city
+        ? { location_lat: form._pick.lat, location_lon: form._pick.lon, location_resolved: `${form._pick.city}|${form._pick.label}` }
+        : form.location_city !== profileQ.data?.location_city || (form.country || "ES") !== profileQ.data?.country
         ? { location_lat: null, location_lon: null, location_resolved: null }
         : {}),
     }).eq("id", user.id);
@@ -133,7 +136,10 @@ function AjustesPage() {
         <Section title={tr("Meteorología")}>
           <div className="grid grid-cols-2 gap-3">
             <Field label={tr("Ciudad base para previsión")}>
-              <input className="input" placeholder={tr("Madrid, Barcelona, Sevilla…")} value={form.location_city ?? ""} onChange={(e) => setForm({ ...form, location_city: e.target.value })} />
+              <CityAutocomplete placeholder={tr("Madrid, Barcelona, Sevilla…")} value={form.location_city ?? ""}
+                onChange={(v) => setForm((f: any) => ({ ...f, location_city: v, _pick: null }))}
+                onPick={(p) => setForm((f: any) => ({ ...f, location_city: p.city, country: COUNTRIES.some((c) => c.code === p.country) ? p.country : f.country, _pick: p }))} />
+              {form._pick && <p className="text-[11px] text-muted-foreground mt-1">{form._pick.label} · {form._pick.lat.toFixed(4)}, {form._pick.lon.toFixed(4)}</p>}
             </Field>
             <Field label={tr("País")}>
               <select className="input" value={form.country ?? "ES"} onChange={(e) => setForm({ ...form, country: e.target.value })}>
