@@ -132,7 +132,7 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
     const actId = String(a.id);
     if (feedbackAsked.has(actId)) return;
     if (!String(a.type ?? "").toLowerCase().includes("ride")) return;
-    const day = String(a.start_date).slice(0, 10);
+    const day = localDay(a.start_date);
     await admin.from("daily_activities").upsert(
       { user_id: userId, activity_id: actId, date: day, notification_sent: true },
       { onConflict: "user_id,activity_id" },
@@ -155,7 +155,7 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
       await askFeedback(a);
       continue;
     }
-    const day = String(a.start_date).slice(0, 10);
+    const day = localDay(a.start_date);
 
     const comp = ((cRes.data ?? []) as any[]).find((c) => {
       const fb = (c.race_feedback as any) ?? {};
@@ -264,4 +264,9 @@ export async function remindPendingWorkout(admin: any, userId: string, todayISO:
     url: "/entrenamientos",
   });
   return true;
+}
+
+/** Día local (Europe/Madrid) de inicio de la actividad. */
+function localDay(iso: string): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
 }
