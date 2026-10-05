@@ -72,9 +72,10 @@ async function resolveStravaActivityId(
   const raw = (act?.raw ?? {}) as any;
   const direct = raw.strava_id ?? raw.stravaId ?? raw.external_id;
   if (direct && /^\d+$/.test(String(direct))) return String(direct);
-  if (!act?.start_date) return null;
+  const realStart = raw.workout_summary?.started_at ?? raw.started_at ?? act?.start_date;
+  if (!realStart) return null;
 
-  const startMs = new Date(act.start_date).getTime();
+  const startMs = new Date(realStart).getTime();
   const after = Math.floor((startMs - 6 * 3600_000) / 1000);
   const before = Math.floor((startMs + 6 * 3600_000) / 1000);
   const res = await fetch(`${API}/athlete/activities?after=${after}&before=${before}&per_page=30`, {

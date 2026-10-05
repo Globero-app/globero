@@ -375,7 +375,7 @@ function wahooRow(w: any, userId: string, refs: ZoneRefs) {
     user_id: userId,
     name: w.name ?? "Wahoo",
     type: indoor ? "VirtualRide" : "Ride",
-    start_date: new Date(w.starts ?? s.created_at).toISOString(),
+    start_date: new Date(s.started_at ?? w.starts ?? s.created_at).toISOString(),
     moving_time: Math.round(dur),
     distance: Number(s.distance_accum ?? 0) || null,
     total_elevation_gain: Number(s.ascent_accum ?? 0) || null,
