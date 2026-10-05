@@ -501,6 +501,24 @@ INSTRUCCIONES:
     status: "pending",
   }));
 
+  // Protección: reemplaza sesiones pendientes en los mismos días antes de insertar
+  const newDates = Array.from(new Set(rows.map((r: any) => r.plan?.scheduled_date).filter(Boolean)));
+  if (newDates.length) {
+    const { data: clash } = await supabase
+      .from("workouts")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("status", "pending")
+      .in("plan->>scheduled_date", newDates);
+    if (clash?.length) {
+      const { removeWorkoutEvent } = await import("./intervals.server");
+      for (const w of clash) {
+        try { await removeWorkoutEvent(supabase, userId, w); } catch { /* noop */ }
+      }
+      await supabase.from("workouts").delete().in("id", clash.map((w: any) => w.id));
+    }
+  }
+
   const { data: inserted, error } = await supabase.from("workouts").insert(rows).select();
   if (error) throw new Error(error.message);
 
