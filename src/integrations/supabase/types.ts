@@ -220,6 +220,56 @@ export type Database = {
         }
         Relationships: []
       }
+      beacon_points: {
+        Row: {
+          accuracy_m: number | null
+          altitude_m: number | null
+          beacon_id: string
+          created_at: string
+          heading: number | null
+          id: number
+          lat: number
+          lon: number
+          recorded_at: string
+          speed_kmh: number | null
+          user_id: string
+        }
+        Insert: {
+          accuracy_m?: number | null
+          altitude_m?: number | null
+          beacon_id: string
+          created_at?: string
+          heading?: number | null
+          id?: never
+          lat: number
+          lon: number
+          recorded_at?: string
+          speed_kmh?: number | null
+          user_id: string
+        }
+        Update: {
+          accuracy_m?: number | null
+          altitude_m?: number | null
+          beacon_id?: string
+          created_at?: string
+          heading?: number | null
+          id?: never
+          lat?: number
+          lon?: number
+          recorded_at?: string
+          speed_kmh?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beacon_points_beacon_id_fkey"
+            columns: ["beacon_id"]
+            isOneToOne: false
+            referencedRelation: "safety_beacons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bike_components: {
         Row: {
           active: boolean
@@ -1083,6 +1133,57 @@ export type Database = {
           id?: string
           liked?: boolean
           recipe_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      safety_beacons: {
+        Row: {
+          battery_pct: number | null
+          created_at: string
+          ended_at: string | null
+          expires_at: string
+          id: string
+          last_lat: number | null
+          last_lon: number | null
+          last_seen_at: string | null
+          name: string | null
+          share_token: string
+          started_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          battery_pct?: number | null
+          created_at?: string
+          ended_at?: string | null
+          expires_at?: string
+          id?: string
+          last_lat?: number | null
+          last_lon?: number | null
+          last_seen_at?: string | null
+          name?: string | null
+          share_token?: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          battery_pct?: number | null
+          created_at?: string
+          ended_at?: string | null
+          expires_at?: string
+          id?: string
+          last_lat?: number | null
+          last_lon?: number | null
+          last_seen_at?: string | null
+          name?: string | null
+          share_token?: string
+          started_at?: string
+          status?: string
           updated_at?: string
           user_id?: string
         }
