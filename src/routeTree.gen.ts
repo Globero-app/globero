@@ -9,67 +9,57 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as RegistroRouteImport } from './routes/registro'
-import { Route as RecuperarRouteImport } from './routes/recuperar'
-import { Route as PrivacidadRouteImport } from './routes/privacidad'
-import { Route as OfflineRouteImport } from './routes/offline'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthIndexRouteImport } from './routes/auth/index'
-import { Route as AuthenticatedSemanasRouteImport } from './routes/_authenticated/semanas'
-import { Route as AuthenticatedReadinessRouteImport } from './routes/_authenticated/readiness'
-import { Route as AuthenticatedProgresoRouteImport } from './routes/_authenticated/progreso'
-import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
-import { Route as AuthenticatedMiBiciRouteImport } from './routes/_authenticated/mi-bici'
-import { Route as AuthenticatedMenusRouteImport } from './routes/_authenticated/menus'
-import { Route as AuthenticatedFtpTestRouteImport } from './routes/_authenticated/ftp-test'
-import { Route as AuthenticatedEntrenamientosRouteImport } from './routes/_authenticated/entrenamientos'
-import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
-import { Route as AuthenticatedBackendRouteImport } from './routes/_authenticated/backend'
-import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as OfflineRouteImport } from './routes/offline'
+import { Route as PrivacidadRouteImport } from './routes/privacidad'
+import { Route as RecuperarRouteImport } from './routes/recuperar'
+import { Route as RegistroRouteImport } from './routes/registro'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAjustesRouteImport } from './routes/_authenticated/ajustes'
-import { Route as AuthenticatedCompeticionesIndexRouteImport } from './routes/_authenticated/competiciones.index'
+import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
+import { Route as AuthenticatedBackendRouteImport } from './routes/_authenticated/backend'
+import { Route as AuthenticatedBalizaRouteImport } from './routes/_authenticated/baliza'
+import { Route as AuthenticatedCalendarioRouteImport } from './routes/_authenticated/calendario'
+import { Route as AuthenticatedEntrenamientosRouteImport } from './routes/_authenticated/entrenamientos'
+import { Route as AuthenticatedFtpTestRouteImport } from './routes/_authenticated/ftp-test'
+import { Route as AuthenticatedMenusRouteImport } from './routes/_authenticated/menus'
+import { Route as AuthenticatedMiBiciRouteImport } from './routes/_authenticated/mi-bici'
+import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
+import { Route as AuthenticatedProgresoRouteImport } from './routes/_authenticated/progreso'
+import { Route as AuthenticatedReadinessRouteImport } from './routes/_authenticated/readiness'
+import { Route as AuthenticatedSemanasRouteImport } from './routes/_authenticated/semanas'
+import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthenticatedActividadesIndexRouteImport } from './routes/_authenticated/actividades.index'
-import { Route as AuthWahooCallbackRouteImport } from './routes/auth/wahoo/callback'
-import { Route as AuthStravaCallbackRouteImport } from './routes/auth/strava/callback'
-import { Route as AuthIntervalsCallbackRouteImport } from './routes/auth/intervals/callback'
-import { Route as AuthHammerheadCallbackRouteImport } from './routes/auth/hammerhead/callback'
-import { Route as AuthGarminCallbackRouteImport } from './routes/auth/garmin/callback'
-import { Route as AuthenticatedCompeticionesIdRouteImport } from './routes/_authenticated/competiciones.$id'
 import { Route as AuthenticatedActividadesIdRouteImport } from './routes/_authenticated/actividades.$id'
-import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
-import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
-import { Route as ApiPublicWahooWebhookRouteImport } from './routes/api/public/wahoo/webhook'
-import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
-import { Route as ApiPublicHooksWeeklyWorkoutsRouteImport } from './routes/api/public/hooks/weekly-workouts'
-import { Route as ApiPublicHooksReadinessPushRouteImport } from './routes/api/public/hooks/readiness-push'
-import { Route as ApiPublicHooksIntervalsSyncRouteImport } from './routes/api/public/hooks/intervals-sync'
-import { Route as ApiPublicHooksIntervalsDetectRouteImport } from './routes/api/public/hooks/intervals-detect'
-import { Route as ApiPublicHooksFtpReprocessRouteImport } from './routes/api/public/hooks/ftp-reprocess'
-import { Route as ApiPublicHooksDailyAdjustRouteImport } from './routes/api/public/hooks/daily-adjust'
-import { Route as ApiPublicHooksActivityDetectRouteImport } from './routes/api/public/hooks/activity-detect'
-import { Route as ApiPublicHammerheadWebhookRouteImport } from './routes/api/public/hammerhead/webhook'
+import { Route as AuthenticatedCompeticionesIndexRouteImport } from './routes/_authenticated/competiciones.index'
+import { Route as AuthenticatedCompeticionesIdRouteImport } from './routes/_authenticated/competiciones.$id'
+import { Route as AuthGarminCallbackRouteImport } from './routes/auth/garmin/callback'
+import { Route as AuthHammerheadCallbackRouteImport } from './routes/auth/hammerhead/callback'
+import { Route as AuthIntervalsCallbackRouteImport } from './routes/auth/intervals/callback'
+import { Route as AuthStravaCallbackRouteImport } from './routes/auth/strava/callback'
+import { Route as AuthWahooCallbackRouteImport } from './routes/auth/wahoo/callback'
 import { Route as ApiPublicGarminWebhookRouteImport } from './routes/api/public/garmin/webhook'
+import { Route as ApiPublicHammerheadWebhookRouteImport } from './routes/api/public/hammerhead/webhook'
+import { Route as ApiPublicHooksActivityDetectRouteImport } from './routes/api/public/hooks/activity-detect'
+import { Route as ApiPublicHooksDailyAdjustRouteImport } from './routes/api/public/hooks/daily-adjust'
+import { Route as ApiPublicHooksFtpReprocessRouteImport } from './routes/api/public/hooks/ftp-reprocess'
+import { Route as ApiPublicHooksIntervalsDetectRouteImport } from './routes/api/public/hooks/intervals-detect'
+import { Route as ApiPublicHooksIntervalsSyncRouteImport } from './routes/api/public/hooks/intervals-sync'
+import { Route as ApiPublicHooksReadinessPushRouteImport } from './routes/api/public/hooks/readiness-push'
+import { Route as ApiPublicHooksWeeklyWorkoutsRouteImport } from './routes/api/public/hooks/weekly-workouts'
+import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
+import { Route as ApiPublicWahooWebhookRouteImport } from './routes/api/public/wahoo/webhook'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RegistroRoute = RegistroRouteImport.update({
-  id: '/registro',
-  path: '/registro',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RecuperarRoute = RecuperarRouteImport.update({
-  id: '/recuperar',
-  path: '/recuperar',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacidadRoute = PrivacidadRouteImport.update({
-  id: '/privacidad',
-  path: '/privacidad',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OfflineRoute = OfflineRouteImport.update({
@@ -77,53 +67,49 @@ const OfflineRoute = OfflineRouteImport.update({
   path: '/offline',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
+const PrivacidadRoute = PrivacidadRouteImport.update({
+  id: '/privacidad',
+  path: '/privacidad',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const RecuperarRoute = RecuperarRouteImport.update({
+  id: '/recuperar',
+  path: '/recuperar',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthIndexRoute = AuthIndexRouteImport.update({
-  id: '/auth/',
-  path: '/auth/',
+const RegistroRoute = RegistroRouteImport.update({
+  id: '/registro',
+  path: '/registro',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedSemanasRoute = AuthenticatedSemanasRouteImport.update({
-  id: '/semanas',
-  path: '/semanas',
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAjustesRoute = AuthenticatedAjustesRouteImport.update({
+  id: '/ajustes',
+  path: '/ajustes',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedReadinessRoute = AuthenticatedReadinessRouteImport.update({
-  id: '/readiness',
-  path: '/readiness',
+const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
+  id: '/app',
+  path: '/app',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedProgresoRoute = AuthenticatedProgresoRouteImport.update({
-  id: '/progreso',
-  path: '/progreso',
+const AuthenticatedBackendRoute = AuthenticatedBackendRouteImport.update({
+  id: '/backend',
+  path: '/backend',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
-  id: '/perfil',
-  path: '/perfil',
+const AuthenticatedBalizaRoute = AuthenticatedBalizaRouteImport.update({
+  id: '/baliza',
+  path: '/baliza',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedMiBiciRoute = AuthenticatedMiBiciRouteImport.update({
-  id: '/mi-bici',
-  path: '/mi-bici',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedMenusRoute = AuthenticatedMenusRouteImport.update({
-  id: '/menus',
-  path: '/menus',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedFtpTestRoute = AuthenticatedFtpTestRouteImport.update({
-  id: '/ftp-test',
-  path: '/ftp-test',
+const AuthenticatedCalendarioRoute = AuthenticatedCalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedEntrenamientosRoute =
@@ -132,67 +118,50 @@ const AuthenticatedEntrenamientosRoute =
     path: '/entrenamientos',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedCalendarioRoute = AuthenticatedCalendarioRouteImport.update({
-  id: '/calendario',
-  path: '/calendario',
+const AuthenticatedFtpTestRoute = AuthenticatedFtpTestRouteImport.update({
+  id: '/ftp-test',
+  path: '/ftp-test',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedBackendRoute = AuthenticatedBackendRouteImport.update({
-  id: '/backend',
-  path: '/backend',
+const AuthenticatedMenusRoute = AuthenticatedMenusRouteImport.update({
+  id: '/menus',
+  path: '/menus',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
-  id: '/app',
-  path: '/app',
+const AuthenticatedMiBiciRoute = AuthenticatedMiBiciRouteImport.update({
+  id: '/mi-bici',
+  path: '/mi-bici',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAjustesRoute = AuthenticatedAjustesRouteImport.update({
-  id: '/ajustes',
-  path: '/ajustes',
+const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedCompeticionesIndexRoute =
-  AuthenticatedCompeticionesIndexRouteImport.update({
-    id: '/competiciones/',
-    path: '/competiciones/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
+const AuthenticatedProgresoRoute = AuthenticatedProgresoRouteImport.update({
+  id: '/progreso',
+  path: '/progreso',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReadinessRoute = AuthenticatedReadinessRouteImport.update({
+  id: '/readiness',
+  path: '/readiness',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSemanasRoute = AuthenticatedSemanasRouteImport.update({
+  id: '/semanas',
+  path: '/semanas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthIndexRoute = AuthIndexRouteImport.update({
+  id: '/auth/',
+  path: '/auth/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedActividadesIndexRoute =
   AuthenticatedActividadesIndexRouteImport.update({
     id: '/actividades/',
     path: '/actividades/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthWahooCallbackRoute = AuthWahooCallbackRouteImport.update({
-  id: '/auth/wahoo/callback',
-  path: '/auth/wahoo/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthStravaCallbackRoute = AuthStravaCallbackRouteImport.update({
-  id: '/auth/strava/callback',
-  path: '/auth/strava/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthIntervalsCallbackRoute = AuthIntervalsCallbackRouteImport.update({
-  id: '/auth/intervals/callback',
-  path: '/auth/intervals/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthHammerheadCallbackRoute = AuthHammerheadCallbackRouteImport.update({
-  id: '/auth/hammerhead/callback',
-  path: '/auth/hammerhead/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthGarminCallbackRoute = AuthGarminCallbackRouteImport.update({
-  id: '/auth/garmin/callback',
-  path: '/auth/garmin/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedCompeticionesIdRoute =
-  AuthenticatedCompeticionesIdRouteImport.update({
-    id: '/competiciones/$id',
-    path: '/competiciones/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedActividadesIdRoute =
@@ -201,61 +170,52 @@ const AuthenticatedActividadesIdRoute =
     path: '/actividades/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
-  id: '/lovable/email/auth/webhook',
-  path: '/lovable/email/auth/webhook',
+const AuthenticatedCompeticionesIndexRoute =
+  AuthenticatedCompeticionesIndexRouteImport.update({
+    id: '/competiciones/',
+    path: '/competiciones/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCompeticionesIdRoute =
+  AuthenticatedCompeticionesIdRouteImport.update({
+    id: '/competiciones/$id',
+    path: '/competiciones/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthGarminCallbackRoute = AuthGarminCallbackRouteImport.update({
+  id: '/auth/garmin/callback',
+  path: '/auth/garmin/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
-  id: '/lovable/email/auth/preview',
-  path: '/lovable/email/auth/preview',
+const AuthHammerheadCallbackRoute = AuthHammerheadCallbackRouteImport.update({
+  id: '/auth/hammerhead/callback',
+  path: '/auth/hammerhead/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicWahooWebhookRoute = ApiPublicWahooWebhookRouteImport.update({
-  id: '/api/public/wahoo/webhook',
-  path: '/api/public/wahoo/webhook',
+const AuthIntervalsCallbackRoute = AuthIntervalsCallbackRouteImport.update({
+  id: '/auth/intervals/callback',
+  path: '/auth/intervals/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicTelegramWebhookRoute =
-  ApiPublicTelegramWebhookRouteImport.update({
-    id: '/api/public/telegram/webhook',
-    path: '/api/public/telegram/webhook',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksWeeklyWorkoutsRoute =
-  ApiPublicHooksWeeklyWorkoutsRouteImport.update({
-    id: '/api/public/hooks/weekly-workouts',
-    path: '/api/public/hooks/weekly-workouts',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksReadinessPushRoute =
-  ApiPublicHooksReadinessPushRouteImport.update({
-    id: '/api/public/hooks/readiness-push',
-    path: '/api/public/hooks/readiness-push',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksIntervalsSyncRoute =
-  ApiPublicHooksIntervalsSyncRouteImport.update({
-    id: '/api/public/hooks/intervals-sync',
-    path: '/api/public/hooks/intervals-sync',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksIntervalsDetectRoute =
-  ApiPublicHooksIntervalsDetectRouteImport.update({
-    id: '/api/public/hooks/intervals-detect',
-    path: '/api/public/hooks/intervals-detect',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksFtpReprocessRoute =
-  ApiPublicHooksFtpReprocessRouteImport.update({
-    id: '/api/public/hooks/ftp-reprocess',
-    path: '/api/public/hooks/ftp-reprocess',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicHooksDailyAdjustRoute =
-  ApiPublicHooksDailyAdjustRouteImport.update({
-    id: '/api/public/hooks/daily-adjust',
-    path: '/api/public/hooks/daily-adjust',
+const AuthStravaCallbackRoute = AuthStravaCallbackRouteImport.update({
+  id: '/auth/strava/callback',
+  path: '/auth/strava/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthWahooCallbackRoute = AuthWahooCallbackRouteImport.update({
+  id: '/auth/wahoo/callback',
+  path: '/auth/wahoo/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicGarminWebhookRoute = ApiPublicGarminWebhookRouteImport.update({
+  id: '/api/public/garmin/webhook',
+  path: '/api/public/garmin/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHammerheadWebhookRoute =
+  ApiPublicHammerheadWebhookRouteImport.update({
+    id: '/api/public/hammerhead/webhook',
+    path: '/api/public/hammerhead/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicHooksActivityDetectRoute =
@@ -264,15 +224,61 @@ const ApiPublicHooksActivityDetectRoute =
     path: '/api/public/hooks/activity-detect',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicHammerheadWebhookRoute =
-  ApiPublicHammerheadWebhookRouteImport.update({
-    id: '/api/public/hammerhead/webhook',
-    path: '/api/public/hammerhead/webhook',
+const ApiPublicHooksDailyAdjustRoute =
+  ApiPublicHooksDailyAdjustRouteImport.update({
+    id: '/api/public/hooks/daily-adjust',
+    path: '/api/public/hooks/daily-adjust',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicGarminWebhookRoute = ApiPublicGarminWebhookRouteImport.update({
-  id: '/api/public/garmin/webhook',
-  path: '/api/public/garmin/webhook',
+const ApiPublicHooksFtpReprocessRoute =
+  ApiPublicHooksFtpReprocessRouteImport.update({
+    id: '/api/public/hooks/ftp-reprocess',
+    path: '/api/public/hooks/ftp-reprocess',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksIntervalsDetectRoute =
+  ApiPublicHooksIntervalsDetectRouteImport.update({
+    id: '/api/public/hooks/intervals-detect',
+    path: '/api/public/hooks/intervals-detect',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksIntervalsSyncRoute =
+  ApiPublicHooksIntervalsSyncRouteImport.update({
+    id: '/api/public/hooks/intervals-sync',
+    path: '/api/public/hooks/intervals-sync',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksReadinessPushRoute =
+  ApiPublicHooksReadinessPushRouteImport.update({
+    id: '/api/public/hooks/readiness-push',
+    path: '/api/public/hooks/readiness-push',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksWeeklyWorkoutsRoute =
+  ApiPublicHooksWeeklyWorkoutsRouteImport.update({
+    id: '/api/public/hooks/weekly-workouts',
+    path: '/api/public/hooks/weekly-workouts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicTelegramWebhookRoute =
+  ApiPublicTelegramWebhookRouteImport.update({
+    id: '/api/public/telegram/webhook',
+    path: '/api/public/telegram/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicWahooWebhookRoute = ApiPublicWahooWebhookRouteImport.update({
+  id: '/api/public/wahoo/webhook',
+  path: '/api/public/wahoo/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -286,6 +292,7 @@ export interface FileRoutesByFullPath {
   '/ajustes': typeof AuthenticatedAjustesRoute
   '/app': typeof AuthenticatedAppRoute
   '/backend': typeof AuthenticatedBackendRoute
+  '/baliza': typeof AuthenticatedBalizaRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/entrenamientos': typeof AuthenticatedEntrenamientosRoute
   '/ftp-test': typeof AuthenticatedFtpTestRoute
@@ -329,6 +336,7 @@ export interface FileRoutesByTo {
   '/ajustes': typeof AuthenticatedAjustesRoute
   '/app': typeof AuthenticatedAppRoute
   '/backend': typeof AuthenticatedBackendRoute
+  '/baliza': typeof AuthenticatedBalizaRoute
   '/calendario': typeof AuthenticatedCalendarioRoute
   '/entrenamientos': typeof AuthenticatedEntrenamientosRoute
   '/ftp-test': typeof AuthenticatedFtpTestRoute
@@ -374,6 +382,7 @@ export interface FileRoutesById {
   '/_authenticated/ajustes': typeof AuthenticatedAjustesRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/backend': typeof AuthenticatedBackendRoute
+  '/_authenticated/baliza': typeof AuthenticatedBalizaRoute
   '/_authenticated/calendario': typeof AuthenticatedCalendarioRoute
   '/_authenticated/entrenamientos': typeof AuthenticatedEntrenamientosRoute
   '/_authenticated/ftp-test': typeof AuthenticatedFtpTestRoute
@@ -419,6 +428,7 @@ export interface FileRouteTypes {
     | '/ajustes'
     | '/app'
     | '/backend'
+    | '/baliza'
     | '/calendario'
     | '/entrenamientos'
     | '/ftp-test'
@@ -462,6 +472,7 @@ export interface FileRouteTypes {
     | '/ajustes'
     | '/app'
     | '/backend'
+    | '/baliza'
     | '/calendario'
     | '/entrenamientos'
     | '/ftp-test'
@@ -506,6 +517,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ajustes'
     | '/_authenticated/app'
     | '/_authenticated/backend'
+    | '/_authenticated/baliza'
     | '/_authenticated/calendario'
     | '/_authenticated/entrenamientos'
     | '/_authenticated/ftp-test'
@@ -571,39 +583,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/registro': {
-      id: '/registro'
-      path: '/registro'
-      fullPath: '/registro'
-      preLoaderRoute: typeof RegistroRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/recuperar': {
-      id: '/recuperar'
-      path: '/recuperar'
-      fullPath: '/recuperar'
-      preLoaderRoute: typeof RecuperarRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacidad': {
-      id: '/privacidad'
-      path: '/privacidad'
-      fullPath: '/privacidad'
-      preLoaderRoute: typeof PrivacidadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/offline': {
-      id: '/offline'
-      path: '/offline'
-      fullPath: '/offline'
-      preLoaderRoute: typeof OfflineRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -613,88 +597,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/offline': {
+      id: '/offline'
+      path: '/offline'
+      fullPath: '/offline'
+      preLoaderRoute: typeof OfflineRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/': {
-      id: '/auth/'
-      path: '/auth'
-      fullPath: '/auth/'
-      preLoaderRoute: typeof AuthIndexRouteImport
+    '/privacidad': {
+      id: '/privacidad'
+      path: '/privacidad'
+      fullPath: '/privacidad'
+      preLoaderRoute: typeof PrivacidadRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/semanas': {
-      id: '/_authenticated/semanas'
-      path: '/semanas'
-      fullPath: '/semanas'
-      preLoaderRoute: typeof AuthenticatedSemanasRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/recuperar': {
+      id: '/recuperar'
+      path: '/recuperar'
+      fullPath: '/recuperar'
+      preLoaderRoute: typeof RecuperarRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/readiness': {
-      id: '/_authenticated/readiness'
-      path: '/readiness'
-      fullPath: '/readiness'
-      preLoaderRoute: typeof AuthenticatedReadinessRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/registro': {
+      id: '/registro'
+      path: '/registro'
+      fullPath: '/registro'
+      preLoaderRoute: typeof RegistroRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/progreso': {
-      id: '/_authenticated/progreso'
-      path: '/progreso'
-      fullPath: '/progreso'
-      preLoaderRoute: typeof AuthenticatedProgresoRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/perfil': {
-      id: '/_authenticated/perfil'
-      path: '/perfil'
-      fullPath: '/perfil'
-      preLoaderRoute: typeof AuthenticatedPerfilRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/mi-bici': {
-      id: '/_authenticated/mi-bici'
-      path: '/mi-bici'
-      fullPath: '/mi-bici'
-      preLoaderRoute: typeof AuthenticatedMiBiciRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/menus': {
-      id: '/_authenticated/menus'
-      path: '/menus'
-      fullPath: '/menus'
-      preLoaderRoute: typeof AuthenticatedMenusRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/ftp-test': {
-      id: '/_authenticated/ftp-test'
-      path: '/ftp-test'
-      fullPath: '/ftp-test'
-      preLoaderRoute: typeof AuthenticatedFtpTestRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/entrenamientos': {
-      id: '/_authenticated/entrenamientos'
-      path: '/entrenamientos'
-      fullPath: '/entrenamientos'
-      preLoaderRoute: typeof AuthenticatedEntrenamientosRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/calendario': {
-      id: '/_authenticated/calendario'
-      path: '/calendario'
-      fullPath: '/calendario'
-      preLoaderRoute: typeof AuthenticatedCalendarioRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/backend': {
-      id: '/_authenticated/backend'
-      path: '/backend'
-      fullPath: '/backend'
-      preLoaderRoute: typeof AuthenticatedBackendRouteImport
+    '/_authenticated/ajustes': {
+      id: '/_authenticated/ajustes'
+      path: '/ajustes'
+      fullPath: '/ajustes'
+      preLoaderRoute: typeof AuthenticatedAjustesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/app': {
@@ -704,67 +646,95 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/ajustes': {
-      id: '/_authenticated/ajustes'
-      path: '/ajustes'
-      fullPath: '/ajustes'
-      preLoaderRoute: typeof AuthenticatedAjustesRouteImport
+    '/_authenticated/backend': {
+      id: '/_authenticated/backend'
+      path: '/backend'
+      fullPath: '/backend'
+      preLoaderRoute: typeof AuthenticatedBackendRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/competiciones/': {
-      id: '/_authenticated/competiciones/'
-      path: '/competiciones'
-      fullPath: '/competiciones/'
-      preLoaderRoute: typeof AuthenticatedCompeticionesIndexRouteImport
+    '/_authenticated/baliza': {
+      id: '/_authenticated/baliza'
+      path: '/baliza'
+      fullPath: '/baliza'
+      preLoaderRoute: typeof AuthenticatedBalizaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/calendario': {
+      id: '/_authenticated/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof AuthenticatedCalendarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/entrenamientos': {
+      id: '/_authenticated/entrenamientos'
+      path: '/entrenamientos'
+      fullPath: '/entrenamientos'
+      preLoaderRoute: typeof AuthenticatedEntrenamientosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ftp-test': {
+      id: '/_authenticated/ftp-test'
+      path: '/ftp-test'
+      fullPath: '/ftp-test'
+      preLoaderRoute: typeof AuthenticatedFtpTestRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/menus': {
+      id: '/_authenticated/menus'
+      path: '/menus'
+      fullPath: '/menus'
+      preLoaderRoute: typeof AuthenticatedMenusRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mi-bici': {
+      id: '/_authenticated/mi-bici'
+      path: '/mi-bici'
+      fullPath: '/mi-bici'
+      preLoaderRoute: typeof AuthenticatedMiBiciRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/perfil': {
+      id: '/_authenticated/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof AuthenticatedPerfilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/progreso': {
+      id: '/_authenticated/progreso'
+      path: '/progreso'
+      fullPath: '/progreso'
+      preLoaderRoute: typeof AuthenticatedProgresoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/readiness': {
+      id: '/_authenticated/readiness'
+      path: '/readiness'
+      fullPath: '/readiness'
+      preLoaderRoute: typeof AuthenticatedReadinessRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/semanas': {
+      id: '/_authenticated/semanas'
+      path: '/semanas'
+      fullPath: '/semanas'
+      preLoaderRoute: typeof AuthenticatedSemanasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/auth/': {
+      id: '/auth/'
+      path: '/auth'
+      fullPath: '/auth/'
+      preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/actividades/': {
       id: '/_authenticated/actividades/'
       path: '/actividades'
       fullPath: '/actividades/'
       preLoaderRoute: typeof AuthenticatedActividadesIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/auth/wahoo/callback': {
-      id: '/auth/wahoo/callback'
-      path: '/auth/wahoo/callback'
-      fullPath: '/auth/wahoo/callback'
-      preLoaderRoute: typeof AuthWahooCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/strava/callback': {
-      id: '/auth/strava/callback'
-      path: '/auth/strava/callback'
-      fullPath: '/auth/strava/callback'
-      preLoaderRoute: typeof AuthStravaCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/intervals/callback': {
-      id: '/auth/intervals/callback'
-      path: '/auth/intervals/callback'
-      fullPath: '/auth/intervals/callback'
-      preLoaderRoute: typeof AuthIntervalsCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/hammerhead/callback': {
-      id: '/auth/hammerhead/callback'
-      path: '/auth/hammerhead/callback'
-      fullPath: '/auth/hammerhead/callback'
-      preLoaderRoute: typeof AuthHammerheadCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth/garmin/callback': {
-      id: '/auth/garmin/callback'
-      path: '/auth/garmin/callback'
-      fullPath: '/auth/garmin/callback'
-      preLoaderRoute: typeof AuthGarminCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/competiciones/$id': {
-      id: '/_authenticated/competiciones/$id'
-      path: '/competiciones/$id'
-      fullPath: '/competiciones/$id'
-      preLoaderRoute: typeof AuthenticatedCompeticionesIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/actividades/$id': {
@@ -774,88 +744,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedActividadesIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/lovable/email/auth/webhook': {
-      id: '/lovable/email/auth/webhook'
-      path: '/lovable/email/auth/webhook'
-      fullPath: '/lovable/email/auth/webhook'
-      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+    '/_authenticated/competiciones/': {
+      id: '/_authenticated/competiciones/'
+      path: '/competiciones'
+      fullPath: '/competiciones/'
+      preLoaderRoute: typeof AuthenticatedCompeticionesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/competiciones/$id': {
+      id: '/_authenticated/competiciones/$id'
+      path: '/competiciones/$id'
+      fullPath: '/competiciones/$id'
+      preLoaderRoute: typeof AuthenticatedCompeticionesIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/auth/garmin/callback': {
+      id: '/auth/garmin/callback'
+      path: '/auth/garmin/callback'
+      fullPath: '/auth/garmin/callback'
+      preLoaderRoute: typeof AuthGarminCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lovable/email/auth/preview': {
-      id: '/lovable/email/auth/preview'
-      path: '/lovable/email/auth/preview'
-      fullPath: '/lovable/email/auth/preview'
-      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+    '/auth/hammerhead/callback': {
+      id: '/auth/hammerhead/callback'
+      path: '/auth/hammerhead/callback'
+      fullPath: '/auth/hammerhead/callback'
+      preLoaderRoute: typeof AuthHammerheadCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/wahoo/webhook': {
-      id: '/api/public/wahoo/webhook'
-      path: '/api/public/wahoo/webhook'
-      fullPath: '/api/public/wahoo/webhook'
-      preLoaderRoute: typeof ApiPublicWahooWebhookRouteImport
+    '/auth/intervals/callback': {
+      id: '/auth/intervals/callback'
+      path: '/auth/intervals/callback'
+      fullPath: '/auth/intervals/callback'
+      preLoaderRoute: typeof AuthIntervalsCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/telegram/webhook': {
-      id: '/api/public/telegram/webhook'
-      path: '/api/public/telegram/webhook'
-      fullPath: '/api/public/telegram/webhook'
-      preLoaderRoute: typeof ApiPublicTelegramWebhookRouteImport
+    '/auth/strava/callback': {
+      id: '/auth/strava/callback'
+      path: '/auth/strava/callback'
+      fullPath: '/auth/strava/callback'
+      preLoaderRoute: typeof AuthStravaCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/weekly-workouts': {
-      id: '/api/public/hooks/weekly-workouts'
-      path: '/api/public/hooks/weekly-workouts'
-      fullPath: '/api/public/hooks/weekly-workouts'
-      preLoaderRoute: typeof ApiPublicHooksWeeklyWorkoutsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/readiness-push': {
-      id: '/api/public/hooks/readiness-push'
-      path: '/api/public/hooks/readiness-push'
-      fullPath: '/api/public/hooks/readiness-push'
-      preLoaderRoute: typeof ApiPublicHooksReadinessPushRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/intervals-sync': {
-      id: '/api/public/hooks/intervals-sync'
-      path: '/api/public/hooks/intervals-sync'
-      fullPath: '/api/public/hooks/intervals-sync'
-      preLoaderRoute: typeof ApiPublicHooksIntervalsSyncRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/intervals-detect': {
-      id: '/api/public/hooks/intervals-detect'
-      path: '/api/public/hooks/intervals-detect'
-      fullPath: '/api/public/hooks/intervals-detect'
-      preLoaderRoute: typeof ApiPublicHooksIntervalsDetectRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/ftp-reprocess': {
-      id: '/api/public/hooks/ftp-reprocess'
-      path: '/api/public/hooks/ftp-reprocess'
-      fullPath: '/api/public/hooks/ftp-reprocess'
-      preLoaderRoute: typeof ApiPublicHooksFtpReprocessRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/daily-adjust': {
-      id: '/api/public/hooks/daily-adjust'
-      path: '/api/public/hooks/daily-adjust'
-      fullPath: '/api/public/hooks/daily-adjust'
-      preLoaderRoute: typeof ApiPublicHooksDailyAdjustRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/activity-detect': {
-      id: '/api/public/hooks/activity-detect'
-      path: '/api/public/hooks/activity-detect'
-      fullPath: '/api/public/hooks/activity-detect'
-      preLoaderRoute: typeof ApiPublicHooksActivityDetectRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hammerhead/webhook': {
-      id: '/api/public/hammerhead/webhook'
-      path: '/api/public/hammerhead/webhook'
-      fullPath: '/api/public/hammerhead/webhook'
-      preLoaderRoute: typeof ApiPublicHammerheadWebhookRouteImport
+    '/auth/wahoo/callback': {
+      id: '/auth/wahoo/callback'
+      path: '/auth/wahoo/callback'
+      fullPath: '/auth/wahoo/callback'
+      preLoaderRoute: typeof AuthWahooCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/garmin/webhook': {
@@ -865,6 +800,90 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicGarminWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hammerhead/webhook': {
+      id: '/api/public/hammerhead/webhook'
+      path: '/api/public/hammerhead/webhook'
+      fullPath: '/api/public/hammerhead/webhook'
+      preLoaderRoute: typeof ApiPublicHammerheadWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/activity-detect': {
+      id: '/api/public/hooks/activity-detect'
+      path: '/api/public/hooks/activity-detect'
+      fullPath: '/api/public/hooks/activity-detect'
+      preLoaderRoute: typeof ApiPublicHooksActivityDetectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/daily-adjust': {
+      id: '/api/public/hooks/daily-adjust'
+      path: '/api/public/hooks/daily-adjust'
+      fullPath: '/api/public/hooks/daily-adjust'
+      preLoaderRoute: typeof ApiPublicHooksDailyAdjustRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/ftp-reprocess': {
+      id: '/api/public/hooks/ftp-reprocess'
+      path: '/api/public/hooks/ftp-reprocess'
+      fullPath: '/api/public/hooks/ftp-reprocess'
+      preLoaderRoute: typeof ApiPublicHooksFtpReprocessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/intervals-detect': {
+      id: '/api/public/hooks/intervals-detect'
+      path: '/api/public/hooks/intervals-detect'
+      fullPath: '/api/public/hooks/intervals-detect'
+      preLoaderRoute: typeof ApiPublicHooksIntervalsDetectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/intervals-sync': {
+      id: '/api/public/hooks/intervals-sync'
+      path: '/api/public/hooks/intervals-sync'
+      fullPath: '/api/public/hooks/intervals-sync'
+      preLoaderRoute: typeof ApiPublicHooksIntervalsSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/readiness-push': {
+      id: '/api/public/hooks/readiness-push'
+      path: '/api/public/hooks/readiness-push'
+      fullPath: '/api/public/hooks/readiness-push'
+      preLoaderRoute: typeof ApiPublicHooksReadinessPushRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/weekly-workouts': {
+      id: '/api/public/hooks/weekly-workouts'
+      path: '/api/public/hooks/weekly-workouts'
+      fullPath: '/api/public/hooks/weekly-workouts'
+      preLoaderRoute: typeof ApiPublicHooksWeeklyWorkoutsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/telegram/webhook': {
+      id: '/api/public/telegram/webhook'
+      path: '/api/public/telegram/webhook'
+      fullPath: '/api/public/telegram/webhook'
+      preLoaderRoute: typeof ApiPublicTelegramWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/wahoo/webhook': {
+      id: '/api/public/wahoo/webhook'
+      path: '/api/public/wahoo/webhook'
+      fullPath: '/api/public/wahoo/webhook'
+      preLoaderRoute: typeof ApiPublicWahooWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -872,6 +891,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAjustesRoute: typeof AuthenticatedAjustesRoute
   AuthenticatedAppRoute: typeof AuthenticatedAppRoute
   AuthenticatedBackendRoute: typeof AuthenticatedBackendRoute
+  AuthenticatedBalizaRoute: typeof AuthenticatedBalizaRoute
   AuthenticatedCalendarioRoute: typeof AuthenticatedCalendarioRoute
   AuthenticatedEntrenamientosRoute: typeof AuthenticatedEntrenamientosRoute
   AuthenticatedFtpTestRoute: typeof AuthenticatedFtpTestRoute
@@ -891,6 +911,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAjustesRoute: AuthenticatedAjustesRoute,
   AuthenticatedAppRoute: AuthenticatedAppRoute,
   AuthenticatedBackendRoute: AuthenticatedBackendRoute,
+  AuthenticatedBalizaRoute: AuthenticatedBalizaRoute,
   AuthenticatedCalendarioRoute: AuthenticatedCalendarioRoute,
   AuthenticatedEntrenamientosRoute: AuthenticatedEntrenamientosRoute,
   AuthenticatedFtpTestRoute: AuthenticatedFtpTestRoute,
