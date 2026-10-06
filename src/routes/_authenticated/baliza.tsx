@@ -26,6 +26,15 @@ export const Route = createFileRoute("/_authenticated/baliza")({
 
 type Beacon = { id: string; share_token: string; status: string; expires_at: string; last_seen_at: string | null };
 const MIN_INTERVAL_MS = 15000;
+const STILL_RADIUS_M = 30;
+const STILL_LIMIT_MS = 5 * 60 * 1000;
+const STILL_COUNTDOWN_S = 60;
+function distM(a: { lat: number; lon: number }, b: { lat: number; lon: number }) {
+  const R = 6371000, r = Math.PI / 180;
+  const dLat = (b.lat - a.lat) * r, dLon = (b.lon - a.lon) * r;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
 
 function BeaconPage() {
   const { user } = useAuth();
@@ -37,6 +46,8 @@ function BeaconPage() {
   const watchId = useRef<number | null>(null);
   const lastSaved = useRef(0);
   const flushing = useRef(false);
+  const anchor = useRef<{ lat: number; lon: number; t: number } | null>(null);
+  const [stillCountdown, setStillCountdown] = useState<number | null>(null);
 
   // Cargar baliza activa existente
   useEffect(() => {
@@ -84,6 +95,11 @@ function BeaconPage() {
     watchId.current = navigator.geolocation.watchPosition(
       async (p) => {
         setPos(p); setGpsError(null);
+        const here = { lat: p.coords.latitude, lon: p.coords.longitude };
+        if (!anchor.current || distM(anchor.current, here) > STILL_RADIUS_M) {
+          anchor.current = { ...here, t: Date.now() };
+          setStillCountdown(null);
+        }
         const now = Date.now();
         if (now - lastSaved.current < MIN_INTERVAL_MS) return;
         lastSaved.current = now;
@@ -125,6 +141,27 @@ function BeaconPage() {
     if (status === "sos") toast.warning(tr("SOS activado"));
   };
 
+  // Detección de inmovilidad: sin moverse > 30 m durante 5 min → aviso y SOS automático a los 60 s
+  useEffect(() => {
+    if (beacon?.status !== "active") { setStillCountdown(null); anchor.current = null; return; }
+    const t = setInterval(() => {
+      if (anchor.current && stillCountdown == null && Date.now() - anchor.current.t > STILL_LIMIT_MS) {
+        setStillCountdown(STILL_COUNTDOWN_S);
+        navigator.vibrate?.([400, 200, 400]);
+      }
+    }, 10000);
+    return () => clearInterval(t);
+  }, [beacon?.status, stillCountdown]);
+
+  useEffect(() => {
+    if (stillCountdown == null) return;
+    if (stillCountdown <= 0) { setStillCountdown(null); setStatus("sos"); return; }
+    const t = setTimeout(() => setStillCountdown((c) => (c == null ? c : c - 1)), 1000);
+    return () => clearTimeout(t);
+  }, [stillCountdown]);
+
+  const imOk = () => { anchor.current = anchor.current && { ...anchor.current, t: Date.now() }; setStillCountdown(null); };
+
   const shareUrl = beacon ? `${window.location.origin}/b/${beacon.share_token}` : "";
 
   return (
@@ -165,6 +202,20 @@ function BeaconPage() {
                 <Input readOnly value={shareUrl} />
                 <Button variant="outline" size="icon" onClick={() => { navigator.clipboard.writeText(shareUrl); toast.success(tr("Enlace copiado")); }}><Copy className="size-4" /></Button>
               </div>
+
+              <Button asChild className="w-full bg-[#25D366] hover:bg-[#1ebe5b] text-white">
+                <a href={`https://wa.me/?text=${encodeURIComponent((beacon.status === "sos" ? tr("¡SOS! Necesito ayuda. Mi posición en directo:") : tr("Sigue mi salida en directo:")) + " " + shareUrl)}`} target="_blank" rel="noopener noreferrer">
+                  {tr("Compartir por WhatsApp")}
+                </a>
+              </Button>
+
+              {stillCountdown != null && (
+                <div role="alert" className="rounded-lg border-2 border-destructive bg-destructive/10 p-4 space-y-3 text-center">
+                  <p className="font-semibold">{tr("Llevas 5 minutos sin moverte. ¿Estás bien?")}</p>
+                  <p className="text-sm text-muted-foreground">{tr("Se activará el SOS en")} {stillCountdown} s</p>
+                  <Button className="w-full" size="lg" onClick={imOk}>{tr("Estoy bien")}</Button>
+                </div>
+              )}
 
               <div className="grid grid-cols-3 gap-2">
                 {beacon.status === "paused"
