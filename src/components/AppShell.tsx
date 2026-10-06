@@ -23,6 +23,7 @@ import {
   Bike,
   Plus,
   Minus,
+  Radio,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -47,6 +48,7 @@ const ANALYSIS_NAV = [
 const GENERAL_NAV = [
   { to: "/competiciones", label: "nav.routes", icon: Trophy },
   { to: "/mi-bici", label: "nav.bike", icon: Bike },
+  { to: "/baliza", label: "nav.beacon", icon: Radio },
   { to: "/perfil", label: "nav.profile", icon: User },
   { to: "/ajustes", label: "nav.settings", icon: Settings },
 ] as const;
@@ -54,7 +56,7 @@ const MORE_GROUPS = [
   { label: "nav.group.training", items: TRAINING_NAV },
   { label: "nav.group.analysis", items: ANALYSIS_NAV },
 ] as const;
-const BOTTOM_NAV = [HOME, GENERAL_NAV[2], TRAINING_NAV[0], TRAINING_NAV[1]] as const;
+const BOTTOM_NAV = [HOME, GENERAL_NAV[3], TRAINING_NAV[0], TRAINING_NAV[1]] as const;
 
 function TourButton({ onClick }: { onClick?: () => void }) {
   const { t } = useI18n();
