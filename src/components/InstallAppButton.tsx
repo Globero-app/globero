@@ -2,6 +2,8 @@ import { tr } from "@/lib/i18n";import { useEffect, useState } from "react";
 import { Download, Share, Plus, X, Smartphone } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
+const APK_URL = import.meta.env.VITE_ANDROID_APK_URL || "https://github.com/miguelgarcia/globero/releases/latest/download/globero.apk";
+
 type BIPEvent = Event & {
   prompt: () => Promise<void>;
   userChoice: Promise<{outcome: "accepted" | "dismissed";}>;
@@ -56,7 +58,7 @@ export function InstallAppButton({ variant = "menu" }: {variant?: "menu" | "comp
   if (installed) return null;
 
   const handleClick = async () => {
-    if (deferred) {
+    if (deferred && platform !== "android") {
       await deferred.prompt();
       await deferred.userChoice.catch(() => null);
       setDeferred(null);
@@ -124,6 +126,14 @@ export function InstallAppButton({ variant = "menu" }: {variant?: "menu" | "comp
             </ol>
           }
 
+          {platform === "android" &&
+          <a href={APK_URL} download className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-md bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90">
+              <Download className="size-4" /> {tr("Descargar app Android (APK)")}
+            </a>
+          }
+          {platform === "android" &&
+          <p className="text-xs text-muted-foreground">{tr("Recomendado: la app Android mantiene la baliza activa con la pantalla apagada. Al instalar, permite «orígenes desconocidos». Alternativa sin APK:")}</p>
+          }
           {platform === "android" &&
           <ol className="space-y-3 text-sm">
               <li className="flex gap-3">
