@@ -1532,6 +1532,7 @@ export type Database = {
           prompt_tokens: number
         }[]
       }
+      get_live_beacon: { Args: { _token: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
