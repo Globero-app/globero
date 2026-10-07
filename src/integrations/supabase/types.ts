@@ -536,6 +536,33 @@ export type Database = {
         }
         Relationships: []
       }
+      emergency_contacts: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          notify_on_start: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          notify_on_start?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          notify_on_start?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       error_log: {
         Row: {
           created_at: string
