@@ -88,6 +88,15 @@ function BeaconPage() {
 
   useEffect(() => { if (online) flush(); }, [online, flush]);
   useEffect(() => { const t = setInterval(flush, 30000); return () => clearInterval(t); }, [flush]);
+  // Si la baliza se finaliza automáticamente (actividad detectada), cierra la pantalla
+  useEffect(() => {
+    if (!beacon) return;
+    const t = setInterval(async () => {
+      const { data } = await supabase.from("safety_beacons").select("status").eq("id", beacon.id).maybeSingle();
+      if (data?.status === "ended") { setBeacon(null); toast.info(tr("Actividad finalizada detectada: baliza desactivada")); }
+    }, 30000);
+    return () => clearInterval(t);
+  }, [beacon]);
 
   // Captura GPS mientras la baliza está activa o en SOS
   useEffect(() => {
