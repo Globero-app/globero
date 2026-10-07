@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { useOnlineStatus } from "@/lib/use-online-status";
 import { queuePoint, getQueued, removeQueued, countQueued } from "@/lib/beacon-store";
+import { isNative, startNativeWatch, type GeoFix } from "@/lib/native-geo";
 import { tr } from "@/lib/i18n";
 import { notifyBeaconContacts } from "@/lib/beacon-alerts.functions";
 import { EmergencyContacts } from "@/components/EmergencyContacts";
@@ -98,30 +99,39 @@ function BeaconPage() {
     return () => clearInterval(t);
   }, [beacon]);
 
-  // Captura GPS mientras la baliza está activa o en SOS
+  // Captura GPS mientras la baliza está activa o en SOS (nativo Android en segundo plano o web)
   useEffect(() => {
     const capturing = beacon && (beacon.status === "active" || beacon.status === "sos");
     if (!capturing || !user) return;
+    const onFix = async (c: GeoFix) => {
+      setPos({ coords: { latitude: c.latitude, longitude: c.longitude, accuracy: c.accuracy } } as GeolocationPosition); setGpsError(null);
+      const here = { lat: c.latitude, lon: c.longitude };
+      if (!anchor.current || distM(anchor.current, here) > STILL_RADIUS_M) {
+        anchor.current = { ...here, t: Date.now() };
+        setStillCountdown(null);
+      }
+      const now = Date.now();
+      if (now - lastSaved.current < MIN_INTERVAL_MS) return;
+      lastSaved.current = now;
+      await queuePoint({
+        beacon_id: beacon.id, user_id: user.id, lat: c.latitude, lon: c.longitude,
+        altitude_m: c.altitude, speed_kmh: c.speed != null ? c.speed * 3.6 : null,
+        heading: c.heading, accuracy_m: c.accuracy, recorded_at: new Date(c.timestamp).toISOString(),
+      });
+      setPending(await countQueued());
+      flush();
+    };
+    let stopNative: (() => void) | null = null;
+    let cancelled = false;
+    if (isNative()) {
+      startNativeWatch(onFix, (msg, denied) => setGpsError(denied ? tr("Permiso de ubicación denegado. Actívalo en el navegador.") : msg))
+        .then((stop) => { if (cancelled) stop?.(); else stopNative = stop; })
+        .catch(() => setGpsError(tr("No se puede obtener la ubicación.")));
+      return () => { cancelled = true; stopNative?.(); };
+    }
     if (!("geolocation" in navigator)) { setGpsError(tr("Este dispositivo no tiene GPS disponible.")); return; }
     watchId.current = navigator.geolocation.watchPosition(
-      async (p) => {
-        setPos(p); setGpsError(null);
-        const here = { lat: p.coords.latitude, lon: p.coords.longitude };
-        if (!anchor.current || distM(anchor.current, here) > STILL_RADIUS_M) {
-          anchor.current = { ...here, t: Date.now() };
-          setStillCountdown(null);
-        }
-        const now = Date.now();
-        if (now - lastSaved.current < MIN_INTERVAL_MS) return;
-        lastSaved.current = now;
-        await queuePoint({
-          beacon_id: beacon.id, user_id: user.id, lat: p.coords.latitude, lon: p.coords.longitude,
-          altitude_m: p.coords.altitude, speed_kmh: p.coords.speed != null ? p.coords.speed * 3.6 : null,
-          heading: p.coords.heading, accuracy_m: p.coords.accuracy, recorded_at: new Date(p.timestamp).toISOString(),
-        });
-        setPending(await countQueued());
-        flush();
-      },
+      (p) => onFix({ latitude: p.coords.latitude, longitude: p.coords.longitude, altitude: p.coords.altitude, speed: p.coords.speed, heading: p.coords.heading, accuracy: p.coords.accuracy, timestamp: p.timestamp }),
       (err) => setGpsError(err.code === 1 ? tr("Permiso de ubicación denegado. Actívalo en el navegador.") : tr("No se puede obtener la ubicación.")),
       { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 },
     );
