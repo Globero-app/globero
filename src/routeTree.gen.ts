@@ -43,6 +43,7 @@ import { Route as AuthWahooCallbackRouteImport } from './routes/auth/wahoo/callb
 import { Route as ApiPublicGarminWebhookRouteImport } from './routes/api/public/garmin/webhook'
 import { Route as ApiPublicHammerheadWebhookRouteImport } from './routes/api/public/hammerhead/webhook'
 import { Route as ApiPublicHooksActivityDetectRouteImport } from './routes/api/public/hooks/activity-detect'
+import { Route as ApiPublicHooksBeaconWatchdogRouteImport } from './routes/api/public/hooks/beacon-watchdog'
 import { Route as ApiPublicHooksDailyAdjustRouteImport } from './routes/api/public/hooks/daily-adjust'
 import { Route as ApiPublicHooksFtpReprocessRouteImport } from './routes/api/public/hooks/ftp-reprocess'
 import { Route as ApiPublicHooksIntervalsDetectRouteImport } from './routes/api/public/hooks/intervals-detect'
@@ -230,6 +231,12 @@ const ApiPublicHooksActivityDetectRoute =
     path: '/api/public/hooks/activity-detect',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksBeaconWatchdogRoute =
+  ApiPublicHooksBeaconWatchdogRouteImport.update({
+    id: '/api/public/hooks/beacon-watchdog',
+    path: '/api/public/hooks/beacon-watchdog',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksDailyAdjustRoute =
   ApiPublicHooksDailyAdjustRouteImport.update({
     id: '/api/public/hooks/daily-adjust',
@@ -322,6 +329,7 @@ export interface FileRoutesByFullPath {
   '/api/public/garmin/webhook': typeof ApiPublicGarminWebhookRoute
   '/api/public/hammerhead/webhook': typeof ApiPublicHammerheadWebhookRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
+  '/api/public/hooks/beacon-watchdog': typeof ApiPublicHooksBeaconWatchdogRoute
   '/api/public/hooks/daily-adjust': typeof ApiPublicHooksDailyAdjustRoute
   '/api/public/hooks/ftp-reprocess': typeof ApiPublicHooksFtpReprocessRoute
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
@@ -367,6 +375,7 @@ export interface FileRoutesByTo {
   '/api/public/garmin/webhook': typeof ApiPublicGarminWebhookRoute
   '/api/public/hammerhead/webhook': typeof ApiPublicHammerheadWebhookRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
+  '/api/public/hooks/beacon-watchdog': typeof ApiPublicHooksBeaconWatchdogRoute
   '/api/public/hooks/daily-adjust': typeof ApiPublicHooksDailyAdjustRoute
   '/api/public/hooks/ftp-reprocess': typeof ApiPublicHooksFtpReprocessRoute
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
@@ -414,6 +423,7 @@ export interface FileRoutesById {
   '/api/public/garmin/webhook': typeof ApiPublicGarminWebhookRoute
   '/api/public/hammerhead/webhook': typeof ApiPublicHammerheadWebhookRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
+  '/api/public/hooks/beacon-watchdog': typeof ApiPublicHooksBeaconWatchdogRoute
   '/api/public/hooks/daily-adjust': typeof ApiPublicHooksDailyAdjustRoute
   '/api/public/hooks/ftp-reprocess': typeof ApiPublicHooksFtpReprocessRoute
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
@@ -461,6 +471,7 @@ export interface FileRouteTypes {
     | '/api/public/garmin/webhook'
     | '/api/public/hammerhead/webhook'
     | '/api/public/hooks/activity-detect'
+    | '/api/public/hooks/beacon-watchdog'
     | '/api/public/hooks/daily-adjust'
     | '/api/public/hooks/ftp-reprocess'
     | '/api/public/hooks/intervals-detect'
@@ -506,6 +517,7 @@ export interface FileRouteTypes {
     | '/api/public/garmin/webhook'
     | '/api/public/hammerhead/webhook'
     | '/api/public/hooks/activity-detect'
+    | '/api/public/hooks/beacon-watchdog'
     | '/api/public/hooks/daily-adjust'
     | '/api/public/hooks/ftp-reprocess'
     | '/api/public/hooks/intervals-detect'
@@ -552,6 +564,7 @@ export interface FileRouteTypes {
     | '/api/public/garmin/webhook'
     | '/api/public/hammerhead/webhook'
     | '/api/public/hooks/activity-detect'
+    | '/api/public/hooks/beacon-watchdog'
     | '/api/public/hooks/daily-adjust'
     | '/api/public/hooks/ftp-reprocess'
     | '/api/public/hooks/intervals-detect'
@@ -582,6 +595,7 @@ export interface RootRouteChildren {
   ApiPublicGarminWebhookRoute: typeof ApiPublicGarminWebhookRoute
   ApiPublicHammerheadWebhookRoute: typeof ApiPublicHammerheadWebhookRoute
   ApiPublicHooksActivityDetectRoute: typeof ApiPublicHooksActivityDetectRoute
+  ApiPublicHooksBeaconWatchdogRoute: typeof ApiPublicHooksBeaconWatchdogRoute
   ApiPublicHooksDailyAdjustRoute: typeof ApiPublicHooksDailyAdjustRoute
   ApiPublicHooksFtpReprocessRoute: typeof ApiPublicHooksFtpReprocessRoute
   ApiPublicHooksIntervalsDetectRoute: typeof ApiPublicHooksIntervalsDetectRoute
@@ -834,6 +848,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksActivityDetectRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/beacon-watchdog': {
+      id: '/api/public/hooks/beacon-watchdog'
+      path: '/api/public/hooks/beacon-watchdog'
+      fullPath: '/api/public/hooks/beacon-watchdog'
+      preLoaderRoute: typeof ApiPublicHooksBeaconWatchdogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/daily-adjust': {
       id: '/api/public/hooks/daily-adjust'
       path: '/api/public/hooks/daily-adjust'
@@ -968,6 +989,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicGarminWebhookRoute: ApiPublicGarminWebhookRoute,
   ApiPublicHammerheadWebhookRoute: ApiPublicHammerheadWebhookRoute,
   ApiPublicHooksActivityDetectRoute: ApiPublicHooksActivityDetectRoute,
+  ApiPublicHooksBeaconWatchdogRoute: ApiPublicHooksBeaconWatchdogRoute,
   ApiPublicHooksDailyAdjustRoute: ApiPublicHooksDailyAdjustRoute,
   ApiPublicHooksFtpReprocessRoute: ApiPublicHooksFtpReprocessRoute,
   ApiPublicHooksIntervalsDetectRoute: ApiPublicHooksIntervalsDetectRoute,
