@@ -162,7 +162,7 @@ function BeaconPage() {
 
   const imOk = () => { anchor.current = anchor.current && { ...anchor.current, t: Date.now() }; setStillCountdown(null); };
 
-  const shareUrl = beacon ? `${window.location.origin}/b/${beacon.share_token}` : "";
+  const shareUrl = beacon ? `${window.location.origin}/live/${beacon.share_token}` : "";
 
   return (
     <div className="max-w-xl mx-auto space-y-4">
