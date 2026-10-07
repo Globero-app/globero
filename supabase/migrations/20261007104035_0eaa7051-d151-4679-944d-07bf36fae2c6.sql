@@ -1,0 +1,1 @@
+ALTER TABLE public.safety_beacons ADD COLUMN stale_alerted_at timestamptz;

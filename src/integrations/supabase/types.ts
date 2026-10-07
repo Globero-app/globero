@@ -1177,6 +1177,7 @@ export type Database = {
           last_seen_at: string | null
           name: string | null
           share_token: string
+          stale_alerted_at: string | null
           started_at: string
           status: string
           updated_at: string
@@ -1193,6 +1194,7 @@ export type Database = {
           last_seen_at?: string | null
           name?: string | null
           share_token?: string
+          stale_alerted_at?: string | null
           started_at?: string
           status?: string
           updated_at?: string
@@ -1209,6 +1211,7 @@ export type Database = {
           last_seen_at?: string | null
           name?: string | null
           share_token?: string
+          stale_alerted_at?: string | null
           started_at?: string
           status?: string
           updated_at?: string

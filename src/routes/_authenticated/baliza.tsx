@@ -76,7 +76,7 @@ function BeaconPage() {
         const last = rows[rows.length - 1];
         let battery: number | null = null;
         try { const b = await (navigator as any).getBattery?.(); if (b) battery = Math.round(b.level * 100); } catch {}
-        await supabase.from("safety_beacons").update({ last_lat: last.lat, last_lon: last.lon, last_seen_at: last.recorded_at, ...(battery != null ? { battery_pct: battery } : {}) }).eq("id", last.beacon_id);
+        await supabase.from("safety_beacons").update({ last_lat: last.lat, last_lon: last.lon, last_seen_at: last.recorded_at, stale_alerted_at: null, ...(battery != null ? { battery_pct: battery } : {}) }).eq("id", last.beacon_id);
       }
     } catch (e) {
       console.warn("[beacon] flush", e);
