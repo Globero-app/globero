@@ -104,6 +104,22 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
   }
   if (!activities.length) return out;
 
+  // Actividad finalizada detectada → desactiva automáticamente la baliza iniciada antes de su fin
+  try {
+    const ends = activities
+      .filter((a) => a.start_date)
+      .map((a) => new Date(a.start_date).getTime() + Number(a.moving_time ?? 0) * 1000);
+    if (ends.length) {
+      const lastEnd = Math.max(...ends);
+      const { data: bs } = await admin.from("safety_beacons").select("id,started_at")
+        .eq("user_id", userId).in("status", ["active", "paused"]);
+      const toEnd = ((bs ?? []) as any[]).filter((b) => new Date(b.started_at).getTime() < lastEnd).map((b) => b.id);
+      if (toEnd.length) {
+        await admin.from("safety_beacons").update({ status: "ended", ended_at: new Date().toISOString() }).in("id", toEnd);
+      }
+    }
+  } catch (e) { console.warn("[detect] beacon auto-end", e); }
+
   const linked = new Set<string>();
   const workoutByActivity = new Map<string, any>();
   for (const w of (wRes.data ?? []) as any[]) {
