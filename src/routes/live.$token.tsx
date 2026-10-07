@@ -65,7 +65,8 @@ function LivePage() {
 
   useEffect(() => () => { map.current?.remove(); map.current = null; }, []);
 
-  const label = data?.status === "sos" ? "SOS" : data?.status === "paused" ? "Pausada" : data?.status === "ended" ? "Finalizada" : "En directo";
+  const noSignal = !!data && (data.status === "active" || data.status === "sos") && Date.now() - new Date(data.last_seen_at ?? 0).getTime() > 10 * 60 * 1000;
+  const label = noSignal && data?.status !== "sos" ? "Sin cobertura" : data?.status === "sos" ? "SOS" : data?.status === "paused" ? "Pausada" : data?.status === "ended" ? "Finalizada" : "En directo";
 
   return (
     <div className="min-h-screen bg-background p-4 space-y-3 max-w-3xl mx-auto">
@@ -76,12 +77,13 @@ function LivePage() {
         <>
           {data && (
             <div className="flex flex-wrap items-center gap-3 text-sm">
-              <span className={`font-semibold px-2 py-1 rounded ${data.status === "sos" ? "bg-destructive text-destructive-foreground" : "bg-primary text-primary-foreground"}`}>{label}</span>
+              <span className={`font-semibold px-2 py-1 rounded ${data.status === "sos" ? "bg-destructive text-destructive-foreground" : noSignal ? "bg-muted text-foreground" : "bg-primary text-primary-foreground"}`}>{label}</span>
               {data.name && <span>{data.name}</span>}
               <span className="text-muted-foreground">Última posición: {data.last_seen_at ? new Date(data.last_seen_at).toLocaleString() : "—"}</span>
               {data.battery_pct != null && <span className="text-muted-foreground">Batería: {data.battery_pct}%</span>}
             </div>
           )}
+          {noSignal && <p role="status" className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm">Sin cobertura: la baliza lleva más de 10 minutos sin enviar posición. Se muestra la última conocida.</p>}
           {data?.status === "sos" && <p role="alert" className="rounded-lg border-2 border-destructive bg-destructive/10 p-3 font-semibold">El ciclista ha activado el SOS. Si no contesta, llama al 112 e indica esta posición.</p>}
           <div ref={ref} className="w-full h-[70vh] rounded-xl border overflow-hidden" />
           <p className="text-xs text-muted-foreground">Se actualiza cada 15 segundos.</p>
