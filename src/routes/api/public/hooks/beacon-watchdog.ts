@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-/** Cron cada 5 min: avisa a los contactos si una baliza activa/SOS lleva >15 min sin posición. */
+/** Cron cada 5 min: avisa a los contactos si una baliza activa/SOS lleva >30 min sin posición. */
 export const Route = createFileRoute("/api/public/hooks/beacon-watchdog")({
   server: {
     handlers: {
@@ -10,7 +10,7 @@ export const Route = createFileRoute("/api/public/hooks/beacon-watchdog")({
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { sendBeaconEmails } = await import("@/lib/beacon-email.server");
         const now = new Date();
-        const cutoff = new Date(now.getTime() - 15 * 60 * 1000).toISOString();
+        const cutoff = new Date(now.getTime() - 30 * 60 * 1000).toISOString();
         const { data: beacons } = await (supabaseAdmin as any).from("safety_beacons")
           .select("id,user_id,share_token,last_lat,last_lon,last_seen_at,battery_pct,started_at")
           .in("status", ["active", "sos"]).gt("expires_at", now.toISOString()).is("stale_alerted_at", null)

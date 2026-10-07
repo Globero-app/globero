@@ -24,7 +24,7 @@ export async function sendBeaconEmails(opts: {
   const intro = kind === "sos"
     ? `<p style="color:#b91c1c;font-weight:700">${rider} ha activado el SOS en su baliza de seguridad Globero.</p><p>Si no puedes contactar con él/ella, llama al <strong>112</strong> y facilita su última posición.</p>`
     : kind === "stale"
-    ? `<p style="color:#b45309;font-weight:700">La baliza de ${rider} lleva más de 15 minutos sin enviar su posición${lastSeen ? ` (última: ${lastSeen})` : ""}.</p><p>Puede deberse a falta de cobertura o batería. Intenta contactar con él/ella; si no responde, llama al <strong>112</strong>.</p>`
+    ? `<p style="color:#b45309;font-weight:700">La baliza de ${rider} lleva más de 30 minutos sin enviar su posición${lastSeen ? ` (última: ${lastSeen})` : ""}.</p><p>Puede deberse a falta de cobertura o batería. Intenta contactar con él/ella; si no responde, llama al <strong>112</strong>.</p>`
     : kind === "start" ? `<p>${rider} ha iniciado una salida en bici y te ha añadido como contacto de emergencia. Puedes seguir su posición en directo.</p>`
     : `<p>${rider} ha finalizado su salida sin incidencias.</p>`;
   const html = `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto">${intro}
