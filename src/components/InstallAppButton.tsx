@@ -2,7 +2,7 @@ import { tr } from "@/lib/i18n";import { useEffect, useState } from "react";
 import { Download, Share, Plus, X, Smartphone } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
-const APK_URL = import.meta.env.VITE_ANDROID_APK_URL || "https://github.com/miguelgarcia/globero/releases/latest/download/globero.apk";
+const APK_URL = import.meta.env.VITE_ANDROID_APK_URL || "https://github.com/Globero-app/globero/releases/latest/download/globero.apk";
 
 type BIPEvent = Event & {
   prompt: () => Promise<void>;
