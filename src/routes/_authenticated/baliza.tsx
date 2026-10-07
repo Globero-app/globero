@@ -7,6 +7,8 @@ import { useAuth } from "@/lib/use-auth";
 import { useOnlineStatus } from "@/lib/use-online-status";
 import { queuePoint, getQueued, removeQueued, countQueued } from "@/lib/beacon-store";
 import { tr } from "@/lib/i18n";
+import { notifyBeaconContacts } from "@/lib/beacon-alerts.functions";
+import { EmergencyContacts } from "@/components/EmergencyContacts";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -129,7 +131,13 @@ function BeaconPage() {
     if (error) return toast.error(tr("No se pudo iniciar la baliza"));
     lastSaved.current = 0;
     setBeacon(data);
+    alert(data.id, "start");
   };
+
+  const alert = (beaconId: string, kind: "start" | "sos" | "ended") =>
+    notifyBeaconContacts({ data: { beaconId, kind, origin: window.location.origin } })
+      .then((r) => { if (kind === "sos" && r.sent) toast.success(tr("Aviso enviado a tus contactos de emergencia")); })
+      .catch((e) => { console.warn("[beacon] alert", e); if (kind === "sos") toast.error(tr("No se pudo avisar por email a tus contactos")); });
 
   const setStatus = async (status: "active" | "paused" | "ended" | "sos") => {
     if (!beacon) return;
@@ -138,7 +146,8 @@ function BeaconPage() {
       .update({ status, ...(status === "ended" ? { ended_at: new Date().toISOString() } : {}) }).eq("id", beacon.id);
     if (error) return toast.error(tr("No se pudo actualizar la baliza"));
     setBeacon(status === "ended" ? null : { ...beacon, status });
-    if (status === "sos") toast.warning(tr("SOS activado"));
+    if (status === "sos") { toast.warning(tr("SOS activado")); alert(beacon.id, "sos"); }
+    if (status === "ended") alert(beacon.id, "ended");
   };
 
   // Detección de inmovilidad: sin moverse > 30 m durante 5 min → aviso y SOS automático a los 60 s
@@ -228,6 +237,7 @@ function BeaconPage() {
           )}
         </CardContent>
       </Card>
+      <EmergencyContacts />
     </div>
   );
 }
