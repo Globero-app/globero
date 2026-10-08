@@ -31,7 +31,7 @@ function ActivityDetailPage() {
   const profile = useQuery({
     queryKey: ["profile-metrics", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("ftp,age").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("ftp,age,intervals_api_key,strava_access_token,strava_refresh_token").eq("id", user!.id).maybeSingle();
       return data;
     },
     enabled: !!user
@@ -70,6 +70,10 @@ function ActivityDetailPage() {
     },
     enabled: !!user && !!startDate
   });
+
+  const icu = !!profile.data?.intervals_api_key;
+  const strava = !!(profile.data?.strava_access_token || profile.data?.strava_refresh_token);
+  const hasExternal = icu || strava;
 
   const activity = detail.data?.activity;
   const streams = (detail.data?.streams ?? {}) as Streams;
@@ -140,10 +144,12 @@ function ActivityDetailPage() {
               {activity.start_date && format(new Date(activity.start_date), "EEEE d MMM yyyy · HH:mm", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}
             </p>
           </div>
-          <a href={activityUrl(String(id), !String(id).match(/^(strava|wahoo|garmin|hammerhead|igpsport)_/))} target="_blank" rel="noopener"
+          {hasExternal &&
+          <a href={activityUrl(String(id), icu, strava)} target="_blank" rel="noopener"
           className="inline-flex items-center gap-1 text-primary text-xs hover:opacity-80 shrink-0">
-            Intervals.icu <ExternalLink className="size-3" />
+            {icu ? "Intervals.icu" : "Strava"} <ExternalLink className="size-3" />
           </a>
+          }
         </div>
       </div>
 
