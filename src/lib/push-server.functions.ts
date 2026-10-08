@@ -34,6 +34,29 @@ export const removeSubscription = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const saveDeviceToken = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ token: z.string().min(10).max(4096), platform: z.enum(["android", "ios"]) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context as any;
+    const { error } = await supabase.from("device_push_tokens").upsert(
+      { user_id: userId, token: data.token, platform: data.platform, last_used_at: new Date().toISOString() },
+      { onConflict: "token" },
+    );
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const removeDeviceToken = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ token: z.string().min(10).max(4096) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context as any;
+    await supabase.from("device_push_tokens").delete().eq("token", data.token);
+    return { ok: true };
+  });
+
+
 export const sendTestPush = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {

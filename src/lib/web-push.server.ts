@@ -101,6 +101,9 @@ export async function notifyUser(userId: string, payload: PushPayload): Promise<
   }
   if (channel === "telegram" && chatId) return tgSent;
 
+  const { sendNativeToUser } = await import("./native-push.server");
+  const nativeSent = await sendNativeToUser(userId, payload).catch(() => 0);
+  tgSent += nativeSent;
   const { data: subs } = await supabaseAdmin
     .from("push_subscriptions").select("*").eq("user_id", userId);
   if (!subs || !subs.length) {
@@ -136,8 +139,9 @@ export async function notifyUserPushOnly(userId: string, payload: PushPayload): 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: subs } = await supabaseAdmin
     .from("push_subscriptions").select("*").eq("user_id", userId);
-  if (!subs || !subs.length) return 0;
-  let sent = 0;
+  const { sendNativeToUser } = await import("./native-push.server");
+  let sent = await sendNativeToUser(userId, payload).catch(() => 0);
+  if (!subs || !subs.length) return sent;
   for (const s of subs as any[]) {
     const ok = await sendWebPush(
       { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
