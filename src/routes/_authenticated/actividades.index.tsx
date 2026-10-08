@@ -129,15 +129,17 @@ function ActividadesPage() {
               <div className="text-right"><p className="text-muted-foreground">{tr("Distancia")}</p><p className="font-semibold">{((a.distance ?? 0) / 1000).toFixed(1)}{tr("km")}</p></div>
               <div className="text-right hidden md:block"><p className="text-muted-foreground">{tr("Desnivel")}</p><p className="font-semibold">+{Math.round(a.total_elevation_gain ?? 0)}{tr("m")}</p></div>
               <div className="text-right hidden md:block"><p className="text-muted-foreground">{tr("Carga")}</p><p className="font-semibold">{a.icu_training_load ?? "—"}</p></div>
+              {canView &&
               <a
-              href={activityUrl(String(a.id), icu)}
+              href={activityUrl(String(a.id), icu, strava) ?? undefined}
               target="_blank"
               rel="noopener"
               onClick={(e) => {if (!canView) return blockClick(e);e.stopPropagation();}}
-              className="text-primary hover:opacity-80">
-              
+              className="text-primary hover:opacity-80 shrink-0">
+
                 <ExternalLink className="size-4" />
               </a>
+              }
             </div>
           </Link>
         )}
@@ -147,13 +149,15 @@ function ActividadesPage() {
 
 }
 
-export function activityUrl(id: string, icu: boolean) {
+/** URL externa de la actividad: Intervals.icu si está conectado, si no Strava si lo está; null si no hay ninguno. */
+export function activityUrl(id: string, icu: boolean, strava: boolean): string | null {
+  if (!icu && !strava) return null;
+  if (icu) {
+    if (/^[a-z][a-z0-9-]*_/i.test(id)) return "https://intervals.icu/activities";
+    return `https://intervals.icu/activities/${id}`;
+  }
   if (id.startsWith("strava_")) return `https://www.strava.com/activities/${id.slice(7)}`;
-  if (id.startsWith("wahoo_")) return "https://dashboard.wahoofitness.com/";
-  if (id.startsWith("hammerhead_")) return "https://dashboard.hammerhead.io/";
-  if (id.startsWith("garmin_")) return `https://connect.garmin.com/modern/activity/${id.slice(7)}`;
-  if (!icu) return "https://www.strava.com/dashboard";
-  return `https://intervals.icu/activities/${id}`;
+  return "https://www.strava.com/dashboard";
 }
 
 /** Si Strava y un ciclocomputador registran la misma salida (±20 min), prioriza Strava. */
