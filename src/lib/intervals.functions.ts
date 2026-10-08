@@ -164,7 +164,8 @@ export const intervalsActivityDetail = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .eq("user_id", userId)
       .maybeSingle();
-    return { activity: (row?.raw as any) ?? row ?? {}, streams };
+    const r: any = row ?? {};
+    return { activity: { ...((r.raw as any) ?? {}), ...Object.fromEntries(Object.entries(r).filter(([k, v]) => k !== "raw" && v != null)) }, streams };
   });
 
 /** Importa una actividad de Intervals.icu como test FTP (mejor 20 min × 0,95). */
