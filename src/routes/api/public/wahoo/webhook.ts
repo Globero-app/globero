@@ -17,39 +17,30 @@ export const Route = createFileRoute("/api/public/wahoo/webhook")({
         const expected = process.env["WAHOO_WEBHOOK_TOKEN"];
         if (expected && body?.webhook_token !== expected) return new Response("Unauthorized", { status: 401 });
 
-        const wahooUserId = body?.user?.id ?? body?.user_id;
-        if (wahooUserId == null) return Response.json({ ok: false, error: "missing_user_id" }, { status: 400 });
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-        const eventType = String(body?.event_type ?? body?.event ?? "");
-        if (eventType === "workout_summary") {
-          const { data: p } = await supabaseAdmin.from("profiles").select("*").eq("wahoo_user_id" as any, String(wahooUserId)).maybeSingle();
-          if (!p) return Response.json({ ok: true, ignored: true });
-          const uid = (p as any).id;
-          const { pullDeviceActivities } = await import("@/lib/devices.server");
-          const n = await pullDeviceActivities(supabaseAdmin, uid);
-          if (n > 0) {
-            try {
+        const { handleWahooEvent } = await import("@/lib/wahoo-webhook");
+        try {
+          const { status, ...res } = await handleWahooEvent(body, {
+            findProfile: async (wid) => (await supabaseAdmin.from("profiles").select("*").eq("wahoo_user_id" as any, wid).maybeSingle()).data,
+            pullActivities: async (uid) => (await import("@/lib/devices.server")).pullDeviceActivities(supabaseAdmin, uid),
+            refreshPmc: async (uid, p) => {
               await supabaseAdmin.from("profiles").update({ daily_brief_cache: null } as any).eq("id", uid);
               const { refreshAthleteProfile } = await import("@/lib/athlete-profile.server");
               await refreshAthleteProfile(supabaseAdmin, uid, p);
-            } catch (e) {
-              console.error("[wahoo webhook] PMC refresh", e);
-            }
-          }
-          return Response.json({ ok: true, stored: n });
-        }
-        if (eventType && eventType !== "deauthorize" && eventType !== "user_deauthorized") return Response.json({ ok: true, ignored: true });
-
-        const { error } = await supabaseAdmin
-          .from("profiles")
-          .update({ wahoo_user_id: null, wahoo_access_token: null, wahoo_refresh_token: null, wahoo_token_expires_at: null } as any)
-          .eq("wahoo_user_id" as any, String(wahooUserId));
-        if (error) {
-          console.error(`Wahoo webhook update failed: ${error.message}`);
+            },
+            deauthorize: async (wid) => {
+              const { error } = await supabaseAdmin
+                .from("profiles")
+                .update({ wahoo_user_id: null, wahoo_access_token: null, wahoo_refresh_token: null, wahoo_token_expires_at: null } as any)
+                .eq("wahoo_user_id" as any, wid);
+              if (error) throw new Error(error.message);
+            },
+          });
+          return Response.json(res, { status });
+        } catch (e: any) {
+          console.error(`Wahoo webhook failed: ${e?.message}`);
           return Response.json({ ok: false }, { status: 500 });
         }
-        return Response.json({ ok: true });
       },
     },
   },
