@@ -6,17 +6,35 @@ export type PushCategory = "training" | "prerace" | "strava" | "maintenance";
 
 const STORAGE_PREFIX = "sb-push:";
 
+import { Capacitor } from "@capacitor/core";
+
+const isNative = () => typeof window !== "undefined" && Capacitor.isNativePlatform();
+const mapNative = (r: string): NotificationPermission => (r === "granted" ? "granted" : r === "denied" ? "denied" : "default");
+
 export function pushSupported(): boolean {
-  return typeof window !== "undefined" && "Notification" in window;
+  return typeof window !== "undefined" && (isNative() || "Notification" in window);
 }
 
 export function pushPermission(): NotificationPermission | "unsupported" {
   if (!pushSupported()) return "unsupported";
+  if (isNative()) return "default";
   return Notification.permission;
+}
+
+export async function checkPushPermission(): Promise<NotificationPermission | "unsupported"> {
+  if (!isNative()) return pushPermission();
+  const { PushNotifications } = await import("@capacitor/push-notifications");
+  return mapNative((await PushNotifications.checkPermissions()).receive);
 }
 
 export async function requestPushPermission(): Promise<NotificationPermission | "unsupported"> {
   if (!pushSupported()) return "unsupported";
+  if (isNative()) {
+    const { PushNotifications } = await import("@capacitor/push-notifications");
+    let r = await PushNotifications.checkPermissions();
+    if (r.receive !== "granted" && r.receive !== "denied") r = await PushNotifications.requestPermissions();
+    return mapNative(r.receive);
+  }
   if (Notification.permission === "granted" || Notification.permission === "denied") {
     return Notification.permission;
   }
@@ -34,7 +52,7 @@ interface SendOptions {
 }
 
 export function sendLocalPush(opts: SendOptions): boolean {
-  if (!pushSupported() || Notification.permission !== "granted") return false;
+  if (!pushSupported() || !("Notification" in window) || Notification.permission !== "granted") return false;
 
   if (opts.dedupe && opts.dedupe !== "none") {
     const key = `${STORAGE_PREFIX}${opts.category}:${opts.tag}`;
