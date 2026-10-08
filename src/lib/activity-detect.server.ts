@@ -1,4 +1,5 @@
 /** Detección periódica de actividades nuevas y asignación al entreno/competición del día. */
+import { activitySource } from "./activity-source";
 
 /** Bloqueo simple (lease) para que dos ejecuciones del cron no se solapen. */
 export async function acquireJobLock(admin: any, jobName: string, leaseSeconds: number): Promise<boolean> {
@@ -156,7 +157,7 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
     feedbackAsked.add(actId);
     if (day !== todayISO) return; // actividad de un día anterior: sin aviso inmediato
     await notifyUser(userId, {
-      title: "¡Entrenamiento detectado! 🚴‍♂️",
+      title: `¡Entrenamiento detectado en ${activitySource(actId, a.raw)}! 🚴‍♂️`,
       body: "¿Cómo te has sentido hoy? Pulsa para evaluar tu esfuerzo.",
       tag: `activity-feedback-${actId}`,
       url: `/?screen=feedback&activity_id=${encodeURIComponent(actId)}`,
@@ -229,8 +230,8 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
     if (day !== todayISO) continue; // día anterior: se queda para asignar en la app, sin aviso
     const targetName = comp ? comp.name : ((wk!.plan as any)?.title ?? wk!.training_type ?? "tu entrenamiento");
     await notifyUser(userId, {
-      title: "🚴 Nueva actividad detectada",
-      body: `"${a.name ?? "Actividad"}" del ${day}. ¿La asignamos a ${targetName}? Ábrelo para confirmar.`,
+      title: `🚴 Nueva actividad detectada en ${activitySource(actId, a.raw)}`,
+      body: `"${a.name ?? "Actividad"}" del ${day} (${activitySource(actId, a.raw)}). ¿La asignamos a ${targetName}? Ábrelo para confirmar.`,
       tag: `match-${actId}`,
       url: comp ? `/competiciones/${comp.id}` : "/entrenamientos",
       requireInteraction: true,

@@ -8,6 +8,7 @@ import { format } from "date-fns";
 import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/use-auth";
+import { activitySource } from "@/lib/activity-source";
 
 /** Pregunta si una actividad de Intervals.icu corresponde al entreno/competición del día */
 export function ActivityMatchPrompt({ enabled = true }: {enabled?: boolean;}) {
@@ -61,7 +62,7 @@ export function ActivityMatchPrompt({ enabled = true }: {enabled?: boolean;}) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Activity className="size-4 text-primary" /> {tr("Nueva actividad detectada en Intervals.icu")} 
+            <Activity className="size-4 text-primary" /> {tr("Nueva actividad detectada en Intervals.icu").replace("Intervals.icu", activitySource(match.activity_id))} 
 
           </DialogTitle>
           <DialogDescription>
