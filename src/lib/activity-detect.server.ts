@@ -1,4 +1,5 @@
 /** Detección periódica de actividades nuevas y asignación al entreno/competición del día. */
+import { activitySource } from "./activity-source";
 
 /** Bloqueo simple (lease) para que dos ejecuciones del cron no se solapen. */
 export async function acquireJobLock(admin: any, jobName: string, leaseSeconds: number): Promise<boolean> {
