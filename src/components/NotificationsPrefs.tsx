@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
 import { Bell, Smartphone, CheckCircle2, AlertCircle, Wrench, Dumbbell, Droplets, Activity, Server, Send, PowerOff, Compass, AlertTriangle } from "lucide-react";
-import { pushPermission, requestPushPermission, sendLocalPush } from "@/lib/push";
+import { pushPermission, checkPushPermission, requestPushPermission, sendLocalPush } from "@/lib/push";
 import { useServerFn } from "@tanstack/react-start";
 import { sendTestPush } from "@/lib/push-server.functions";
 import { enableServerPush, disableServerPush, getServerPushSubscription, serverPushSupported } from "@/lib/push-client";
@@ -45,6 +45,7 @@ export function NotificationsPrefs() {
 
   useEffect(() => {
     setPerm(pushPermission());
+    checkPushPermission().then(setPerm).catch(() => {});
     if (!serverPushSupported()) {setServerSub("unsupported");return;}
     getServerPushSubscription().then((s) => setServerSub(s ? "subscribed" : "none")).catch(() => setServerSub("none"));
   }, []);

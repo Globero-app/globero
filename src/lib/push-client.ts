@@ -1,4 +1,5 @@
 /* Registro de service worker y suscripción Web Push (cliente) */
+import { Capacitor } from "@capacitor/core";
 import { saveSubscription, removeSubscription } from "./push-server.functions";
 
 // Clave pública VAPID (segura de publicar por diseño).
@@ -15,6 +16,7 @@ function urlBase64ToUint8Array(base64: string): Uint8Array {
 }
 
 export function serverPushSupported(): boolean {
+  if (typeof window !== "undefined" && Capacitor.isNativePlatform()) return true;
   return typeof window !== "undefined"
     && "serviceWorker" in navigator
     && "PushManager" in window
@@ -22,7 +24,7 @@ export function serverPushSupported(): boolean {
 }
 
 export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
-  if (!serverPushSupported()) return null;
+  if (!serverPushSupported() || Capacitor.isNativePlatform()) return null;
   try {
     return await navigator.serviceWorker.register("/sw.js", { scope: "/" });
   } catch (e) {
@@ -31,7 +33,12 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
   }
 }
 
-export async function getServerPushSubscription(): Promise<PushSubscription | null> {
+export async function getServerPushSubscription(): Promise<PushSubscription | string | null> {
+  if (Capacitor.isNativePlatform()) {
+    const { PushNotifications } = await import("@capacitor/push-notifications");
+    const p = await PushNotifications.checkPermissions();
+    return p.receive === "granted" ? localStorage.getItem("native-push-token") : null;
+  }
   if (!serverPushSupported()) return null;
   const reg = await navigator.serviceWorker.ready;
   return await reg.pushManager.getSubscription();
