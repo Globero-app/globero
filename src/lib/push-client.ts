@@ -38,6 +38,8 @@ export async function getServerPushSubscription(): Promise<PushSubscription | nu
 }
 
 export async function enableServerPush(): Promise<{ ok: true } | { ok: false; reason: string }> {
+  const np = await import("./native-push");
+  if (np.isNativePush()) return np.enableNativePush();
   if (!serverPushSupported()) return { ok: false, reason: "Tu navegador no soporta Web Push" };
   const perm = await Notification.requestPermission();
   if (perm !== "granted") return { ok: false, reason: "Permiso denegado" };
@@ -63,6 +65,8 @@ export async function enableServerPush(): Promise<{ ok: true } | { ok: false; re
 }
 
 export async function disableServerPush(): Promise<void> {
+  const np = await import("./native-push");
+  if (np.isNativePush()) return np.disableNativePush();
   if (!serverPushSupported()) return;
   const reg = await navigator.serviceWorker.ready;
   const sub = await reg.pushManager.getSubscription();
