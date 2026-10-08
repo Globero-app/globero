@@ -145,7 +145,7 @@ function ActivityDetailPage() {
             </p>
           </div>
           {hasExternal &&
-          <a href={activityUrl(String(id), icu, strava)} target="_blank" rel="noopener"
+          <a href={activityUrl(String(id), icu, strava) ?? undefined} target="_blank" rel="noopener"
           className="inline-flex items-center gap-1 text-primary text-xs hover:opacity-80 shrink-0">
             {icu ? "Intervals.icu" : "Strava"} <ExternalLink className="size-3" />
           </a>

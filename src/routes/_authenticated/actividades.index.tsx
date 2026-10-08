@@ -131,7 +131,7 @@ function ActividadesPage() {
               <div className="text-right hidden md:block"><p className="text-muted-foreground">{tr("Carga")}</p><p className="font-semibold">{a.icu_training_load ?? "—"}</p></div>
               {canView &&
               <a
-              href={activityUrl(String(a.id), icu, strava)}
+              href={activityUrl(String(a.id), icu, strava) ?? undefined}
               target="_blank"
               rel="noopener"
               onClick={(e) => {if (!canView) return blockClick(e);e.stopPropagation();}}
