@@ -147,10 +147,12 @@ function ActividadesPage() {
 
 }
 
-function activityUrl(id: string, icu: boolean) {
-  if (!icu && !/^(strava|wahoo|garmin|hammerhead|igpsport)_/.test(id)) return `https://www.strava.com/athlete/training`;
+export function activityUrl(id: string, icu: boolean) {
   if (id.startsWith("strava_")) return `https://www.strava.com/activities/${id.slice(7)}`;
-  if (id.startsWith("wahoo_") || id.startsWith("garmin_") || id.startsWith("hammerhead_")) return `https://www.strava.com/athlete/training`;
+  if (id.startsWith("wahoo_")) return "https://dashboard.wahoofitness.com/";
+  if (id.startsWith("hammerhead_")) return "https://dashboard.hammerhead.io/";
+  if (id.startsWith("garmin_")) return `https://connect.garmin.com/modern/activity/${id.slice(7)}`;
+  if (!icu) return "https://www.strava.com/dashboard";
   return `https://intervals.icu/activities/${id}`;
 }
 

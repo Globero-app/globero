@@ -1,4 +1,5 @@
 import { tr, activeLang } from "@/lib/i18n";import { createFileRoute, Link } from "@tanstack/react-router";
+import { activityUrl } from "./actividades.index";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -139,7 +140,7 @@ function ActivityDetailPage() {
               {activity.start_date && format(new Date(activity.start_date), "EEEE d MMM yyyy · HH:mm", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}
             </p>
           </div>
-          <a href={`https://intervals.icu/activities/${activity.id}`} target="_blank" rel="noopener"
+          <a href={activityUrl(String(id), !String(id).match(/^(strava|wahoo|garmin|hammerhead|igpsport)_/))} target="_blank" rel="noopener"
           className="inline-flex items-center gap-1 text-primary text-xs hover:opacity-80 shrink-0">
             Intervals.icu <ExternalLink className="size-3" />
           </a>
