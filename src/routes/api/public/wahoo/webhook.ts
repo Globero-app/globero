@@ -21,13 +21,25 @@ export const Route = createFileRoute("/api/public/wahoo/webhook")({
         if (wahooUserId == null) return Response.json({ ok: false, error: "missing_user_id" }, { status: 400 });
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        if (body?.event_type === "workout_summary") {
-          const { data: p } = await supabaseAdmin.from("profiles").select("id").eq("wahoo_user_id" as any, String(wahooUserId)).maybeSingle();
+        const eventType = String(body?.event_type ?? body?.event ?? "");
+        if (eventType === "workout_summary") {
+          const { data: p } = await supabaseAdmin.from("profiles").select("*").eq("wahoo_user_id" as any, String(wahooUserId)).maybeSingle();
           if (!p) return Response.json({ ok: true, ignored: true });
+          const uid = (p as any).id;
           const { pullDeviceActivities } = await import("@/lib/devices.server");
-          const n = await pullDeviceActivities(supabaseAdmin, (p as any).id);
+          const n = await pullDeviceActivities(supabaseAdmin, uid);
+          if (n > 0) {
+            try {
+              await supabaseAdmin.from("profiles").update({ daily_brief_cache: null } as any).eq("id", uid);
+              const { refreshAthleteProfile } = await import("@/lib/athlete-profile.server");
+              await refreshAthleteProfile(supabaseAdmin, uid, p);
+            } catch (e) {
+              console.error("[wahoo webhook] PMC refresh", e);
+            }
+          }
           return Response.json({ ok: true, stored: n });
         }
+        if (eventType && eventType !== "deauthorize" && eventType !== "user_deauthorized") return Response.json({ ok: true, ignored: true });
 
         const { error } = await supabaseAdmin
           .from("profiles")
