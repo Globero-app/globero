@@ -228,7 +228,7 @@ function ProgresoPage() {
                     <XAxis dataKey="label" tick={{ fontSize: 10 }} />
                     <YAxis domain={[1, 5]} tick={{ fontSize: 10 }} />
                     <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
-                    <Line type="monotone" dataKey="score" name={tr("Readiness")} stroke="var(--chart-4)" strokeWidth={2} />
+                    <Line type="monotone" dataKey="score" name={tr("Readiness")} stroke="var(--primary)" strokeWidth={2} dot={{ r: 3 }} />
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>
