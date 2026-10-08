@@ -1,4 +1,3 @@
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
 
 export type BeaconAlertKind = "start" | "sos" | "ended" | "stale";
