@@ -1,4 +1,3 @@
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
 
 export type BeaconAlertKind = "start" | "sos" | "ended" | "stale";
@@ -11,8 +10,7 @@ export async function sendBeaconEmails(opts: {
   contacts: { email: string }[];
 }) {
   const lovableKey = process.env["LOVABLE_API_KEY"];
-  const resendKey = process.env["RESEND_API_KEY"];
-  if (!lovableKey || !resendKey) throw new Error("Email no configurado");
+  if (!lovableKey) throw new Error("Email no configurado");
   const { kind, link, beacon } = opts;
   const rider = esc(opts.riderName || "Un ciclista");
   const maps = beacon.last_lat != null ? `https://maps.google.com/?q=${beacon.last_lat},${beacon.last_lon}` : null;
@@ -32,15 +30,17 @@ export async function sendBeaconEmails(opts: {
     ${urgent && maps ? `<p>Última posición: <a href="${maps}">${beacon.last_lat!.toFixed(5)}, ${beacon.last_lon!.toFixed(5)}</a>${beacon.battery_pct != null ? ` · Batería ${beacon.battery_pct}%` : ""}</p>` : ""}
     <p style="color:#94a3b8;font-size:12px">Globero · Baliza de seguridad</p></div>`;
 
+  const { sendLovableEmail } = await import("@lovable.dev/email-js");
+  const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() + (kind !== "ended" ? ` ${link}` : "");
   let sent = 0;
   for (const c of opts.contacts) {
-    const res = await fetch(`${GATEWAY_URL}/emails`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${lovableKey}`, "X-Connection-Api-Key": resendKey },
-      body: JSON.stringify({ from: process.env["RESEND_FROM"] || "Globero <onboarding@resend.dev>", to: [c.email], subject, html }),
-    });
-    if (res.ok) sent++;
-    else console.error(`Resend [${res.status}]: ${await res.text()}`);
+    try {
+      await sendLovableEmail(
+        { to: c.email, from: "Globero <noreply@globero.app>", sender_domain: "notify.globero.app", subject, html, text, purpose: "transactional", label: `beacon-${kind}` },
+        { apiKey: lovableKey, sendUrl: process.env["LOVABLE_SEND_URL"] },
+      );
+      sent++;
+    } catch (e) { console.error("[beacon-email]", e); }
   }
   return sent;
 }
