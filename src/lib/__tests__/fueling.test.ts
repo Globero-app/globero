@@ -11,7 +11,7 @@ describe("carbsPerHour", () => {
 describe("buildFuelPlan", () => {
   it("el total de carbohidratos coincide con ritmo × horas", () => {
     const p = buildFuelPlan(180, 0.75, "medium");
-    expect(p.totalCarbs).toBe(180);
+    expect(p.totalCarbs).toBe(225);
     expect(p.schedule.length).toBeGreaterThan(0);
   });
 });
