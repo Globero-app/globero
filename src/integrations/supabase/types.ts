@@ -863,6 +863,7 @@ export type Database = {
           garmin_token_expires_at: string | null
           garmin_user_id: string | null
           gender: string | null
+          gut_tolerance: string
           hammerhead_access_token: string | null
           hammerhead_refresh_token: string | null
           hammerhead_token_expires_at: string | null
@@ -942,6 +943,7 @@ export type Database = {
           garmin_token_expires_at?: string | null
           garmin_user_id?: string | null
           gender?: string | null
+          gut_tolerance?: string
           hammerhead_access_token?: string | null
           hammerhead_refresh_token?: string | null
           hammerhead_token_expires_at?: string | null
@@ -1021,6 +1023,7 @@ export type Database = {
           garmin_token_expires_at?: string | null
           garmin_user_id?: string | null
           gender?: string | null
+          gut_tolerance?: string
           hammerhead_access_token?: string | null
           hammerhead_refresh_token?: string | null
           hammerhead_token_expires_at?: string | null

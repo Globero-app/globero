@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS gut_tolerance text NOT NULL DEFAULT 'medium' CHECK (gut_tolerance IN ('low','medium','high'));
