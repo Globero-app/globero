@@ -1,4 +1,5 @@
 import { tr, activeLang } from "@/lib/i18n";import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { FuelingCalculator } from "@/components/nutrition/FuelPlanView";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -140,6 +141,8 @@ function MenusPage() {
         <h1 className="font-display text-4xl font-bold uppercase tracking-tight">{tr("Menús")}</h1>
         <p className="text-sm text-muted-foreground mt-1">{tr("Tu plan semanal adaptado a los entrenamientos y los menús pre-carrera.")}</p>
       </div>
+
+      <FuelingCalculator />
 
       {/* Generador semanal */}
       <div className="bg-surface border rounded-xl p-5 space-y-4">
