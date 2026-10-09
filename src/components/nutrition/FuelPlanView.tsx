@@ -77,7 +77,7 @@ const fmtMin = (m: number) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2
 export function FuelPlanView({ minutes, intensityFactor, tolerance, indoor }: { minutes: number; intensityFactor: number; tolerance: GutTolerance; indoor?: boolean }) {
   const t = useFuelT();
   const p = buildFuelPlan(minutes, intensityFactor, tolerance, indoor);
-  const label = (i: FuelItem) => t(i);
+  const label = (i: FuelItem) => i === "sip" ? t(i).replace("{ml}", String(p.sipMl)) : t(i);
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-3 gap-2 text-center">
