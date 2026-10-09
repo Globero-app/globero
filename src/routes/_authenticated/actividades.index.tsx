@@ -129,7 +129,7 @@ function ActividadesPage() {
               <div className="text-right"><p className="text-muted-foreground">{tr("Distancia")}</p><p className="font-semibold">{((a.distance ?? 0) / 1000).toFixed(1)}{tr("km")}</p></div>
               <div className="text-right hidden md:block"><p className="text-muted-foreground">{tr("Desnivel")}</p><p className="font-semibold">+{Math.round(a.total_elevation_gain ?? 0)}{tr("m")}</p></div>
               <div className="text-right hidden md:block"><p className="text-muted-foreground">{tr("Carga")}</p><p className="font-semibold">{a.icu_training_load ?? "—"}</p></div>
-              {canView &&
+              {icu &&
               <a
               href={activityUrl(String(a.id), icu, strava) ?? undefined}
               target="_blank"

@@ -73,7 +73,6 @@ function ActivityDetailPage() {
 
   const icu = !!profile.data?.intervals_api_key;
   const strava = !!(profile.data?.strava_access_token || profile.data?.strava_refresh_token);
-  const hasExternal = icu || strava;
 
   const activity = detail.data?.activity;
   const streams = (detail.data?.streams ?? {}) as Streams;
@@ -144,10 +143,10 @@ function ActivityDetailPage() {
               {activity.start_date && format(new Date(activity.start_date), "EEEE d MMM yyyy · HH:mm", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}
             </p>
           </div>
-          {hasExternal &&
+          {icu &&
           <a href={activityUrl(String(id), icu, strava) ?? undefined} target="_blank" rel="noopener"
           className="inline-flex items-center gap-1 text-primary text-xs hover:opacity-80 shrink-0">
-            {icu ? "Intervals.icu" : "Strava"} <ExternalLink className="size-3" />
+            Intervals.icu <ExternalLink className="size-3" />
           </a>
           }
         </div>
