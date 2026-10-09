@@ -26,7 +26,7 @@ const T: Record<string, Record<Lang, string>> = {
   gels: { es: "Geles (25 g)", ca: "Gels (25 g)", fr: "Gels (25 g)", en: "Gels (25 g)", de: "Gels (25 g)" },
   bars: { es: "Barritas (40 g)", ca: "Barretes (40 g)", fr: "Barres (40 g)", en: "Bars (40 g)", de: "Riegel (40 g)" },
   schedule: { es: "Pauta horaria", ca: "Pauta horària", fr: "Plan horaire", en: "Timing plan", de: "Zeitplan" },
-  sip: { es: "150–200 ml de bidón", ca: "150–200 ml de bidó", fr: "150–200 ml de bidon", en: "150–200 ml from bottle", de: "150–200 ml aus der Flasche" },
+  sip: { es: "{ml} ml de bidón", ca: "{ml} ml de bidó", fr: "{ml} ml de bidon", en: "{ml} ml from bottle", de: "{ml} ml aus der Flasche" },
   gel: { es: "1 gel", ca: "1 gel", fr: "1 gel", en: "1 gel", de: "1 Gel" },
   halfBar: { es: "½ barrita", ca: "½ barreta", fr: "½ barre", en: "½ bar", de: "½ Riegel" },
   noCarbs: { es: "Sesión corta o suave: basta con agua o electrolitos. Llega bien comido.", ca: "Sessió curta o suau: n'hi ha prou amb aigua o electròlits. Arriba ben menjat.", fr: "Séance courte ou facile : de l'eau ou des électrolytes suffisent. Arrive bien nourri.", en: "Short or easy session: water or electrolytes are enough. Start well fuelled.", de: "Kurze oder lockere Einheit: Wasser oder Elektrolyte reichen. Gut gegessen starten." },
@@ -77,7 +77,7 @@ const fmtMin = (m: number) => `${Math.floor(m / 60)}:${String(m % 60).padStart(2
 export function FuelPlanView({ minutes, intensityFactor, tolerance, indoor }: { minutes: number; intensityFactor: number; tolerance: GutTolerance; indoor?: boolean }) {
   const t = useFuelT();
   const p = buildFuelPlan(minutes, intensityFactor, tolerance, indoor);
-  const label = (i: FuelItem) => t(i);
+  const label = (i: FuelItem) => i === "sip" ? t(i).replace("{ml}", String(p.sipMl)) : t(i);
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-3 gap-2 text-center">
