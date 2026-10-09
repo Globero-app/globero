@@ -12,6 +12,8 @@ import { describeStepZone } from "@/lib/zones";
 import { downloadFit, type FitWorkout, type FitWorkoutStep } from "@/lib/fit-writer";
 import { downloadZwo, type ZwoWorkout, type ZwoStep } from "@/lib/zwo-writer";
 import { WorkoutIntervalsChart } from "./WorkoutIntervalsChart";
+import { WorkoutFuelCard } from "@/components/nutrition/FuelPlanView";
+import { estimateIF } from "@/lib/fueling";
 
 export type ZoneRefs = {ftp: number | null;lthr: number | null;maxHr: number | null;};
 
@@ -277,6 +279,7 @@ export function WorkoutCard({
                 </div>);
 
           })}
+            <WorkoutFuelCard minutes={w.duration_minutes} intensityFactor={estimateIF({ minutes: w.duration_minutes, plannedTss: w.planned_tss, steps: plan.steps, ftp })} indoor={isIndoor} />
             <PrescribedVsExecuted w={w} />
           </div>
         }
@@ -295,6 +298,8 @@ export function WorkoutCard({
           <div className="space-y-3 mt-2">
             {plan.summary && <p className="text-sm text-muted-foreground">{plan.summary}</p>}
             <WorkoutIntervalsChart steps={plan.steps} refs={refs} expanded />
+            <WorkoutFuelCard minutes={w.duration_minutes} intensityFactor={estimateIF({ minutes: w.duration_minutes, plannedTss: w.planned_tss, steps: plan.steps, ftp })} indoor={isIndoor} />
+
             <h4 className="text-xs font-mono uppercase text-muted-foreground tracking-wider">{tr("Estructura completa")}</h4>
             <div className="space-y-2">
               {(plan.steps ?? []).map((s: any, i: number) =>
