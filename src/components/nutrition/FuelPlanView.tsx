@@ -26,7 +26,7 @@ const T: Record<string, Record<Lang, string>> = {
   gels: { es: "Geles (25 g)", ca: "Gels (25 g)", fr: "Gels (25 g)", en: "Gels (25 g)", de: "Gels (25 g)" },
   bars: { es: "Barritas (40 g)", ca: "Barretes (40 g)", fr: "Barres (40 g)", en: "Bars (40 g)", de: "Riegel (40 g)" },
   schedule: { es: "Pauta horaria", ca: "Pauta horària", fr: "Plan horaire", en: "Timing plan", de: "Zeitplan" },
-  sip: { es: "Sorbos de bidón", ca: "Glops de bidó", fr: "Gorgées de bidon", en: "Sips from bottle", de: "Schlucke aus der Flasche" },
+  sip: { es: "150–200 ml de bidón", ca: "150–200 ml de bidó", fr: "150–200 ml de bidon", en: "150–200 ml from bottle", de: "150–200 ml aus der Flasche" },
   gel: { es: "1 gel", ca: "1 gel", fr: "1 gel", en: "1 gel", de: "1 Gel" },
   halfBar: { es: "½ barrita", ca: "½ barreta", fr: "½ barre", en: "½ bar", de: "½ Riegel" },
   noCarbs: { es: "Sesión corta o suave: basta con agua o electrolitos. Llega bien comido.", ca: "Sessió curta o suau: n'hi ha prou amb aigua o electròlits. Arriba ben menjat.", fr: "Séance courte ou facile : de l'eau ou des électrolytes suffisent. Arrive bien nourri.", en: "Short or easy session: water or electrolytes are enough. Start well fuelled.", de: "Kurze oder lockere Einheit: Wasser oder Elektrolyte reichen. Gut gegessen starten." },
