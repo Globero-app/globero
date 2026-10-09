@@ -4,7 +4,7 @@ export type FuelItem = "gel" | "halfBar" | "sip";
 export interface FuelSlot { minute: number; items: FuelItem[] }
 export interface FuelPlan {
   carbsPerHour: number; totalCarbs: number; fluidPerHour: number;
-  bottles: number; gels: number; bars: number; drinkCarbs: number;
+  sipMl: number; bottles: number; gels: number; bars: number; drinkCarbs: number;
   schedule: FuelSlot[];
 }
 
@@ -49,7 +49,7 @@ export function buildFuelPlan(minutes: number, intensityFactor: number, tol: Gut
   const fluidPerHour = Math.round((500 + (intensityFactor >= 0.8 ? 150 : 0) + (indoor ? 250 : 0)) / 50) * 50;
   const bottles = Math.max(1, Math.ceil((fluidPerHour * hours) / BOTTLE_ML));
   const totalCarbs = Math.round(rate * hours);
-  if (rate === 0) return { carbsPerHour: 0, totalCarbs: 0, fluidPerHour, bottles, gels: 0, bars: 0, drinkCarbs: 0, schedule: sipsOnly(minutes) };
+  if (rate === 0) return { carbsPerHour: 0, totalCarbs: 0, fluidPerHour, bottles, gels: 0, bars: 0, drinkCarbs: 0, sipMl: Math.round(fluidPerHour / 4 / 10) * 10, schedule: sipsOnly(minutes) };
   const drinkCarbs = Math.min(totalCarbs, bottles * BOTTLE_CARBS_G);
   const slots: FuelSlot[] = [];
   for (let m = 20; m <= minutes - 10; m += 20) slots.push({ minute: m, items: ["sip"] });
@@ -62,7 +62,7 @@ export function buildFuelPlan(minutes: number, intensityFactor: number, tol: Gut
     if (s.minute <= solidsUntil && deficit >= HALF_BAR_G * 0.75) { s.items.push("halfBar"); halves++; deficit -= HALF_BAR_G; }
     else if (deficit >= GEL_G * 0.75) { s.items.push("gel"); gels++; deficit -= GEL_G; }
   }
-  return { carbsPerHour: rate, totalCarbs, fluidPerHour, bottles, gels, bars: Math.ceil(halves / 2), drinkCarbs, schedule: slots };
+  return { carbsPerHour: rate, totalCarbs, fluidPerHour, sipMl: Math.round(fluidPerHour / 3 / 10) * 10, bottles, gels, bars: Math.ceil(halves / 2), drinkCarbs, schedule: slots };
 }
 
 function sipsOnly(minutes: number): FuelSlot[] {
