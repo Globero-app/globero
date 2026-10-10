@@ -60,6 +60,7 @@ function CompetitionDetail() {
   const [waterSources, setWaterSources] = useState<WaterSource[]>([]);
   const [waterSearchComplete, setWaterSearchComplete] = useState(false);
   const [processingGpx, setProcessingGpx] = useState(false);
+  const [gpxFallback, setGpxFallback] = useState<{ url: string; filename: string; xml: string } | null>(null);
   const gpxInputRef = useRef<HTMLInputElement>(null);
   const processRef = useRef<((text: string, filename: string) => Promise<void>) | null>(null);
   const autoRan = useRef(false);
