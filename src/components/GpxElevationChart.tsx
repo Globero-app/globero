@@ -63,7 +63,7 @@ export function GpxElevationChart({ points, xml }: { points: TrackPoint[]; xml?:
   return (
     <section className="min-w-0 space-y-3" aria-label={text.title}>
       <h3 className="flex items-center gap-2 text-sm font-semibold"><Mountain className="size-4 text-primary" />{text.title}</h3>
-      {hasElevation ? (
+      {hasElevation ? (<>
         <div className="h-56 w-full min-w-0 text-muted-foreground">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 8, right: 16, bottom: 12, left: 0 }} accessibilityLayer>
