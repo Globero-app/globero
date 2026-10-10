@@ -84,9 +84,10 @@ export function buildGpxWithWaypoints(
   const wptsXml = waypoints.map((w) => {
     const p = pointAtKm(points, w.km);
     if (!p) return "";
+    const label = w.label || (w as any).note || "Avituallamiento";
     return `  <wpt lat="${p.lat}" lon="${p.lon}">
-    <name>${escapeXml(w.label)}</name>
-    <desc>KM ${w.km} — ${escapeXml(w.label)}</desc>
+    <name>${escapeXml(label)}</name>
+    <desc>KM ${w.km} — ${escapeXml(label)}</desc>
     <sym>Restaurant</sym>
   </wpt>`;
   }).filter(Boolean).join("\n");
@@ -109,8 +110,8 @@ ${trkpts}
 </gpx>`;
 }
 
-function escapeXml(s: string): string {
-  return s.replace(/[<>&"']/g, (c) =>
+function escapeXml(s: string | null | undefined = ""): string {
+  return String(s ?? "").replace(/[<>&"']/g, (c) =>
     c === "<" ? "&lt;" : c === ">" ? "&gt;" : c === "&" ? "&amp;" : c === '"' ? "&quot;" : "&apos;"
   );
 }

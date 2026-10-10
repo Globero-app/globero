@@ -173,17 +173,23 @@ function CompetitionDetail() {
   processRef.current = processGpxText;
 
   const downloadGpx = () => {
-    if (!c.gpx_data) {toast.error(tr("Sube un GPX y genera el plan primero"));return;}
-    let newGpx = buildGpxWithWaypoints(c.gpx_data, points, wpts.map((w: any) => ({ km: w.km, label: w.label })), c.name);
-    try { if (displayedWaterSources.length) newGpx = injectWaterWaypoints(newGpx, displayedWaterSources); } catch {}
-    const filename = `${(c.name || "ruta").replace(/[\\/:*?"<>|]/g, "_")}_nutricion.gpx`;
-    const blob = new Blob([newGpx], { type: "application/octet-stream" });
-    const nav: any = navigator;
-    if (nav.msSaveOrOpenBlob) { nav.msSaveOrOpenBlob(blob, filename); return; }
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");a.href = url;a.download = filename;a.rel = "noopener";a.style.display = "none";
-    document.body.appendChild(a);a.click();
-    setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 30000);
+    try {
+      if (!c.gpx_data && points.length < 2) {toast.error(tr("Sube un GPX y genera el plan primero"));return;}
+      let newGpx = buildGpxWithWaypoints(c.gpx_data || "", points, wpts.map((w: any) => ({ km: Number(w.km) || 0, label: w.label || w.note || (w.carbs_g ? "CHO " + w.carbs_g + "g" : "Avituallamiento") })), c.name || "Ruta");
+      try { if (displayedWaterSources.length) newGpx = injectWaterWaypoints(newGpx, displayedWaterSources); } catch (e) { console.error(e); }
+      const filename = `${(c.name || "ruta").replace(/[\\/:*?"<>|]/g, "_")}_nutricion.gpx`;
+      const blob = new Blob([newGpx], { type: "application/octet-stream" });
+      const nav: any = navigator;
+      if (nav.msSaveOrOpenBlob) { nav.msSaveOrOpenBlob(blob, filename); toast.success(tr("Descarga del GPX iniciada")); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");a.href = url;a.download = filename;a.rel = "noopener";a.style.display = "none";
+      document.body.appendChild(a);a.click();
+      setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 30000);
+      toast.success(tr("Descarga del GPX iniciada"));
+    } catch (err) {
+      console.error("downloadGpx", err);
+      toast.error(err instanceof Error ? err.message : tr("No se pudo descargar el GPX"));
+    }
   };
 
   const handleGenerateMenu = async () => {
