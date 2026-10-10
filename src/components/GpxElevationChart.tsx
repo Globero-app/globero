@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useState } from "react";
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, ReferenceDot, ReferenceLine, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Mountain } from "lucide-react";
 import { elevationProfile, parseGpx, type TrackPoint } from "@/lib/gpx";
 import { activeLang } from "@/lib/i18n";
@@ -26,7 +26,7 @@ function slopeColor(slope: number): string {
   return c;
 }
 
-export function GpxElevationChart({ points, xml, onHover }: { points: TrackPoint[]; xml?: string | null; onHover?: (p: { lat: number; lon: number } | null) => void }) {
+export function GpxElevationChart({ points, xml, onHover, highlight }: { highlight?: { lat: number; lon: number } | null; points: TrackPoint[]; xml?: string | null; onHover?: (p: { lat: number; lon: number } | null) => void }) {
   const [originalPoints, setOriginalPoints] = useState<TrackPoint[] | null>(null);
   useEffect(() => {
     setOriginalPoints(xml ? parseGpx(xml).points : null);
@@ -58,6 +58,12 @@ export function GpxElevationChart({ points, xml, onHover }: { points: TrackPoint
     stops.push({ offset: 1, color: prev });
     return stops;
   }, [data, hasElevation]);
+  const hl = useMemo(() => {
+    if (!highlight) return null;
+    let best = null as (typeof data)[number] | null, bd = Infinity;
+    for (const p of data) { const d = (p.lat - highlight.lat) ** 2 + (p.lon - highlight.lon) ** 2; if (d < bd) { bd = d; best = p; } }
+    return best && best.elevation !== null ? best : null;
+  }, [highlight, data]);
   if (data.length < 2) return null;
 
   return (
@@ -82,6 +88,8 @@ export function GpxElevationChart({ points, xml, onHover }: { points: TrackPoint
                   </linearGradient>
                 </defs>
               )}
+              {hl && <ReferenceLine x={hl.km} stroke="#facc15" strokeDasharray="3 3" />}
+              {hl && <ReferenceDot x={hl.km} y={hl.elevation as number} r={5} fill="#facc15" stroke="#ffffff" strokeWidth={2} />}
               <Area type="linear" dataKey="elevation" name={text.altitude} stroke={gradientStops ? `url(#${gradientId})` : "var(--primary)"} fill={gradientStops ? `url(#${gradientId})` : "var(--primary)"} fillOpacity={0.18} strokeWidth={2} dot={false} connectNulls={false} isAnimationActive={false} />
             </AreaChart>
           </ResponsiveContainer>
