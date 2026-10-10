@@ -268,13 +268,6 @@ function CompetitionDetail() {
                   <Download className="size-3.5" /> {tr("Descargar GPX con waypoints")} 
               </button>
               </div>
-              {gpxFallback &&
-              <div className="mb-2 p-2 rounded-lg border bg-muted/40 text-xs flex flex-wrap items-center gap-2">
-                <span className="text-muted-foreground">{tr("¿No se ha descargado?")}</span>
-                <a href={gpxFallback.url} download={gpxFallback.filename} className="underline font-semibold">{tr("Descargar archivo")}</a>
-                <a href={gpxFallback.url} target="_blank" rel="noopener noreferrer" className="underline">{tr("Abrir en nueva pestaña")}</a>
-                <button type="button" className="underline" onClick={async () => { try { await navigator.clipboard.writeText(gpxFallback.xml); toast.success(tr("GPX copiado al portapapeles")); } catch { toast.error(tr("No se pudo copiar")); } }}>{tr("Copiar contenido GPX al portapapeles")}</button>
-              </div>}
               <p className="text-[10px] text-muted-foreground mb-2"> {tr("Dosis ajustadas por perfil, forma (Intervals.icu últimas 4 semanas) y perfil altimétrico.")} 
 
             </p>
