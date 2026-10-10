@@ -186,7 +186,7 @@ function CompetitionDetail() {
         const { Filesystem, Directory, Encoding } = await import("@capacitor/filesystem");
         const { Share } = await import("@capacitor/share");
         const file = await Filesystem.writeFile({ path: filename, data: newGpx, directory: Directory.Cache, encoding: Encoding.UTF8 });
-        await Share.share({ title: filename, url: file.uri, mimeType: "application/gpx+xml", dialogTitle: tr("Compartir GPX") });
+        await Share.share({ title: filename, url: file.uri, dialogTitle: tr("Compartir GPX") });
         toast.success(tr("GPX compartido"));
         return;
       }
