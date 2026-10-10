@@ -60,6 +60,7 @@ function CompetitionDetail() {
   const [waterSources, setWaterSources] = useState<WaterSource[]>([]);
   const [waterSearchComplete, setWaterSearchComplete] = useState(false);
   const [processingGpx, setProcessingGpx] = useState(false);
+  const [gpxFallback, setGpxFallback] = useState<{ url: string; filename: string; xml: string } | null>(null);
   const gpxInputRef = useRef<HTMLInputElement>(null);
   const processRef = useRef<((text: string, filename: string) => Promise<void>) | null>(null);
   const autoRan = useRef(false);
@@ -178,13 +179,20 @@ function CompetitionDetail() {
       let newGpx = buildGpxWithWaypoints(c.gpx_data || "", points, wpts.map((w: any) => ({ km: Number(w.km) || 0, label: w.label || w.note || (w.carbs_g ? "CHO " + w.carbs_g + "g" : "Avituallamiento") })), c.name || "Ruta");
       try { if (displayedWaterSources.length) newGpx = injectWaterWaypoints(newGpx, displayedWaterSources); } catch (e) { console.error(e); }
       const filename = `${(c.name || "ruta").replace(/[\\/:*?"<>|]/g, "_")}_nutricion.gpx`;
-      const blob = new Blob([newGpx], { type: "application/octet-stream" });
+      if (!newGpx.trim().startsWith("<?xml")) newGpx = `<?xml version="1.0" encoding="UTF-8"?>\n${newGpx.trim()}`;
+      if (!/<\/gpx>\s*$/.test(newGpx)) throw new Error(tr("GPX incompleto"));
+      const blob = new Blob([newGpx], { type: "application/gpx+xml;charset=utf-8" });
       const nav: any = navigator;
       if (nav.msSaveOrOpenBlob) { nav.msSaveOrOpenBlob(blob, filename); toast.success(tr("Descarga del GPX iniciada")); return; }
+      if (gpxFallback) URL.revokeObjectURL(gpxFallback.url);
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");a.href = url;a.download = filename;a.rel = "noopener";a.style.display = "none";
+      setGpxFallback({ url, filename, xml: newGpx });
+      const a = document.createElement("a");a.href = url;a.download = filename;a.target = "_blank";a.rel = "noopener noreferrer";a.style.display = "none";
       document.body.appendChild(a);a.click();
-      setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 30000);
+      setTimeout(() => a.remove(), 1000);
+      let inIframe = false;
+      try { inIframe = window.self !== window.top; } catch { inIframe = true; }
+      if (inIframe) { try { window.open(url, "_blank"); } catch { /* usar enlaces alternativos */ } }
       toast.success(tr("Descarga del GPX iniciada"));
     } catch (err) {
       console.error("downloadGpx", err);
@@ -260,6 +268,13 @@ function CompetitionDetail() {
                   <Download className="size-3.5" /> {tr("Descargar GPX con waypoints")} 
               </button>
               </div>
+              {gpxFallback &&
+              <div className="mb-2 p-2 rounded-lg border bg-muted/40 text-xs flex flex-wrap items-center gap-2">
+                <span className="text-muted-foreground">{tr("¿No se ha descargado?")}</span>
+                <a href={gpxFallback.url} download={gpxFallback.filename} className="underline font-semibold">{tr("Descargar archivo")}</a>
+                <a href={gpxFallback.url} target="_blank" rel="noopener noreferrer" className="underline">{tr("Abrir en nueva pestaña")}</a>
+                <button type="button" className="underline" onClick={async () => { try { await navigator.clipboard.writeText(gpxFallback.xml); toast.success(tr("GPX copiado al portapapeles")); } catch { toast.error(tr("No se pudo copiar")); } }}>{tr("Copiar contenido GPX al portapapeles")}</button>
+              </div>}
               <p className="text-[10px] text-muted-foreground mb-2"> {tr("Dosis ajustadas por perfil, forma (Intervals.icu últimas 4 semanas) y perfil altimétrico.")} 
 
             </p>
