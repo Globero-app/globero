@@ -93,8 +93,7 @@ export function GpxElevationChart({ points, xml }: { points: TrackPoint[]; xml?:
               {band.label || text.descent}
             </span>
           ))}
-        </div>
-      ) : <p className="text-sm text-muted-foreground">{text.missing}</p>}
+        </div></>) : <p className="text-sm text-muted-foreground">{text.missing}</p>}
     </section>
   );
 }
