@@ -172,9 +172,12 @@ function CompetitionDetail() {
   };
   processRef.current = processGpxText;
 
-  const [gpxFallback, setGpxFallback] = useState<{ url: string; filename: string; xml: string } | null>(null);
   const downloadGpx = () => {
-...
+    try {
+      if (!c.gpx_data && points.length < 2) {toast.error(tr("Sube un GPX y genera el plan primero"));return;}
+      let newGpx = buildGpxWithWaypoints(c.gpx_data || "", points, wpts.map((w: any) => ({ km: Number(w.km) || 0, label: w.label || w.note || (w.carbs_g ? "CHO " + w.carbs_g + "g" : "Avituallamiento") })), c.name || "Ruta");
+      try { if (displayedWaterSources.length) newGpx = injectWaterWaypoints(newGpx, displayedWaterSources); } catch (e) { console.error(e); }
+      const filename = `${(c.name || "ruta").replace(/[\\/:*?"<>|]/g, "_")}_nutricion.gpx`;
       if (!newGpx.trim().startsWith("<?xml")) newGpx = `<?xml version="1.0" encoding="UTF-8"?>\n${newGpx.trim()}`;
       if (!/<\/gpx>\s*$/.test(newGpx)) throw new Error(tr("GPX incompleto"));
       const blob = new Blob([newGpx], { type: "application/gpx+xml;charset=utf-8" });
