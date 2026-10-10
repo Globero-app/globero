@@ -216,7 +216,7 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Fold today",
     "Falte heute"
   ],
-  "Al detectar un entreno realizado, se renombra la actividad en Strava con el nombre del entreno y se añade debajo \"atleta de https://coach.globero.app/\".": [
+  "Al detectar un entreno realizado, se renombra la actividad en Strava con el nombre del entreno y se añade debajo \"atleta de https://globero.app/\".": [
     "L'activitat a Strava amb el nom del tren està renomerada i afegida sota \"https: // worldro.app /\"",
     "L'activité à Strava avec le nom du train est renommée et ajoutée sous \"https athlète: / / globero.app /\"",
     "The activity at Strava with the name of the train is renomerated and added under \"https athlete: / / globero.app /\"",

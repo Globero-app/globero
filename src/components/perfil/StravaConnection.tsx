@@ -32,7 +32,7 @@ export function StravaConnection({ profile }: {profile: any;}) {
             <Unlink className="size-3" /> {tr("Desconectar")} 
           </button>
         </div>
-        <p className="text-xs text-muted-foreground"> {tr("Al detectar un entreno realizado, se renombra la actividad en Strava con el nombre del entreno y se añade debajo \"atleta de https://coach.globero.app/\".")} 
+        <p className="text-xs text-muted-foreground"> {tr("Al detectar un entreno realizado, se renombra la actividad en Strava con el nombre del entreno y se añade debajo \"atleta de https://globero.app/\".")} 
 
 
         </p>
