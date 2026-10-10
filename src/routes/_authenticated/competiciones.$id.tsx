@@ -176,28 +176,16 @@ function CompetitionDetail() {
     if (!c.gpx_data || !wpts.length) {toast.error(tr("Sube un GPX y genera el plan primero"));return;}
     let newGpx = buildGpxWithWaypoints(c.gpx_data, points, wpts.map((w: any) => ({ km: w.km, label: w.label })), c.name);
     try {
-      const { addWaterWaypointsToGpx } = await import("@/utils/gpxWaterFinder");
-      let sourceCount = displayedWaterSources.length;
-      if (hasCompletedWaterSearch) {
+      if (displayedWaterSources.length) {
         const { injectWaterWaypoints } = await import("@/utils/gpxWaterFinder");
         newGpx = injectWaterWaypoints(newGpx, displayedWaterSources);
-      } else {
-        const res = await addWaterWaypointsToGpx(newGpx, points, 200);
-        const { filterByRouteSpacing, injectWaterWaypoints: injectSpaced } = await import("@/utils/gpxWaterFinder");
-        const spaced = filterByRouteSpacing(res.sources, points, c.type);
-        newGpx = injectSpaced(buildGpxWithWaypoints(c.gpx_data, points, wpts.map((w: any) => ({ km: w.km, label: w.label })), c.name), spaced);
-        setWaterSources(spaced);
-        setWaterSearchComplete(true);
-        sourceCount = spaced.length;
       }
-      toast.success(sourceCount ? `${sourceCount} fuentes de agua añadidas` : tr("Sin fuentes de agua cercanas"));
-    } catch {
-      toast.warning(tr("No se pudieron buscar fuentes de agua"));
-    }
+    } catch {}
     const blob = new Blob([newGpx], { type: "application/gpx+xml" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");a.href = url;a.download = `${c.name}_nutricion.gpx`;a.click();
-    URL.revokeObjectURL(url);
+    const a = document.createElement("a");a.href = url;a.download = `${(c.name || "ruta").replace(/[\\/:*?"<>|]/g, "_")}_nutricion.gpx`;
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   const handleGenerateMenu = async () => {
