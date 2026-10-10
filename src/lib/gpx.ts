@@ -49,7 +49,7 @@ export function elevationProfile(points: TrackPoint[]) {
   let km = 0;
   return points.map((point, index) => {
     if (index > 0) km += haversine(points[index - 1], point);
-    return { km, elevation: point.ele != null && Number.isFinite(point.ele) ? point.ele : null };
+    return { km, lat: point.lat, lon: point.lon, elevation: point.ele != null && Number.isFinite(point.ele) ? point.ele : null };
   });
 }
 

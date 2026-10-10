@@ -53,6 +53,7 @@ function CompetitionDetail() {
     enabled: !!user
   });
 
+  const [hoverPt, setHoverPt] = useState<{ lat: number; lon: number } | null>(null);
   const [generating, setGenerating] = useState(false);
   const [swapping, setSwapping] = useState<string | null>(null);
   const [viewRecipe, setViewRecipe] = useState<any | null>(null);
@@ -246,13 +247,13 @@ function CompetitionDetail() {
             <input ref={gpxInputRef} type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml" className="sr-only" onChange={handleGpxUpload} />
           </div>
           {points.length > 0 ?
-          <GpxMap points={points} waypoints={wpts.map((w: any) => ({ lat: w.lat, lon: w.lon, label: w.label }))} waterSources={displayedWaterSources} /> :
+          <GpxMap points={points} waypoints={wpts.map((w: any) => ({ lat: w.lat, lon: w.lon, label: w.label }))} waterSources={displayedWaterSources} highlight={hoverPt} /> :
 
           <div className="border-2 border-dashed rounded-xl p-12 text-center text-sm text-muted-foreground"> {tr("Sube un archivo .gpx con el track de la competición")} 
 
           </div>
           }
-          <GpxElevationChart points={points} xml={c.gpx_data} />
+          <GpxElevationChart points={points} xml={c.gpx_data} onHover={setHoverPt} />
           {hasCompletedWaterSearch && displayedWaterSources.length === 0 &&
           <p className="text-sm text-muted-foreground">{tr("No se han encontrado fuentes de agua cercanas a menos de 200m a lo largo de la ruta indicada")}</p>
           }
