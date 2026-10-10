@@ -9,6 +9,7 @@ import { generateMenu, swapRecipe } from "@/lib/ai.functions";
 import { parseGpx, simplifyTrack, trackStats, buildGpxWithWaypoints, pointAtKm } from "@/lib/gpx";
 import { planRaceNutrition, dailyMacros } from "@/lib/carbs";
 import { GpxMap } from "@/components/GpxMap";
+import { GpxElevationChart } from "@/components/GpxElevationChart";
 import type { WaterSource } from "@/utils/gpxWaterFinder";
 import { RaceWeatherCard } from "@/components/RaceWeatherCard";
 import { Upload, Download, ChefHat, Sparkles, ArrowLeft, RefreshCcw, FileDown, X, Eye } from "lucide-react";
@@ -20,6 +21,14 @@ import { format } from "date-fns";
 import { es, ca, fr, enGB, de } from "date-fns/locale";
 
 export const Route = createFileRoute("/_authenticated/competiciones/$id")({
+  head: () => ({ meta: [
+    { title: "Detalle de ruta y altimetría — Globero" },
+    { name: "description", content: "Recorrido GPX, perfil de elevación, avituallamiento y previsión de tu ruta ciclista en Globero." },
+    { property: "og:title", content: "Detalle de ruta y altimetría — Globero" },
+    { property: "og:description", content: "Consulta el recorrido, la altimetría y el avituallamiento de tu ruta ciclista." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: CompetitionDetail
 });
 
@@ -243,6 +252,7 @@ function CompetitionDetail() {
 
           </div>
           }
+          <GpxElevationChart points={points} xml={c.gpx_data} />
           {hasCompletedWaterSearch && displayedWaterSources.length === 0 &&
           <p className="text-sm text-muted-foreground">{tr("No se han encontrado fuentes de agua cercanas a menos de 200m a lo largo de la ruta indicada")}</p>
           }
