@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import type { TrackPoint } from "@/lib/gpx";
 import type { WaterSource } from "@/utils/gpxWaterFinder";
 
-export function GpxMap({ points, waypoints, waterSources }: { points: TrackPoint[]; waypoints?: { lat: number; lon: number; label: string }[]; waterSources?: WaterSource[] }) {
+export function GpxMap({ points, waypoints, waterSources, highlight }: { highlight?: { lat: number; lon: number } | null; points: TrackPoint[]; waypoints?: { lat: number; lon: number; label: string }[]; waterSources?: WaterSource[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
 
@@ -19,6 +19,7 @@ export function GpxMap({ points, waypoints, waterSources }: { points: TrackPoint
         }).addTo(mapRef.current);
       }
       const map = mapRef.current;
+      hlRef.current = null;
       map.eachLayer((l: any) => { if (l.options && l.options.attribution === undefined) map.removeLayer(l); });
       const latlngs = points.map((p) => [p.lat, p.lon]) as [number, number][];
       const line = L.polyline(latlngs, { color: "#e11d48", weight: 4 }).addTo(map);
@@ -36,6 +37,18 @@ export function GpxMap({ points, waypoints, waterSources }: { points: TrackPoint
     })();
     return () => { cancelled = true; };
   }, [points, waypoints, waterSources]);
+
+  const hlRef = useRef<any>(null);
+  useEffect(() => {
+    (async () => {
+      const map = mapRef.current;
+      if (!map) return;
+      const L = (await import("leaflet")).default;
+      if (!highlight) { hlRef.current?.remove(); hlRef.current = null; return; }
+      if (!hlRef.current) hlRef.current = L.circleMarker([highlight.lat, highlight.lon], { radius: 8, color: "#ffffff", weight: 3, fillColor: "#facc15", fillOpacity: 1 }).addTo(map);
+      else hlRef.current.setLatLng([highlight.lat, highlight.lon]);
+    })();
+  }, [highlight]);
 
   useEffect(() => () => { mapRef.current?.remove(); mapRef.current = null; }, []);
 

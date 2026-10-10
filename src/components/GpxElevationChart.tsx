@@ -26,7 +26,7 @@ function slopeColor(slope: number): string {
   return c;
 }
 
-export function GpxElevationChart({ points, xml }: { points: TrackPoint[]; xml?: string | null }) {
+export function GpxElevationChart({ points, xml, onHover }: { points: TrackPoint[]; xml?: string | null; onHover?: (p: { lat: number; lon: number } | null) => void }) {
   const [originalPoints, setOriginalPoints] = useState<TrackPoint[] | null>(null);
   useEffect(() => {
     setOriginalPoints(xml ? parseGpx(xml).points : null);
@@ -66,7 +66,7 @@ export function GpxElevationChart({ points, xml }: { points: TrackPoint[]; xml?:
       {hasElevation ? (<>
         <div className="h-56 w-full min-w-0 text-muted-foreground">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 8, right: 16, bottom: 12, left: 0 }} accessibilityLayer>
+            <AreaChart data={data} margin={{ top: 8, right: 16, bottom: 12, left: 0 }} accessibilityLayer onMouseMove={(st: any) => { const p = data[st?.activeTooltipIndex as number]; onHover?.(p ? { lat: p.lat, lon: p.lon } : null); }} onMouseLeave={() => onHover?.(null)}>
               <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="km" type="number" domain={[0, "dataMax"]} tickFormatter={(value: number) => `${Number(value.toFixed(1))}`} tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} stroke="var(--border)" label={{ value: "km", position: "insideBottomRight", offset: -8, fill: "var(--muted-foreground)", fontSize: 11 }} />
               <YAxis domain={["dataMin - 10", "dataMax + 10"]} tickFormatter={(value: number) => `${Math.round(value)} m`} width={62} tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} stroke="var(--border)" />
