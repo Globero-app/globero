@@ -11,6 +11,7 @@ import { planRaceNutrition, dailyMacros } from "@/lib/carbs";
 import { GpxMap } from "@/components/GpxMap";
 import { GpxElevationChart } from "@/components/GpxElevationChart";
 import { injectWaterWaypoints, type WaterSource } from "@/utils/gpxWaterFinder";
+import { isNative } from "@/lib/native-geo";
 import { RaceWeatherCard } from "@/components/RaceWeatherCard";
 import { Upload, Download, ChefHat, Sparkles, ArrowLeft, RefreshCcw, FileDown, X, Eye } from "lucide-react";
 
@@ -173,7 +174,7 @@ function CompetitionDetail() {
   };
   processRef.current = processGpxText;
 
-  const downloadGpx = () => {
+  const downloadGpx = async () => {
     try {
       if (!c.gpx_data && points.length < 2) {toast.error(tr("Sube un GPX y genera el plan primero"));return;}
       let newGpx = buildGpxWithWaypoints(c.gpx_data || "", points, wpts.map((w: any) => ({ km: Number(w.km) || 0, label: w.label || w.note || (w.carbs_g ? "CHO " + w.carbs_g + "g" : "Avituallamiento") })), c.name || "Ruta");
@@ -181,6 +182,14 @@ function CompetitionDetail() {
       const filename = `${(c.name || "ruta").replace(/[\\/:*?"<>|]/g, "_")}_nutricion.gpx`;
       if (!newGpx.trim().startsWith("<?xml")) newGpx = `<?xml version="1.0" encoding="UTF-8"?>\n${newGpx.trim()}`;
       if (!/<\/gpx>\s*$/.test(newGpx)) throw new Error(tr("GPX incompleto"));
+      if (isNative()) {
+        const { Filesystem, Directory, Encoding } = await import("@capacitor/filesystem");
+        const { Share } = await import("@capacitor/share");
+        const file = await Filesystem.writeFile({ path: filename, data: newGpx, directory: Directory.Cache, encoding: Encoding.UTF8 });
+        await Share.share({ title: filename, url: file.uri, mimeType: "application/gpx+xml", dialogTitle: tr("Compartir GPX") });
+        toast.success(tr("GPX compartido"));
+        return;
+      }
       const blob = new Blob([newGpx], { type: "application/gpx+xml;charset=utf-8" });
       const nav: any = navigator;
       if (nav.msSaveOrOpenBlob) { nav.msSaveOrOpenBlob(blob, filename); toast.success(tr("Descarga del GPX iniciada")); return; }
