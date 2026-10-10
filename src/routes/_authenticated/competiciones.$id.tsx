@@ -53,6 +53,7 @@ function CompetitionDetail() {
     enabled: !!user
   });
 
+  const [hoverPt, setHoverPt] = useState<{ lat: number; lon: number } | null>(null);
   const [generating, setGenerating] = useState(false);
   const [swapping, setSwapping] = useState<string | null>(null);
   const [viewRecipe, setViewRecipe] = useState<any | null>(null);
