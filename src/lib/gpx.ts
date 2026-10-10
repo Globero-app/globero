@@ -44,6 +44,15 @@ export function trackStats(points: TrackPoint[]) {
   return { distance_km: Math.round(dist * 10) / 10, elevation_m: Math.round(elev) };
 }
 
+/** Perfil altimétrico con distancia acumulada sobre el track original. */
+export function elevationProfile(points: TrackPoint[]) {
+  let km = 0;
+  return points.map((point, index) => {
+    if (index > 0) km += haversine(points[index - 1], point);
+    return { km, elevation: point.ele != null && Number.isFinite(point.ele) ? point.ele : null };
+  });
+}
+
 /** Devuelve el punto del track a una distancia km dada (interpolando). */
 export function pointAtKm(points: TrackPoint[], targetKm: number): TrackPoint | null {
   if (points.length === 0) return null;
