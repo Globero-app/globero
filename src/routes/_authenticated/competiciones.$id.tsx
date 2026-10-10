@@ -10,7 +10,7 @@ import { parseGpx, simplifyTrack, trackStats, buildGpxWithWaypoints, pointAtKm }
 import { planRaceNutrition, dailyMacros } from "@/lib/carbs";
 import { GpxMap } from "@/components/GpxMap";
 import { GpxElevationChart } from "@/components/GpxElevationChart";
-import type { WaterSource } from "@/utils/gpxWaterFinder";
+import { injectWaterWaypoints, type WaterSource } from "@/utils/gpxWaterFinder";
 import { RaceWeatherCard } from "@/components/RaceWeatherCard";
 import { Upload, Download, ChefHat, Sparkles, ArrowLeft, RefreshCcw, FileDown, X, Eye } from "lucide-react";
 
@@ -172,20 +172,18 @@ function CompetitionDetail() {
   };
   processRef.current = processGpxText;
 
-  const downloadGpx = async () => {
-    if (!c.gpx_data || !wpts.length) {toast.error(tr("Sube un GPX y genera el plan primero"));return;}
+  const downloadGpx = () => {
+    if (!c.gpx_data) {toast.error(tr("Sube un GPX y genera el plan primero"));return;}
     let newGpx = buildGpxWithWaypoints(c.gpx_data, points, wpts.map((w: any) => ({ km: w.km, label: w.label })), c.name);
-    try {
-      if (displayedWaterSources.length) {
-        const { injectWaterWaypoints } = await import("@/utils/gpxWaterFinder");
-        newGpx = injectWaterWaypoints(newGpx, displayedWaterSources);
-      }
-    } catch {}
-    const blob = new Blob([newGpx], { type: "application/gpx+xml" });
+    try { if (displayedWaterSources.length) newGpx = injectWaterWaypoints(newGpx, displayedWaterSources); } catch {}
+    const filename = `${(c.name || "ruta").replace(/[\\/:*?"<>|]/g, "_")}_nutricion.gpx`;
+    const blob = new Blob([newGpx], { type: "application/octet-stream" });
+    const nav: any = navigator;
+    if (nav.msSaveOrOpenBlob) { nav.msSaveOrOpenBlob(blob, filename); return; }
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");a.href = url;a.download = `${(c.name || "ruta").replace(/[\\/:*?"<>|]/g, "_")}_nutricion.gpx`;
-    document.body.appendChild(a);a.click();a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const a = document.createElement("a");a.href = url;a.download = filename;a.rel = "noopener";a.style.display = "none";
+    document.body.appendChild(a);a.click();
+    setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 30000);
   };
 
   const handleGenerateMenu = async () => {
