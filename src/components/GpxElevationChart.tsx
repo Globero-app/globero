@@ -75,9 +75,24 @@ export function GpxElevationChart({ points, xml }: { points: TrackPoint[]; xml?:
                 if (!active || !point || point.elevation === null) return null;
                 return <div className="rounded-md border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-sm"><p>{text.distance}: {point.km.toFixed(2)} km</p><p className="font-semibold">{text.altitude}: {Math.round(point.elevation)} m</p></div>;
               }} />
-              <Area type="linear" dataKey="elevation" name={text.altitude} stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.16} strokeWidth={2} dot={false} connectNulls={false} isAnimationActive={false} />
+              {gradientStops && (
+                <defs>
+                  <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
+                    {gradientStops.map((s, i) => <stop key={i} offset={s.offset} stopColor={s.color} />)}
+                  </linearGradient>
+                </defs>
+              )}
+              <Area type="linear" dataKey="elevation" name={text.altitude} stroke={gradientStops ? `url(#${gradientId})` : "var(--primary)"} fill={gradientStops ? `url(#${gradientId})` : "var(--primary)"} fillOpacity={0.18} strokeWidth={2} dot={false} connectNulls={false} isAnimationActive={false} />
             </AreaChart>
           </ResponsiveContainer>
+        </div>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          {SLOPE_COLORS.map((band) => (
+            <span key={band.color} className="flex items-center gap-1.5">
+              <span className="size-2.5 rounded-full" style={{ background: band.color }} />
+              {band.label || text.descent}
+            </span>
+          ))}
         </div>
       ) : <p className="text-sm text-muted-foreground">{text.missing}</p>}
     </section>
