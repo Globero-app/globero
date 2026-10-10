@@ -34,6 +34,30 @@ export function GpxElevationChart({ points, xml }: { points: TrackPoint[]; xml?:
   const data = useMemo(() => elevationProfile(originalPoints?.length ? originalPoints : points), [originalPoints, points]);
   const text = labels[activeLang()];
   const hasElevation = data.some((point) => point.elevation !== null);
+  const gradientId = useId().replace(/[^a-zA-Z0-9]/g, "");
+  const gradientStops = useMemo(() => {
+    const maxKm = data[data.length - 1]?.km ?? 0;
+    if (!hasElevation || maxKm <= 0) return null;
+    const slopeAt = (i: number) => {
+      let a = i, b = i;
+      while (a > 0 && data[i].km - data[a].km < 0.125) a--;
+      while (b < data.length - 1 && data[b].km - data[i].km < 0.125) b++;
+      const dKm = data[b].km - data[a].km;
+      return dKm > 0 ? (((data[b].elevation ?? 0) - (data[a].elevation ?? 0)) / (dKm * 1000)) * 100 : 0;
+    };
+    const stops: { offset: number; color: string }[] = [{ offset: 0, color: slopeColor(slopeAt(0)) }];
+    let prev = slopeColor(slopeAt(0));
+    for (let i = 1; i < data.length; i++) {
+      const c = slopeColor(slopeAt(i));
+      if (c !== prev) {
+        const off = Math.min(1, data[i].km / maxKm);
+        stops.push({ offset: off, color: prev }, { offset: off, color: c });
+        prev = c;
+      }
+    }
+    stops.push({ offset: 1, color: prev });
+    return stops;
+  }, [data, hasElevation]);
   if (data.length < 2) return null;
 
   return (
