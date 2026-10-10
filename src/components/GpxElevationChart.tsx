@@ -5,12 +5,26 @@ import { elevationProfile, parseGpx, type TrackPoint } from "@/lib/gpx";
 import { activeLang } from "@/lib/i18n";
 
 const labels = {
-  es: { title: "Altimetría", altitude: "Elevación", distance: "Distancia", missing: "El GPX no contiene datos de elevación." },
-  ca: { title: "Altimetria", altitude: "Elevació", distance: "Distància", missing: "El GPX no conté dades d'elevació." },
-  fr: { title: "Profil altimétrique", altitude: "Altitude", distance: "Distance", missing: "Le GPX ne contient pas de données d'altitude." },
-  en: { title: "Elevation profile", altitude: "Elevation", distance: "Distance", missing: "The GPX contains no elevation data." },
-  de: { title: "Höhenprofil", altitude: "Höhe", distance: "Distanz", missing: "Die GPX-Datei enthält keine Höhendaten." },
+  es: { title: "Altimetría", altitude: "Elevación", distance: "Distancia", missing: "El GPX no contiene datos de elevación.", descent: "Bajada" },
+  ca: { title: "Altimetria", altitude: "Elevació", distance: "Distància", missing: "El GPX no conté dades d'elevació.", descent: "Baixada" },
+  fr: { title: "Profil altimétrique", altitude: "Altitude", distance: "Distance", missing: "Le GPX ne contient pas de données d'altitude.", descent: "Descente" },
+  en: { title: "Elevation profile", altitude: "Elevation", distance: "Distance", missing: "The GPX contains no elevation data.", descent: "Descent" },
+  de: { title: "Höhenprofil", altitude: "Höhe", distance: "Distanz", missing: "Die GPX-Datei enthält keine Höhendaten.", descent: "Abfahrt" },
 };
+
+const SLOPE_COLORS: { min: number; color: string; label: string }[] = [
+  { min: -Infinity, color: "#38bdf8", label: "" },
+  { min: -2, color: "#22c55e", label: "<2%" },
+  { min: 2, color: "#eab308", label: "2–5%" },
+  { min: 5, color: "#f97316", label: "5–8%" },
+  { min: 8, color: "#ef4444", label: ">8%" },
+];
+
+function slopeColor(slope: number): string {
+  let c = SLOPE_COLORS[0].color;
+  for (const band of SLOPE_COLORS) if (slope >= band.min) c = band.color;
+  return c;
+}
 
 export function GpxElevationChart({ points, xml }: { points: TrackPoint[]; xml?: string | null }) {
   const [originalPoints, setOriginalPoints] = useState<TrackPoint[] | null>(null);
