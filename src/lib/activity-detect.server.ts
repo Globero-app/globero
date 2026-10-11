@@ -85,7 +85,7 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
       .eq("user_id", userId),
     admin
       .from("competitions")
-      .select("id, name, date, type, race_feedback")
+      .select("id, name, date, type, intensity, race_feedback")
       .eq("user_id", userId)
       .gte("date", sinceDay),
     admin
