@@ -1,3 +1,4 @@
+import { insertGpxWaypoints } from "@/lib/gpx";
 // Detección de fuentes de agua potable a lo largo de un track GPX (Overpass / OpenStreetMap)
 
 export interface LatLon { lat: number; lon: number }
@@ -108,24 +109,28 @@ function escapeXml(s: string): string {
 }
 
 /** Inyecta las fuentes como <wpt> en un GPX existente, conservando los waypoints previos. */
-export function injectWaterWaypoints(gpxXml: string, sources: WaterSource[]): string {
+export function injectWaterWaypoints(gpxXml: string, sources: WaterSource[], track?: LatLon[]): string {
   if (!sources.length) return gpxXml;
   const wpts = sources
-    .map(
-      (s) => `  <wpt lat="${s.lat}" lon="${s.lon}">
-    <name>🚰 Agua</name>
-    <desc>${escapeXml(s.name || "Fuente de agua potable")}</desc>
-    <sym>Drinking Water</sym>
-  </wpt>`
-    )
+    .map((s) => {
+      let p: LatLon = s;
+      if (track?.length) { let bd = Infinity; for (const t of track) { const d = haversineMeters(s, t); if (d < bd) { bd = d; p = t; } } }
+      const desc = escapeXml((s.name || "Fuente de agua potable").replace(/[^\p{L}\p{N}\s.,:;()\-\/]/gu, "").trim() || "Fuente de agua potable");
+      return `  <wpt lat="${p.lat.toFixed(6)}" lon="${p.lon.toFixed(6)}">
+    <name>Agua</name>
+    <cmt>${desc}</cmt>
+    <desc>${desc}</desc>
+    <sym>Water</sym>
+    <type>Water</type>
+  </wpt>`;
+    })
     .join("\n");
-  if (/<gpx[^>]*>/.test(gpxXml)) return gpxXml.replace(/<gpx([^>]*)>/, (m) => `${m}\n${wpts}`);
-  return gpxXml;
+  return insertGpxWaypoints(gpxXml, wpts);
 }
 
 /** Flujo completo: busca, filtra e inyecta las fuentes de agua en el GPX. */
 export async function addWaterWaypointsToGpx(gpxXml: string, track: LatLon[], maxMeters = 200) {
   const found = await fetchWaterSources(track);
   const near = filterNearTrack(found, track, maxMeters);
-  return { xml: injectWaterWaypoints(gpxXml, near), count: near.length, sources: near };
+  return { xml: injectWaterWaypoints(gpxXml, near, track), count: near.length, sources: near };
 }
