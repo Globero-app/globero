@@ -35,7 +35,7 @@ export const getActivityMatches = createServerFn({ method: "GET" })
         .eq("user_id", userId),
       supabase
         .from("competitions")
-        .select("id, name, date, type, distance_km, elevation_m, race_feedback")
+        .select("id, name, date, type, intensity, distance_km, elevation_m, race_feedback")
         .eq("user_id", userId)
         .gte("date", sinceDay),
     ]);
@@ -64,7 +64,7 @@ export const getActivityMatches = createServerFn({ method: "GET" })
       // competición primero (prioridad)
       const comp = (cRes.data ?? []).find((c) => {
         const fb = (c.race_feedback as any) ?? {};
-        return c.date === day && !fb.strava_activity_id && !fb.strava_link_dismissed;
+        return c.intensity === "competicion" && c.date === day && !fb.strava_activity_id && !fb.strava_link_dismissed;
       });
       if (comp) {
         matches.push({

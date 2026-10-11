@@ -85,7 +85,7 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
       .eq("user_id", userId),
     admin
       .from("competitions")
-      .select("id, name, date, type, race_feedback")
+      .select("id, name, date, type, intensity, race_feedback")
       .eq("user_id", userId)
       .gte("date", sinceDay),
     admin
@@ -176,7 +176,7 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
 
     const comp = ((cRes.data ?? []) as any[]).find((c) => {
       const fb = (c.race_feedback as any) ?? {};
-      return c.date === day && !fb.strava_activity_id && !fb.strava_link_dismissed;
+      return c.intensity === "competicion" && c.date === day && !fb.strava_activity_id && !fb.strava_link_dismissed;
     });
 
     const wk = comp
