@@ -184,10 +184,15 @@ function CompetitionDetail() {
       if (!/<\/gpx>\s*$/.test(newGpx)) throw new Error(tr("GPX incompleto"));
       if (isNative()) {
         const { Filesystem, Directory, Encoding } = await import("@capacitor/filesystem");
-        const { Share } = await import("@capacitor/share");
-        const file = await Filesystem.writeFile({ path: filename, data: newGpx, directory: Directory.Cache, encoding: Encoding.UTF8 });
-        await Share.share({ title: filename, url: file.uri, dialogTitle: tr("Compartir GPX") });
-        toast.success(tr("GPX compartido"));
+        try {
+          await Filesystem.writeFile({ path: `Globero/${filename}`, data: newGpx, directory: Directory.Documents, encoding: Encoding.UTF8, recursive: true });
+          toast.success(`${tr("GPX descargado en")} Documentos/Globero/${filename}`);
+        } catch (err) {
+          console.error(err);
+          const { Share } = await import("@capacitor/share");
+          const file = await Filesystem.writeFile({ path: filename, data: newGpx, directory: Directory.Cache, encoding: Encoding.UTF8 });
+          await Share.share({ title: filename, url: file.uri, dialogTitle: tr("Compartir GPX") });
+        }
         return;
       }
       const blob = new Blob([newGpx], { type: "application/gpx+xml;charset=utf-8" });
