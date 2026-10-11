@@ -82,21 +82,21 @@ export function buildGpxWithWaypoints(
   routeName = "Ruta con nutrición"
 ): string {
   const wptsXml = waypoints.map((w) => {
-    const p = pointAtKm(points, w.km);
+    const p = nearestTrackPointAtKm(points, w.km);
     if (!p) return "";
-    const label = w.label || (w as any).note || "Avituallamiento";
-    return `  <wpt lat="${p.lat}" lon="${p.lon}">
-    <name>${escapeXml(label)}</name>
-    <desc>KM ${w.km} — ${escapeXml(label)}</desc>
-    <sym>Restaurant</sym>
+    const label = cleanLabel(w.label || (w as any).note || "Avituallamiento");
+    const g = label.match(/(\d+)\s*g/i);
+    const name = g ? `CHO ${g[1]}g` : label.slice(0, 15);
+    return `  <wpt lat="${p.lat.toFixed(6)}" lon="${p.lon.toFixed(6)}">${p.ele != null ? `\n    <ele>${p.ele}</ele>` : ""}
+    <name>${escapeXml(name)}</name>
+    <cmt>${escapeXml(label)}</cmt>
+    <desc>KM ${w.km} - ${escapeXml(label)}</desc>
+    <sym>Food</sym>
+    <type>Food</type>
   </wpt>`;
   }).filter(Boolean).join("\n");
 
-  // Inserta los <wpt> después del <gpx ...> de apertura
-  const hasGpx = /<gpx[^>]*>/.test(originalXml);
-  if (hasGpx) {
-    return originalXml.replace(/<gpx([^>]*)>/, (m) => `${m}\n${wptsXml}`);
-  }
+  if (/<gpx[^>]*>/.test(originalXml)) return insertGpxWaypoints(originalXml, wptsXml);
   // GPX nuevo si el original no se puede parsear
   const trkpts = points.map((p) =>
     `      <trkpt lat="${p.lat}" lon="${p.lon}">${p.ele != null ? `<ele>${p.ele}</ele>` : ""}</trkpt>`
@@ -108,6 +108,30 @@ ${wptsXml}
 ${trkpts}
   </trkseg></trk>
 </gpx>`;
+}
+
+/** Punto real del track más cercano a la distancia km (anclaje exacto). */
+export function nearestTrackPointAtKm(points: TrackPoint[], targetKm: number): TrackPoint | null {
+  if (!points.length) return null;
+  let acc = 0, best = points[0], bestD = Math.abs(targetKm);
+  for (let i = 1; i < points.length; i++) {
+    acc += haversine(points[i - 1], points[i]);
+    const d = Math.abs(acc - targetKm);
+    if (d < bestD) { bestD = d; best = points[i]; }
+  }
+  return best;
+}
+
+/** Quita emojis y caracteres no estándar para ciclocomputadores. */
+export function cleanLabel(s: string): string {
+  return String(s ?? "").replace(/[^\p{L}\p{N}\s.,:;()+\-\/%]/gu, "").replace(/\s+/g, " ").trim() || "Avituallamiento";
+}
+
+/** Inserta <wpt> en posición válida GPX 1.1 (tras <metadata> y antes de rte/trk). */
+export function insertGpxWaypoints(xml: string, wptsXml: string): string {
+  if (!wptsXml) return xml;
+  if (/<\/metadata>/.test(xml)) return xml.replace(/<\/metadata>/, (m) => `${m}\n${wptsXml}`);
+  return xml.replace(/<gpx([^>]*)>/, (m) => `${m}\n${wptsXml}`);
 }
 
 function escapeXml(s: string | null | undefined = ""): string {
