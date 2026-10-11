@@ -176,7 +176,7 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
 
     const comp = ((cRes.data ?? []) as any[]).find((c) => {
       const fb = (c.race_feedback as any) ?? {};
-      return c.date === day && !fb.strava_activity_id && !fb.strava_link_dismissed;
+      return c.intensity === "competicion" && c.date === day && !fb.strava_activity_id && !fb.strava_link_dismissed;
     });
 
     const wk = comp
