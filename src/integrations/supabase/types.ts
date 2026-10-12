@@ -659,6 +659,57 @@ export type Database = {
         }
         Relationships: []
       }
+      garmin_devices: {
+        Row: {
+          garmin_device_id: string
+          id: string
+          linked_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          garmin_device_id: string
+          id?: string
+          linked_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          garmin_device_id?: string
+          id?: string
+          linked_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      garmin_pairing_codes: {
+        Row: {
+          created_at: string
+          expires_at: string
+          garmin_device_id: string | null
+          id: string
+          pairing_code: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          garmin_device_id?: string | null
+          id?: string
+          pairing_code: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          garmin_device_id?: string | null
+          id?: string
+          pairing_code?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       hrv_entries: {
         Row: {
           created_at: string
