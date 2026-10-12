@@ -158,6 +158,20 @@ function BeaconPage() {
       .then((r) => { if (kind === "sos" && r.sent) toast.success(tr("Aviso enviado a tus contactos de emergencia")); })
       .catch((e) => { console.warn("[beacon] alert", e); if (kind === "sos") toast.error(tr("No se pudo avisar por email a tus contactos")); });
 
+  const openSosWhatsApp = async (beaconId: string, token: string) => {
+    if (!user) return;
+    const [{ data: contacts }, { data: b }] = await Promise.all([
+      (supabase as any).from("emergency_contacts").select("phone").eq("user_id", user.id).not("phone", "is", null).order("created_at").limit(1),
+      supabase.from("safety_beacons").select("last_lat,last_lon").eq("id", beaconId).maybeSingle(),
+    ]);
+    const digits = String(contacts?.[0]?.phone ?? "").replace(/\D/g, "");
+    if (!digits) return;
+    const coords = b?.last_lat != null ? `${b.last_lat.toFixed(5)}, ${b.last_lon!.toFixed(5)} https://maps.google.com/?q=${b.last_lat},${b.last_lon}` : "";
+    const text = `${tr("¡SOS! Necesito ayuda.")} ${coords ? tr("Mi posición:") + " " + coords + " · " : ""}${tr("En directo:")} ${window.location.origin}/live/${token}`;
+    const url = `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
+    if (!window.open(url, "_blank")) window.location.href = url;
+  };
+
   const setStatus = async (status: "active" | "paused" | "ended" | "sos") => {
     if (!beacon) return;
     await flush();
@@ -165,7 +179,7 @@ function BeaconPage() {
       .update({ status, ...(status === "ended" ? { ended_at: new Date().toISOString() } : {}) }).eq("id", beacon.id);
     if (error) return toast.error(tr("No se pudo actualizar la baliza"));
     setBeacon(status === "ended" ? null : { ...beacon, status });
-    if (status === "sos") { toast.warning(tr("SOS activado")); alert(beacon.id, "sos"); }
+    if (status === "sos") { toast.warning(tr("SOS activado")); alert(beacon.id, "sos"); openSosWhatsApp(beacon.id, beacon.share_token); }
     if (status === "ended") alert(beacon.id, "ended");
   };
 

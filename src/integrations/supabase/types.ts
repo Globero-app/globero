@@ -570,6 +570,7 @@ export type Database = {
           id: string
           name: string
           notify_on_start: boolean
+          phone: string | null
           user_id: string
         }
         Insert: {
@@ -578,6 +579,7 @@ export type Database = {
           id?: string
           name: string
           notify_on_start?: boolean
+          phone?: string | null
           user_id: string
         }
         Update: {
@@ -586,6 +588,7 @@ export type Database = {
           id?: string
           name?: string
           notify_on_start?: boolean
+          phone?: string | null
           user_id?: string
         }
         Relationships: []
