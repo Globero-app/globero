@@ -30,15 +30,19 @@ export async function sendBeaconEmails(opts: {
     ${urgent && maps ? `<p>Última posición: <a href="${maps}">${beacon.last_lat!.toFixed(5)}, ${beacon.last_lon!.toFixed(5)}</a>${beacon.battery_pct != null ? ` · Batería ${beacon.battery_pct}%` : ""}</p>` : ""}
     <p style="color:#94a3b8;font-size:12px">Globero · Baliza de seguridad</p></div>`;
 
-  const { sendLovableEmail } = await import("@lovable.dev/email-js");
+  const resendKey = process.env["RESEND_API_KEY"];
+  if (!resendKey) throw new Error("RESEND_API_KEY no configurado");
+  const from = process.env["RESEND_FROM"] || "Globero <noreply@coach.globero.app>";
   const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() + (kind !== "ended" ? ` ${link}` : "");
   let sent = 0;
   for (const c of opts.contacts) {
     try {
-      await sendLovableEmail(
-        { to: c.email, from: "Globero <noreply@globero.app>", sender_domain: "notify.globero.app", subject, html, text, purpose: "transactional", label: `beacon-${kind}` },
-        { apiKey: lovableKey, sendUrl: process.env["LOVABLE_SEND_URL"] },
-      );
+      const res = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${lovableKey}`, "X-Connection-Api-Key": resendKey },
+        body: JSON.stringify({ from, to: [c.email], subject, html, text, tags: [{ name: "type", value: `beacon-${kind}` }] }),
+      });
+      if (!res.ok) { console.error(`[beacon-email] Resend ${res.status}: ${await res.text()}`); continue; }
       sent++;
     } catch (e) { console.error("[beacon-email]", e); }
   }
