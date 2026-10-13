@@ -265,7 +265,18 @@ export async function buildProgress(supabase: any, userId: string, profile: any)
   );
 
   const todayPoint = series.find((point) => point.date === today);
+  // ── ACWR (carga aguda 7d / crónica 28d, media móvil) ──────────────
+  const realSeries = series.filter((p) => !p.projected);
+  const acwr: { date: string; acwr: number | null; acute: number; chronic: number }[] = [];
+  for (let i = 0; i < realSeries.length; i++) {
+    if (i < 27) continue;
+    let a = 0, c = 0;
+    for (let j = i - 27; j <= i; j++) { const v = realSeries[j]!.tss || 0; c += v; if (j > i - 7) a += v; }
+    const acute = a / 7, chronic = c / 28;
+    acwr.push({ date: realSeries[i]!.date, acute: Math.round(acute), chronic: Math.round(chronic), acwr: chronic > 0 ? Math.round((acute / chronic) * 100) / 100 : null });
+  }
   return {
+    acwr: acwr.slice(-90),
     series: series.slice(-(180 + projectionDays)),
     projection_start: today,
     projection_end: projectionEnd,

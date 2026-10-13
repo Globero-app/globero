@@ -76,6 +76,11 @@ function ProgresoPage() {
     label: format(new Date(`${w.week_start}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })
   }));
 
+  const acwrData = (d?.acwr ?? []).map((p: any) => ({
+    ...p,
+    label: format(new Date(`${p.date}T12:00:00Z`), "d MMM", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })
+  }));
+
 
   const ctlDelta = d?.ctl_30d_ago != null ? Math.round((d.current.ctl - d.ctl_30d_ago) * 10) / 10 : null;
 
@@ -217,6 +222,33 @@ function ProgresoPage() {
               </ResponsiveContainer>
             </div>
           </section>
+
+          {acwrData.length > 0 && (() => {
+            const last = acwrData[acwrData.length - 1]?.acwr as number | null;
+            const zone = last == null ? null : last < 0.8 ? { t: tr("Carga baja: riesgo de desentrenamiento"), c: "text-sky-500" } : last <= 1.3 ? { t: tr("Zona óptima"), c: "text-primary" } : last <= 1.5 ? { t: tr("Precaución: aumento rápido de carga"), c: "text-amber-500" } : { t: tr("Riesgo alto de lesión o sobrecarga"), c: "text-destructive" };
+            return (
+            <section className="bg-surface border rounded-xl p-5">
+              <div className="flex items-baseline justify-between gap-2 flex-wrap">
+                <h2 className="font-display text-lg font-bold uppercase">{tr("Monitorización ACWR")}</h2>
+                {last != null && zone && <p className={`text-sm font-semibold ${zone.c}`}>{last.toFixed(2)} · {zone.t}</p>}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">{tr("Ratio carga aguda (7 días) / crónica (28 días). Zona óptima 0,8–1,3.")}</p>
+              <div className="h-56 mt-4 -ml-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={acwrData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="label" tick={{ fontSize: 11 }} minTickGap={24} />
+                    <YAxis domain={[0, 2]} tick={{ fontSize: 11 }} />
+                    <Tooltip />
+                    <ReferenceArea y1={0.8} y2={1.3} fill="#22c55e" fillOpacity={0.12} />
+                    <ReferenceArea y1={1.3} y2={1.5} fill="#f59e0b" fillOpacity={0.12} />
+                    <ReferenceArea y1={1.5} y2={2} fill="#ef4444" fillOpacity={0.12} />
+                    <Line type="monotone" dataKey="acwr" name="ACWR" stroke="var(--primary)" strokeWidth={2} dot={false} connectNulls />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+            </section>);
+          })()}
 
           {readinessData.length > 0 &&
         <section className="bg-surface border rounded-xl p-5">
