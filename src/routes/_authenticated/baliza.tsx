@@ -150,7 +150,6 @@ function BeaconPage() {
     if (error) return toast.error(tr("No se pudo iniciar la baliza"));
     lastSaved.current = 0;
     setBeacon(data);
-    alert(data.id, "start");
   };
 
   const alert = (beaconId: string, kind: "start" | "sos" | "ended") =>
@@ -180,7 +179,6 @@ function BeaconPage() {
     if (error) return toast.error(tr("No se pudo actualizar la baliza"));
     setBeacon(status === "ended" ? null : { ...beacon, status });
     if (status === "sos") { toast.warning(tr("SOS activado")); alert(beacon.id, "sos"); openSosWhatsApp(beacon.id, beacon.share_token); }
-    if (status === "ended") alert(beacon.id, "ended");
   };
 
   // Detección de inmovilidad: sin moverse > 30 m durante 5 min → aviso y SOS automático a los 60 s
