@@ -2,7 +2,8 @@ import { tr } from "@/lib/i18n";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { CheckCircle2, Link as LinkIcon, Unlink } from "lucide-react";
+import { CheckCircle2, Link as LinkIcon, Loader2, Unlink } from "lucide-react";
+import { claimGarminCode, getGarminDevice, unlinkGarminDevice } from "@/lib/garmin-pairing.functions";
 import { createWahooAuthorizeUrl, disconnectWahoo, syncWahooZonesDebug } from "@/lib/wahoo.functions";
 import { useAuth } from "@/lib/use-auth";
 import { useState } from "react";
@@ -105,28 +106,89 @@ export function GarminConnection({ profile }: { profile?: any }) {
     );
   }
 
+  return <GarminPairing />;
+}
+
+function GarminPairing() {
+  const qc = useQueryClient();
+  const getDev = useServerFn(getGarminDevice);
+  const claim = useServerFn(claimGarminCode);
+  const unlink = useServerFn(unlinkGarminDevice);
+  const { data: device } = useQuery({ queryKey: ["garmin-device"], queryFn: () => getDev() });
+  const [code, setCode] = useState("");
+  const [state, setState] = useState<"idle" | "loading" | "success" | "expired" | "invalid" | "error">("idle");
+
+  if (device) {
+    return (
+      <div className="flex items-center justify-between bg-muted border border-border rounded-lg p-4">
+        <div className="flex items-center gap-3">
+          <CheckCircle2 className="size-5 text-primary" />
+          <div>
+            <p className="font-semibold">{tr("Dispositivo Garmin conectado")}</p>
+            <p className="text-xs text-muted-foreground">ID {device.garmin_device_id} · {new Date(device.linked_at).toLocaleDateString()}</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={async () => {
+            try {
+              await unlink({ data: { id: device.id } });
+              toast.success(tr("Dispositivo desvinculado"));
+              setCode(""); setState("idle");
+              qc.invalidateQueries({ queryKey: ["garmin-device"] });
+            } catch { toast.error(tr("No se pudo desvincular")); }
+          }}
+          className="text-xs font-semibold text-destructive hover:underline flex items-center gap-1"
+        >
+          <Unlink className="size-3" /> {tr("Desvincular")}
+        </button>
+      </div>
+    );
+  }
+
+  const valid = /^[A-Z0-9]{4}$/.test(code);
+  const msg: Record<string, { t: string; c: string }> = {
+    success: { t: tr("¡Dispositivo vinculado correctamente!"), c: "text-primary" },
+    expired: { t: tr("El código ha expirado. Genera uno nuevo en tu Garmin."), c: "text-destructive" },
+    invalid: { t: tr("Código incorrecto. Revisa el código de tu Garmin."), c: "text-destructive" },
+    error: { t: tr("No se pudo vincular el dispositivo"), c: "text-destructive" },
+  };
+
   return (
-    <div className="space-y-3">
-      <p className="text-sm text-muted-foreground">{tr("Conecta Garmin Connect para enviar los entrenamientos a tu dispositivo y recibir tus actividades.")}</p>
-      <button
-        type="button"
-        onClick={async () => {
-          if (!data?.enabled) {
-            toast.info(tr("Próximamente. Estamos trabajando con Garmin para su implementación."));
-            return;
-          }
-          try {
-            const { url } = await authorize({ data: undefined });
-            window.location.href = url;
-          } catch (e: any) {
-            toast.error(e?.message ?? tr("No se pudo iniciar la conexión"));
-          }
-        }}
-        className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90"
-      >
-        <LinkIcon className="size-4" /> {tr("Conectar con Garmin")}
-      </button>
-    </div>
+    <form
+      className="space-y-3"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        if (!valid || state === "loading") return;
+        setState("loading");
+        try {
+          const r = await claim({ data: { code } });
+          if (r.ok) { setState("success"); qc.invalidateQueries({ queryKey: ["garmin-device"] }); }
+          else setState(r.reason);
+        } catch { setState("error"); }
+      }}
+    >
+      <p className="text-sm text-muted-foreground">{tr("Introduce el código de 4 caracteres que aparece en la pantalla de tu Garmin.")}</p>
+      <div className="flex gap-2">
+        <input
+          value={code}
+          onChange={(e) => { setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4)); if (state !== "loading") setState("idle"); }}
+          maxLength={4}
+          autoComplete="off"
+          placeholder="AB12"
+          aria-label={tr("Código de vinculación")}
+          className={`w-32 text-center font-mono text-xl tracking-[0.4em] uppercase bg-background border rounded-lg px-3 py-2 ${state === "invalid" || state === "expired" || state === "error" ? "border-destructive" : state === "success" ? "border-primary" : "border-border"}`}
+        />
+        <button
+          type="submit"
+          disabled={!valid || state === "loading"}
+          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50"
+        >
+          {state === "loading" ? <Loader2 className="size-4 animate-spin" /> : <LinkIcon className="size-4" />} {tr("Vincular")}
+        </button>
+      </div>
+      {state !== "idle" && state !== "loading" && <p className={`text-sm ${msg[state].c}`}>{msg[state].t}</p>}
+    </form>
   );
 }
 
