@@ -40,7 +40,11 @@ import { Route as AuthHammerheadCallbackRouteImport } from './routes/auth/hammer
 import { Route as AuthIntervalsCallbackRouteImport } from './routes/auth/intervals/callback'
 import { Route as AuthStravaCallbackRouteImport } from './routes/auth/strava/callback'
 import { Route as AuthWahooCallbackRouteImport } from './routes/auth/wahoo/callback'
+import { Route as ApiPublicGarminActivityRouteImport } from './routes/api/public/garmin/activity'
+import { Route as ApiPublicGarminCodeRouteImport } from './routes/api/public/garmin/code'
+import { Route as ApiPublicGarminStatusRouteImport } from './routes/api/public/garmin/status'
 import { Route as ApiPublicGarminWebhookRouteImport } from './routes/api/public/garmin/webhook'
+import { Route as ApiPublicGarminWorkoutRouteImport } from './routes/api/public/garmin/workout'
 import { Route as ApiPublicHammerheadWebhookRouteImport } from './routes/api/public/hammerhead/webhook'
 import { Route as ApiPublicHooksActivityDetectRouteImport } from './routes/api/public/hooks/activity-detect'
 import { Route as ApiPublicHooksBeaconWatchdogRouteImport } from './routes/api/public/hooks/beacon-watchdog'
@@ -214,9 +218,29 @@ const AuthWahooCallbackRoute = AuthWahooCallbackRouteImport.update({
   path: '/auth/wahoo/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicGarminActivityRoute = ApiPublicGarminActivityRouteImport.update({
+  id: '/api/public/garmin/activity',
+  path: '/api/public/garmin/activity',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicGarminCodeRoute = ApiPublicGarminCodeRouteImport.update({
+  id: '/api/public/garmin/code',
+  path: '/api/public/garmin/code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicGarminStatusRoute = ApiPublicGarminStatusRouteImport.update({
+  id: '/api/public/garmin/status',
+  path: '/api/public/garmin/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicGarminWebhookRoute = ApiPublicGarminWebhookRouteImport.update({
   id: '/api/public/garmin/webhook',
   path: '/api/public/garmin/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicGarminWorkoutRoute = ApiPublicGarminWorkoutRouteImport.update({
+  id: '/api/public/garmin/workout',
+  path: '/api/public/garmin/workout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicHammerheadWebhookRoute =
@@ -326,7 +350,11 @@ export interface FileRoutesByFullPath {
   '/auth/wahoo/callback': typeof AuthWahooCallbackRoute
   '/actividades/': typeof AuthenticatedActividadesIndexRoute
   '/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
+  '/api/public/garmin/activity': typeof ApiPublicGarminActivityRoute
+  '/api/public/garmin/code': typeof ApiPublicGarminCodeRoute
+  '/api/public/garmin/status': typeof ApiPublicGarminStatusRoute
   '/api/public/garmin/webhook': typeof ApiPublicGarminWebhookRoute
+  '/api/public/garmin/workout': typeof ApiPublicGarminWorkoutRoute
   '/api/public/hammerhead/webhook': typeof ApiPublicHammerheadWebhookRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
   '/api/public/hooks/beacon-watchdog': typeof ApiPublicHooksBeaconWatchdogRoute
@@ -372,7 +400,11 @@ export interface FileRoutesByTo {
   '/auth/wahoo/callback': typeof AuthWahooCallbackRoute
   '/actividades': typeof AuthenticatedActividadesIndexRoute
   '/competiciones': typeof AuthenticatedCompeticionesIndexRoute
+  '/api/public/garmin/activity': typeof ApiPublicGarminActivityRoute
+  '/api/public/garmin/code': typeof ApiPublicGarminCodeRoute
+  '/api/public/garmin/status': typeof ApiPublicGarminStatusRoute
   '/api/public/garmin/webhook': typeof ApiPublicGarminWebhookRoute
+  '/api/public/garmin/workout': typeof ApiPublicGarminWorkoutRoute
   '/api/public/hammerhead/webhook': typeof ApiPublicHammerheadWebhookRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
   '/api/public/hooks/beacon-watchdog': typeof ApiPublicHooksBeaconWatchdogRoute
@@ -420,7 +452,11 @@ export interface FileRoutesById {
   '/auth/wahoo/callback': typeof AuthWahooCallbackRoute
   '/_authenticated/actividades/': typeof AuthenticatedActividadesIndexRoute
   '/_authenticated/competiciones/': typeof AuthenticatedCompeticionesIndexRoute
+  '/api/public/garmin/activity': typeof ApiPublicGarminActivityRoute
+  '/api/public/garmin/code': typeof ApiPublicGarminCodeRoute
+  '/api/public/garmin/status': typeof ApiPublicGarminStatusRoute
   '/api/public/garmin/webhook': typeof ApiPublicGarminWebhookRoute
+  '/api/public/garmin/workout': typeof ApiPublicGarminWorkoutRoute
   '/api/public/hammerhead/webhook': typeof ApiPublicHammerheadWebhookRoute
   '/api/public/hooks/activity-detect': typeof ApiPublicHooksActivityDetectRoute
   '/api/public/hooks/beacon-watchdog': typeof ApiPublicHooksBeaconWatchdogRoute
@@ -468,7 +504,11 @@ export interface FileRouteTypes {
     | '/auth/wahoo/callback'
     | '/actividades/'
     | '/competiciones/'
+    | '/api/public/garmin/activity'
+    | '/api/public/garmin/code'
+    | '/api/public/garmin/status'
     | '/api/public/garmin/webhook'
+    | '/api/public/garmin/workout'
     | '/api/public/hammerhead/webhook'
     | '/api/public/hooks/activity-detect'
     | '/api/public/hooks/beacon-watchdog'
@@ -514,7 +554,11 @@ export interface FileRouteTypes {
     | '/auth/wahoo/callback'
     | '/actividades'
     | '/competiciones'
+    | '/api/public/garmin/activity'
+    | '/api/public/garmin/code'
+    | '/api/public/garmin/status'
     | '/api/public/garmin/webhook'
+    | '/api/public/garmin/workout'
     | '/api/public/hammerhead/webhook'
     | '/api/public/hooks/activity-detect'
     | '/api/public/hooks/beacon-watchdog'
@@ -561,7 +605,11 @@ export interface FileRouteTypes {
     | '/auth/wahoo/callback'
     | '/_authenticated/actividades/'
     | '/_authenticated/competiciones/'
+    | '/api/public/garmin/activity'
+    | '/api/public/garmin/code'
+    | '/api/public/garmin/status'
     | '/api/public/garmin/webhook'
+    | '/api/public/garmin/workout'
     | '/api/public/hammerhead/webhook'
     | '/api/public/hooks/activity-detect'
     | '/api/public/hooks/beacon-watchdog'
@@ -592,7 +640,11 @@ export interface RootRouteChildren {
   AuthIntervalsCallbackRoute: typeof AuthIntervalsCallbackRoute
   AuthStravaCallbackRoute: typeof AuthStravaCallbackRoute
   AuthWahooCallbackRoute: typeof AuthWahooCallbackRoute
+  ApiPublicGarminActivityRoute: typeof ApiPublicGarminActivityRoute
+  ApiPublicGarminCodeRoute: typeof ApiPublicGarminCodeRoute
+  ApiPublicGarminStatusRoute: typeof ApiPublicGarminStatusRoute
   ApiPublicGarminWebhookRoute: typeof ApiPublicGarminWebhookRoute
+  ApiPublicGarminWorkoutRoute: typeof ApiPublicGarminWorkoutRoute
   ApiPublicHammerheadWebhookRoute: typeof ApiPublicHammerheadWebhookRoute
   ApiPublicHooksActivityDetectRoute: typeof ApiPublicHooksActivityDetectRoute
   ApiPublicHooksBeaconWatchdogRoute: typeof ApiPublicHooksBeaconWatchdogRoute
@@ -827,11 +879,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthWahooCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/garmin/activity': {
+      id: '/api/public/garmin/activity'
+      path: '/api/public/garmin/activity'
+      fullPath: '/api/public/garmin/activity'
+      preLoaderRoute: typeof ApiPublicGarminActivityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/garmin/code': {
+      id: '/api/public/garmin/code'
+      path: '/api/public/garmin/code'
+      fullPath: '/api/public/garmin/code'
+      preLoaderRoute: typeof ApiPublicGarminCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/garmin/status': {
+      id: '/api/public/garmin/status'
+      path: '/api/public/garmin/status'
+      fullPath: '/api/public/garmin/status'
+      preLoaderRoute: typeof ApiPublicGarminStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/garmin/webhook': {
       id: '/api/public/garmin/webhook'
       path: '/api/public/garmin/webhook'
       fullPath: '/api/public/garmin/webhook'
       preLoaderRoute: typeof ApiPublicGarminWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/garmin/workout': {
+      id: '/api/public/garmin/workout'
+      path: '/api/public/garmin/workout'
+      fullPath: '/api/public/garmin/workout'
+      preLoaderRoute: typeof ApiPublicGarminWorkoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hammerhead/webhook': {
@@ -986,7 +1066,11 @@ const rootRouteChildren: RootRouteChildren = {
   AuthIntervalsCallbackRoute: AuthIntervalsCallbackRoute,
   AuthStravaCallbackRoute: AuthStravaCallbackRoute,
   AuthWahooCallbackRoute: AuthWahooCallbackRoute,
+  ApiPublicGarminActivityRoute: ApiPublicGarminActivityRoute,
+  ApiPublicGarminCodeRoute: ApiPublicGarminCodeRoute,
+  ApiPublicGarminStatusRoute: ApiPublicGarminStatusRoute,
   ApiPublicGarminWebhookRoute: ApiPublicGarminWebhookRoute,
+  ApiPublicGarminWorkoutRoute: ApiPublicGarminWorkoutRoute,
   ApiPublicHammerheadWebhookRoute: ApiPublicHammerheadWebhookRoute,
   ApiPublicHooksActivityDetectRoute: ApiPublicHooksActivityDetectRoute,
   ApiPublicHooksBeaconWatchdogRoute: ApiPublicHooksBeaconWatchdogRoute,
