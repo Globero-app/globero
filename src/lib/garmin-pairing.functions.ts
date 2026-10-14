@@ -29,12 +29,17 @@ export const claimGarminCode = createServerFn({ method: "POST" })
     if (!row || !row.garmin_device_id) return { ok: false as const, reason: "invalid" as const };
     if (new Date(row.expires_at).getTime() < Date.now()) return { ok: false as const, reason: "expired" as const };
     if (row.user_id && row.user_id !== context.userId) return { ok: false as const, reason: "invalid" as const };
+    if (!row.user_id) {
+      // Reclamación atómica: solo gana quien actualiza la fila aún libre y vigente
+      const { data: claimed } = await supabaseAdmin.from("garmin_pairing_codes").update({ user_id: context.userId })
+        .eq("id", row.id).is("user_id", null).gt("expires_at", new Date().toISOString()).select("id");
+      if (!claimed?.length) return { ok: false as const, reason: "invalid" as const };
+    }
     const { error } = await supabaseAdmin.from("garmin_devices").upsert(
       { user_id: context.userId, garmin_device_id: row.garmin_device_id, status: "active", linked_at: new Date().toISOString() },
       { onConflict: "garmin_device_id" },
     );
     if (error) return { ok: false as const, reason: "error" as const };
-    await supabaseAdmin.from("garmin_pairing_codes").update({ user_id: context.userId }).eq("id", row.id);
     return { ok: true as const };
   });
 
