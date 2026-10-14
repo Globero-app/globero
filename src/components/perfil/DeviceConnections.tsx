@@ -154,25 +154,24 @@ function GarminPairing() {
     error: { t: tr("No se pudo vincular el dispositivo"), c: "text-destructive" },
   };
 
+  const handleClaim = async () => {
+    if (!valid || state === "loading") return;
+    setState("loading");
+    try {
+      const r = await claim({ data: { code } });
+      if (r.ok) { setState("success"); qc.invalidateQueries({ queryKey: ["garmin-device"] }); }
+      else setState(r.reason);
+    } catch { setState("error"); }
+  };
+
   return (
-    <form
-      className="space-y-3"
-      onSubmit={async (e) => {
-        e.preventDefault();
-        if (!valid || state === "loading") return;
-        setState("loading");
-        try {
-          const r = await claim({ data: { code } });
-          if (r.ok) { setState("success"); qc.invalidateQueries({ queryKey: ["garmin-device"] }); }
-          else setState(r.reason);
-        } catch { setState("error"); }
-      }}
-    >
+    <div className="space-y-3">
       <p className="text-sm text-muted-foreground">{tr("Introduce el código de 4 caracteres que aparece en la pantalla de tu Garmin.")}</p>
       <div className="flex gap-2">
         <input
           value={code}
           onChange={(e) => { setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4)); if (state !== "loading") setState("idle"); }}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); handleClaim(); } }}
           maxLength={4}
           autoComplete="off"
           placeholder="AB12"
@@ -180,7 +179,8 @@ function GarminPairing() {
           className={`w-32 text-center font-mono text-xl tracking-[0.4em] uppercase bg-background border rounded-lg px-3 py-2 ${state === "invalid" || state === "expired" || state === "error" ? "border-destructive" : state === "success" ? "border-primary" : "border-border"}`}
         />
         <button
-          type="submit"
+          type="button"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleClaim(); }}
           disabled={!valid || state === "loading"}
           className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50"
         >
@@ -188,7 +188,7 @@ function GarminPairing() {
         </button>
       </div>
       {state !== "idle" && state !== "loading" && <p className={`text-sm ${msg[state].c}`}>{msg[state].t}</p>}
-    </form>
+    </div>
   );
 }
 
