@@ -200,9 +200,10 @@ export async function detectPassiveFtp(supabase: any, userId: string): Promise<n
   const { notifyUser } = await import("./web-push.server");
   await notifyUser(userId, {
     title,
-    body: `Tus esfuerzos recientes indican un FTP de ~${est} W (actual ${current} W). Revísalo o haz un test para confirmarlo.`,
+    body: `Tus esfuerzos recientes indican un FTP de ~${est} W (actual ${current} W). Pulsa para aceptar o descartar el recálculo.`,
     tag: `ftp-passive-${est}`,
-    url: "/ftp-test",
+    url: `/ftp-test?suggested=${est}`,
+    requireInteraction: true,
   });
   return est;
 }
