@@ -245,7 +245,10 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
       );
   }
 
-  // Recordatorio de tarde si el entreno de hoy sigue pendiente
+  try {
+    const { detectPassiveFtp } = await import("./power-peaks.server");
+    await detectPassiveFtp(admin, userId);
+  } catch (e) { console.warn("[detect] passive ftp", e); }
   return out;
 }
 
