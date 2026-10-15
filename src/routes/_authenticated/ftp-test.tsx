@@ -11,13 +11,16 @@ import { FtpTestScheduler } from "@/components/ftp-test/FtpTestScheduler";
 import { FtpTestImport } from "@/components/ftp-test/FtpTestImport";
 import { FtpTestTimer } from "@/components/ftp-test/FtpTestTimer";
 import { FtpTestResult } from "@/components/ftp-test/FtpTestResult";
+import { FtpSuggestion } from "@/components/ftp-test/FtpSuggestion";
 
 export const Route = createFileRoute("/_authenticated/ftp-test")({
+  validateSearch: (s: Record<string, unknown>): { suggested?: number } => (Number(s.suggested) > 0 ? { suggested: Number(s.suggested) } : {}),
   component: FtpTestPage
 });
 
 function FtpTestPage() {
   const { user } = useAuth();
+  const { suggested } = Route.useSearch();
   const [finished, setFinished] = useState(false);
   const [resetKey, setResetKey] = useState(0);
 
@@ -50,6 +53,7 @@ function FtpTestPage() {
         }
       </div>
 
+      {suggested ? <FtpSuggestion suggested={suggested} current={profile?.ftp ?? null} /> : null}
       <FtpTestDownloads ftp={profile?.ftp ?? null} />
       <FtpTestScheduler profile={profile} />
       <FtpTestImport icuConnected={icuConnected} onImported={() => setFinished(false)} />
