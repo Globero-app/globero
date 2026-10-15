@@ -173,3 +173,36 @@ function formatDuration(seconds: number): string {
   if (seconds >= 60) return `${Math.round(seconds / 60)}min`;
   return `${seconds}s`;
 }
+
+/**
+ * Detección pasiva de nuevo FTP: estima el FTP con los picos de los últimos 42 días
+ * (95% de 20 min, 100% de 60 min o 90% de 8-10 min) y avisa si supera el actual ≥3%.
+ * Un aviso por valor estimado; no modifica el perfil sin confirmación del usuario.
+ */
+export async function detectPassiveFtp(supabase: any, userId: string): Promise<number | null> {
+  const { data: profile } = await supabase.from("profiles").select("ftp,weight_kg").eq("id", userId).maybeSingle();
+  const current = Number(profile?.ftp) || 0;
+  if (!current) return null;
+  try { await syncMissingPowerPeaks(supabase, userId, { limit: 5, sinceDays: 14 }); } catch { /* sin streams */ }
+  const since = new Date(Date.now() - 42 * 86400000).toISOString().slice(0, 10);
+  const { data: rows } = await supabase
+    .from("power_peaks").select("duration_seconds,watts")
+    .eq("user_id", userId).gte("activity_date", since).in("duration_seconds", [600, 1200, 3600]);
+  const best: Record<number, number> = {};
+  for (const r of (rows ?? []) as any[]) best[r.duration_seconds] = Math.max(best[r.duration_seconds] ?? 0, Number(r.watts));
+  const est = Math.round(Math.max((best[1200] ?? 0) * 0.95, best[3600] ?? 0, (best[600] ?? 0) * 0.9));
+  if (!est || est < current * 1.03) return null;
+  const title = "⚡ Posible nuevo FTP detectado";
+  const { data: prev } = await supabase.from("notification_log").select("body")
+    .eq("user_id", userId).eq("title", title).order("created_at", { ascending: false }).limit(1);
+  const prevEst = Number(String(prev?.[0]?.body ?? "").match(/~(\d+) W/)?.[1] ?? 0);
+  if (prevEst && est <= prevEst) return null;
+  const { notifyUser } = await import("./web-push.server");
+  await notifyUser(userId, {
+    title,
+    body: `Tus esfuerzos recientes indican un FTP de ~${est} W (actual ${current} W). Revísalo o haz un test para confirmarlo.`,
+    tag: `ftp-passive-${est}`,
+    url: "/ftp-test",
+  });
+  return est;
+}
