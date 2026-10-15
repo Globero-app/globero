@@ -1,5 +1,7 @@
-import { tr, activeLang } from "@/lib/i18n";import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { FuelingCalculator } from "@/components/nutrition/FuelPlanView";
+import { tr, activeLang, useI18n } from "@/lib/i18n";import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { FuelingCalculator, useFuelT } from "@/components/nutrition/FuelPlanView";
+import { DrinkMixCalculator, useMixT } from "@/components/nutrition/DrinkMixCalculator";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -16,10 +18,10 @@ export const Route = createFileRoute("/_authenticated/menus")({
   component: MenusPage,
   head: () => ({
     meta: [
-    { title: "Menús · Plan nutricional semanal | Globero" },
-    { name: "description", content: "Tu plan nutricional semanal adaptado a los entrenamientos y a tu objetivo: pérdida de peso, mantenimiento o masa muscular." },
-    { property: "og:title", content: "Menús · Plan nutricional semanal" },
-    { property: "og:description", content: "Menús diarios adaptados a tus entrenamientos y competiciones." },
+    { title: "Nutrición · Menús, avituallamiento y mezclas | Globero" },
+    { name: "description", content: "Planifica tus menús semanales, el avituallamiento en ruta y tus mezclas caseras de carbohidratos con Globero." },
+    { property: "og:title", content: "Nutrición · Menús, avituallamiento y mezclas | Globero" },
+    { property: "og:description", content: "Menús adaptados al entrenamiento y calculadoras de avituallamiento y mezclas caseras." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" }]
 
@@ -41,6 +43,9 @@ const MEALS = [
 const;
 
 function MenusPage() {
+  const { t } = useI18n();
+  const fuelT = useFuelT();
+  const mixT = useMixT();
   const { user } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -138,11 +143,18 @@ function MenusPage() {
     <div className="space-y-8">
       <div>
         <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">{tr("Planes nutricionales")}</p>
-        <h1 className="font-display text-4xl font-bold uppercase tracking-tight">{tr("Menús")}</h1>
-        <p className="text-sm text-muted-foreground mt-1">{tr("Tu plan semanal adaptado a los entrenamientos y los menús pre-carrera.")}</p>
+        <h1 className="font-display text-4xl font-bold uppercase tracking-tight">{t("nav.nutrition")}</h1>
       </div>
 
-      <FuelingCalculator />
+      <Tabs defaultValue="menus" className="space-y-5">
+        <TabsList className="grid grid-cols-3 w-full h-auto items-stretch">
+          <TabsTrigger value="menus" className="whitespace-normal break-words px-2 py-2 text-xs sm:text-sm">{tr("Menús")}</TabsTrigger>
+          <TabsTrigger value="fueling" className="whitespace-normal break-words px-2 py-2 text-xs sm:text-sm">{fuelT("calc")}</TabsTrigger>
+          <TabsTrigger value="mixes" className="whitespace-normal break-words px-2 py-2 text-xs sm:text-sm">{mixT(0)}</TabsTrigger>
+        </TabsList>
+        <TabsContent value="fueling"><FuelingCalculator /></TabsContent>
+        <TabsContent value="mixes"><DrinkMixCalculator /></TabsContent>
+        <TabsContent value="menus" className="space-y-8">
 
       {/* Generador semanal */}
       <div className="bg-surface border rounded-xl p-5 space-y-4">
@@ -277,6 +289,8 @@ function MenusPage() {
           </div>
         }
       </div>
+        </TabsContent>
+      </Tabs>
     </div>);
 
 }
