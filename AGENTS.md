@@ -1,5 +1,7 @@
 # Architecture rules
 
+- Generate shareable workout stories client-side as 1080×1920 PNGs from completed workout data; use a single canvas for preview and export, Web Share for browsers and cached files for Capacitor Share so no private workout data is uploaded.
+
 - Keep homemade drink-mix calculations in a pure, tested module and show nutrition tools in separate tab panels so ingredient arithmetic stays independent of menu generation.
 
 - Keep Android launcher artwork in density-specific native resources, with matching adaptive and legacy icons; Android launchers cannot resolve CDN asset pointers.

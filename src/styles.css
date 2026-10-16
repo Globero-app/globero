@@ -42,6 +42,10 @@
 }
 
 :root {
+  --story-background: #101313;
+  --story-foreground: #f5f7f6;
+  --story-accent: #57e6a8;
+  --story-muted: #abb8b3;
   --radius: 0.875rem;
 
   --background: oklch(0.985 0.003 247);

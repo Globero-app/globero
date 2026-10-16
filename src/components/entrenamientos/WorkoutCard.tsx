@@ -14,6 +14,7 @@ import { downloadZwo, type ZwoWorkout, type ZwoStep } from "@/lib/zwo-writer";
 import { WorkoutIntervalsChart } from "./WorkoutIntervalsChart";
 import { WorkoutFuelCard } from "@/components/nutrition/FuelPlanView";
 import { estimateIF } from "@/lib/fueling";
+import { WorkoutStoryShare } from './WorkoutStoryShare';
 
 export type ZoneRefs = {ftp: number | null;lthr: number | null;maxHr: number | null;};
 
@@ -128,6 +129,7 @@ export function WorkoutCard({
             }
           </div>
           <div className="flex items-center gap-1 shrink-0">
+            {completed && <WorkoutStoryShare workout={w} />}
             <button onClick={() => setShowPreview(true)} title={tr("Ver y descargar .FIT")} className="p-2 rounded-md hover:bg-secondary text-primary">
               <Eye className="size-4" />
             </button>
