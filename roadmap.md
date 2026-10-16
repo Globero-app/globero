@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Etapa 12: tarjetas story de entrenamientos completados, récords e insignias; compartir y descargar PNG.
+
 - [x] Etapa 8: calculadora de mezclas caseras y vistas separadas de Menús, Avituallamiento y Mezclas en Nutrición; 9 pruebas correctas. Comprobación con cuenta pendiente de acceso.
 
 - [x] Pantalla "Resumen semanal": km, horas, vatios medios, desnivel y carga (TSS) por semana con comparativa.
