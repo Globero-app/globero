@@ -86,16 +86,23 @@ export async function rebalanceWeekCore(
   for (const { w, tss } of current) {
     const plan: any = w.plan ?? {};
     const basis: "power" | "hr" = plan.target_basis === "hr" ? "hr" : "power";
-    const newMinutes = Math.max(20, Math.round((w.duration_minutes * factor) / 5) * 5);
-    if (newMinutes === w.duration_minutes) continue;
+    const long = !!plan.long_ride;
+    // Duración base original (sin multiplicar) para evitar escalados acumulativos
+    const baseTotal = Number(plan.base_total_minutes) || w.duration_minutes;
+    const cap = Math.min(long ? 300 : 180, Math.round(baseTotal * 1.15));
+    // Prioriza densidad: al subir carga sólo se alarga hasta +10%; al bajar, hasta -30%
+    const f = factor > 1 ? Math.min(factor, 1.1) : factor;
+    const newTotal = Math.min(cap, Math.max(20, Math.round((w.duration_minutes * f) / 5) * 5));
+    if (newTotal === w.duration_minutes) continue;
     const v = validateWorkout(plan, {
       ftp,
       lthr,
       maxHr,
       basis,
-      duration_minutes: newMinutes,
-      long_ride: !!plan.long_ride,
+      duration_minutes: long ? Math.round(newTotal / 1.8) : newTotal,
+      long_ride: long,
     });
+    (v.plan as any).base_total_minutes = baseTotal;
     const dir = factor > 1 ? "sube" : "baja";
     const newPlan = {
       ...v.plan,
