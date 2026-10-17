@@ -1654,6 +1654,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      intervals_sync_window: { Args: { instant: string }; Returns: boolean }
       notification_slot_due: {
         Args: {
           configured_hour: number
