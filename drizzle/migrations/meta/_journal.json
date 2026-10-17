@@ -43,6 +43,13 @@
       "when": 1792263496406,
       "tag": "0005_apply_conditional_cron_configuration",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792263528506,
+      "tag": "0006_verify_notification_schedule_rules",
+      "breakpoints": true
     }
   ]
 }
