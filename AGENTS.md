@@ -1,6 +1,6 @@
 # Architecture rules
 
-- Generate shareable workout stories client-side as 1080×1920 PNGs from completed workout data; use a single canvas for preview and export, Web Share for browsers and cached files for Capacitor Share so no private workout data is uploaded.
+- Generate shareable workout stories client-side as 1080×1920 PNGs from completed workout data; sanitize content before rendering a single canvas for preview and export, use Web Share for browsers and cached files for Capacitor Share so private data is never uploaded or leaked by a separate export path. Stories do not include maps.
 
 - Keep homemade drink-mix calculations in a pure, tested module and show nutrition tools in separate tab panels so ingredient arithmetic stays independent of menu generation.
 

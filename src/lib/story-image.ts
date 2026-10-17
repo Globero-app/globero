@@ -1,9 +1,11 @@
 import { Capacitor } from '@capacitor/core';
 import type { StoryChoice, StoryWorkout } from './workout-story';
+import { privateStory, type StoryPrivacy } from './workout-story';
 import { storyLabels } from './story-labels';
 import { localeCode, type Lang } from './i18n';
 
-export async function renderStory(canvas: HTMLCanvasElement, workout: StoryWorkout, choice: StoryChoice, lang: Lang) {
+export async function renderStory(canvas: HTMLCanvasElement, originalWorkout: StoryWorkout, originalChoice: StoryChoice, lang: Lang, privacy: StoryPrivacy = { hideLocation: false, hideMetrics: false }) {
+  const { workout, choice } = privateStory(originalWorkout, originalChoice, privacy);
   await document.fonts.ready;
   canvas.width = 1080;
   canvas.height = 1920;
@@ -38,18 +40,18 @@ export async function renderStory(canvas: HTMLCanvasElement, workout: StoryWorko
   text('GLOBERO', 108, 126, 54, 'foreground', true);
   if (workout.completed_at && Number.isFinite(Date.parse(workout.completed_at))) text(new Date(workout.completed_at).toLocaleDateString(localeCode(lang), { day: 'numeric', month: 'long', year: 'numeric' }), 72, 218, 30, 'muted');
   text(l[choice.kind].toUpperCase(), 72, 350, 32, 'accent', true);
-  lines(choice.badge?.label ?? workout.plan?.title ?? workout.plan?.name ?? l.workout, 460, 64);
+  lines(choice.badge?.label || workout.plan?.title || workout.plan?.name || l[choice.kind], 460, 64);
   // An unframed, oversized medal is the visual mark of the actual achievement.
   ctx.strokeStyle = color('accent'); ctx.lineWidth = 12;
   ctx.beginPath(); ctx.arc(540, 960, 208, 0, Math.PI * 2); ctx.stroke();
   ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(540, 960, 229, 0, Math.PI * 2); ctx.stroke();
   ctx.textAlign = 'center';
-  text(choice.kind === 'record' ? `${Math.round(choice.record?.watts ?? 0)}` : choice.kind === 'badge' ? '★' : '✓', 540, 995, choice.kind === 'record' ? 112 : 160, 'foreground', true);
-  text(choice.kind === 'record' ? `W · ${choice.record?.label ?? ''}` : l.done, 540, 1085, 28, 'accent', true);
+  text(choice.kind === 'record' && !privacy.hideMetrics ? `${Math.round(choice.record?.watts ?? 0)}` : choice.kind !== 'workout' ? '★' : '✓', 540, 995, choice.kind === 'record' && !privacy.hideMetrics ? 112 : 160, 'foreground', true);
+  text(choice.kind === 'record' && !privacy.hideMetrics ? `W · ${choice.record?.label ?? ''}` : l.done, 540, 1085, 28, 'accent', true);
   ctx.textAlign = 'left';
   if (choice.kind === 'badge') lines(choice.badge?.detail ?? '', 1330, 36, 4);
-  else if (choice.kind === 'record') text(choice.record?.gain ? `+${Math.round(choice.record.gain)} W` : choice.record?.label ?? '', 72, 1380, 70, 'accent', true);
-  else {
+  else if (choice.kind === 'record' && !privacy.hideMetrics) text(choice.record?.gain ? `+${Math.round(choice.record.gain)} W` : choice.record?.label ?? '', 72, 1380, 70, 'accent', true);
+  else if (choice.kind === 'workout' && !privacy.hideMetrics) {
     const metrics = [
       { label: l.duration, value: workout.duration_minutes ? `${workout.duration_minutes} min` : '—' },
       { label: l.load, value: workout.actual_tss != null ? `${Math.round(workout.actual_tss)} TSS` : '—' },

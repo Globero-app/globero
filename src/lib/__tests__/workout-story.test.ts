@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { storyChoices } from '../workout-story';
+import { privateStory, storyChoices } from '../workout-story';
 
 describe('shareable workout achievements', () => {
   it('only shares completed workouts', () => {
@@ -15,5 +15,33 @@ describe('shareable workout achievements', () => {
   });
   it('does not invent power records from invalid values', () => {
     expect(storyChoices({ id: '1', status: 'completed', plan: { gamification: { records: [{ seconds: 1200, label: '20 min', watts: NaN }] } } })).toHaveLength(1);
+  });
+});
+
+describe('story privacy', () => {
+  const workout = { id: '1', status: 'completed', duration_minutes: 60, actual_tss: 41, plan: { title: 'Salida desde Barcelona 60 min', name: 'Barcelona', gamification: { compliance: { percent: 132 } } } };
+  const choice = { id: 'badge-0', kind: 'badge' as const, badge: { emoji: '★', label: 'Barcelona 100 km', detail: '100 km desde Barcelona' }, record: { watts: 310, seconds: 1200, label: '20 min', gain: 12 } };
+  it('excludes location-bearing titles and achievement details when location is hidden', () => {
+    const result = privateStory(workout, choice, { hideLocation: true, hideMetrics: false });
+    expect(result.workout.plan.title).toBeUndefined();
+    expect(result.workout.plan.name).toBeUndefined();
+    expect(result.choice.badge?.label).toBe('');
+    expect(result.choice.badge?.detail).toBe('');
+    expect(result.workout.actual_tss).toBe(41);
+  });
+  it('excludes measurements, record values and free-form metric-bearing details when metrics are hidden', () => {
+    const result = privateStory(workout, choice, { hideLocation: false, hideMetrics: true });
+    expect(result.workout.duration_minutes).toBeUndefined();
+    expect(result.workout.actual_tss).toBeUndefined();
+    expect(result.workout.plan.gamification).toBeUndefined();
+    expect(result.choice.record).toBeUndefined();
+    expect(result.choice.badge?.detail).toBe('');
+    expect(result.workout.plan.title).toBeUndefined();
+  });
+  it('keeps the original data unchanged and restores it when privacy options are cleared', () => {
+    privateStory(workout, choice, { hideLocation: true, hideMetrics: true });
+    const result = privateStory(workout, choice, { hideLocation: false, hideMetrics: false });
+    expect(result.workout).toEqual(workout);
+    expect(result.choice).toEqual(choice);
   });
 });

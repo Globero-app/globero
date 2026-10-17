@@ -7,6 +7,34 @@ export type StoryWorkout = {
 };
 export type StoryChoice = { id: string; kind: 'workout' | 'record' | 'badge'; record?: StoryRecord; badge?: StoryBadge };
 
+export type StoryPrivacy = { hideLocation: boolean; hideMetrics: boolean };
+
+/** Free-form titles and badge details may reveal places or measurements. */
+export function privateStory(workout: StoryWorkout, choice: StoryChoice, privacy: StoryPrivacy) {
+  return {
+    workout: {
+      ...workout,
+      duration_minutes: privacy.hideMetrics ? undefined : workout.duration_minutes,
+      actual_tss: privacy.hideMetrics ? undefined : workout.actual_tss,
+      plan: {
+        ...workout.plan,
+        title: privacy.hideLocation || privacy.hideMetrics ? undefined : workout.plan?.title,
+        name: privacy.hideLocation || privacy.hideMetrics ? undefined : workout.plan?.name,
+        gamification: privacy.hideMetrics ? undefined : workout.plan?.gamification,
+      },
+    },
+    choice: {
+      ...choice,
+      record: privacy.hideMetrics ? undefined : choice.record,
+      badge: choice.badge ? {
+        ...choice.badge,
+        label: privacy.hideLocation || privacy.hideMetrics ? '' : choice.badge.label,
+        detail: privacy.hideLocation || privacy.hideMetrics ? '' : choice.badge.detail,
+      } : undefined,
+    },
+  };
+}
+
 export function storyChoices(workout: StoryWorkout): StoryChoice[] {
   if (workout.status !== 'completed') return [];
   return [
