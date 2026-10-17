@@ -3,17 +3,26 @@ export type StoryBadge = { emoji: string; label: string; detail: string };
 export type StoryWorkout = {
   id: string; status: string; duration_minutes?: number; actual_tss?: number | null;
   completed_at?: string | null;
-  plan?: { title?: string; name?: string; gamification?: { records?: StoryRecord[]; badges?: StoryBadge[]; compliance?: { percent?: number | null } } };
+  gpsTrack?: StoryCoordinate[];
+  plan?: { title?: string; name?: string; strava_activity_id?: string | number; intervals_activity_id?: string | number; gamification?: { records?: StoryRecord[]; badges?: StoryBadge[]; compliance?: { percent?: number | null } } };
 };
 export type StoryChoice = { id: string; kind: 'workout' | 'record' | 'badge'; record?: StoryRecord; badge?: StoryBadge };
 
-export type StoryPrivacy = { hideLocation: boolean; hideMetrics: boolean };
+export type StoryCoordinate = [number, number];
+export function storyTrack(value: unknown): StoryCoordinate[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((p): p is StoryCoordinate => Array.isArray(p) && p.length >= 2 &&
+    typeof p[0] === 'number' && typeof p[1] === 'number' && Number.isFinite(p[0]) && Number.isFinite(p[1]) &&
+    Math.abs(p[0]) <= 90 && Math.abs(p[1]) <= 180).map(p => [p[0], p[1]]);
+}
+export type StoryPrivacy = { hideMap?: boolean; hideLocation: boolean; hideMetrics: boolean };
 
 /** Free-form titles and badge details may reveal places or measurements. */
 export function privateStory(workout: StoryWorkout, choice: StoryChoice, privacy: StoryPrivacy) {
   return {
     workout: {
       ...workout,
+      ...(workout.gpsTrack ? { gpsTrack: privacy.hideMap !== false || privacy.hideLocation ? undefined : storyTrack(workout.gpsTrack) } : {}),
       duration_minutes: privacy.hideMetrics ? undefined : workout.duration_minutes,
       actual_tss: privacy.hideMetrics ? undefined : workout.actual_tss,
       plan: {

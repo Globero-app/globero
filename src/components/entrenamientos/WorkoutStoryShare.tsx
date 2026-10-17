@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useServerFn } from '@tanstack/react-start';
+import { intervalsActivityDetail } from '@/lib/intervals.functions';
+import { useAuth } from '@/lib/use-auth';
 import { Download, Loader2, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useI18n } from '@/lib/i18n';
-import { storyChoices, type StoryWorkout } from '@/lib/workout-story';
+import { storyChoices, storyTrack, type StoryWorkout } from '@/lib/workout-story';
 import { storyLabels } from '@/lib/story-labels';
 import { exportStory, renderStory, storyBlob } from '@/lib/story-image';
 
@@ -17,13 +21,28 @@ export function WorkoutStoryShare({ workout }: { workout: StoryWorkout }) {
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState(false);
-  const [privacy, setPrivacy] = useState({ hideLocation: false, hideMetrics: false });
+  const [privacy, setPrivacy] = useState({ hideMap: true, hideLocation: false, hideMetrics: false });
   const changePrivacy = (key: keyof typeof privacy, checked: boolean) => {
     image.current = null; setReady(false);
     setPrivacy(previous => ({ ...previous, [key]: checked }));
   };
   const canvas = useRef<HTMLCanvasElement>(null);
   const image = useRef<Blob | null>(null);
+  const { user } = useAuth();
+  const fetchDetail = useServerFn(intervalsActivityDetail);
+  const activityId = workout.plan?.strava_activity_id ?? workout.plan?.intervals_activity_id;
+  const gps = useQuery({
+    queryKey: ['story-gps', user?.id, activityId],
+    queryFn: async () => {
+      if (activityId == null) return [];
+      const detail = await fetchDetail({ data: { id: activityId } });
+      return storyTrack(detail.streams.latlng?.data);
+    },
+    enabled: open && !!user && activityId != null,
+    staleTime: 30 * 60 * 1000,
+    retry: false,
+  });
+  const track = gps.data;
   const choices = storyChoices(workout);
   const choice = choices.find(c => c.id === selected) ?? choices[0];
 
@@ -36,13 +55,13 @@ export function WorkoutStoryShare({ workout }: { workout: StoryWorkout }) {
       const element = canvas.current;
       if (!element) return;
       try {
-        await renderStory(element, workout, choice, lang, privacy);
+        await renderStory(element, { ...workout, gpsTrack: track }, choice, lang, privacy);
         const blob = await storyBlob(element);
         if (!cancelled) { image.current = blob; setReady(true); }
       } catch { if (!cancelled) setError(true); }
     });
     return () => { cancelled = true; cancelAnimationFrame(frame); };
-  }, [open, selected, workout, lang, privacy]);
+  }, [open, selected, workout, lang, privacy, track]);
 
   if (!choice) return null;
   const send = async (mode: 'share' | 'download') => {
@@ -67,7 +86,9 @@ export function WorkoutStoryShare({ workout }: { workout: StoryWorkout }) {
         </select>
         <fieldset disabled={busy} className="space-y-2 text-sm">
           <legend className="mb-2 font-semibold">{l.privacy}</legend>
-          <label className="flex items-center gap-2 text-muted-foreground"><Checkbox checked disabled />{l.mapExcluded}</label>
+          {track && track.length > 1 && <label className="flex items-center gap-2"><Checkbox checked={privacy.hideMap || privacy.hideLocation} disabled={privacy.hideLocation} onCheckedChange={value => changePrivacy('hideMap', value === true)} />{l.mapExcluded}</label>}
+          {gps.isFetching && <p role="status" className="text-muted-foreground">{l.preparing}</p>}
+          {gps.isError && <p role="alert" className="text-destructive">{l.error}</p>}
           <label className="flex items-center gap-2"><Checkbox checked={privacy.hideLocation} onCheckedChange={value => changePrivacy('hideLocation', value === true)} />{l.hideLocation}</label>
           <label className="flex items-center gap-2"><Checkbox checked={privacy.hideMetrics} onCheckedChange={value => changePrivacy('hideMetrics', value === true)} />{l.hideMetrics}</label>
         </fieldset>

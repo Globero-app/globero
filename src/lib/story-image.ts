@@ -41,6 +41,26 @@ export async function renderStory(canvas: HTMLCanvasElement, originalWorkout: St
   if (workout.completed_at && Number.isFinite(Date.parse(workout.completed_at))) text(new Date(workout.completed_at).toLocaleDateString(localeCode(lang), { day: 'numeric', month: 'long', year: 'numeric' }), 72, 218, 30, 'muted');
   text(l[choice.kind].toUpperCase(), 72, 350, 32, 'accent', true);
   lines(choice.badge?.label || workout.plan?.title || workout.plan?.name || l[choice.kind], 460, 64);
+  const track = workout.gpsTrack ?? [];
+  if (track.length > 1) {
+    // Draw only the recorded geometry, without third-party tiles or location labels.
+    const radians = Math.PI / 180;
+    const origin = track[0];
+    const projected = track.map(([lat, lon]) => [
+      ((((lon - origin[1]) + 540) % 360) - 180) * Math.cos(origin[0] * radians),
+      -(lat - origin[0]),
+    ]);
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const [x, y] of projected) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
+    const scale = Math.min(820 / Math.max(maxX - minX, 0.000001), 500 / Math.max(maxY - minY, 0.000001));
+    const xy = ([x, y]: number[]) => [540 + (x - (minX + maxX) / 2) * scale, 940 + (y - (minY + maxY) / 2) * scale];
+    ctx.strokeStyle = color('accent'); ctx.lineWidth = 10; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.beginPath();
+    projected.forEach((point, i) => { const [x, y] = xy(point); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+    ctx.stroke();
+    const [x, y] = xy(projected[0]);
+    ctx.fillStyle = color('foreground'); ctx.beginPath(); ctx.arc(x, y, 12, 0, Math.PI * 2); ctx.fill();
+  } else {
   // An unframed, oversized medal is the visual mark of the actual achievement.
   ctx.strokeStyle = color('accent'); ctx.lineWidth = 12;
   ctx.beginPath(); ctx.arc(540, 960, 208, 0, Math.PI * 2); ctx.stroke();
@@ -48,6 +68,7 @@ export async function renderStory(canvas: HTMLCanvasElement, originalWorkout: St
   ctx.textAlign = 'center';
   text(choice.kind === 'record' && !privacy.hideMetrics ? `${Math.round(choice.record?.watts ?? 0)}` : choice.kind !== 'workout' ? '★' : '✓', 540, 995, choice.kind === 'record' && !privacy.hideMetrics ? 112 : 160, 'foreground', true);
   text(choice.kind === 'record' && !privacy.hideMetrics ? `W · ${choice.record?.label ?? ''}` : l.done, 540, 1085, 28, 'accent', true);
+  }
   ctx.textAlign = 'left';
   if (choice.kind === 'badge') lines(choice.badge?.detail ?? '', 1330, 36, 4);
   else if (choice.kind === 'record' && !privacy.hideMetrics) text(choice.record?.gain ? `+${Math.round(choice.record.gain)} W` : choice.record?.label ?? '', 72, 1380, 70, 'accent', true);
