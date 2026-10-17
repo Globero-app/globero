@@ -1654,7 +1654,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      notification_slot_due: {
+        Args: {
+          configured_hour: number
+          extras: boolean[]
+          instant: string
+          readiness_enabled: boolean
+        }
+        Returns: boolean
+      }
       purge_old_logs: { Args: never; Returns: undefined }
+      sync_beacon_watchdog_schedule: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user"
