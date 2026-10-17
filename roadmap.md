@@ -1,8 +1,8 @@
 # Roadmap
 
-- [ ] Trazado GPS opcional de la actividad vinculada en las tarjetas compartibles.
+- [x] Trazado GPS opcional de la actividad vinculada en las tarjetas compartibles. Mostrar/ocultar, privacidad de ubicación y descarga PNG 1080×1920 verificados con cuenta real; 14 pruebas correctas.
 
-- [x] Privacidad de tarjetas: ocultar ubicación y métricas; mapas siempre excluidos. PNG privado y restauración verificados con cuenta real; 9 pruebas correctas.
+- [x] Privacidad de tarjetas: ocultar trazado GPS, ubicación y métricas; ocultar ubicación excluye también el trazado. PNG privado y restauración verificados con cuenta real.
 
 - [x] Etapa 12: tarjetas story de entrenamientos completados, récords e insignias; compartir y descargar PNG. Descarga 1080×1920 y selección de insignia verificadas con cuenta real; compartir nativo pendiente de dispositivo.
 
