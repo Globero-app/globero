@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Lote de optimización IA: menús solo para semana actual/siguiente, instrucciones breves y prompts fijos separados; 33 pruebas correctas, respuesta nutricional real de 7 días sin guardar planes y compilación automática correcta.
+
 - [x] intervals-sync-15min restringido a 06:30–23:30 Europe/Madrid, conservando intervalo y autenticación originales; límites y horario de invierno/verano comprobados.
 
 - [x] Reducir comprobaciones: beacon-watchdog pausado sin balizas vigentes y reactivación por cambios; actividad cada 15 minutos; readiness solo invoca notificaciones en franjas configuradas. Reglas verificadas en PostgreSQL.

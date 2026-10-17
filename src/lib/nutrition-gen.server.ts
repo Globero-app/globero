@@ -23,7 +23,7 @@ const MealSchema = {
   properties: {
     nombre: { type: "string" },
     ingredientes: { type: "array", items: { type: "string" }, description: "Ingredientes con cantidades en gramos" },
-    preparacion: { type: "string" },
+    preparacion: { type: "string", description: "Instrucciones breves y directas: máximo 1-2 frases concisas, sin introducciones ni explicaciones adicionales" },
     macros: {
       type: "object",
       properties: {
@@ -82,6 +82,29 @@ function addDaysISO(iso: string, n: number): string {
   d.setUTCDate(d.getUTCDate() + n);
   return d.toISOString().slice(0, 10);
 }
+
+/** Solo semanas afectadas dentro del horizonte inmediato; el resto lo genera el cron. */
+export function immediateNutritionWeeks(dates: string[], todayISO: string): string[] {
+  const current = weekStartISO(new Date(`${todayISO}T12:00:00Z`));
+  const next = addDaysISO(current, 7);
+  const weeks = [...new Set(dates.map((d) => weekStartISO(new Date(`${d}T12:00:00Z`))))];
+  return dates.length ? weeks.filter((w) => w === current || w === next).sort() : [current];
+}
+
+const NUTRITION_SYSTEM_PROMPT = `Eres un nutricionista deportivo especializado en ciclismo. Crea el PLAN NUTRICIONAL SEMANAL (7 días).
+
+REGLAS POR OBJETIVO (aplica solo el objetivo indicado por el usuario):
+${Object.entries(GOAL_RULES).map(([goal, rule]) => `- ${GOAL_LABEL[goal]}: ${rule}`).join("\n")}
+
+INSTRUCCIONES:
+1. Devuelve EXACTAMENTE 7 días, en orden, con las fechas indicadas y su día de la semana en español.
+2. Cada día con 5 tomas: desayuno, media mañana (media_manana), comida, merienda y cena.
+3. Ajusta calorías y carbohidratos al entreno de cada día: más CHO en días de tirada larga/intensidad, menos en descanso, manteniendo siempre el objetivo indicado.
+4. Dentro de los 5 días previos a una competición: carga progresiva de carbohidratos, digestión fácil, hidratación y sal, evitando exceso de fibra y grasas la víspera. Respeta SIEMPRE las preferencias / intolerancias.
+5. Si hay competición ese día, prioriza energía disponible (CHO altos, digestión fácil).
+6. Ingredientes SIEMPRE con cantidades en gramos. Preparación breve y directa: máximo 1-2 frases concisas por plato.
+7. Macros realistas y coherentes con los objetivos diarios.
+8. Recetas variadas, prácticas y fáciles. Incluye recetas favoritas o similares de vez en cuando; NO incluyas recetas rechazadas ni variantes muy parecidas. TODO en ESPAÑOL.`;
 
 /** Genera (o regenera) el plan nutricional semanal adaptado a los entrenamientos de esa semana. */
 export async function generateWeeklyNutritionCore(
@@ -148,31 +171,21 @@ export async function generateWeeklyNutritionCore(
     })
     .join("\n");
 
-  const prompt = `Eres un nutricionista deportivo especializado en ciclismo. Crea el PLAN NUTRICIONAL SEMANAL (7 días) para este ciclista.
-
-PERFIL:
+  const prompt = `PERFIL:
 - Edad: ${profile.age ?? "n/a"} · Sexo: ${profile.gender ?? "n/a"} · Peso: ${profile.weight_kg ?? "n/a"} kg · Altura: ${profile.height_cm ?? "n/a"} cm
 - FTP: ${profile.ftp ?? "n/a"} W · FC máx: ${profile.max_hr ?? "n/a"} ppm
 - Preferencias / intolerancias (OBLIGATORIO respetarlas): ${profile.dietary_preferences || "ninguna"}
 
 OBJETIVO DEL PLAN: ${GOAL_LABEL[goal]}
-REGLAS DEL OBJETIVO: ${GOAL_RULES[goal]}
 
 ENTRENAMIENTOS DE LA SEMANA (${weekStart} a ${weekEnd}):
 ${daysBlock}
-${preRaceBlock}${tasteBlock}
+${preRaceBlock}${tasteBlock}`;
 
-INSTRUCCIONES:
-1. Devuelve EXACTAMENTE 7 días, en orden, con la fecha indicada arriba y su día de la semana en español.
-2. Cada día con 5 tomas: desayuno, media mañana (media_manana), comida, merienda y cena.
-3. Ajusta calorías y carbohidratos al entreno de cada día: más CHO en días de tirada larga/intensidad, menos en descanso, manteniendo siempre el objetivo (${GOAL_LABEL[goal]}).
-4. Si algún día de la semana está dentro de los 5 días previos a una competición, adapta ese día a la carrera: carga progresiva de carbohidratos, digestión fácil, hidratación y sal, evitando exceso de fibra y grasas la víspera. Respeta SIEMPRE las preferencias / intolerancias.
-5. Si hay competición ese día, prioriza energía disponible (CHO altos, digestión fácil).
-6. Ingredientes SIEMPRE con cantidades en gramos. Preparación en 2-4 frases.
-7. Macros realistas y coherentes con los objetivos diarios.
-8. Recetas variadas entre días, prácticas y fáciles. TODO en ESPAÑOL.`;
-
-  const result = await callAI([{ role: "user", content: prompt }], WeekSchema, { fn: "nutrition-week" });
+  const result = await callAI([
+    { role: "system", content: NUTRITION_SYSTEM_PROMPT },
+    { role: "user", content: prompt },
+  ], WeekSchema, { fn: "nutrition-week" });
 
   const { data: saved, error } = await supabase
     .from("weekly_nutrition_plans")

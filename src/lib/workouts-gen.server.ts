@@ -7,7 +7,7 @@ const StepSchema = {
   type: "object",
   properties: {
     name: { type: "string", description: "Nombre corto del bloque (≤15 chars), ej 'Calentamiento'" },
-    description: { type: "string", description: "Instrucción breve para el ciclista" },
+    description: { type: "string", description: "Una única instrucción operativa concisa por bloque; sin introducciones ni explicaciones adicionales" },
     duration_type: { type: "string", enum: ["time", "open"] },
     duration_seconds: { type: "number", description: "Segundos si duration_type=time" },
     target: { type: "string", enum: ["power", "hr", "cadence", "open"] },
@@ -93,6 +93,54 @@ const NUTRITION_TRAINING_RULES: Record<string, string> = {
     "OBJETIVO GANAR MASA MUSCULAR: enfatiza fuerza específica sobre la bici (cadencia 50-60 rpm, Z3-Z4, series de 5-10 min), sprints y esfuerzos neuromusculares cortos; reduce el volumen puramente aeróbico y deja recuperación suficiente entre sesiones de fuerza.",
 };
 
+const WORKOUTS_SYSTEM_PROMPT = `Eres un entrenador profesional de ciclismo. Diseña entrenamientos MIXTOS personalizados con los datos del usuario.
+
+BASE DE PRESCRIPCIÓN (respeta la base indicada):
+- FC: todos los steps con esfuerzo usan target='hr', target_low/target_high en PPM; nunca power. Zonas sobre LTHR: Z1 <81%, Z2 81-89%, Z3 90-93%, Z4 94-99%, Z5 100-102%, Z5b >102%. Si solo hay FC máx: Z1 <68%, Z2 69-83%, Z3 84-94%, Z4 95-105%. Sin FC máx estima 220-edad; sin LTHR estima 92% de FC máx.
+- Potencia: todos los steps con esfuerzo usan target='power' y VATIOS calculados sobre FTP: Z2 56-75%, Z3 76-90%, Z4 91-105%, Z5 106-120%, Z6 121-150%. Solo sin FTP usa hr u open.
+- Menciona la base de prescripción en summary.
+
+PERIODIZACIÓN (respeta fase, semana, progresión y descarga decididas por el sistema):
+- Base: Z2 dominante, fuerza a baja cadencia y tempo suave; poca intensidad alta.
+- Construcción: Z3-Z4 (tempo y umbral), volumen sostenido y Z2 de base.
+- Pico: Z5 (VO₂ máx), intensidad específica de competición y volumen reducido.
+- Tapering: volumen mínimo con aceleraciones y bloques cortos a ritmo de carrera.
+- Transición: Z1-Z2, recuperación activa.
+- Descarga: reduce volumen e intensidad, máximo una sesión de calidad corta, resto Z1-Z2.
+- Progresa volumen o densidad respecto a la semana anterior según el factor indicado.
+- Con competición: base → construcción → pico → tapering; última sesión corta de activación.
+
+AJUSTES POR PERFIL:
+- Sprinter: neuromuscular, sprints y aceleraciones de 10-30 s con recuperaciones largas.
+- Rodador: umbral/tempo sostenido, Z3-Z4 prolongada y aeróbico en llano.
+- Escalador: Z2 largo, subidas de 2-10 min y fuerza a baja cadencia.
+- Contrarrelojista: aeróbico constante, umbral y simulaciones de crono en posición.
+- Mixto: equilibrio entre cualidades.
+
+OBJETIVOS NUTRICIONALES (aplica solo el indicado):
+${Object.entries(NUTRITION_TRAINING_RULES).map(([goal, rule]) => `- ${goal}: ${rule}`).join("\n")}
+Adapta las sesiones al objetivo nutricional y menciónalo en summary.
+
+CARGA Y TSS:
+- Distribuye el TSS semanal objetivo (±10%) respetando el máximo de sesiones intensas y recuperación indicada.
+- Semana recovery: 95% del tiempo Z1-Z2, como máximo un bloque corto de calidad. Resto: ~80% Z1-Z2 y ~20% Z4 o superior; evita Z3 prolongada.
+- Cumplimiento repetido <85%: baja targets; >115%: súbelos. RPE medio >4: reduce intensidad; <2: auméntala.
+
+BIBLIOTECA Y FORMATO:
+- Cada sesión declara UNO de: vo2max, umbral, tempo, resistencia, neuromuscular, fuerza_resistencia, recuperacion; nunca mixto a nivel de sesión.
+- Respeta exactamente estructura y nivel de biblioteca indicados; adapta calentamiento, vuelta a la calma y rodajes para cuadrar duración. No repitas objetivo dos días consecutivos.
+- Trabajo/recuperación: vo2max 1:1, umbral 3:1 o 4:1, tempo continuo, neuromuscular 1:8.
+- Devuelve exactamente la cantidad indicada, en el orden y fechas del calendario. Reparte carga y recuperación según los días reales.
+- Suma duration_seconds para cumplir la duración objetivo salvo tirada larga o ajuste a rodillo. Incluye calentamiento y vuelta a la calma; duration_type='time' salvo descansos abiertos.
+- Fuerza: cadencia 50-60 rpm, Z3-Z4. name máximo 15 caracteres; title puede ser largo. description: una única instrucción operativa concisa por bloque. Todo texto visible en el idioma indicado.
+- Alterna resistencia, intervalos y fuerza; adapta al material y al histórico del ciclista.
+- Primera sesión según readiness: 1 descanso/movilidad, 2 Z1-Z2 corto, 3 estándar, 4-5 permite subir carga.
+
+METEOROLOGÍA:
+- Con previsión y weather_auto_indoor activo: lluvia ≥5 mm, frío ≤2 °C, calor ≥35 °C, tormenta o viento muy fuerte → rodillo, indoor=true, 60-90 min.
+- Viento fuerte sin precipitación extrema: permite reducir tirada larga o calidad corta. Templado sin viento: exterior.
+- Indica ajustes meteorológicos en summary.`;
+
 /** Núcleo de generación de entrenamientos (siempre plan MIXTO). Reutilizable por el cron semanal. */
 export async function generateWorkoutsCore(supabase: any, userId: string, input: GenCoreInput) {
   const { buildTrainingLoad, prescribeWeek, loadPromptBlock, weekStart } = await import("./training-load.server");
@@ -158,17 +206,7 @@ export async function generateWorkoutsCore(supabase: any, userId: string, input:
   const maxHr: number | null = profile.max_hr ?? null;
   const lthr: number | null = profile.lthr ?? null;
   const basis: "power" | "hr" = input.target_basis === "hr" && !maxHr && !lthr && ftp ? "power" : (input.target_basis ?? "power");
-  const basisBlock = basis === "hr"
-    ? `BASE DE PRESCRIPCIÓN: FRECUENCIA CARDÍACA (obligatorio)
-- FC máx: ${maxHr ?? "no especificada (estima 220-edad)"} ppm · LTHR (umbral): ${lthr ?? "no especificado (estima 92% de FC máx)"} ppm
-- TODOS los steps con esfuerzo deben usar target='hr' con target_low/target_high en PPM (bpm). No uses target='power' en ningún step.
-- Zonas sobre LTHR: Z1 <81%, Z2 81-89%, Z3 90-93%, Z4 94-99%, Z5 100-102%, Z5b >102%. Si solo hay FC máx, usa % de FC máx: Z1 <68%, Z2 69-83%, Z3 84-94%, Z4 95-105%.
-- Menciona en "summary" que la sesión está prescrita por frecuencia cardíaca.`
-    : `BASE DE PRESCRIPCIÓN: POTENCIA / FTP (obligatorio)
-- FTP: ${ftp ?? "no especificado"}W
-- TODOS los steps con esfuerzo deben usar target='power' con target_low/target_high en VATIOS calculados sobre el FTP (Z2 56-75%, Z3 76-90%, Z4 91-105%, Z5 106-120%, Z6 121-150%).
-- Solo si NO hay FTP disponible usa target='hr' o target='open'.
-- Menciona en "summary" que la sesión está prescrita por potencia.`;
+  const basisBlock = `BASE DE PRESCRIPCIÓN: ${basis === "hr" ? "FRECUENCIA CARDÍACA" : "POTENCIA / FTP"}`;
 
   let competition: any = null;
   let competitionBlock = "";
@@ -194,11 +232,7 @@ COMPETICIÓN OBJETIVO:
 - Tipo: ${comp.type ?? "n/a"}
 - Distancia: ${comp.distance_km ?? "n/a"} km · Desnivel: ${comp.elevation_m ?? "n/a"} m
 - Duración estimada: ${comp.duration_hours ?? "n/a"} h · Intensidad: ${comp.intensity ?? "n/a"}
-- Notas: ${comp.notes ?? "—"}
-
-PERIODIZACIÓN OBLIGATORIA:
-- Aplica progresión clásica: base → construcción → pico → tapering en la última semana antes del evento.
-- El último entrenamiento antes del evento debe ser corto y de activación.`;
+- Notas: ${comp.notes ?? "—"}`;
   }
 
   const chosenDays = input.training_days.slice().sort((a, b) => a - b);
@@ -237,27 +271,18 @@ PERIODIZACIÓN OBLIGATORIA:
 PERFIL TIPOLÓGICO DEL CICLISTA:
 - Tipo: ${cyclistType}
 ${strengths ? `- Fortalezas: ${strengths}` : ""}
-${weaknesses ? `- Debilidades a trabajar: ${weaknesses}` : ""}
-AJUSTES POR PERFIL:
-- Sprinter: prioriza trabajo neuromuscular, sprints, aceleraciones de 10-30 s y recuperaciones largas.
-- Rodador: sesiones de umbral/tempo sostenido, Z3-Z4 prolongada y rodajes aeróbicos en llano.
-- Escalador: rodajes largos de Z2, repeticiones en subida (2-10 min) y fuerza específica a baja cadencia.
-- Contrarrelojista: trabajo aeróbico constante, series de umbral y simulaciones de crono en posición.
-- Mixto: equilibrio entre cualidades sin sesgar demasiado.`;
+${weaknesses ? `- Debilidades a trabajar: ${weaknesses}` : ""}`;
 
   const weatherBlock = weatherMap
     ? `
 PREVISIÓN METEOROLÓGICA (${locationCity}):
 ${schedule.map((s, i) => {
-      const w = weatherMap!.get(s.date);
+      const w = weatherMap?.get(s.date);
       const a = weatherAdvices[i];
       if (!w) return `- ${s.date}: sin datos`;
       return `- ${s.date}: ${w.summary}, viento ${w.wind_kmh} km/h, ${w.precip_mm} mm de lluvia.${a ? ` Ajuste: ${a.note}` : ""}`;
     }).join("\n")}
-REGLAS METEOROLÓGICAS:
-- Si un día tiene lluvia intensa (≥5 mm), frío extremo (≤2 °C), calor extremo (≥35 °C), tormenta o viento muy fuerte, y el perfil tiene weather_auto_indoor activado, propón ese entrenamiento como rodillo (indoor) y ajusta la duración a 60-90 min.
-- En días de viento fuerte pero sin precipitación extrema, puedes reducir la duración de la tirada larga o cambiarla por una sesión de calidad corta.
-- En días templados y sin viento, prioriza salida a exterior.`
+weather_auto_indoor: ${autoIndoor} · umbral viento: ${windThreshold} km/h`
     : "";
 
   // ---- Bloque de 4 semanas (periodización) ----
@@ -304,8 +329,8 @@ REGLAS METEOROLÓGICAS:
       : null,
   });
 
-  const loadBlock = loadPromptBlock(load, week, userLang);
-  const blockBlock = periodization.prompt_block;
+  const loadBlock = loadPromptBlock(load, week, userLang).trim().split("\n").slice(1, -1).join("\n") + `\nModo semanal: ${week.mode}`;
+  const blockBlock = `PERIODIZACIÓN: fase ${blockFocus}, semana ${weekIndex}/${periodization.block_length}, descarga ${periodization.is_deload}, progresión ${periodization.progression_factor}, semanas hasta competición ${periodization.weeks_to_race ?? "n/a"}`;
 
 
   // ---- Biblioteca de sesiones con progresión personal ----
@@ -324,7 +349,7 @@ REGLAS METEOROLÓGICAS:
   }
   const levels: Record<string, number> = {};
   for (const g of Object.keys(SESSION_LIBRARY)) levels[g] = progressionLevel(goalCounts[g] ?? 0);
-  const libraryBlock = libraryPromptBlock(levels as any);
+  const libraryBlock = libraryPromptBlock(levels as any).split("REGLAS DE LA BIBLIOTECA:")[0];
 
   // ---- Test de forma periódico ----
   const { data: lastTest } = await supabase
@@ -373,8 +398,6 @@ ${longDay !== null ? `- Las sesiones marcadas como TIRADA LARGA (${DAY_NAMES[lon
 
   const prompt = `${outputLanguage}
 
-Eres un entrenador profesional de ciclismo. Diseña ${effectiveCount} entrenamiento(s) MIXTOS personalizados para este ciclista.
-
 PERFIL:
 - Edad: ${profile.age ?? "n/a"}, Sexo: ${profile.gender ?? "n/a"}, Peso: ${weight}kg
 - FTP: ${ftp ?? "no especificado"}W · FC máx: ${maxHr ?? "n/a"} ppm · LTHR: ${lthr ?? "n/a"} ppm
@@ -382,7 +405,7 @@ PERFIL:
 
 ${profileBlock}
 
-${athletePromptBlock(athlete, cyclistType)}
+${athletePromptBlock(athlete, cyclistType).split("OBJETIVO FISIOLÓGICO OBLIGATORIO:")[0]}
 
 
 ${basisBlock}
@@ -391,7 +414,7 @@ PETICIÓN:
 - Foco: ${competition ? "preparación específica para la competición indicada, siempre con bloque MIXTO" : "MIXTO obligatorio: combina resistencia, intervalos y fuerza a lo largo del bloque"}
 - Duración objetivo de CADA entrenamiento: ${input.duration_minutes} minutos (la tirada larga puede ser mayor)
 - Cantidad: ${effectiveCount} entrenamiento(s) distintos
-${input.nutrition_goal && NUTRITION_TRAINING_RULES[input.nutrition_goal] ? `\nPLAN NUTRICIONAL DEL CICLISTA: ${NUTRITION_TRAINING_RULES[input.nutrition_goal]}\nAdapta la estructura de las sesiones para favorecer ese objetivo y menciónalo en el summary.\n` : ""}
+${input.nutrition_goal && NUTRITION_TRAINING_RULES[input.nutrition_goal] ? `\nOBJETIVO NUTRICIONAL: ${input.nutrition_goal}\n` : ""}
 ${competitionBlock}
 ${blockBlock}
 ${loadBlock}
@@ -403,27 +426,16 @@ ${weatherBlock}
 ACTIVIDADES RECIENTES (Intervals.icu): ${recent && recent.length ? JSON.stringify(recent) : "ninguna"}
 
 ENTRENAMIENTOS YA REALIZADOS (prescrito vs ejecutado; RPE 1=fácil, 5=imposible): ${prevWorkouts && prevWorkouts.length ? JSON.stringify(prevWorkouts.map((w: any) => ({ tipo: w.training_type, min: w.duration_minutes, rpe: w.rpe, notas: w.feedback_notes, fecha: w.completed_at, tss_prescrito: w.planned_tss, tss_real: w.actual_tss, cumplimiento_pct: w.compliance }))) : "sin histórico"}
-- Si el cumplimiento medio es <85% de forma repetida, BAJA los targets prescritos; si es >115%, súbelos.
 
 CARRERAS PASADAS: ${pastRaces && pastRaces.length ? JSON.stringify(pastRaces) : "sin carreras previas con feedback"}
 
 READINESS DE HOY (${madridToday}): ${readinessStatus}
-HISTÓRICO READINESS 14 días: ${readinessArr.length ? JSON.stringify(readinessArr) : "sin registros"}
+HISTÓRICO READINESS 14 días: ${readinessArr.length ? JSON.stringify(readinessArr) : "sin registros"}`;
 
-INSTRUCCIONES:
-1. Cada entrenamiento DEBE durar aproximadamente ${input.duration_minutes} minutos (suma de duration_seconds), salvo que el ajuste meteorológico lo convierta en rodillo (60-90 min).
-2. Incluye SIEMPRE calentamiento y vuelta a la calma.
-3. duration_type='time' con duration_seconds salvo descansos abiertos.
-4. Respeta ESTRICTAMENTE la BASE DE PRESCRIPCIÓN (${basis === "hr" ? "frecuencia cardíaca" : "potencia/FTP"}).
-5. Fuerza sobre la bici: cadencia baja (50-60rpm) con intensidad Z3-Z4.
-6. name MÁXIMO 15 caracteres. Title puede ser largo. Todo texto visible debe respetar el IDIOMA OBLIGATORIO indicado al principio.
-7. PLAN MIXTO: alterna resistencia, intervalos y fuerza entre las sesiones del bloque; no repitas el mismo tipo dos días seguidos.
-8. PROGRESIÓN Y MEJORA: usa el histórico de entrenamientos realizados (RPE, notas, cumplimiento) y las actividades de Intervals.icu para subir la carga de forma progresiva respecto a la semana anterior. Si el RPE medio >4 reduce intensidad; si <2 auméntala.
-9. TIPO DE BICI (${input.bike_type}): adapta el enfoque al material.
-10. MODULACIÓN POR READINESS: la PRIMERA sesión del plan se ajusta al Readiness de hoy (1 → descanso/movilidad, 2 → Z1-Z2 corto, 3 → estándar, 4-5 → puedes subir carga).
-11. AJUSTE METEOROLÓGICO: si el día tiene condiciones adversas según la previsión, indícalo en el summary y, si procede, convierte la sesión en rodillo (indoor=true) con duración 60-90 min.`;
-
-  const result = await callAI([{ role: "user", content: prompt }], PlanSchema, { fn: "workouts-gen", userId });
+  const result = await callAI([
+    { role: "system", content: WORKOUTS_SYSTEM_PROMPT },
+    { role: "user", content: prompt },
+  ], PlanSchema, { fn: "workouts-gen", userId });
 
   // ---- Validación y corrección determinista ----
   const items = (result.workouts as any[]).slice(0, effectiveCount).map((w, i) => {
