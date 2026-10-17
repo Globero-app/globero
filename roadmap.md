@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Reducir comprobaciones: pausar beacon-watchdog sin balizas vigentes, actividad cada 15 minutos y readiness solo en horarios configurados.
+
 - [x] Trazado GPS opcional de la actividad vinculada en las tarjetas compartibles. Mostrar/ocultar, privacidad de ubicación y descarga PNG 1080×1920 verificados con cuenta real; 14 pruebas correctas.
 
 - [x] Privacidad de tarjetas: ocultar trazado GPS, ubicación y métricas; ocultar ubicación excluye también el trazado. PNG privado y restauración verificados con cuenta real.
