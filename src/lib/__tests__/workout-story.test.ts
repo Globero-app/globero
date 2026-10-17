@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { privateStory, storyChoices } from '../workout-story';
+import { privateStory, storyChoices, storyTrack } from '../workout-story';
 
 describe('shareable workout achievements', () => {
   it('only shares completed workouts', () => {
@@ -19,6 +19,22 @@ describe('shareable workout achievements', () => {
 });
 
 describe('story privacy', () => {
+  const gpsWorkout = { id: 'gps', status: 'completed', gpsTrack: [[41, 2], [41.1, 2.1]] as [number, number][] };
+  const gpsChoice = { id: 'workout', kind: 'workout' as const };
+  it('shows linked GPS coordinates only when the map is explicitly enabled', () => {
+    expect(privateStory(gpsWorkout, gpsChoice, { hideMap: false, hideLocation: false, hideMetrics: false }).workout.gpsTrack).toEqual([[41, 2], [41.1, 2.1]]);
+    expect(privateStory(gpsWorkout, gpsChoice, { hideLocation: false, hideMetrics: false }).workout.gpsTrack).toBeUndefined();
+  });
+  it('removes the GPS track when the map is hidden', () => {
+    expect(privateStory(gpsWorkout, gpsChoice, { hideMap: true, hideLocation: false, hideMetrics: false }).workout.gpsTrack).toBeUndefined();
+  });
+  it('hiding location overrides an enabled map', () => {
+    expect(privateStory(gpsWorkout, gpsChoice, { hideMap: false, hideLocation: true, hideMetrics: false }).workout.gpsTrack).toBeUndefined();
+  });
+  it('rejects missing and invalid coordinates without inventing a route', () => {
+    expect(storyTrack(undefined)).toEqual([]);
+    expect(storyTrack([[41, 2], [NaN, 2], [91, 2], [41, 181], [null, 0]])).toEqual([[41, 2]]);
+  });
   const workout = { id: '1', status: 'completed', duration_minutes: 60, actual_tss: 41, plan: { title: 'Salida desde Barcelona 60 min', name: 'Barcelona', gamification: { compliance: { percent: 132 } } } };
   const choice = { id: 'badge-0', kind: 'badge' as const, badge: { emoji: '★', label: 'Barcelona 100 km', detail: '100 km desde Barcelona' }, record: { watts: 310, seconds: 1200, label: '20 min', gain: 12 } };
   it('excludes location-bearing titles and achievement details when location is hidden', () => {
