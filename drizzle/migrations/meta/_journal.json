@@ -57,6 +57,13 @@
       "when": 1792264426876,
       "tag": "0007_intervals_sync_madrid_window",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792264453899,
+      "tag": "0008_apply_intervals_sync_window",
+      "breakpoints": true
     }
   ]
 }
