@@ -11,6 +11,7 @@ export interface CoachAlert {
 }
 
 const DAY = 86400000;
+const COACH_SYSTEM_PROMPT = "Eres un coach profesional de ciclismo. Devuelve UNA sola frase (máx. 200 caracteres), concreta y accionable, sin markdown ni emojis.";
 
 function daysAgoISO(n: number): string {
   return new Date(new Date(`${madridTodayISO()}T12:00:00Z`).getTime() - n * DAY).toISOString().slice(0, 10);
@@ -98,10 +99,9 @@ export async function buildDailyBrief(supabase: any, userId: string) {
         [
           {
             role: "system",
-            content:
-              `${langInstruction(lang)} Devuelve UNA sola frase (máx. 200 caracteres), concreta y accionable, sin markdown ni emojis.`,
+            content: COACH_SYSTEM_PROMPT,
           },
-          { role: "user", content: lines.join("\n") },
+          { role: "user", content: `${langInstruction(lang)}\n${lines.join("\n")}` },
         ],
         undefined,
         { fn: "daily-brief", userId },

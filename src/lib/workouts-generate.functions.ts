@@ -104,7 +104,7 @@ export const generateWorkouts = createServerFn({ method: "POST" })
       for (const workout of inserted ?? []) await syncWorkoutToDevices(supabase, userId, workout);
     }
 
-    // Plan nutricional: se regenera para todas las semanas afectadas por los nuevos días
+    // Plan nutricional: solo semana actual/siguiente; el resto lo genera el cron dominical.
     let nutritionOn = data.nutrition_enabled;
     let nutritionGoal: string = data.nutrition_goal ?? "mantenimiento";
     if (!nutritionOn) {
@@ -121,15 +121,12 @@ export const generateWorkouts = createServerFn({ method: "POST" })
 
     if (nutritionOn) {
       try {
-        const { generateWeeklyNutritionCore, weekStartISO } = await import("./nutrition-gen.server");
+        const { generateWeeklyNutritionCore, immediateNutritionWeeks } = await import("./nutrition-gen.server");
         const dates = (inserted ?? [])
           .map((w: any) => w.plan?.scheduled_date)
           .filter(Boolean) as string[];
-        const weeks = Array.from(
-          new Set(dates.map((d) => weekStartISO(new Date(`${d}T12:00:00Z`)))),
-        ).sort();
-        if (!weeks.length) weeks.push(weekStartISO(new Date()));
-        for (const week_start of weeks.slice(0, 4)) {
+        const weeks = immediateNutritionWeeks(dates, todayISO);
+        for (const week_start of weeks) {
           await generateWeeklyNutritionCore(supabase, userId, { goal: nutritionGoal, week_start });
         }
       } catch (e) {
