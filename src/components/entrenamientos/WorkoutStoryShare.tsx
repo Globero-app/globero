@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Download, Loader2, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useI18n } from '@/lib/i18n';
 import { storyChoices, type StoryWorkout } from '@/lib/workout-story';
@@ -16,6 +17,11 @@ export function WorkoutStoryShare({ workout }: { workout: StoryWorkout }) {
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState(false);
+  const [privacy, setPrivacy] = useState({ hideLocation: false, hideMetrics: false });
+  const changePrivacy = (key: keyof typeof privacy, checked: boolean) => {
+    image.current = null; setReady(false);
+    setPrivacy(previous => ({ ...previous, [key]: checked }));
+  };
   const canvas = useRef<HTMLCanvasElement>(null);
   const image = useRef<Blob | null>(null);
   const choices = storyChoices(workout);
@@ -30,13 +36,13 @@ export function WorkoutStoryShare({ workout }: { workout: StoryWorkout }) {
       const element = canvas.current;
       if (!element) return;
       try {
-        await renderStory(element, workout, choice, lang);
+        await renderStory(element, workout, choice, lang, privacy);
         const blob = await storyBlob(element);
         if (!cancelled) { image.current = blob; setReady(true); }
       } catch { if (!cancelled) setError(true); }
     });
     return () => { cancelled = true; cancelAnimationFrame(frame); };
-  }, [open, selected, workout, lang]);
+  }, [open, selected, workout, lang, privacy]);
 
   if (!choice) return null;
   const send = async (mode: 'share' | 'download') => {
@@ -59,6 +65,12 @@ export function WorkoutStoryShare({ workout }: { workout: StoryWorkout }) {
         <select aria-label={l.share} disabled={busy} className="w-full rounded-md border bg-surface p-2 text-sm" value={choice.id} onChange={e => setSelected(e.target.value)}>
           {choices.map(c => <option key={c.id} value={c.id}>{l[c.kind]}{c.record ? ` · ${c.record.label} · ${c.record.watts} W` : c.badge ? ` · ${c.badge.label}` : ''}</option>)}
         </select>
+        <fieldset disabled={busy} className="space-y-2 text-sm">
+          <legend className="mb-2 font-semibold">{l.privacy}</legend>
+          <label className="flex items-center gap-2 text-muted-foreground"><Checkbox checked disabled />{l.mapExcluded}</label>
+          <label className="flex items-center gap-2"><Checkbox checked={privacy.hideLocation} onCheckedChange={value => changePrivacy('hideLocation', value === true)} />{l.hideLocation}</label>
+          <label className="flex items-center gap-2"><Checkbox checked={privacy.hideMetrics} onCheckedChange={value => changePrivacy('hideMetrics', value === true)} />{l.hideMetrics}</label>
+        </fieldset>
         <canvas ref={canvas} width={1080} height={1920} role="img" aria-label={l[choice.kind]} className="mx-auto block aspect-[9/16] w-full max-w-[270px]" />
         {!ready && !error && <p role="status" className="text-center text-sm text-muted-foreground">{l.preparing}</p>}
         {error && <p role="alert" className="text-sm text-destructive">{l.error}</p>}

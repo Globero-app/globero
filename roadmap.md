@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Privacidad de tarjetas: ocultar ubicación y métricas; mantener mapas excluidos y verificar descarga.
+
 - [x] Etapa 12: tarjetas story de entrenamientos completados, récords e insignias; compartir y descargar PNG. Descarga 1080×1920 y selección de insignia verificadas con cuenta real; compartir nativo pendiente de dispositivo.
 
 - [x] Etapa 8: calculadora de mezclas caseras y vistas separadas de Menús, Avituallamiento y Mezclas en Nutrición; 9 pruebas correctas. Comprobación con cuenta pendiente de acceso.
