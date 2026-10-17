@@ -16,6 +16,14 @@ import { quickAdjustWorkout } from "@/lib/workout-actions.functions";
 import { useI18n, tr } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/entrenamientos")({
+  head: () => ({ meta: [
+    { title: 'Entrenamientos y logros | Globero' },
+    { name: 'description', content: 'Tu plan ciclista personalizado, informes y logros compartibles en Globero.' },
+    { property: 'og:title', content: 'Entrenamientos y logros | Globero' },
+    { property: 'og:description', content: 'Tu plan ciclista personalizado, informes y logros compartibles en Globero.' },
+    { property: 'og:type', content: 'website' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+  ] }),
   component: EntrenamientosPage
 });
 
