@@ -52,7 +52,6 @@ export function WorkoutStoryShare({ workout }: { workout: StoryWorkout }) {
     retry: false,
   });
   const track = gps.data?.track;
-  const indoor = (workout as any).bike_type === 'rodillo' || !!(workout.plan as any)?.indoor;
   const choices = storyChoices(workout);
   const choice = choices.find(c => c.id === selected) ?? choices[0];
 
@@ -65,7 +64,7 @@ export function WorkoutStoryShare({ workout }: { workout: StoryWorkout }) {
       const element = canvas.current;
       if (!element) return;
       try {
-        await renderStory(element, { ...workout, gpsTrack: track, actual: gps.data?.metrics, indoor }, choice, lang, privacy, style);
+        await renderStory(element, { ...workout, gpsTrack: track, actual: gps.data?.metrics }, choice, lang, privacy, style);
         const blob = await storyBlob(element);
         if (!cancelled) { image.current = blob; setReady(true); }
       } catch { if (!cancelled) setError(true); }
