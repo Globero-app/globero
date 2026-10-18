@@ -3,8 +3,7 @@ export type StoryBadge = { emoji: string; label: string; detail: string };
 export type StoryWorkout = {
   id: string; status: string; duration_minutes?: number; actual_tss?: number | null;
   completed_at?: string | null;
-  indoor?: boolean;
-  actual?: { durationMinutes?: number; distanceKm?: number; maxAltitude?: number };
+  actual?: { durationMinutes?: number; distanceKm?: number };
   gpsTrack?: StoryCoordinate[];
   plan?: { title?: string; name?: string; strava_activity_id?: string | number; intervals_activity_id?: string | number; gamification?: { records?: StoryRecord[]; badges?: StoryBadge[]; compliance?: { percent?: number | null } } };
 };
