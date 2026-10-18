@@ -1,10 +1,10 @@
 import { Capacitor } from '@capacitor/core';
 import type { StoryChoice, StoryWorkout } from './workout-story';
-import { privateStory, type StoryPrivacy } from './workout-story';
+import { privateStory, STORY_PALETTES, type StoryPrivacy, type StoryStyle } from './workout-story';
 import { storyLabels } from './story-labels';
 import { localeCode, type Lang } from './i18n';
 
-export async function renderStory(canvas: HTMLCanvasElement, originalWorkout: StoryWorkout, originalChoice: StoryChoice, lang: Lang, privacy: StoryPrivacy = { hideLocation: false, hideMetrics: false }) {
+export async function renderStory(canvas: HTMLCanvasElement, originalWorkout: StoryWorkout, originalChoice: StoryChoice, lang: Lang, privacy: StoryPrivacy = { hideLocation: false, hideMetrics: false }, style: StoryStyle = 'oscuro') {
   const { workout, choice } = privateStory(originalWorkout, originalChoice, privacy);
   await document.fonts.ready;
   canvas.width = 1080;
@@ -12,7 +12,8 @@ export async function renderStory(canvas: HTMLCanvasElement, originalWorkout: St
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas unavailable');
   const css = getComputedStyle(document.documentElement);
-  const color = (name: string) => css.getPropertyValue(`--story-${name}`).trim();
+  const palette = STORY_PALETTES[style] ?? STORY_PALETTES.oscuro;
+  const color = (name: keyof typeof palette) => palette[name];
   const l = storyLabels(lang);
   ctx.fillStyle = color('background');
   ctx.fillRect(0, 0, 1080, 1920);
