@@ -12,8 +12,29 @@ export const json = (data: unknown, status = 200) =>
 
 export const deviceIdOk = (v: unknown): v is string => typeof v === "string" && /^[A-Za-z0-9_\-:.]{1,128}$/.test(v);
 
+export function randomSecret(): string {
+  const b = new Uint8Array(32);
+  crypto.getRandomValues(b);
+  return Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("");
+}
+
+export async function hashSecret(secret: string): Promise<string> {
+  const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(secret));
+  return Array.from(new Uint8Array(d), (x) => x.toString(16).padStart(2, "0")).join("");
+}
+
 export async function activeDeviceUser(admin: any, deviceId: string): Promise<string | null> {
   const { data } = await admin.from("garmin_devices").select("user_id").eq("garmin_device_id", deviceId).eq("status", "active").maybeSingle();
+  return data?.user_id ?? null;
+}
+
+/** Usuario del dispositivo solo si presenta su secreto (cabecera x-device-secret). */
+export async function authenticatedDeviceUser(admin: any, request: Request, deviceId: string): Promise<string | null> {
+  const secret = request.headers.get("x-device-secret") ?? "";
+  if (!/^[a-f0-9]{64}$/.test(secret)) return null;
+  const hash = await hashSecret(secret);
+  const { data } = await admin.from("garmin_devices").select("user_id").eq("garmin_device_id", deviceId)
+    .eq("status", "active").eq("secret_hash", hash).maybeSingle();
   return data?.user_id ?? null;
 }
 
