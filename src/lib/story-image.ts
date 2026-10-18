@@ -19,7 +19,7 @@ export async function renderStory(canvas: HTMLCanvasElement, originalWorkout: St
   ctx.fillRect(0, 0, 1080, 1920);
   ctx.fillStyle = color('accent');
   ctx.fillRect(72, 72, 12, 64);
-  const text = (value: string, x: number, y: number, size = 40, ink = 'foreground', bold = false) => {
+  const text = (value: string, x: number, y: number, size = 40, ink: keyof typeof palette = 'foreground', bold = false) => {
     ctx.fillStyle = color(ink);
     ctx.font = `${bold ? 800 : 500} ${size}px ${css.getPropertyValue('--font-sans').trim()}`;
     ctx.fillText(value, x, y);
