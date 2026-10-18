@@ -53,8 +53,11 @@ export async function renderStory(canvas: HTMLCanvasElement, originalWorkout: St
     ]);
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     for (const [x, y] of projected) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
-    const scale = Math.min(820 / Math.max(maxX - minX, 0.000001), 500 / Math.max(maxY - minY, 0.000001));
-    const xy = ([x, y]: number[]) => [540 + (x - (minX + maxX) / 2) * scale, 940 + (y - (minY + maxY) / 2) * scale];
+    const scale = style === 'mapa'
+      ? Math.min(920 / Math.max(maxX - minX, 0.000001), 720 / Math.max(maxY - minY, 0.000001))
+      : Math.min(820 / Math.max(maxX - minX, 0.000001), 500 / Math.max(maxY - minY, 0.000001));
+    const centerY = style === 'mapa' ? 1000 : 940;
+    const xy = ([x, y]: number[]) => [540 + (x - (minX + maxX) / 2) * scale, centerY + (y - (minY + maxY) / 2) * scale];
     ctx.strokeStyle = color('accent'); ctx.lineWidth = 10; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
     ctx.beginPath();
     projected.forEach((point, i) => { const [x, y] = xy(point); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
