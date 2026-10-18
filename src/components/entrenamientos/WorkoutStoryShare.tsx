@@ -38,14 +38,12 @@ export function WorkoutStoryShare({ workout }: { workout: StoryWorkout }) {
       if (activityId == null) return { track: [], metrics: undefined };
       const detail = await fetchDetail({ data: { id: activityId } });
       const a: any = detail.activity ?? {};
-      const altitude = detail.streams.altitude?.data ?? [];
       const distance = detail.streams.distance?.data ?? [];
       const time = detail.streams.time?.data ?? [];
       const rawDistance = a.distance_km ?? a.distance;
       const metrics = {
         durationMinutes: a.moving_time ? Math.round(a.moving_time / 60) : time.length ? Math.round(time[time.length - 1] / 60) : undefined,
         distanceKm: rawDistance != null ? (rawDistance > 1000 ? rawDistance / 1000 : rawDistance) : distance.length ? distance[distance.length - 1] / 1000 : undefined,
-        maxAltitude: altitude.length ? Math.max(...altitude) : undefined,
       };
       return { track: storyTrack(detail.streams.latlng?.data), metrics };
     },
@@ -54,7 +52,6 @@ export function WorkoutStoryShare({ workout }: { workout: StoryWorkout }) {
     retry: false,
   });
   const track = gps.data?.track;
-  const indoor = (workout as any).bike_type === 'rodillo' || !!(workout.plan as any)?.indoor;
   const choices = storyChoices(workout);
   const choice = choices.find(c => c.id === selected) ?? choices[0];
 
@@ -67,7 +64,7 @@ export function WorkoutStoryShare({ workout }: { workout: StoryWorkout }) {
       const element = canvas.current;
       if (!element) return;
       try {
-        await renderStory(element, { ...workout, gpsTrack: track, actual: gps.data?.metrics, indoor }, choice, lang, privacy, style);
+        await renderStory(element, { ...workout, gpsTrack: track, actual: gps.data?.metrics }, choice, lang, privacy, style);
         const blob = await storyBlob(element);
         if (!cancelled) { image.current = blob; setReady(true); }
       } catch { if (!cancelled) setError(true); }

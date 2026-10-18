@@ -80,7 +80,6 @@ export async function renderStory(canvas: HTMLCanvasElement, originalWorkout: St
     const metrics = [
       { label: l.duration, value: workout.actual?.durationMinutes != null ? `${workout.actual.durationMinutes} min` : workout.duration_minutes ? `${workout.duration_minutes} min` : '—' },
       { label: l.distance, value: workout.actual?.distanceKm != null ? `${workout.actual.distanceKm.toFixed(1)} km` : '—' },
-      ...(workout.indoor ? [] : [{ label: l.maxAltitude, value: workout.actual?.maxAltitude != null ? `${Math.round(workout.actual.maxAltitude)} m` : '—' }]),
     ];
     metrics.forEach((metric, i) => { text(metric.label, 72, 1300 + i * 122, 28, 'muted'); text(metric.value, 72, 1358 + i * 122, 52, 'foreground', true); });
   }
