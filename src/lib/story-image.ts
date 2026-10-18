@@ -78,9 +78,9 @@ export async function renderStory(canvas: HTMLCanvasElement, originalWorkout: St
   else if (choice.kind === 'record' && !privacy.hideMetrics) text(choice.record?.gain ? `+${Math.round(choice.record.gain)} W` : choice.record?.label ?? '', 72, 1380, 70, 'accent', true);
   else if (choice.kind === 'workout' && !privacy.hideMetrics) {
     const metrics = [
-      { label: l.duration, value: workout.duration_minutes ? `${workout.duration_minutes} min` : '—' },
-      { label: l.load, value: workout.actual_tss != null ? `${Math.round(workout.actual_tss)} TSS` : '—' },
-      { label: l.compliance, value: workout.plan?.gamification?.compliance?.percent != null ? `${workout.plan.gamification.compliance.percent}%` : '—' },
+      { label: l.duration, value: workout.actual?.durationMinutes != null ? `${workout.actual.durationMinutes} min` : workout.duration_minutes ? `${workout.duration_minutes} min` : '—' },
+      { label: l.distance, value: workout.actual?.distanceKm != null ? `${workout.actual.distanceKm.toFixed(1)} km` : '—' },
+      ...(workout.indoor ? [] : [{ label: l.maxAltitude, value: workout.actual?.maxAltitude != null ? `${Math.round(workout.actual.maxAltitude)} m` : '—' }]),
     ];
     metrics.forEach((metric, i) => { text(metric.label, 72, 1300 + i * 122, 28, 'muted'); text(metric.value, 72, 1358 + i * 122, 52, 'foreground', true); });
   }
