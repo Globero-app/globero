@@ -664,6 +664,7 @@ export type Database = {
           garmin_device_id: string
           id: string
           linked_at: string
+          secret_hash: string | null
           status: string
           user_id: string
         }
@@ -671,6 +672,7 @@ export type Database = {
           garmin_device_id: string
           id?: string
           linked_at?: string
+          secret_hash?: string | null
           status?: string
           user_id: string
         }
@@ -678,6 +680,7 @@ export type Database = {
           garmin_device_id?: string
           id?: string
           linked_at?: string
+          secret_hash?: string | null
           status?: string
           user_id?: string
         }
@@ -690,6 +693,7 @@ export type Database = {
           garmin_device_id: string | null
           id: string
           pairing_code: string
+          secret_hash: string | null
           user_id: string | null
         }
         Insert: {
@@ -698,6 +702,7 @@ export type Database = {
           garmin_device_id?: string | null
           id?: string
           pairing_code: string
+          secret_hash?: string | null
           user_id?: string | null
         }
         Update: {
@@ -706,6 +711,7 @@ export type Database = {
           garmin_device_id?: string | null
           id?: string
           pairing_code?: string
+          secret_hash?: string | null
           user_id?: string | null
         }
         Relationships: []
