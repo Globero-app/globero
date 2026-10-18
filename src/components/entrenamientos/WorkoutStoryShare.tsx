@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useI18n } from '@/lib/i18n';
-import { storyChoices, storyTrack, type StoryWorkout } from '@/lib/workout-story';
+import { storyChoices, storyTrack, STORY_STYLES, type StoryStyle, type StoryWorkout } from '@/lib/workout-story';
 import { storyLabels } from '@/lib/story-labels';
 import { exportStory, renderStory, storyBlob } from '@/lib/story-image';
 
@@ -19,6 +19,7 @@ export function WorkoutStoryShare({ workout }: { workout: StoryWorkout }) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState('workout');
   const [busy, setBusy] = useState(false);
+  const [style, setStyle] = useState<StoryStyle>('oscuro');
   const [ready, setReady] = useState(false);
   const [error, setError] = useState(false);
   const [privacy, setPrivacy] = useState({ hideMap: true, hideLocation: false, hideMetrics: false });
@@ -55,13 +56,13 @@ export function WorkoutStoryShare({ workout }: { workout: StoryWorkout }) {
       const element = canvas.current;
       if (!element) return;
       try {
-        await renderStory(element, { ...workout, gpsTrack: track }, choice, lang, privacy);
+        await renderStory(element, { ...workout, gpsTrack: track }, choice, lang, privacy, style);
         const blob = await storyBlob(element);
         if (!cancelled) { image.current = blob; setReady(true); }
       } catch { if (!cancelled) setError(true); }
     });
     return () => { cancelled = true; cancelAnimationFrame(frame); };
-  }, [open, selected, workout, lang, privacy, track]);
+  }, [open, selected, workout, lang, privacy, track, style]);
 
   if (!choice) return null;
   const send = async (mode: 'share' | 'download') => {
@@ -83,6 +84,9 @@ export function WorkoutStoryShare({ workout }: { workout: StoryWorkout }) {
         <DialogHeader><DialogTitle>{l.title}</DialogTitle><DialogDescription>{workout.plan?.title ?? workout.plan?.name ?? l.workout}</DialogDescription></DialogHeader>
         <select aria-label={l.share} disabled={busy} className="w-full rounded-md border bg-surface p-2 text-sm" value={choice.id} onChange={e => setSelected(e.target.value)}>
           {choices.map(c => <option key={c.id} value={c.id}>{l[c.kind]}{c.record ? ` · ${c.record.label} · ${c.record.watts} W` : c.badge ? ` · ${c.badge.label}` : ''}</option>)}
+        </select>
+        <select aria-label={l.style} disabled={busy} className="w-full rounded-md border bg-surface p-2 text-sm" value={style} onChange={e => { image.current = null; setReady(false); setStyle(e.target.value as StoryStyle); }}>
+          {STORY_STYLES.map(s => <option key={s} value={s}>{l[`style${s[0].toUpperCase()}${s.slice(1)}` as keyof typeof l]}</option>)}
         </select>
         <fieldset disabled={busy} className="space-y-2 text-sm">
           <legend className="mb-2 font-semibold">{l.privacy}</legend>

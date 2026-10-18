@@ -17,6 +17,15 @@ export function storyTrack(value: unknown): StoryCoordinate[] {
 }
 export type StoryPrivacy = { hideMap?: boolean; hideLocation: boolean; hideMetrics: boolean };
 
+export type StoryStyle = 'oscuro' | 'minimalista' | 'neon' | 'mapa';
+export const STORY_STYLES: StoryStyle[] = ['oscuro', 'minimalista', 'neon', 'mapa'];
+export const STORY_PALETTES: Record<StoryStyle, { background: string; foreground: string; accent: string; muted: string }> = {
+  oscuro: { background: '#101313', foreground: '#f5f7f6', accent: '#57e6a8', muted: '#abb8b3' },
+  minimalista: { background: '#f7f7f5', foreground: '#1a1d1c', accent: '#d6402c', muted: '#6b7280' },
+  neon: { background: '#050505', foreground: '#f5f5f5', accent: '#00e5ff', muted: '#8a8f98' },
+  mapa: { background: '#eef2ec', foreground: '#243328', accent: '#2e7d46', muted: '#6d7a70' },
+};
+
 /** Free-form titles and badge details may reveal places or measurements. */
 export function privateStory(workout: StoryWorkout, choice: StoryChoice, privacy: StoryPrivacy) {
   return {

@@ -1,10 +1,10 @@
 import { Capacitor } from '@capacitor/core';
 import type { StoryChoice, StoryWorkout } from './workout-story';
-import { privateStory, type StoryPrivacy } from './workout-story';
+import { privateStory, STORY_PALETTES, type StoryPrivacy, type StoryStyle } from './workout-story';
 import { storyLabels } from './story-labels';
 import { localeCode, type Lang } from './i18n';
 
-export async function renderStory(canvas: HTMLCanvasElement, originalWorkout: StoryWorkout, originalChoice: StoryChoice, lang: Lang, privacy: StoryPrivacy = { hideLocation: false, hideMetrics: false }) {
+export async function renderStory(canvas: HTMLCanvasElement, originalWorkout: StoryWorkout, originalChoice: StoryChoice, lang: Lang, privacy: StoryPrivacy = { hideLocation: false, hideMetrics: false }, style: StoryStyle = 'oscuro') {
   const { workout, choice } = privateStory(originalWorkout, originalChoice, privacy);
   await document.fonts.ready;
   canvas.width = 1080;
@@ -12,13 +12,14 @@ export async function renderStory(canvas: HTMLCanvasElement, originalWorkout: St
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas unavailable');
   const css = getComputedStyle(document.documentElement);
-  const color = (name: string) => css.getPropertyValue(`--story-${name}`).trim();
+  const palette = STORY_PALETTES[style] ?? STORY_PALETTES.oscuro;
+  const color = (name: keyof typeof palette) => palette[name];
   const l = storyLabels(lang);
   ctx.fillStyle = color('background');
   ctx.fillRect(0, 0, 1080, 1920);
   ctx.fillStyle = color('accent');
   ctx.fillRect(72, 72, 12, 64);
-  const text = (value: string, x: number, y: number, size = 40, ink = 'foreground', bold = false) => {
+  const text = (value: string, x: number, y: number, size = 40, ink: keyof typeof palette = 'foreground', bold = false) => {
     ctx.fillStyle = color(ink);
     ctx.font = `${bold ? 800 : 500} ${size}px ${css.getPropertyValue('--font-sans').trim()}`;
     ctx.fillText(value, x, y);
@@ -52,8 +53,11 @@ export async function renderStory(canvas: HTMLCanvasElement, originalWorkout: St
     ]);
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     for (const [x, y] of projected) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
-    const scale = Math.min(820 / Math.max(maxX - minX, 0.000001), 500 / Math.max(maxY - minY, 0.000001));
-    const xy = ([x, y]: number[]) => [540 + (x - (minX + maxX) / 2) * scale, 940 + (y - (minY + maxY) / 2) * scale];
+    const scale = style === 'mapa'
+      ? Math.min(920 / Math.max(maxX - minX, 0.000001), 720 / Math.max(maxY - minY, 0.000001))
+      : Math.min(820 / Math.max(maxX - minX, 0.000001), 500 / Math.max(maxY - minY, 0.000001));
+    const centerY = style === 'mapa' ? 1000 : 940;
+    const xy = ([x, y]: number[]) => [540 + (x - (minX + maxX) / 2) * scale, centerY + (y - (minY + maxY) / 2) * scale];
     ctx.strokeStyle = color('accent'); ctx.lineWidth = 10; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
     ctx.beginPath();
     projected.forEach((point, i) => { const [x, y] = xy(point); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
