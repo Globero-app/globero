@@ -14,11 +14,11 @@ export const Route = createFileRoute("/api/public/garmin/activity")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { json, activeDeviceUser } = await import("@/lib/garmin-ciq.server");
+        const { json, authenticatedDeviceUser } = await import("@/lib/garmin-ciq.server");
         let body: z.infer<typeof Body>;
         try { body = Body.parse(await request.json()); } catch { return json({ error: "invalid_body" }, 400); }
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const userId = await activeDeviceUser(supabaseAdmin, body.device_id);
+        const userId = await authenticatedDeviceUser(supabaseAdmin, request, body.device_id);
         if (!userId) return json({ error: "device_not_linked" }, 401);
 
         const { data: profile } = await supabaseAdmin.from("profiles").select("intervals_athlete_id,intervals_api_key,intervals_oauth").eq("id", userId).maybeSingle();

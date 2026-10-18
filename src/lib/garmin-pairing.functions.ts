@@ -23,12 +23,16 @@ export const claimGarminCode = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row } = await supabaseAdmin
       .from("garmin_pairing_codes")
-      .select("id, garmin_device_id, user_id, expires_at")
+      .select("id, garmin_device_id, user_id, expires_at, secret_hash")
       .eq("pairing_code", data.code)
       .maybeSingle();
     if (!row || !row.garmin_device_id) return { ok: false as const, reason: "invalid" as const };
     if (new Date(row.expires_at).getTime() < Date.now()) return { ok: false as const, reason: "expired" as const };
     if (row.user_id && row.user_id !== context.userId) return { ok: false as const, reason: "invalid" as const };
+    if (!(row as any).secret_hash) return { ok: false as const, reason: "invalid" as const };
+    const { data: existing } = await supabaseAdmin.from("garmin_devices").select("user_id")
+      .eq("garmin_device_id", row.garmin_device_id).eq("status", "active").maybeSingle();
+    if (existing && existing.user_id !== context.userId) return { ok: false as const, reason: "invalid" as const };
     if (!row.user_id) {
       // Reclamación atómica: solo gana quien actualiza la fila aún libre y vigente
       const { data: claimed } = await supabaseAdmin.from("garmin_pairing_codes").update({ user_id: context.userId })
@@ -36,7 +40,7 @@ export const claimGarminCode = createServerFn({ method: "POST" })
       if (!claimed?.length) return { ok: false as const, reason: "invalid" as const };
     }
     const { error } = await supabaseAdmin.from("garmin_devices").upsert(
-      { user_id: context.userId, garmin_device_id: row.garmin_device_id, status: "active", linked_at: new Date().toISOString() },
+      { user_id: context.userId, garmin_device_id: row.garmin_device_id, status: "active", linked_at: new Date().toISOString(), secret_hash: (row as any).secret_hash } as any,
       { onConflict: "garmin_device_id" },
     );
     if (error) return { ok: false as const, reason: "error" as const };

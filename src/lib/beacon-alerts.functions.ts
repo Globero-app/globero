@@ -2,6 +2,12 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+const ALLOWED_ORIGINS = ["https://coach.globero.app", "https://globero.app", "https://globero.lovable.app"];
+function safeOrigin(o: string): string {
+  try { const u = new URL(o).origin; if (ALLOWED_ORIGINS.includes(u)) return u; } catch { /* inválido */ }
+  return ALLOWED_ORIGINS[0];
+}
+
 export const notifyBeaconContacts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ beaconId: z.string().uuid(), kind: z.enum(["start", "sos", "ended"]), origin: z.string().url() }).parse(d))
@@ -18,7 +24,7 @@ export const notifyBeaconContacts = createServerFn({ method: "POST" })
     const { sendBeaconEmails } = await import("./beacon-email.server");
     const sent = await sendBeaconEmails({
       kind: data.kind, riderName: prof?.full_name || prof?.email, beacon, contacts,
-      link: `${new URL(data.origin).origin}/live/${beacon.share_token}`,
+      link: `${safeOrigin(data.origin)}/live/${beacon.share_token}`,
     });
     return { sent, total: contacts.length };
   });
