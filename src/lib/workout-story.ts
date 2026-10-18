@@ -3,6 +3,8 @@ export type StoryBadge = { emoji: string; label: string; detail: string };
 export type StoryWorkout = {
   id: string; status: string; duration_minutes?: number; actual_tss?: number | null;
   completed_at?: string | null;
+  indoor?: boolean;
+  actual?: { durationMinutes?: number; distanceKm?: number; maxAltitude?: number };
   gpsTrack?: StoryCoordinate[];
   plan?: { title?: string; name?: string; strava_activity_id?: string | number; intervals_activity_id?: string | number; gamification?: { records?: StoryRecord[]; badges?: StoryBadge[]; compliance?: { percent?: number | null } } };
 };
@@ -34,6 +36,7 @@ export function privateStory(workout: StoryWorkout, choice: StoryChoice, privacy
       ...(workout.gpsTrack ? { gpsTrack: privacy.hideMap !== false || privacy.hideLocation ? undefined : storyTrack(workout.gpsTrack) } : {}),
       duration_minutes: privacy.hideMetrics ? undefined : workout.duration_minutes,
       actual_tss: privacy.hideMetrics ? undefined : workout.actual_tss,
+      actual: privacy.hideMetrics ? undefined : workout.actual,
       plan: {
         ...workout.plan,
         title: privacy.hideLocation || privacy.hideMetrics ? undefined : workout.plan?.title,
