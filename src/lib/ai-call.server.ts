@@ -57,11 +57,18 @@ export async function callAI(
     body.tools = [{ type: "function", function: { name: "respond", description: "Respuesta estructurada", parameters: schema } }];
     body.tool_choice = { type: "function", function: { name: "respond" } };
   }
-  const res = await fetch(GATEWAY, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-    body: JSON.stringify(body),
-  });
+  let res!: Response;
+  for (let attempt = 0; ; attempt++) {
+    res = await fetch(GATEWAY, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      body: JSON.stringify(body),
+    });
+    if (res.ok || !retryableStatus(res.status) || attempt >= retryDelays.length) break;
+    const wait = Number(res.headers.get("retry-after")) * 1000 || retryDelays[attempt];
+    console.warn(`AI ${res.status} (intento ${attempt + 1}/${retryDelays.length + 1}), reintento en ${wait}ms`);
+    await sleep(wait);
+  }
   if (!res.ok) {
     const text = await res.text();
     if (res.status === 429) throw new Error("Demasiadas peticiones a la IA. Espera unos segundos.");
