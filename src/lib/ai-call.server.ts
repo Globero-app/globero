@@ -37,7 +37,12 @@ function logUsage(meta: AiCallMeta | undefined, usage: any) {
   }
 }
 
-export async function callAI(messages: any[], schema?: any, meta?: AiCallMeta): Promise<any> {
+export async function callAI(
+  messages: any[],
+  schema?: any,
+  meta?: AiCallMeta,
+  retryDelays: number[] = RETRY_DELAYS_MS,
+): Promise<any> {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("LOVABLE_API_KEY no configurada");
   const { getUserLang, langInstruction } = await import("./user-lang.server");
