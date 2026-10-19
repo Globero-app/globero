@@ -12,10 +12,10 @@ export function StravaConnection({ profile }: {profile: any;}) {
   if (profile?.strava_access_token) {
     return (
       <div className="space-y-3">
-        <div className="flex items-center justify-between bg-orange-50 border border-orange-200 rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <CheckCircle2 className="size-5 text-orange-600" />
-            <div>
+        <div className="grid min-w-0 grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(0,1fr)_auto] bg-orange-50 border border-orange-200 rounded-lg p-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <CheckCircle2 className="size-5 shrink-0 text-orange-600" />
+            <div className="min-w-0 break-words">
               <p className="font-semibold text-orange-800">{tr("Strava conectado")}</p>
               <p className="text-xs text-orange-700">{tr("Atleta:")} {profile?.strava_athlete_id}</p>
             </div>
@@ -27,7 +27,7 @@ export function StravaConnection({ profile }: {profile: any;}) {
                toast.success(tr("Strava desconectado"));
               qc.invalidateQueries({ queryKey: ["profile"] });
             }}
-            className="text-xs font-semibold text-destructive hover:underline flex items-center gap-1">
+            className="text-xs font-semibold text-destructive hover:underline flex shrink-0 items-center gap-1">
             
             <Unlink className="size-3" /> {tr("Desconectar")} 
           </button>
@@ -55,9 +55,9 @@ export function StravaConnection({ profile }: {profile: any;}) {
              toast.error(e?.message ?? tr("No se pudo iniciar la conexión"));
           }
         }}
-        className="inline-flex items-center gap-2 bg-[#FC4C02] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90">
+        className="inline-flex max-w-full items-center justify-center gap-2 bg-[#FC4C02] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90">
         
-        <LinkIcon className="size-4" /> {tr("Conectar con Strava")} 
+        <LinkIcon className="size-4 shrink-0" /> {tr("Conectar con Strava")} 
       </button>
     </div>);
 

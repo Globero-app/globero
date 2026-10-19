@@ -21,9 +21,9 @@ export function WahooConnection({ profile }: { profile: any }) {
   if (profile?.wahoo_access_token) {
     return (
       <>
-      <div className="flex items-center justify-between bg-muted border border-border rounded-lg p-4">
-        <div className="flex items-center gap-3">
-          <CheckCircle2 className="size-5 text-primary" />
+      <div className="grid min-w-0 grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(0,1fr)_auto] bg-muted border border-border rounded-lg p-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <CheckCircle2 className="size-5 shrink-0 text-primary" />
           <p className="font-semibold">{tr("Wahoo conectado")}</p>
         </div>
         <button
@@ -33,7 +33,7 @@ export function WahooConnection({ profile }: { profile: any }) {
             toast.success(tr("Wahoo desconectado"));
             qc.invalidateQueries({ queryKey: ["profile"] });
           }}
-          className="text-xs font-semibold text-destructive hover:underline flex items-center gap-1"
+          className="text-xs font-semibold text-destructive hover:underline flex shrink-0 items-center gap-1"
         >
           <Unlink className="size-3" /> {tr("Desconectar")}
         </button>
@@ -69,9 +69,9 @@ export function WahooConnection({ profile }: { profile: any }) {
             toast.error(e?.message ?? tr("No se pudo iniciar la conexión"));
           }
         }}
-        className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90"
+        className="inline-flex max-w-full items-center justify-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90"
       >
-        <LinkIcon className="size-4" /> {tr("Conectar con Wahoo")}
+        <LinkIcon className="size-4 shrink-0" /> {tr("Conectar con Wahoo")}
       </button>
     </div>
   );
@@ -86,9 +86,9 @@ export function GarminConnection({ profile }: { profile?: any }) {
 
   if (profile?.garmin_access_token) {
     return (
-      <div className="flex items-center justify-between bg-muted border border-border rounded-lg p-4">
-        <div className="flex items-center gap-3">
-          <CheckCircle2 className="size-5 text-primary" />
+      <div className="grid min-w-0 grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(0,1fr)_auto] bg-muted border border-border rounded-lg p-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <CheckCircle2 className="size-5 shrink-0 text-primary" />
           <p className="font-semibold">{tr("Garmin conectado")}</p>
         </div>
         <button
@@ -98,7 +98,7 @@ export function GarminConnection({ profile }: { profile?: any }) {
             toast.success(tr("Garmin desconectado"));
             qc.invalidateQueries({ queryKey: ["profile"] });
           }}
-          className="text-xs font-semibold text-destructive hover:underline flex items-center gap-1"
+          className="text-xs font-semibold text-destructive hover:underline flex shrink-0 items-center gap-1"
         >
           <Unlink className="size-3" /> {tr("Desconectar")}
         </button>
@@ -120,10 +120,10 @@ function GarminPairing() {
 
   if (device) {
     return (
-      <div className="flex items-center justify-between bg-muted border border-border rounded-lg p-4">
-        <div className="flex items-center gap-3">
-          <CheckCircle2 className="size-5 text-primary" />
-          <div>
+      <div className="grid min-w-0 grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(0,1fr)_auto] bg-muted border border-border rounded-lg p-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <CheckCircle2 className="size-5 shrink-0 text-primary" />
+          <div className="min-w-0 break-words">
             <p className="font-semibold">{tr("Dispositivo Garmin conectado")}</p>
             <p className="text-xs text-muted-foreground">ID {device.garmin_device_id} · {new Date(device.linked_at).toLocaleDateString()}</p>
           </div>
@@ -138,7 +138,7 @@ function GarminPairing() {
               qc.invalidateQueries({ queryKey: ["garmin-device"] });
             } catch { toast.error(tr("No se pudo desvincular")); }
           }}
-          className="text-xs font-semibold text-destructive hover:underline flex items-center gap-1"
+          className="text-xs font-semibold text-destructive hover:underline flex shrink-0 items-center gap-1"
         >
           <Unlink className="size-3" /> {tr("Desvincular")}
         </button>
@@ -167,7 +167,7 @@ function GarminPairing() {
   return (
     <div className="space-y-3">
       <p className="text-sm text-muted-foreground">{tr("Introduce el código de 4 caracteres que aparece en la pantalla de tu Garmin.")}</p>
-      <div className="flex gap-2">
+      <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-[8rem_minmax(0,1fr)]">
         <input
           value={code}
           onChange={(e) => { setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4)); if (state !== "loading") setState("idle"); }}
@@ -176,15 +176,15 @@ function GarminPairing() {
           autoComplete="off"
           placeholder="AB12"
           aria-label={tr("Código de vinculación")}
-          className={`w-32 text-center font-mono text-xl tracking-[0.4em] uppercase bg-background border rounded-lg px-3 py-2 ${state === "invalid" || state === "expired" || state === "error" ? "border-destructive" : state === "success" ? "border-primary" : "border-border"}`}
+          className={`w-full min-w-0 text-center font-mono text-xl tracking-[0.4em] uppercase bg-background border rounded-lg px-3 py-2 ${state === "invalid" || state === "expired" || state === "error" ? "border-destructive" : state === "success" ? "border-primary" : "border-border"}`}
         />
         <button
           type="button"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleClaim(); }}
           disabled={!valid || state === "loading"}
-          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50"
+          className="inline-flex max-w-full items-center justify-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50"
         >
-          {state === "loading" ? <Loader2 className="size-4 animate-spin" /> : <LinkIcon className="size-4" />} {tr("Vincular")}
+          {state === "loading" ? <Loader2 className="size-4 animate-spin" /> : <LinkIcon className="size-4 shrink-0" />} {tr("Vincular")}
         </button>
       </div>
       {state !== "idle" && state !== "loading" && <p className={`text-sm ${msg[state].c}`}>{msg[state].t}</p>}
@@ -199,9 +199,9 @@ export function HammerheadConnection({ profile }: { profile?: any }) {
 
   if (profile?.hammerhead_access_token) {
     return (
-      <div className="flex items-center justify-between bg-muted border border-border rounded-lg p-4">
-        <div className="flex items-center gap-3">
-          <CheckCircle2 className="size-5 text-primary" />
+      <div className="grid min-w-0 grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(0,1fr)_auto] bg-muted border border-border rounded-lg p-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <CheckCircle2 className="size-5 shrink-0 text-primary" />
           <p className="font-semibold">{tr("Hammerhead conectado")}</p>
         </div>
         <button
@@ -211,7 +211,7 @@ export function HammerheadConnection({ profile }: { profile?: any }) {
             toast.success(tr("Hammerhead desconectado"));
             qc.invalidateQueries({ queryKey: ["profile"] });
           }}
-          className="text-xs font-semibold text-destructive hover:underline flex items-center gap-1"
+          className="text-xs font-semibold text-destructive hover:underline flex shrink-0 items-center gap-1"
         >
           <Unlink className="size-3" /> {tr("Desconectar")}
         </button>
@@ -232,9 +232,9 @@ export function HammerheadConnection({ profile }: { profile?: any }) {
             toast.error(e?.message ?? tr("No se pudo iniciar la conexión"));
           }
         }}
-        className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90"
+        className="inline-flex max-w-full items-center justify-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90"
       >
-        <LinkIcon className="size-4" /> {tr("Conectar con Hammerhead")}
+        <LinkIcon className="size-4 shrink-0" /> {tr("Conectar con Hammerhead")}
       </button>
     </div>
   );

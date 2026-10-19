@@ -18,15 +18,15 @@ export function WeatherStatus({ city }: {city?: string | null;}) {
 
   return (
     <div className="rounded-lg border bg-surface p-3 text-xs space-y-2">
-      <div className="flex items-center justify-between gap-2">
-        <span className="inline-flex items-center gap-1.5 font-semibold">
-          <MapPin className="size-3.5" />
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2 sm:flex sm:items-center sm:justify-between">
+        <span className="inline-flex min-w-0 items-start gap-1.5 break-words font-semibold">
+          <MapPin className="size-3.5 shrink-0" />
           {q.isFetching ? "Detectando localidad…" : q.data?.located ?? "No se ha podido localizar esta población"}
         </span>
         <button
           type="button"
           onClick={() => q.refetch()}
-          className="inline-flex items-center gap-1 rounded-md border px-2 py-1 font-semibold hover:bg-muted">
+          className="inline-flex shrink-0 items-center gap-1 rounded-md border px-2 py-1 font-semibold hover:bg-muted">
           
           <RefreshCw className="size-3" /> {tr("Actualizar")} 
         </button>

@@ -25,10 +25,10 @@ export function TelegramSection() {
 
   if (data?.connected) {
     return (
-      <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-lg p-4">
-        <div className="flex items-center gap-3">
-          <CheckCircle2 className="size-5 text-emerald-600" />
-          <div>
+      <div className="grid min-w-0 grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(0,1fr)_auto] bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <CheckCircle2 className="size-5 shrink-0 text-emerald-600" />
+          <div className="min-w-0 break-words">
             <p className="font-semibold text-emerald-800">{tr("Telegram conectado")}</p>
             <p className="text-xs text-emerald-700">{tr("Escribe al bot para consultar o adaptar tu entreno de hoy.")}</p>
           </div>
@@ -40,7 +40,7 @@ export function TelegramSection() {
             toast.success(tr("Telegram desconectado"));
             qc.invalidateQueries({ queryKey: ["telegram-status"] });
           }}
-          className="text-xs font-semibold text-destructive hover:underline flex items-center gap-1">
+          className="text-xs font-semibold text-destructive hover:underline flex shrink-0 items-center gap-1">
           
           <Unlink className="size-3" /> {tr("Desconectar")} 
         </button>
@@ -71,7 +71,7 @@ export function TelegramSection() {
               toast.error(e.message);
             }
           }}
-          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90"> {tr("Generar código")} 
+          className="inline-flex max-w-full items-center justify-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90"> {tr("Generar código")} 
 
 
         </button>
@@ -80,7 +80,7 @@ export function TelegramSection() {
           href={link}
           target="_blank"
           rel="noopener"
-          className="inline-flex items-center gap-2 bg-[#229ED9] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90">
+          className="inline-flex max-w-full items-center justify-center gap-2 bg-[#229ED9] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90">
           
             <Send className="size-4" /> {tr("Abrir en Telegram")} 
         </a>
