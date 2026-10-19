@@ -4,6 +4,16 @@
 const MODEL = "openai/gpt-5.6-sol";
 const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
+/* Reintentos con backoff exponencial para fallos transitorios (429/503). */
+const RETRY_DELAYS_MS = [1000, 2000, 4000];
+const RETRYABLE_STATUS = new Set([429, 503]);
+
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+function retryableStatus(status: number) {
+  return RETRYABLE_STATUS.has(status);
+}
+
 export interface AiCallMeta {
   fn: string; // nombre corto de la función que llama (p.ej. "readiness-adapt")
   userId?: string | null;
