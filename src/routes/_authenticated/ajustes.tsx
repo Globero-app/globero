@@ -120,13 +120,13 @@ function AjustesPage() {
   };
 
   return (
-    <div className="space-y-8 max-w-4xl">
+    <div className="w-full min-w-0 max-w-4xl space-y-8">
       <div>
         <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">{tr("Preferencias y conexiones")}</p>
         <h1 className="font-display text-4xl font-bold uppercase tracking-tight">{tr("Ajustes")}</h1>
       </div>
 
-      <form onSubmit={save} className="grid lg:grid-cols-2 gap-6">
+      <form onSubmit={save} className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 [&>*]:min-w-0 [&_input]:min-w-0 [&_select]:min-w-0 [&_select]:max-w-full [&_p]:break-words">
         <Section title={tr("Idioma")}>
           <Field label={tr("Idioma de la aplicación")}>
             <LanguageSelector className="w-full !text-sm !py-2.5" />
@@ -134,7 +134,7 @@ function AjustesPage() {
         </Section>
 
         <Section title={tr("Meteorología")}>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label={tr("Ciudad base para previsión")}>
               <CityAutocomplete placeholder={tr("Madrid, Barcelona, Sevilla…")} value={form.location_city ?? ""}
                 onChange={(v) => setForm((f: any) => ({ ...f, location_city: v, _pick: null }))}
@@ -148,17 +148,17 @@ function AjustesPage() {
             </Field>
           </div>
           <WeatherStatus city={profileQ.data?.location_city} />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label={tr("Umbral de viento (km/h)")}>
               <input type="number" min={10} max={60} className="input" value={form.weather_wind_threshold_kmh ?? 25} onChange={(e) => setForm({ ...form, weather_wind_threshold_kmh: e.target.value })} />
             </Field>
-            <label className="flex items-center gap-2 text-sm self-end pb-2">
-              <input type="checkbox" checked={form.weather_auto_indoor ?? true} onChange={(e) => setForm({ ...form, weather_auto_indoor: e.target.checked })} />
+            <label className="flex min-w-0 items-start gap-2 text-sm self-end pb-2">
+              <input type="checkbox" className="mt-1 shrink-0" checked={form.weather_auto_indoor ?? true} onChange={(e) => setForm({ ...form, weather_auto_indoor: e.target.checked })} />
               <span>{tr("Sugerir rodillo en mal tiempo")}</span>
             </label>
           </div>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={form.notify_weather_alerts ?? true} onChange={(e) => setForm({ ...form, notify_weather_alerts: e.target.checked })} />
+          <label className="flex min-w-0 items-start gap-2 text-sm">
+            <input type="checkbox" className="mt-1 shrink-0" checked={form.notify_weather_alerts ?? true} onChange={(e) => setForm({ ...form, notify_weather_alerts: e.target.checked })} />
             <span>{tr("Avisarme cada mañana si hay alerta o mal tiempo")}</span>
           </label>
           <p className="text-[11px] text-muted-foreground">{tr("El aviso llega justo después del resumen de la sesión del día, por app y/o Telegram. Incluye los avisos oficiales vigentes (amarillo, naranja o rojo) por lluvias, inundaciones, viento, tormenta o temperaturas extremas, además de la previsión de tu localidad.")}</p>
@@ -187,8 +187,8 @@ function AjustesPage() {
         </Section>
         <Section title={tr("Readiness diario")} className="lg:col-span-2">
           <p className="text-sm text-muted-foreground">{tr("Cada día recibirás un Push preguntándote cómo te encuentras (1 Nada preparado · 2 Paseo relajado · 3 Entreno normal · 4 Entreno exigente · 5 Dar lo máximo). La IA adaptará el entrenamiento de ese día según tu respuesta; si respondes 1, te sugerirá eliminarlo.")}</p>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={form.readiness_push_enabled ?? true} onChange={(e) => setForm({ ...form, readiness_push_enabled: e.target.checked })} />
+          <label className="flex min-w-0 items-start gap-2 text-sm">
+            <input type="checkbox" className="mt-1 shrink-0" checked={form.readiness_push_enabled ?? true} onChange={(e) => setForm({ ...form, readiness_push_enabled: e.target.checked })} />
             <span>{tr("Recibir Push diario de Readiness")}</span>
           </label>
           <Field label={tr("Hora del Push (Europa / España peninsular)")}>

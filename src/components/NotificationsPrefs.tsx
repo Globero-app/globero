@@ -128,9 +128,9 @@ export function NotificationsPrefs() {
 
   return (
     <div className="bg-muted/40 border rounded-xl p-4 space-y-4">
-      <div className="flex items-start justify-between gap-2 flex-wrap">
-        <div className="flex items-center gap-2">
-          <Bell className="size-4 text-primary" />
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2 sm:flex sm:justify-between">
+        <div className="flex min-w-0 items-center gap-2">
+          <Bell className="size-4 shrink-0 text-primary" />
           <h4 className="font-display text-sm font-bold uppercase tracking-tight">{tr("Notificaciones push")}</h4>
         </div>
         <PermissionBadge perm={perm} />
@@ -142,9 +142,9 @@ export function NotificationsPrefs() {
 
       {/* Push del servidor */}
       <div className="border rounded-lg p-3 bg-background space-y-2">
-        <div className="flex items-start justify-between gap-2 flex-wrap">
-          <div className="flex items-center gap-2">
-            <Server className="size-3.5 text-primary" />
+        <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-2 sm:flex sm:justify-between">
+          <div className="flex min-w-0 items-center gap-2">
+            <Server className="size-3.5 shrink-0 text-primary" />
             <span className="text-sm font-semibold">{tr("Push del servidor")}</span>
           </div>
           <ServerStatusBadge status={serverSub} />
@@ -158,7 +158,7 @@ export function NotificationsPrefs() {
           <button
             onClick={enableServer}
             disabled={busy || serverSub === "unsupported"}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md bg-primary text-primary-foreground disabled:opacity-50">
+            className="inline-flex max-w-full items-center justify-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md bg-primary text-primary-foreground disabled:opacity-50">
             
               <Smartphone className="size-3.5" /> {tr("Activar push del servidor")} 
           </button> :
@@ -167,14 +167,14 @@ export function NotificationsPrefs() {
               <button
               onClick={testServer}
               disabled={busy}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md bg-primary text-primary-foreground disabled:opacity-50">
+              className="inline-flex max-w-full items-center justify-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md bg-primary text-primary-foreground disabled:opacity-50">
               
                 <Send className="size-3.5" /> {tr("Enviar prueba")} 
             </button>
               <button
               onClick={disableServer}
               disabled={busy}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md bg-secondary disabled:opacity-50">
+              className="inline-flex max-w-full items-center justify-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-md bg-secondary disabled:opacity-50">
               
                 <PowerOff className="size-3.5" /> {tr("Desactivar")} 
             </button>
@@ -186,11 +186,11 @@ export function NotificationsPrefs() {
       {/* Canal de entrega */}
       {prefsQ.data?.telegram_chat_id &&
       <div className="border rounded-lg p-3 bg-background space-y-2">
-          <div className="flex items-center gap-2">
-            <Send className="size-3.5 text-primary" />
+          <div className="flex min-w-0 items-center gap-2">
+            <Send className="size-3.5 shrink-0 text-primary" />
             <span className="text-sm font-semibold">{tr("¿Dónde quieres recibirlas?")}</span>
           </div>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-3">
             {([
           { v: "push", l: "App móvil" },
           { v: "telegram", l: "Telegram" },
@@ -232,11 +232,11 @@ export function NotificationsPrefs() {
                 checked={checked}
                 onChange={(e) => togglePush(key, e.target.checked, requiresPermission)}
                 disabled={perm === "unsupported"}
-                className="mt-0.5 size-4 accent-primary" />
+                className="mt-0.5 size-4 shrink-0 accent-primary" />
               
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <Icon className="size-3.5 text-muted-foreground" />
+                <div className="flex min-w-0 items-center gap-2">
+                  <Icon className="size-3.5 shrink-0 text-muted-foreground" />
                    <span className="text-sm font-semibold">{tr(label)}</span>
                 </div>
                  <p className="text-[11px] text-muted-foreground mt-0.5">{tr(desc)}</p>
