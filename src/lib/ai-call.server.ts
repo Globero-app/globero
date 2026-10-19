@@ -2,6 +2,13 @@
    y registro de uso en ai_usage_log para medir el gasto mensual. */
 
 const MODEL = "openai/gpt-5.6-sol";
+const LIGHT_MODEL = "openai/gpt-5-mini";
+const LIGHT_FNS = new Set(["telegram-intent", "daily-brief", "meal-swap"]);
+
+export function resolveModel(meta?: AiCallMeta): string {
+  if (meta?.model) return meta.model;
+  return meta?.fn && LIGHT_FNS.has(meta.fn) ? LIGHT_MODEL : MODEL;
+}
 const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
 /* Reintentos con backoff exponencial para fallos transitorios (429/503). */
@@ -17,16 +24,17 @@ function retryableStatus(status: number) {
 export interface AiCallMeta {
   fn: string; // nombre corto de la función que llama (p.ej. "readiness-adapt")
   userId?: string | null;
+  model?: string;
 }
 
-function logUsage(meta: AiCallMeta | undefined, usage: any) {
+function logUsage(meta: AiCallMeta | undefined, usage: any, model: string) {
   try {
     const run = async () => {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       await supabaseAdmin.from("ai_usage_log").insert({
         user_id: meta?.userId ?? null,
         fn: meta?.fn ?? "unknown",
-        model: MODEL,
+        model,
         prompt_tokens: Number(usage?.prompt_tokens ?? 0) || 0,
         completion_tokens: Number(usage?.completion_tokens ?? 0) || 0,
       });
@@ -47,11 +55,12 @@ export async function callAI(
   if (!key) throw new Error("LOVABLE_API_KEY no configurada");
   const { getUserLang, langInstruction } = await import("./user-lang.server");
   const li = langInstruction(await getUserLang(meta?.userId));
+  const model = resolveModel(meta);
   const body: any = {
-    model: MODEL,
+    model,
     messages: li ? [...messages, { role: "system", content: li }] : messages,
     // GPT-5.6 en chat/completions exige reasoning_effort "none" cuando hay tools.
-    reasoning_effort: "none",
+    reasoning_effort: model.startsWith("openai/gpt-5.6") ? "none" : "minimal",
   };
   if (schema) {
     body.tools = [{ type: "function", function: { name: "respond", description: "Respuesta estructurada", parameters: schema } }];
@@ -76,7 +85,7 @@ export async function callAI(
     throw new Error(`AI ${res.status}: ${text.slice(0, 200)}`);
   }
   const json = await res.json();
-  logUsage(meta, json.usage);
+  logUsage(meta, json.usage, json.model ?? model);
   const msg = json.choices?.[0]?.message;
   if (schema && msg?.tool_calls?.[0]?.function?.arguments) {
     return JSON.parse(msg.tool_calls[0].function.arguments);

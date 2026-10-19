@@ -75,7 +75,6 @@ export async function buildTelegramContext(
         formatMeal("Comida", todayMenu.comida),
         formatMeal("Merienda", todayMenu.merienda),
         formatMeal("Cena", todayMenu.cena),
-        `Detalle completo (JSON): ${JSON.stringify(todayMenu)}`,
       ]
         .filter(Boolean)
         .join("\n")
@@ -93,9 +92,9 @@ export async function buildTelegramContext(
   const p: any = profile;
   const context = `FECHA: ${today} (semana ${weekStart} → ${weekEndISO})
 PERFIL: ${p.full_name ?? "—"} · edad ${p.age ?? "n/a"} · sexo ${p.gender ?? "n/a"} · peso ${p.weight_kg ?? "n/a"}kg · altura ${p.height_cm ?? "n/a"}cm · FTP ${p.ftp ?? "n/a"}W · FCmáx ${p.max_hr ?? "n/a"} · LTHR ${p.lthr ?? "n/a"}
-AJUSTES: base entreno ${p.weekly_target_basis} · duración por defecto ${p.weekly_duration_minutes} min · bici ${p.weekly_bike_type} · días entreno ${JSON.stringify(p.weekly_training_days)} · tirada larga ${p.weekly_long_ride_day ?? "n/a"} · plan nutricional ${p.nutrition_plan_enabled ? "activo" : "desactivado"} (objetivo ${p.nutrition_goal}) · aviso readiness ${p.readiness_push_hour}:00 · zonas mostradas en ${p.zones_display_mode} · preferencias dietéticas: ${p.dietary_preferences || "ninguna"}
+AJUSTES: bici ${p.weekly_bike_type} · nutrición ${p.nutrition_plan_enabled ? p.nutrition_goal : "off"} · dieta: ${p.dietary_preferences || "ninguna"}
 READINESS DE HOY: ${readinessToday ? `${(readinessToday as any).score}/5 — ${READINESS_LABELS[(readinessToday as any).score]}` : "sin registrar"}
-ENTRENO DE HOY: ${workout ? JSON.stringify({ title: workout.plan?.title, summary: workout.plan?.summary, duration_minutes: workout.duration_minutes, bike_type: workout.bike_type, steps: workout.plan?.steps }) : "no hay entreno pendiente"}
+ENTRENO DE HOY: ${workout ? `${workout.plan?.title ?? "—"} · ${workout.duration_minutes} min · ${workout.bike_type}${workout.plan?.summary ? ` — ${workout.plan.summary}` : ""}${Array.isArray(workout.plan?.steps) ? `\nBloques: ${workout.plan.steps.map((st: any) => `${st.name ?? st.type ?? "-"} ${st.duration_minutes ?? st.minutes ?? ""}′${st.zone ? ` ${st.zone}` : ""}`).join(" | ")}` : ""}` : "no hay entreno pendiente"}
 ENTRENOS DE LA SEMANA:
 ${weekWorkouts.length ? weekWorkouts.join("\n") : "sin entrenos esta semana"}
 MENÚ DE HOY:
