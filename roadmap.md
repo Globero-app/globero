@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Reintentos de IA: 429/503 reintentados con esperas 1s/2s/4s (respeta Retry-After) y error propagado al agotarlos; 4 pruebas nuevas y llamada real correcta.
+
+
 - [x] Lote de optimización IA: menús solo para semana actual/siguiente, instrucciones breves y prompts fijos separados; 33 pruebas correctas, respuesta nutricional real de 7 días sin guardar planes y compilación automática correcta.
 
 - [x] intervals-sync-15min restringido a 06:30–23:30 Europe/Madrid, conservando intervalo y autenticación originales; límites y horario de invierno/verano comprobados.

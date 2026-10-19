@@ -4,6 +4,16 @@
 const MODEL = "openai/gpt-5.6-sol";
 const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
+/* Reintentos con backoff exponencial para fallos transitorios (429/503). */
+const RETRY_DELAYS_MS = [1000, 2000, 4000];
+const RETRYABLE_STATUS = new Set([429, 503]);
+
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+function retryableStatus(status: number) {
+  return RETRYABLE_STATUS.has(status);
+}
+
 export interface AiCallMeta {
   fn: string; // nombre corto de la función que llama (p.ej. "readiness-adapt")
   userId?: string | null;
@@ -27,7 +37,12 @@ function logUsage(meta: AiCallMeta | undefined, usage: any) {
   }
 }
 
-export async function callAI(messages: any[], schema?: any, meta?: AiCallMeta): Promise<any> {
+export async function callAI(
+  messages: any[],
+  schema?: any,
+  meta?: AiCallMeta,
+  retryDelays: number[] = RETRY_DELAYS_MS,
+): Promise<any> {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("LOVABLE_API_KEY no configurada");
   const { getUserLang, langInstruction } = await import("./user-lang.server");
@@ -42,11 +57,18 @@ export async function callAI(messages: any[], schema?: any, meta?: AiCallMeta): 
     body.tools = [{ type: "function", function: { name: "respond", description: "Respuesta estructurada", parameters: schema } }];
     body.tool_choice = { type: "function", function: { name: "respond" } };
   }
-  const res = await fetch(GATEWAY, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-    body: JSON.stringify(body),
-  });
+  let res!: Response;
+  for (let attempt = 0; ; attempt++) {
+    res = await fetch(GATEWAY, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      body: JSON.stringify(body),
+    });
+    if (res.ok || !retryableStatus(res.status) || attempt >= retryDelays.length) break;
+    const wait = Number(res.headers.get("retry-after")) * 1000 || retryDelays[attempt];
+    console.warn(`AI ${res.status} (intento ${attempt + 1}/${retryDelays.length + 1}), reintento en ${wait}ms`);
+    await sleep(wait);
+  }
   if (!res.ok) {
     const text = await res.text();
     if (res.status === 429) throw new Error("Demasiadas peticiones a la IA. Espera unos segundos.");
