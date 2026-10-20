@@ -6,6 +6,7 @@
  * Garmin se activa solo con GARMIN_CLIENT_ID y GARMIN_CLIENT_SECRET configurados.
  */
 import { encodeWorkoutFit } from "./fit-writer";
+import { encodeZwo } from "./zwo-writer";
 import { credsFromProfile, hrRangeToLthrPct, type ZoneRefs } from "./intervals.server";
 
 const WAHOO = "https://api.wahooligan.com";
@@ -242,22 +243,22 @@ async function garminCreatePlanned(token: string, workout: any, refs: ZoneRefs, 
   return { garmin_workout_id: workoutId, garmin_schedule_id: scheduleId || null };
 }
 
-// ---------------- Hammerhead Karoo: planificados (archivo FIT) ----------------
-function hammerheadFit(workout: any): Uint8Array {
+// ---------------- Hammerhead Karoo: planificados (archivo ZWO; la API rechaza FIT) ----------------
+function hammerheadZwo(workout: any, ftp: number): string {
   const plan = workout?.plan ?? {};
-  return encodeWorkoutFit({
+  return encodeZwo({
     name: String(plan.title ?? plan.name ?? "Globero"),
-    sport: "cycling",
+    description: String(plan.summary ?? ""),
     steps: (plan.steps ?? []).map((s: any) => ({
       name: s.name,
       duration_type: s.duration_type === "open" ? "open" : "time",
-      duration_value: s.duration_seconds,
+      duration_seconds: s.duration_seconds ?? 60,
       target: s.target,
-      target_low: s.target_low ?? 0,
-      target_high: s.target_high ?? 0,
+      target_low: s.target_low ?? undefined,
+      target_high: s.target_high ?? undefined,
       intensity: s.intensity,
     })),
-  });
+  }, ftp);
 }
 
 async function hammerheadDeletePlanned(token: string, plan: any) {
@@ -266,10 +267,11 @@ async function hammerheadDeletePlanned(token: string, plan: any) {
   }
 }
 
-async function hammerheadCreatePlanned(token: string, workout: any, _refs: ZoneRefs, date: string) {
+async function hammerheadCreatePlanned(token: string, workout: any, refs: ZoneRefs, date: string) {
   const form = new FormData();
   const safe = String(workout?.plan?.title ?? "globero").replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 40);
-  form.append("file", new Blob([hammerheadFit(workout) as unknown as BlobPart], { type: "application/octet-stream" }), `${safe}.fit`);
+  const ftp = refs.ftp && refs.ftp > 0 ? refs.ftp : 200;
+  form.append("file", new Blob([hammerheadZwo(workout, ftp)], { type: "application/xml" }), `${safe}.zwo`);
   const res = await fetch(`${HAMMERHEAD_API}/workouts/file?plannedDate=${date}`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
