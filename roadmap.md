@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Salidas: pantalla de tres tarjetas para Rutas, Garage y Baliza, con acceso agrupado en la navegación y comprobación de los enlaces.
+- [x] Salidas: tres tarjetas para Rutas, Garage y Baliza con acceso agrupado; enlaces verificados con cuenta real, sin desbordamiento móvil ni errores de página. Compilación automática correcta.
 
 - [x] Nutrición: tres tarjetas con subvistas existentes y retorno a la pantalla principal; 9 pruebas correctas y compilación automática correcta. Verificación visual con cuenta pendiente de inicio de sesión en la vista previa.
 
