@@ -28,6 +28,7 @@ import { Route as AuthenticatedMiBiciRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedProgresoRouteImport } from './routes/_authenticated/progreso'
 import { Route as AuthenticatedReadinessRouteImport } from './routes/_authenticated/readiness'
+import { Route as AuthenticatedSalidasRouteImport } from './routes/_authenticated/salidas'
 import { Route as AuthenticatedSemanasRouteImport } from './routes/_authenticated/semanas'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as LiveTokenRouteImport } from './routes/live.$token'
@@ -152,6 +153,11 @@ const AuthenticatedProgresoRoute = AuthenticatedProgresoRouteImport.update({
 const AuthenticatedReadinessRoute = AuthenticatedReadinessRouteImport.update({
   id: '/readiness',
   path: '/readiness',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSalidasRoute = AuthenticatedSalidasRouteImport.update({
+  id: '/salidas',
+  path: '/salidas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedSemanasRoute = AuthenticatedSemanasRouteImport.update({
@@ -338,6 +344,7 @@ export interface FileRoutesByFullPath {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/progreso': typeof AuthenticatedProgresoRoute
   '/readiness': typeof AuthenticatedReadinessRoute
+  '/salidas': typeof AuthenticatedSalidasRoute
   '/semanas': typeof AuthenticatedSemanasRoute
   '/live/$token': typeof LiveTokenRoute
   '/auth/': typeof AuthIndexRoute
@@ -388,6 +395,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/progreso': typeof AuthenticatedProgresoRoute
   '/readiness': typeof AuthenticatedReadinessRoute
+  '/salidas': typeof AuthenticatedSalidasRoute
   '/semanas': typeof AuthenticatedSemanasRoute
   '/live/$token': typeof LiveTokenRoute
   '/auth': typeof AuthIndexRoute
@@ -440,6 +448,7 @@ export interface FileRoutesById {
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/progreso': typeof AuthenticatedProgresoRoute
   '/_authenticated/readiness': typeof AuthenticatedReadinessRoute
+  '/_authenticated/salidas': typeof AuthenticatedSalidasRoute
   '/_authenticated/semanas': typeof AuthenticatedSemanasRoute
   '/live/$token': typeof LiveTokenRoute
   '/auth/': typeof AuthIndexRoute
@@ -492,6 +501,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/progreso'
     | '/readiness'
+    | '/salidas'
     | '/semanas'
     | '/live/$token'
     | '/auth/'
@@ -542,6 +552,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/progreso'
     | '/readiness'
+    | '/salidas'
     | '/semanas'
     | '/live/$token'
     | '/auth'
@@ -593,6 +604,7 @@ export interface FileRouteTypes {
     | '/_authenticated/perfil'
     | '/_authenticated/progreso'
     | '/_authenticated/readiness'
+    | '/_authenticated/salidas'
     | '/_authenticated/semanas'
     | '/live/$token'
     | '/auth/'
@@ -793,6 +805,13 @@ declare module '@tanstack/react-router' {
       path: '/readiness'
       fullPath: '/readiness'
       preLoaderRoute: typeof AuthenticatedReadinessRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/salidas': {
+      id: '/_authenticated/salidas'
+      path: '/salidas'
+      fullPath: '/salidas'
+      preLoaderRoute: typeof AuthenticatedSalidasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/semanas': {
@@ -1021,6 +1040,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedProgresoRoute: typeof AuthenticatedProgresoRoute
   AuthenticatedReadinessRoute: typeof AuthenticatedReadinessRoute
+  AuthenticatedSalidasRoute: typeof AuthenticatedSalidasRoute
   AuthenticatedSemanasRoute: typeof AuthenticatedSemanasRoute
   AuthenticatedActividadesIdRoute: typeof AuthenticatedActividadesIdRoute
   AuthenticatedCompeticionesIdRoute: typeof AuthenticatedCompeticionesIdRoute
@@ -1041,6 +1061,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedProgresoRoute: AuthenticatedProgresoRoute,
   AuthenticatedReadinessRoute: AuthenticatedReadinessRoute,
+  AuthenticatedSalidasRoute: AuthenticatedSalidasRoute,
   AuthenticatedSemanasRoute: AuthenticatedSemanasRoute,
   AuthenticatedActividadesIdRoute: AuthenticatedActividadesIdRoute,
   AuthenticatedCompeticionesIdRoute: AuthenticatedCompeticionesIdRoute,
