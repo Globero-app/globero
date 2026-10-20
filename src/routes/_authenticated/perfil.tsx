@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/use-auth";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { syncIntervalsZones, intervalsEstimateFtp, intervalsEstimateHr } from "@/lib/intervals.functions";
-import { Wand2 } from "lucide-react";
+import { Wand2, Settings } from "lucide-react";
 import { syncWahooZones } from "@/lib/wahoo.functions";
 import { syncHammerheadMetrics } from "@/lib/hammerhead.functions";
 import { Link } from "@tanstack/react-router";
@@ -106,9 +106,14 @@ function PerfilPage() {
 
   return (
     <div className="space-y-8 max-w-4xl">
-      <div>
-        <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">{tr("Configuración personal")}</p>
-        <h1 className="font-display text-4xl font-bold uppercase tracking-tight">{tr("Tu Perfil")}</h1>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">{tr("Configuración personal")}</p>
+          <h1 className="font-display text-4xl font-bold uppercase tracking-tight">{tr("Tu Perfil")}</h1>
+        </div>
+        <Link to="/ajustes" aria-label={tr("Ajustes")} title={tr("Ajustes")} className="shrink-0 inline-flex size-10 items-center justify-center rounded-full border bg-card text-muted-foreground transition-colors hover:text-foreground hover:bg-muted">
+          <Settings className="size-5" />
+        </Link>
       </div>
 
       {(() => {
