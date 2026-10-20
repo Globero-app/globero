@@ -161,7 +161,7 @@ function AjustesPage() {
           <ConnCard name="Garmin Connect" letter="G" desc={tr("Envía entrenamientos a tu Garmin y recibe tus actividades.")} connected={!!profileQ.data?.garmin_access_token}><GarminConnection profile={profileQ.data} /></ConnCard>
           <ConnCard name="Wahoo" letter="W" desc={tr("Sincroniza entrenamientos y actividades con tu Wahoo ELEMNT.")} connected={!!profileQ.data?.wahoo_access_token}><WahooConnection profile={profileQ.data} /></ConnCard>
           <ConnCard name="Hammerhead" letter="H" desc={tr("Sincroniza entrenamientos y actividades con tu Karoo.")} connected={!!profileQ.data?.hammerhead_access_token}><HammerheadConnection profile={profileQ.data} /></ConnCard>
-          <ConnCard name="Intervals.icu" letter="i" desc={tr("Calendario, actividades, wellness y carga de entrenamiento.")} connected={!!profileQ.data?.intervals_access_token || !!profileQ.data?.intervals_api_key}><IntervalsConnection profile={profileQ.data} /></ConnCard>
+          <ConnCard name="Intervals.icu" letter="i" desc={tr("Calendario, actividades, wellness y carga de entrenamiento.")} connected={!!profileQ.data?.intervals_api_key}><IntervalsConnection profile={profileQ.data} /></ConnCard>
           <ConnCard name="Strava" letter="S" desc={tr("Importa tus actividades y renombra las salidas detectadas.")} connected={!!profileQ.data?.strava_access_token}><StravaConnection profile={profileQ.data} /></ConnCard>
         </div>
       )}
