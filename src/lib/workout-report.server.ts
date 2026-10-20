@@ -28,6 +28,9 @@ export async function buildWorkoutReport(
   if (!w) return null;
 
   const plan: any = w.plan ?? {};
+  if (plan.report?.text) {
+    return { text: String(plan.report.text), title: plan.title ?? plan.name ?? serverText(lang, "session") };
+  }
   const rawActId = plan.strava_activity_id ?? plan.intervals_activity_id ?? null;
   const activityId: string | null = rawActId ? String(rawActId) : null;
 
@@ -194,13 +197,25 @@ export async function generateAndNotifyWorkoutReport(
     const { getUserLang } = await import("./user-lang.server");
     const userLang = await getUserLang(userId);
     let report: { text: string; title: string } | null = null;
-    try {
-      const { processFtpTestWorkout } = await import("./ftp-test-auto.server");
-      report = await processFtpTestWorkout(supabase, userId, workoutId);
-    } catch (e) {
-      console.error("[workout-report] ftp-test", e);
+    const { data: existing } = await supabase
+      .from("workouts")
+      .select("plan")
+      .eq("id", workoutId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    const prevReport: any = (existing?.plan as any)?.report;
+    if (prevReport?.text) {
+      const ep: any = existing?.plan ?? {};
+      report = { text: String(prevReport.text), title: ep.title ?? ep.name ?? "" };
+    } else {
+      try {
+        const { processFtpTestWorkout } = await import("./ftp-test-auto.server");
+        report = await processFtpTestWorkout(supabase, userId, workoutId);
+      } catch (e) {
+        console.error("[workout-report] ftp-test", e);
+      }
+      if (!report) report = await buildWorkoutReport(supabase, userId, workoutId);
     }
-    if (!report) report = await buildWorkoutReport(supabase, userId, workoutId);
     if (!report) return false;
 
     const { data: w } = await supabase
@@ -210,7 +225,7 @@ export async function generateAndNotifyWorkoutReport(
       .eq("user_id", userId)
       .maybeSingle();
     const plan: any = { ...(((w?.plan as any) ?? {}) as Record<string, unknown>) };
-    plan.report = { text: report.text, created_at: new Date().toISOString() };
+    plan.report = prevReport?.text ? prevReport : { text: report.text, created_at: new Date().toISOString() };
 
     let gamiText = "";
     try {

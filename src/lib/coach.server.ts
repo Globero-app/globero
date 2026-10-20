@@ -88,10 +88,20 @@ export async function buildDailyBrief(supabase: any, userId: string) {
     lines.push(competitionCountdown(lang, comp.name, days));
   }
 
-  // Caché del consejo: solo se llama a la IA si cambia el contexto del día.
+  // Caché diaria: se reutiliza el consejo de hoy salvo que cambie el entreno del día.
   const inputHash = briefHash(lines.join("\n"));
-  const cache = ((profile as any)?.daily_brief_cache ?? null) as { hash?: string; advice?: string } | null;
-  let advice = cache?.hash === inputHash ? String(cache?.advice ?? "") : "";
+  const workoutSig = briefHash(
+    todayWorkout
+      ? JSON.stringify([todayWorkout.id, todayWorkout.status, todayWorkout.duration_minutes, todayWorkout.bike_type, (todayWorkout.plan as any)?.title, (todayWorkout.plan as any)?.summary])
+      : "rest",
+  );
+  const cache = ((profile as any)?.daily_brief_cache ?? null) as
+    | { date?: string; hash?: string; advice?: string; workoutSig?: string }
+    | null;
+  const cachedAdvice = String(cache?.advice ?? "").trim();
+  const sameDay = cache?.date === today && !!cachedAdvice;
+  const workoutChanged = cache?.hash !== inputHash && cache?.workoutSig !== workoutSig;
+  let advice = sameDay && !workoutChanged ? cachedAdvice : "";
   if (!advice) {
     try {
       const { callAI } = await import("./ai-call.server");
@@ -111,7 +121,7 @@ export async function buildDailyBrief(supabase: any, userId: string) {
       if (advice) {
         void supabase
           .from("profiles")
-          .update({ daily_brief_cache: { hash: inputHash, advice } })
+          .update({ daily_brief_cache: { date: today, hash: inputHash, workoutSig, advice } })
           .eq("id", userId)
           .then(() => {});
       }
