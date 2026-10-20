@@ -18,6 +18,7 @@ import { createHammerheadAuthorizeUrl, disconnectHammerhead } from "@/lib/hammer
 import { WeatherStatus } from "@/components/perfil/WeatherStatus";
 import { COUNTRIES } from "@/lib/countries";
 import { CityAutocomplete } from "@/components/perfil/CityAutocomplete";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/_authenticated/ajustes")({
   head: () => ({
@@ -169,6 +170,9 @@ function AjustesPage() {
       {(view === "notificaciones" || view === "aplicacion") && (
       <form onSubmit={save} className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 [&>*]:min-w-0 [&_input]:min-w-0 [&_select]:min-w-0 [&_select]:max-w-full [&_p]:break-words">
         {view === "aplicacion" && (<>
+        <Section title={tr("Aspecto")}>
+          <ThemeToggle />
+        </Section>
         <Section title={tr("Idioma")}>
           <Field label={tr("Idioma de la aplicación")}>
             <LanguageSelector className="w-full !text-sm !py-2.5" />
