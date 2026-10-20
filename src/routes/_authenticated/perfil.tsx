@@ -11,7 +11,7 @@ import { Wand2 } from "lucide-react";
 import { syncWahooZones } from "@/lib/wahoo.functions";
 import { syncHammerheadMetrics } from "@/lib/hammerhead.functions";
 import { Link } from "@tanstack/react-router";
-import { Section, Field } from "@/components/perfil/Section";
+import { Section, Field, Collapsible } from "@/components/perfil/Section";
 import { ZonesPreview } from "@/components/perfil/ZonesPreview";
 import { DeleteAccountSection } from "@/components/perfil/DeleteAccountSection";
 
@@ -111,6 +111,21 @@ function PerfilPage() {
         <h1 className="font-display text-4xl font-bold uppercase tracking-tight">{tr("Tu Perfil")}</h1>
       </div>
 
+      {(() => {
+        const ftp = Number(profileQ.data?.ftp) || 0, w = Number(profileQ.data?.weight_kg) || 0, lthr = profileQ.data?.lthr;
+        const M = ({ l, v, u }: { l: string; v: string; u?: string }) => (
+          <div className="min-w-0"><p className="text-xs text-muted-foreground truncate">{l}</p><p className="font-display text-2xl font-bold">{v}{u && <span className="ml-1 text-sm font-normal text-muted-foreground">{u}</span>}</p></div>
+        );
+        return (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 rounded-2xl bg-muted p-5">
+            <M l="FTP" v={ftp ? String(ftp) : "—"} u={ftp ? "W" : undefined} />
+            <M l="W/kg" v={ftp && w ? (ftp / w).toFixed(1) : "—"} />
+            <M l={tr("Peso")} v={w ? String(w) : "—"} u={w ? "kg" : undefined} />
+            <M l={tr("Umbral FC")} v={lthr ? String(lthr) : "—"} u={lthr ? "ppm" : undefined} />
+          </div>
+        );
+      })()}
+
       <form onSubmit={save} className="grid lg:grid-cols-2 gap-6">
         <Section title={tr("Datos personales")}>
           <Field label={tr("Nombre completo")}><input className="input" value={form.full_name ?? ""} onChange={(e) => setForm({ ...form, full_name: e.target.value })} /></Field>
@@ -155,12 +170,12 @@ function PerfilPage() {
                 {tr("¿No conoces tu FTP? Hacer el test guiado de 20 min →")}
               </Link>
             </div>
-            <ZonesPreview
+            <div className="mt-3"><Collapsible title={tr("Zonas")}><ZonesPreview
               ftp={form.ftp ? Number(form.ftp) : null}
               lthr={form.lthr ? Number(form.lthr) : null}
               maxHr={form.max_hr ? Number(form.max_hr) : null}
               mode={form.zones_display_mode || "watts"}
-              onModeChange={(m) => setForm({ ...form, zones_display_mode: m })} />
+              onModeChange={(m) => setForm({ ...form, zones_display_mode: m })} /></Collapsible></div>
             
           </Field>
           <div className="grid grid-cols-2 gap-3">

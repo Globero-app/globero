@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { RefreshCw } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/lib/use-auth";
-import { Section, Field } from "@/components/perfil/Section";
+import { Section, Field, Collapsible } from "@/components/perfil/Section";
 import { getAthleteProfile, saveAthletePreferences, recomputeAthleteProfile } from "@/lib/athlete-profile.functions";
 
 const DAYS: Array<[string, string]> = [
@@ -99,7 +99,7 @@ export function AthleteProfileSection() {
       <Skeleton className="h-32 w-full rounded-lg" /> :
 
       <>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <Collapsible title={tr("Volumen")}><div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <Stat label={tr("Tipo detectado")} value={d?.detected_type ? TYPE_LABEL[d.detected_type] ?? d.detected_type : "aún sin datos"} />
             <Stat label={tr("20 min")} value={d?.peak_20m ? `${d.peak_20m} W${d.wkg_20m ? ` · ${d.wkg_20m} W/kg` : ""}` : "aún sin datos"} />
             <Stat label={tr("5 min")} value={d?.peak_5m ? `${d.peak_5m} W` : "aún sin datos"} />
@@ -111,7 +111,7 @@ export function AthleteProfileSection() {
             <Stat label={tr("Umbral de frescura")} value={d?.tsb_recovery_threshold != null ? `TSB ${d.tsb_recovery_threshold}` : "aún sin datos"} />
             <Stat label={tr("Readiness bajo")} value={d?.readiness_low_threshold != null ? `${d.readiness_low_threshold}/5` : "aún sin datos"} />
             <Stat label={tr("Recuperación")} value={d?.recovery_days_after_hard != null ? `${d.recovery_days_after_hard} días · descarga cada ${d.deload_every_weeks ?? "—"} sem.` : "aún sin datos"} />
-          </div>
+          </div></Collapsible>
 
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <p className="text-[11px] text-muted-foreground">
@@ -122,7 +122,7 @@ export function AthleteProfileSection() {
           </button>
           </div>
 
-          <div className="border-t pt-3 space-y-3">
+          <Collapsible title={tr("Disponibilidad")}>
             <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">{tr("Minutos disponibles por día (vacío = duración por defecto)")}</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {DAYS.map(([dow, label]) =>
@@ -165,7 +165,7 @@ export function AthleteProfileSection() {
             <p className="text-[11px] text-muted-foreground"> {tr("Se aplican a los próximos entrenamientos que se generen. Solo afectan a tu cuenta.")} 
 
           </p>
-          </div>
+          </Collapsible>
         </>
       }
     </Section>);
