@@ -219,7 +219,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             <NavLinks onClick={() => setMobileOpen(false)} />
             <div className="pt-2 mt-2 border-t border-border/50 space-y-2">
-              <TourButton onClick={() => setMobileOpen(false)} />
               <InstallAppButton />
             </div>
 
