@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Nutrición: pantalla principal de tres tarjetas y acceso a las subvistas existentes, conservando cálculos y generación.
+- [x] Nutrición: tres tarjetas con subvistas existentes y retorno a la pantalla principal; 9 pruebas correctas y compilación automática correcta. Verificación visual con cuenta pendiente de inicio de sesión en la vista previa.
 
 - [x] Reintentos de IA: 429/503 reintentados con esperas 1s/2s/4s (respeta Retry-After) y error propagado al agotarlos; 4 pruebas nuevas y llamada real correcta.
 
