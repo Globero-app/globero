@@ -15,6 +15,7 @@ const KEY = "globero-lang";
 
 type Dict = Record<string, string>;
 const es: Dict = {
+  "nav.outings": "Salidas", "outings.garage": "Garage",
   "nav.home": "Inicio", "nav.profile": "Perfil", "nav.workouts": "Entrenamientos", "nav.nutrition": "Nutrición",
   "nav.activities": "Actividades", "nav.routes": "Rutas", "nav.progress": "Progreso", "nav.weekly": "Resumen semanal",
   "nav.calendar": "Calendario", "nav.readiness": "Readiness", "nav.bike": "Mi Bici", "nav.beacon": "Baliza", "nav.settings": "Ajustes", "nav.backend": "Backend",
@@ -28,6 +29,7 @@ const es: Dict = {
   "workouts.none": "Aún no has generado ningún entrenamiento.",
 };
 const ca: Dict = {
+  "nav.outings": "Sortides", "outings.garage": "Garatge",
   "nav.home": "Inici", "nav.profile": "Perfil", "nav.workouts": "Entrenaments", "nav.nutrition": "Nutrició",
   "nav.activities": "Activitats", "nav.routes": "Rutes", "nav.progress": "Progrés", "nav.weekly": "Resum setmanal",
   "nav.calendar": "Calendari", "nav.readiness": "Readiness", "nav.bike": "La meva bici", "nav.beacon": "Balisa", "nav.settings": "Configuració", "nav.backend": "Backend",
@@ -41,6 +43,7 @@ const ca: Dict = {
   "workouts.none": "Encara no has generat cap entrenament.",
 };
 const fr: Dict = {
+  "nav.outings": "Sorties", "outings.garage": "Garage",
   "nav.home": "Accueil", "nav.profile": "Profil", "nav.workouts": "Entraînements", "nav.nutrition": "Nutrition",
   "nav.activities": "Activités", "nav.routes": "Parcours", "nav.progress": "Progrès", "nav.weekly": "Bilan hebdo",
   "nav.calendar": "Calendrier", "nav.readiness": "Forme du jour", "nav.bike": "Mon vélo", "nav.beacon": "Balise", "nav.settings": "Paramètres", "nav.backend": "Administration",
@@ -54,6 +57,7 @@ const fr: Dict = {
   "workouts.none": "Tu n'as encore généré aucun entraînement.",
 };
 const en: Dict = {
+  "nav.outings": "Rides", "outings.garage": "Garage",
   "nav.home": "Home", "nav.profile": "Profile", "nav.workouts": "Workouts", "nav.nutrition": "Nutrition",
   "nav.activities": "Activities", "nav.routes": "Routes", "nav.progress": "Progress", "nav.weekly": "Weekly summary",
   "nav.calendar": "Calendar", "nav.readiness": "Readiness", "nav.bike": "My Bike", "nav.beacon": "Beacon", "nav.settings": "Settings", "nav.backend": "Admin",
@@ -67,6 +71,7 @@ const en: Dict = {
   "workouts.none": "You haven't generated any workouts yet.",
 };
 const de: Dict = {
+  "nav.outings": "Ausfahrten", "outings.garage": "Garage",
   "nav.home": "Start", "nav.profile": "Profil", "nav.workouts": "Trainings", "nav.nutrition": "Ernährung",
   "nav.activities": "Aktivitäten", "nav.routes": "Routen", "nav.progress": "Fortschritt", "nav.weekly": "Wochenübersicht",
   "nav.calendar": "Kalender", "nav.readiness": "Tagesform", "nav.bike": "Mein Rad", "nav.beacon": "Notfall-Signal", "nav.settings": "Einstellungen", "nav.backend": "Verwaltung",
