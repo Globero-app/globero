@@ -1,7 +1,7 @@
 import { tr, activeLang, useI18n } from "@/lib/i18n";import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { FuelingCalculator, useFuelT } from "@/components/nutrition/FuelPlanView";
 import { DrinkMixCalculator, useMixT } from "@/components/nutrition/DrinkMixCalculator";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -9,13 +9,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { generateWeeklyNutrition } from "@/lib/nutrition.functions";
 import { swapWeeklyMeal } from "@/lib/nutrition-swap.functions";
-import { ChefHat, ChevronRight, Loader2, Sparkles, RefreshCw, ThumbsUp, ThumbsDown } from "lucide-react";
+import { ArrowLeft, ChefHat, ChevronRight, Droplets, FlaskConical, Loader2, Sparkles, RefreshCw, ThumbsUp, ThumbsDown } from "lucide-react";
 import { format } from "date-fns";
 import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/menus")({
-  component: MenusPage,
+  validateSearch: (search: Record<string, unknown>): { view?: "menus" | "fueling" | "mixes" } => ({
+    view: search.view === "menus" || search.view === "fueling" || search.view === "mixes" ? search.view : undefined,
+  }),
+  component: NutritionPage,
   head: () => ({
     meta: [
     { title: "Nutrición · Menús, avituallamiento y mezclas | Globero" },
@@ -42,10 +45,36 @@ const MEALS = [
 { key: "cena", label: "Cena" }] as
 const;
 
-function MenusPage() {
-  const { t } = useI18n();
+function NutritionPage() {
+  const { t, lang } = useI18n();
   const fuelT = useFuelT();
   const mixT = useMixT();
+  const { view } = Route.useSearch();
+  const menusLabel = { es: "Menús semanales", ca: "Menús setmanals", fr: "Menus hebdomadaires", en: "Weekly menus", de: "Wochenmenüs" }[lang];
+  const backLabel = { es: "Volver a Nutrición", ca: "Tornar a Nutrició", fr: "Retour à Nutrition", en: "Back to Nutrition", de: "Zurück zur Ernährung" }[lang];
+  const options = [
+    { view: "menus", label: menusLabel, icon: ChefHat },
+    { view: "fueling", label: fuelT("calc"), icon: Droplets },
+    { view: "mixes", label: mixT(0), icon: FlaskConical },
+  ] as const;
+  return <div className="min-w-0 space-y-6">
+    <div>
+      {view && <Button asChild variant="ghost" size="sm" className="mb-3"><Link to="/menus" search={{ view: undefined }}><ArrowLeft />{backLabel}</Link></Button>}
+      <h1 className="font-display text-3xl font-bold uppercase">{t("nav.nutrition")}</h1>
+    </div>
+    {!view ? <div className="grid min-w-0 gap-4 md:grid-cols-3">
+      {options.map(({ view: target, label, icon: Icon }) => <Button key={target} asChild variant="outline" className="h-auto min-w-0 justify-start whitespace-normal rounded-lg bg-surface p-5 text-left hover:border-primary/50">
+        <Link to="/menus" search={{ view: target }}>
+          <Icon className="!size-7 text-primary" />
+          <span className="min-w-0 flex-1 break-words font-display text-base font-bold">{label}</span>
+          <ChevronRight />
+        </Link>
+      </Button>)}
+    </div> : view === "fueling" ? <FuelingCalculator /> : view === "mixes" ? <DrinkMixCalculator /> : <MenusPage />}
+  </div>;
+}
+
+function MenusPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -141,21 +170,6 @@ function MenusPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">{tr("Planes nutricionales")}</p>
-        <h1 className="font-display text-4xl font-bold uppercase tracking-tight">{t("nav.nutrition")}</h1>
-      </div>
-
-      <Tabs defaultValue="menus" className="space-y-5">
-        <TabsList className="grid grid-cols-3 w-full h-auto items-stretch">
-          <TabsTrigger value="menus" className="whitespace-normal break-words px-2 py-2 text-xs sm:text-sm">{tr("Menús")}</TabsTrigger>
-          <TabsTrigger value="fueling" className="whitespace-normal break-words px-2 py-2 text-xs sm:text-sm">{fuelT("calc")}</TabsTrigger>
-          <TabsTrigger value="mixes" className="whitespace-normal break-words px-2 py-2 text-xs sm:text-sm">{mixT(0)}</TabsTrigger>
-        </TabsList>
-        <TabsContent value="fueling"><FuelingCalculator /></TabsContent>
-        <TabsContent value="mixes"><DrinkMixCalculator /></TabsContent>
-        <TabsContent value="menus" className="space-y-8">
-
       {/* Generador semanal */}
       <div className="bg-surface border rounded-xl p-5 space-y-4">
         <h2 className="font-display text-lg font-bold uppercase">{tr("Plan nutricional semanal")}</h2>
@@ -289,8 +303,6 @@ function MenusPage() {
           </div>
         }
       </div>
-        </TabsContent>
-      </Tabs>
     </div>);
 
 }

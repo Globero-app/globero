@@ -6,7 +6,7 @@
 
 - Generate shareable workout stories client-side as 1080×1920 PNGs from completed workout data; sanitize content before rendering a single canvas for preview and export, use Web Share for browsers and cached files for Capacitor Share so private data is never uploaded or leaked by a separate export path. Optional linked-activity GPS geometry is rendered on that same canvas without map tiles; hiding location also excludes the geometry.
 
-- Keep homemade drink-mix calculations in a pure, tested module and show nutrition tools in separate tab panels so ingredient arithmetic stays independent of menu generation.
+- Keep homemade drink-mix calculations in a pure, tested module; the nutrition card menu selects existing subviews through the validated `view` search parameter on `/menus`, preserving public URLs and isolating menu queries from calculators.
 
 - Retry transient AI gateway failures (429/503) with bounded exponential backoff in the single call helper, honoring Retry-After and propagating the error once attempts are exhausted; terminal statuses never retry.
 

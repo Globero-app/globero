@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Nutrición: pantalla principal de tres tarjetas y acceso a las subvistas existentes, conservando cálculos y generación.
+
 - [x] Reintentos de IA: 429/503 reintentados con esperas 1s/2s/4s (respeta Retry-After) y error propagado al agotarlos; 4 pruebas nuevas y llamada real correcta.
 
 
