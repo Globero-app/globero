@@ -30,7 +30,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { SponsorsFooter } from "@/components/SponsorsFooter";
 import { NetworkStatusBanner } from "@/components/NetworkStatusBanner";
 import { InstallAppButton } from "@/components/InstallAppButton";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { useI18n } from "@/lib/i18n";
 
@@ -178,7 +177,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </nav>
         <div className="border-t p-4 space-y-3">
-          <ThemeToggle />
           <div className="flex items-center gap-3 px-2">
             <div className="size-9 rounded-full bg-primary/10 text-primary grid place-items-center text-xs font-bold">
               {user?.email?.[0]?.toUpperCase() ?? "?"}
@@ -206,7 +204,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           </span>
         </Link>
         <div className="flex items-center gap-1">
-          <ThemeToggle compact />
           <button onClick={() => setMobileOpen(true)} className="p-2 rounded-md hover:bg-secondary" aria-label={t("nav.menu")}>
             <Menu className="size-5" />
           </button>
@@ -226,7 +223,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="pt-2 mt-2 border-t border-border/50 space-y-2">
               <TourButton onClick={() => setMobileOpen(false)} />
               <InstallAppButton />
-              <ThemeToggle />
             </div>
 
             <button
