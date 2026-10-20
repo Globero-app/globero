@@ -1,5 +1,7 @@
 # Architecture rules
 
+- Group Rutas, Garage and Baliza navigation under the authenticated `/salidas` card hub; link to their existing URLs without moving their screens or changing their operations to preserve existing flows.
+
 - Keep fixed AI generation roles, tables and format rules in a stable leading system message, with cyclist/week context in user messages; this preserves a reusable cache prefix without changing providers or models.
 
 - Preserve legacy cron callback commands and authentication when wrapping schedules; beacon table changes toggle watchdog execution, and notification windows are evaluated in Madrid time inside PostgreSQL to honor preference and DST changes without HTTP calls outside those windows.

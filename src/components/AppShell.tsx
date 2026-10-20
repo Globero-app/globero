@@ -9,7 +9,7 @@ import {
   LayoutDashboard,
   User,
   Activity,
-  Trophy,
+  MapPinned,
   UtensilsCrossed,
   Dumbbell,
   Settings,
@@ -20,10 +20,8 @@ import {
   HeartPulse,
   TrendingUp,
   Sparkles,
-  Bike,
   Plus,
   Minus,
-  Radio,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -45,9 +43,7 @@ const ANALYSIS_NAV = [
   { to: "/actividades", label: "nav.activities", icon: Activity },
 ] as const;
 const GENERAL_NAV = [
-  { to: "/competiciones", label: "nav.routes", icon: Trophy },
-  { to: "/mi-bici", label: "nav.bike", icon: Bike },
-  { to: "/baliza", label: "nav.beacon", icon: Radio },
+  { to: "/salidas", label: "nav.outings", icon: MapPinned },
   { to: "/perfil", label: "nav.profile", icon: User },
   { to: "/ajustes", label: "nav.settings", icon: Settings },
 ] as const;
@@ -55,7 +51,7 @@ const MORE_GROUPS = [
   { label: "nav.group.training", items: TRAINING_NAV },
   { label: "nav.group.analysis", items: ANALYSIS_NAV },
 ] as const;
-const BOTTOM_NAV = [HOME, GENERAL_NAV[3], TRAINING_NAV[0], TRAINING_NAV[1]] as const;
+const BOTTOM_NAV = [HOME, GENERAL_NAV[1], TRAINING_NAV[0], TRAINING_NAV[1]] as const;
 
 function TourButton({ onClick }: { onClick?: () => void }) {
   const { t } = useI18n();
@@ -92,7 +88,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     router.navigate({ to: "/auth", replace: true });
   };
 
-  const isActive = (to: string) => (to === "/app" ? path === "/app" : path.startsWith(to));
+  const isActive = (to: string) => to === "/salidas"
+    ? ["/salidas", "/competiciones", "/mi-bici", "/baliza"].some((section) => path === section || path.startsWith(`${section}/`))
+    : (to === "/app" ? path === "/app" : path.startsWith(to));
 
   const NavItem = ({ item, onClick }: { item: (typeof HOME) | (typeof TRAINING_NAV)[number] | (typeof ANALYSIS_NAV)[number] | (typeof GENERAL_NAV)[number]; onClick?: () => void }) => {
     const Icon = item.icon;
