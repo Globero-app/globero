@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { Link, useRouter } from "@tanstack/react-router";
+import { User, Link2, Bell, SlidersHorizontal, Lock, LogOut, ChevronRight, ArrowLeft } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,6 +47,14 @@ function AjustesPage() {
     enabled: !!user?.id,
   });
   const [form, setForm] = useState<any>({});
+  const router = useRouter();
+  const [view, setView] = useState<"menu" | "conexiones" | "notificaciones" | "aplicacion">(() => {
+    if (typeof window === "undefined") return "menu";
+    const p = new URLSearchParams(window.location.search);
+    return ["intervals", "strava", "wahoo", "hammerhead", "garmin", "conectar"].some((k) => p.has(k)) ? "conexiones" : "menu";
+  });
+  const signOut = async () => { qc.clear(); await supabase.auth.signOut(); router.navigate({ to: "/auth", replace: true }); };
+  const titles = { menu: tr("Ajustes"), conexiones: tr("Conexiones"), notificaciones: tr("Notificaciones"), aplicacion: tr("Aplicación") };
 
   useEffect(() => { if (profileQ.data) setForm(profileQ.data); }, [profileQ.data]);
   useEffect(() => {
@@ -119,14 +129,46 @@ function AjustesPage() {
     }
   };
 
+  const Row = ({ icon: Icon, label, onClick, to, danger }: { icon: any; label: string; onClick?: () => void; to?: string; danger?: boolean }) => {
+    const cls = `flex w-full min-w-0 items-center gap-4 px-5 py-4 text-left hover:bg-secondary/60 ${danger ? "text-destructive" : ""}`;
+    const inner = (<><Icon className="size-5 shrink-0" /><span className="min-w-0 flex-1 truncate text-base">{label}</span>{!danger && <ChevronRight className="size-5 shrink-0 text-muted-foreground" />}</>);
+    return to ? <Link to={to as any} className={cls}>{inner}</Link> : <button type="button" onClick={onClick} className={cls}>{inner}</button>;
+  };
+
   return (
-    <div className="w-full min-w-0 max-w-4xl space-y-8">
-      <div>
-        <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">{tr("Preferencias y conexiones")}</p>
-        <h1 className="font-display text-4xl font-bold uppercase tracking-tight">{tr("Ajustes")}</h1>
+    <div className="w-full min-w-0 max-w-2xl space-y-6">
+      <div className="flex min-w-0 items-center gap-3">
+        {view !== "menu" && <button type="button" onClick={() => setView("menu")} aria-label={tr("Volver")} className="p-2 -ml-2 rounded-md hover:bg-secondary shrink-0"><ArrowLeft className="size-5" /></button>}
+        <h1 className="font-display text-3xl font-bold uppercase tracking-tight truncate">{titles[view]}</h1>
       </div>
 
-      <form onSubmit={save} className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 [&>*]:min-w-0 [&_input]:min-w-0 [&_select]:min-w-0 [&_select]:max-w-full [&_p]:break-words">
+      {view === "menu" && (
+        <>
+          <div className="rounded-2xl bg-muted divide-y divide-border overflow-hidden">
+            <Row icon={User} label={tr("Cuenta")} to="/perfil" />
+            <Row icon={Link2} label={tr("Conexiones")} onClick={() => setView("conexiones")} />
+            <Row icon={Bell} label={tr("Notificaciones")} onClick={() => setView("notificaciones")} />
+            <Row icon={SlidersHorizontal} label={tr("Aplicación")} onClick={() => setView("aplicacion")} />
+            <Row icon={Lock} label={tr("Privacidad")} to="/privacidad" />
+            <Row icon={LogOut} label={tr("Cerrar sesión")} onClick={signOut} danger />
+          </div>
+          <p className="text-xs text-muted-foreground break-all">{user?.email}</p>
+        </>
+      )}
+
+      {view === "conexiones" && (
+        <div className="space-y-4">
+          <ConnCard name="Garmin Connect" letter="G" desc={tr("Envía entrenamientos a tu Garmin y recibe tus actividades.")} connected={!!profileQ.data?.garmin_access_token}><GarminConnection profile={profileQ.data} /></ConnCard>
+          <ConnCard name="Wahoo" letter="W" desc={tr("Sincroniza entrenamientos y actividades con tu Wahoo ELEMNT.")} connected={!!profileQ.data?.wahoo_access_token}><WahooConnection profile={profileQ.data} /></ConnCard>
+          <ConnCard name="Hammerhead" letter="H" desc={tr("Sincroniza entrenamientos y actividades con tu Karoo.")} connected={!!profileQ.data?.hammerhead_access_token}><HammerheadConnection profile={profileQ.data} /></ConnCard>
+          <ConnCard name="Intervals.icu" letter="i" desc={tr("Calendario, actividades, wellness y carga de entrenamiento.")} connected={!!profileQ.data?.intervals_access_token || !!profileQ.data?.intervals_api_key}><IntervalsConnection profile={profileQ.data} /></ConnCard>
+          <ConnCard name="Strava" letter="S" desc={tr("Importa tus actividades y renombra las salidas detectadas.")} connected={!!profileQ.data?.strava_access_token}><StravaConnection profile={profileQ.data} /></ConnCard>
+        </div>
+      )}
+
+      {(view === "notificaciones" || view === "aplicacion") && (
+      <form onSubmit={save} className="grid min-w-0 grid-cols-1 gap-4 sm:gap-6 [&>*]:min-w-0 [&_input]:min-w-0 [&_select]:min-w-0 [&_select]:max-w-full [&_p]:break-words">
+        {view === "aplicacion" && (<>
         <Section title={tr("Idioma")}>
           <Field label={tr("Idioma de la aplicación")}>
             <LanguageSelector className="w-full !text-sm !py-2.5" />
@@ -164,21 +206,8 @@ function AjustesPage() {
           <p className="text-[11px] text-muted-foreground">{tr("El aviso llega justo después del resumen de la sesión del día, por app y/o Telegram. Incluye los avisos oficiales vigentes (amarillo, naranja o rojo) por lluvias, inundaciones, viento, tormenta o temperaturas extremas, además de la previsión de tu localidad.")}</p>
         </Section>
 
-        <Section title={tr("Conexión Intervals.icu")} className="lg:col-span-2">
-          <IntervalsConnection profile={profileQ.data} />
-        </Section>
-        <Section title={tr("Conexión Strava")} className="lg:col-span-2">
-          <StravaConnection profile={profileQ.data} />
-        </Section>
-        <Section title={tr("Conexión Wahoo ELEMNT")}>
-          <WahooConnection profile={profileQ.data} />
-        </Section>
-        <Section title={tr("Conexión Garmin Connect")}>
-          <GarminConnection profile={profileQ.data} />
-        </Section>
-        <Section title={tr("Conexión Hammerhead Karoo")} className="lg:col-span-2">
-          <HammerheadConnection profile={profileQ.data} />
-        </Section>
+        </>)}
+        {view === "notificaciones" && (<>
         <Section title={tr("Conexión Telegram")} className="lg:col-span-2">
           <TelegramSection />
         </Section>
@@ -199,11 +228,29 @@ function AjustesPage() {
           <p className="text-[11px] text-muted-foreground">{tr("Necesitas tener el Push del servidor activado (arriba, en Notificaciones). El aviso solo se envía si aún no has respondido el Readiness del día.")}</p>
         </Section>
 
-        <div className="lg:col-span-2 flex justify-end">
+        </>)}
+        <div className="flex justify-end">
           <button type="submit" className="bg-primary text-primary-foreground px-6 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90">{tr("Guardar ajustes")}</button>
         </div>
       </form>
+      )}
       <style>{`.input{width:100%;padding:.55rem .75rem;border-radius:.5rem;border:1px solid var(--border);background:var(--surface);font-size:.875rem;outline:none}.input:focus{box-shadow:0 0 0 2px var(--ring)}`}</style>
+    </div>
+  );
+}
+
+
+function ConnCard({ name, letter, desc, connected, children }: { name: string; letter: string; desc: string; connected: boolean; children: ReactNode }) {
+  return (
+    <div className="rounded-2xl bg-muted p-4 sm:p-5 space-y-3 min-w-0">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="size-11 shrink-0 rounded-xl bg-primary text-primary-foreground grid place-items-center font-display text-lg font-bold">{letter}</div>
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold truncate">{name}</p>
+          <p className="text-xs text-muted-foreground">{connected ? tr("Conectado") : tr("No conectado")} · {desc}</p>
+        </div>
+      </div>
+      <div className="min-w-0 [&_p]:break-words">{children}</div>
     </div>
   );
 }
