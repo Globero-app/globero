@@ -5,7 +5,6 @@
  *   (tabla común de análisis) para que informes, gráficos y detección funcionen igual.
  * Garmin se activa solo con GARMIN_CLIENT_ID y GARMIN_CLIENT_SECRET configurados.
  */
-import { encodeWorkoutFit } from "./fit-writer";
 import { encodeZwo } from "./zwo-writer";
 import { credsFromProfile, hrRangeToLthrPct, type ZoneRefs } from "./intervals.server";
 
