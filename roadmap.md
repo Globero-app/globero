@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Fase 2 de suscripciones: prueba de 30 días, estado y concesión administrativa protegidos, checkout/portal y webhook firmado, autorización central de generación. Bloqueado: confirmar Stripe integrado o cuenta propia antes de habilitar pagos y configurar credenciales.
+
 - [x] Salidas: tres tarjetas para Rutas, Garage y Baliza con acceso agrupado; enlaces verificados con cuenta real, sin desbordamiento móvil ni errores de página. Compilación automática correcta.
 
 - [x] Nutrición: tres tarjetas con subvistas existentes y retorno a la pantalla principal; 9 pruebas correctas y compilación automática correcta. Verificación visual con cuenta pendiente de inicio de sesión en la vista previa.
