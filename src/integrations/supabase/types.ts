@@ -907,6 +907,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          admin_grant_active: boolean
           age: number | null
           country: string | null
           created_at: string
@@ -967,7 +968,11 @@ export type Database = {
           strava_refresh_token: string | null
           strava_token_expires_at: string | null
           strengths: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_status: string
           telegram_chat_id: string | null
+          trial_ends_at: string
           updated_at: string
           wahoo_access_token: string | null
           wahoo_refresh_token: string | null
@@ -987,6 +992,7 @@ export type Database = {
           zones_display_mode: string
         }
         Insert: {
+          admin_grant_active?: boolean
           age?: number | null
           country?: string | null
           created_at?: string
@@ -1047,7 +1053,11 @@ export type Database = {
           strava_refresh_token?: string | null
           strava_token_expires_at?: string | null
           strengths?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string
           telegram_chat_id?: string | null
+          trial_ends_at?: string
           updated_at?: string
           wahoo_access_token?: string | null
           wahoo_refresh_token?: string | null
@@ -1067,6 +1077,7 @@ export type Database = {
           zones_display_mode?: string
         }
         Update: {
+          admin_grant_active?: boolean
           age?: number | null
           country?: string | null
           created_at?: string
@@ -1127,7 +1138,11 @@ export type Database = {
           strava_refresh_token?: string | null
           strava_token_expires_at?: string | null
           strengths?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_status?: string
           telegram_chat_id?: string | null
+          trial_ends_at?: string
           updated_at?: string
           wahoo_access_token?: string | null
           wahoo_refresh_token?: string | null
@@ -1652,6 +1667,7 @@ export type Database = {
           prompt_tokens: number
         }[]
       }
+      can_generate_for_user: { Args: { _user_id: string }; Returns: boolean }
       get_live_beacon: { Args: { _token: string }; Returns: Json }
       has_role: {
         Args: {
