@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Prioridad Wahoo: vincular wahoo_508494826 al entrenamiento del 2026-10-21 de Miguel, completar y generar informe; descartar únicamente IDs de actividades concretas sin bloquear otras coincidencias.
+
 - [ ] Fase 2 de suscripciones: prueba de 30 días, estado y concesión administrativa protegidos, checkout/portal y webhook firmado, autorización central de generación. Bloqueado: confirmar Stripe integrado o cuenta propia antes de habilitar pagos y configurar credenciales.
 
 - [x] Salidas: tres tarjetas para Rutas, Garage y Baliza con acceso agrupado; enlaces verificados con cuenta real, sin desbordamiento móvil ni errores de página. Compilación automática correcta.
