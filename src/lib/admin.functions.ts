@@ -22,7 +22,7 @@ export const listAllUsers = createServerFn({ method: "GET" })
     const { data: roles } = await supabaseAdmin.from("user_roles").select("user_id,role");
     const { data: profiles } = await supabaseAdmin
       .from("profiles")
-      .select("id,full_name,country,deactivated_at,telegram_chat_id,intervals_athlete_id,intervals_oauth");
+      .select("id,full_name,country,deactivated_at,telegram_chat_id,intervals_athlete_id,intervals_oauth,trial_ends_at,subscription_status,admin_grant_active");
     const { data: usage } = await supabaseAdmin.rpc("ai_usage_by_user");
     const usageMap = new Map<string, { calls: number; tokens: number }>(
       ((usage ?? []) as any[]).map((r) => [r.user_id as string, { calls: Number(r.calls) || 0, tokens: Number(r.tokens) || 0 }]),
@@ -38,6 +38,9 @@ export const listAllUsers = createServerFn({ method: "GET" })
         full_name: p?.full_name ?? null,
         country: p?.country ?? null,
         deactivated_at: p?.deactivated_at ?? null,
+        trial_ends_at: p?.trial_ends_at ?? null,
+        subscription_status: p?.subscription_status ?? "inactive",
+        admin_grant_active: p?.admin_grant_active ?? false,
         telegram: !!p?.telegram_chat_id,
         intervals: !!(p?.intervals_athlete_id || p?.intervals_oauth),
         ai_calls: mine.calls,
@@ -54,6 +57,18 @@ const CreateInput = z.object({
   full_name: z.string().min(1),
   role: z.enum(["admin", "user"]),
 });
+
+export const setAdminSubscriptionGrant = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ userId: z.string().uuid(), active: z.boolean() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await ensureAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: saved, error } = await supabaseAdmin.from("profiles")
+      .update({ admin_grant_active: data.active }).eq("id", data.userId).select("id").maybeSingle();
+    if (error || !saved) throw new Error("No se pudo actualizar la concesión gratuita");
+    return { ok: true };
+  });
 
 export const createUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

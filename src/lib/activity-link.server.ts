@@ -1,4 +1,5 @@
 /** Asignación de una actividad de Intervals.icu a un entreno o competición (compartido app + cron). */
+import { dismissActivity } from "./activity-match.helpers";
 
 export async function linkWorkoutActivity(
   supabase: any,
@@ -16,9 +17,10 @@ export async function linkWorkoutActivity(
   if (e1) throw new Error(e1.message);
   if (!w) throw new Error("Entrenamiento no encontrado");
 
-  const plan: any = { ...(((w.plan as any) ?? {}) as Record<string, unknown>) };
+  let plan: any = { ...(((w.plan as any) ?? {}) as Record<string, unknown>) };
   if (accept) plan.strava_activity_id = activityId;
-  else plan.strava_link_dismissed = true;
+  else plan = dismissActivity(plan, activityId);
+  delete plan.strava_link_dismissed;
 
   const update: any = { plan, updated_at: new Date().toISOString() };
   if (accept) {
@@ -132,9 +134,10 @@ export async function linkCompetitionActivity(
     .maybeSingle();
   if (e2) throw new Error(e2.message);
   if (!c) throw new Error("Competición no encontrada");
-  const fb: any = { ...(((c.race_feedback as any) ?? {}) as Record<string, unknown>) };
+  let fb: any = { ...(((c.race_feedback as any) ?? {}) as Record<string, unknown>) };
   if (accept) fb.strava_activity_id = activityId;
-  else fb.strava_link_dismissed = true;
+  else fb = dismissActivity(fb, activityId);
+  delete fb.strava_link_dismissed;
   const { error } = await supabase
     .from("competitions")
     .update({ race_feedback: fb, updated_at: new Date().toISOString() })

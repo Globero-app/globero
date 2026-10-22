@@ -25,6 +25,7 @@ vi.mock("../athlete-profile.server", () => ({
 }));
 
 function database(profile: any) {
+  profile = { trial_ends_at: "2099-01-01T00:00:00Z", ...profile };
   return {
     from(table: string) {
       let saved: any;
@@ -44,6 +45,13 @@ function database(profile: any) {
 beforeEach(() => {
   callAI.mockReset();
   getUserLang.mockResolvedValue("es");
+});
+
+it("expired accounts cannot reach the workout or nutrition AI boundary", async () => {
+  const expired = database({ trial_ends_at: "2020-01-01T00:00:00Z", subscription_status: "inactive" });
+  await expect(generateWorkoutsCore(expired, "user", { bike_type: "carretera", duration_minutes: 60, training_days: [1] })).rejects.toThrow("Activa una suscripción");
+  await expect(generateWeeklyNutritionCore(expired, "user", { goal: "mantenimiento" })).rejects.toThrow("Activa una suscripción");
+  expect(callAI).not.toHaveBeenCalled();
 });
 
 describe("immediate nutrition horizon", () => {

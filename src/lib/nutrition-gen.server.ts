@@ -112,6 +112,8 @@ export async function generateWeeklyNutritionCore(
   userId: string,
   opts: { goal: string; week_start?: string },
 ) {
+  const { requireGenerationAccess } = await import("./subscription-access.server");
+  await requireGenerationAccess(supabase, userId);
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
   if (!profile) throw new Error("Perfil no encontrado");
 

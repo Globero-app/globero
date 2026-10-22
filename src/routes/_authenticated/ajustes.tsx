@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
-import { User, Link2, Bell, SlidersHorizontal, Lock, LogOut, ChevronRight, ArrowLeft } from "lucide-react";
+import { User, Link2, Bell, SlidersHorizontal, Lock, LogOut, ChevronRight, ArrowLeft, CreditCard } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -147,6 +147,7 @@ function AjustesPage() {
         <>
           <div className="rounded-2xl bg-muted divide-y divide-border overflow-hidden">
             <Row icon={User} label={tr("Cuenta")} to="/perfil" />
+            <Row icon={CreditCard} label="Suscripción" to="/suscripcion" />
             <Row icon={Link2} label={tr("Conexiones")} onClick={() => setView("conexiones")} />
             <Row icon={Bell} label={tr("Notificaciones")} onClick={() => setView("notificaciones")} />
             <Row icon={SlidersHorizontal} label={tr("Aplicación")} onClick={() => setView("aplicacion")} />

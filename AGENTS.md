@@ -1,5 +1,9 @@
 # Architecture rules
 
+- Store generation entitlements in protected profile fields; enforce a shared server guard before AI generation and database triggers on new workouts/nutrition writes, without gating application login. Stripe uses authenticated server functions for checkout/portal and a signature-verified public webhook reading authoritative subscription state; only verified administrators can change free grants.
+
+- Reject activity matches using per-target discarded activity IDs in both manual and scheduled matchers; legacy global rejection flags never block unrelated future activities.
+
 - Group Rutas, Garage and Baliza navigation under the authenticated `/salidas` card hub; link to their existing URLs without moving their screens or changing their operations to preserve existing flows.
 
 - Keep fixed AI generation roles, tables and format rules in a stable leading system message, with cyclist/week context in user messages; this preserves a reusable cache prefix without changing providers or models.

@@ -10,6 +10,13 @@ import { ErrorsTab } from "@/components/backend/ErrorsTab";
 import { AiUsageTab } from "@/components/backend/AiUsageTab";
 
 export const Route = createFileRoute("/_authenticated/backend")({
+  head: () => ({ meta: [
+    { title: "Administración — Globero" },
+    { name: "description", content: "Gestiona usuarios, suscripciones y configuración de Globero." },
+    { property: "og:title", content: "Administración — Globero" },
+    { property: "og:description", content: "Gestión administrativa de usuarios y suscripciones de Globero." },
+    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+  ] }),
   ssr: false,
   beforeLoad: async () => {
     const { data } = await supabase.auth.getUser();

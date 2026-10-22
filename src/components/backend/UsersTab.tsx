@@ -4,7 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Plus, Trash2, Shield, User as UserIcon, ChevronDown } from "lucide-react";
 import { countryName } from "@/lib/countries";
-import { listAllUsers, createUser, setUserRole, deleteUser } from "@/lib/admin.functions";
+import { listAllUsers, createUser, setUserRole, deleteUser, setAdminSubscriptionGrant } from "@/lib/admin.functions";
+import { subscriptionLabel } from "@/lib/subscription-access";
 import { useAuth } from "@/lib/use-auth";
 import { Field, Info, INPUT_STYLE } from "./AdminField";
 
@@ -15,6 +16,17 @@ export function UsersTab() {
   const create = useServerFn(createUser);
   const setRole = useServerFn(setUserRole);
   const del = useServerFn(deleteUser);
+  const grant = useServerFn(setAdminSubscriptionGrant);
+  const [grantBusy, setGrantBusy] = useState<string | null>(null);
+  const changeGrant = async (uid: string, active: boolean) => {
+    setGrantBusy(uid);
+    try {
+      await grant({ data: { userId: uid, active } });
+      await qc.invalidateQueries({ queryKey: ["all_users"] });
+      toast.success(active ? "Acceso gratuito activado" : "Acceso gratuito desactivado");
+    } catch (e) { toast.error(e instanceof Error ? e.message : "No se pudo guardar"); }
+    finally { setGrantBusy(null); }
+  };
 
   const users = useQuery({ queryKey: ["all_users"], queryFn: () => list({ data: undefined }) });
   const [open, setOpen] = useState(false);
@@ -86,7 +98,13 @@ export function UsersTab() {
                     <Info label={tr("Tokens IA")} value={(u.ai_tokens ?? 0).toLocaleString("es-ES")} />
                     <Info label="Telegram" value={u.telegram ? "Conectado" : "No"} />
                     <Info label="Intervals.icu" value={u.intervals ? "Conectado" : "No"} />
+                     <Info label="Suscripción" value={subscriptionLabel(u)} />
+                     <Info label="Fin de prueba" value={u.trial_ends_at ? new Date(u.trial_ends_at).toLocaleDateString("es-ES") : "—"} />
                   </div>
+                   <label className="flex items-center gap-2 text-sm">
+                     <input type="checkbox" checked={u.admin_grant_active} disabled={grantBusy === u.id} onChange={(e) => changeGrant(u.id, e.target.checked)} />
+                     Suscripción gratuita concedida por el administrador
+                   </label>
                   {u.id !== me?.id &&
                 <div className="flex flex-wrap gap-2">
                       <button onClick={() => toggleRole(u.id, u.roles)} className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-semibold hover:bg-secondary">

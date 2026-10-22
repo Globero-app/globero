@@ -258,6 +258,8 @@ export async function swapMeal(opts: {
   text: string;
 }) {
   const { supabaseAdmin, chatId, userId, profile: p, today, weekStart, todayMenu, nutriPlan, nutriRow, analysis, text } = opts;
+  const { requireGenerationAccess } = await import("./subscription-access.server");
+  await requireGenerationAccess(supabaseAdmin, userId);
   if (!todayMenu || !nutriRow) {
     await telegramSend(chatId, "No tienes plan nutricional para hoy. Puedes generarlo desde la app en Menús.");
     return;
