@@ -1,5 +1,6 @@
 /** Detección periódica de actividades nuevas y asignación al entreno/competición del día. */
 import { activitySource } from "./activity-source";
+import { isActivityDismissed } from "./activity-match.helpers";
 
 /** Bloqueo simple (lease) para que dos ejecuciones del cron no se solapen. */
 export async function acquireJobLock(admin: any, jobName: string, leaseSeconds: number): Promise<boolean> {
@@ -176,14 +177,14 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
 
     const comp = ((cRes.data ?? []) as any[]).find((c) => {
       const fb = (c.race_feedback as any) ?? {};
-      return c.intensity === "competicion" && c.date === day && !fb.strava_activity_id && !fb.strava_link_dismissed;
+      return c.intensity === "competicion" && c.date === day && !fb.strava_activity_id && !isActivityDismissed(fb, actId);
     });
 
     const wk = comp
       ? null
       : ((wRes.data ?? []) as any[]).find((w) => {
           const plan = (w.plan as any) ?? {};
-          if (plan.strava_activity_id || plan.strava_link_dismissed) return false;
+          if (plan.strava_activity_id || isActivityDismissed(plan, actId)) return false;
           if (w.status === "completed") return false;
           const d = plan.scheduled_date ?? String(w.created_at).slice(0, 10);
           return d === day;
