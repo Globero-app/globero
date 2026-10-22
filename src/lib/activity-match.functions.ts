@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { actSubtitle } from "./activity-match.helpers";
+import { actSubtitle, isActivityDismissed } from "./activity-match.helpers";
 
 export type ActivityMatch = {
   activity_id: string;
@@ -64,7 +64,7 @@ export const getActivityMatches = createServerFn({ method: "GET" })
       // competición primero (prioridad)
       const comp = (cRes.data ?? []).find((c) => {
         const fb = (c.race_feedback as any) ?? {};
-        return c.intensity === "competicion" && c.date === day && !fb.strava_activity_id && !fb.strava_link_dismissed;
+        return c.intensity === "competicion" && c.date === day && !fb.strava_activity_id && !isActivityDismissed(fb, actId);
       });
       if (comp) {
         matches.push({
@@ -82,7 +82,7 @@ export const getActivityMatches = createServerFn({ method: "GET" })
 
       const wk = (wRes.data ?? []).find((w) => {
         const plan = (w.plan as any) ?? {};
-        if (plan.strava_activity_id || plan.strava_link_dismissed) return false;
+        if (plan.strava_activity_id || isActivityDismissed(plan, actId)) return false;
         if (w.status === "completed") return false;
         const d = plan.scheduled_date ?? String(w.created_at).slice(0, 10);
         return d === day;
