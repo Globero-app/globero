@@ -25,6 +25,7 @@ vi.mock("../athlete-profile.server", () => ({
 }));
 
 function database(profile: any) {
+  profile = { trial_ends_at: "2099-01-01T00:00:00Z", ...profile };
   return {
     from(table: string) {
       let saved: any;

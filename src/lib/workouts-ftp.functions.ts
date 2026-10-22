@@ -40,6 +40,8 @@ export const scheduleFtpTest = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => FtpTestInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const { requireGenerationAccess } = await import("./subscription-access.server");
+    await requireGenerationAccess(supabase, userId);
     const { data: profile } = await supabase
       .from("profiles")
       .select("ftp,max_hr,lthr,intervals_athlete_id")

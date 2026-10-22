@@ -34,6 +34,8 @@ export const swapWeeklyMeal = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => Input.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const { requireGenerationAccess } = await import("./subscription-access.server");
+    await requireGenerationAccess(supabase, userId);
     const { callAI } = await import("./ai-call.server");
     const { data: row } = await supabase.from("weekly_nutrition_plans").select("plan").eq("id", data.planId).eq("user_id", userId).maybeSingle();
     const plan = row?.plan as any;

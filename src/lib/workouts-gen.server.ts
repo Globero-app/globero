@@ -143,6 +143,8 @@ METEOROLOGÍA:
 
 /** Núcleo de generación de entrenamientos (siempre plan MIXTO). Reutilizable por el cron semanal. */
 export async function generateWorkoutsCore(supabase: any, userId: string, input: GenCoreInput) {
+  const { requireGenerationAccess } = await import("./subscription-access.server");
+  await requireGenerationAccess(supabase, userId);
   const { buildTrainingLoad, prescribeWeek, loadPromptBlock, weekStart } = await import("./training-load.server");
   const { getUserLang, langInstruction } = await import("./user-lang.server");
   const { validateWorkout, enforceWeeklyTss, avoidBackToBackHard, enforcePolarized } = await import("./workout-validator.server");
