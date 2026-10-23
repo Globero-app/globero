@@ -1,6 +1,8 @@
 # Roadmap
 
-- [ ] Prioridad Wahoo: vincular wahoo_508494826 al entrenamiento del 2026-10-21 de Miguel, completar y generar informe; descartar únicamente IDs de actividades concretas sin bloquear otras coincidencias.
+- [ ] Hammerhead: incluir usuarios exclusivos en detección periódica, admitir X-Hmac-Signature y sincronizar/vincular la actividad del 22/10/2026 de David.
+
+- [x] Prioridad Wahoo: wahoo_508494826 vinculada al entrenamiento del 2026-10-21 de Miguel, completado con informe guardado; descartes por ID en app y cron, pruebas correctas.
 
 - [ ] Fase 2 de suscripciones: prueba de 30 días, estado y concesión administrativa protegidos, checkout/portal y webhook firmado, autorización central de generación. Bloqueado: confirmar Stripe integrado o cuenta propia antes de habilitar pagos y configurar credenciales.
 

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { ACTIVITY_SOURCE_FILTER } from "@/lib/hammerhead-detection";
 
 /**
  * Cron cada 15 min: detecta actividades nuevas en Intervals.icu, asigna las de alta confianza
@@ -45,7 +46,7 @@ export const Route = createFileRoute("/api/public/hooks/activity-detect")({
           const { data: users } = await supabaseAdmin
             .from("profiles")
             .select("id, notify_strava_push, notify_training_push, intervals_api_key, intervals_oauth, intervals_athlete_id")
-            .or("intervals_api_key.not.is.null,intervals_oauth.is.true,wahoo_access_token.not.is.null,garmin_access_token.not.is.null")
+            .or(ACTIVITY_SOURCE_FILTER)
             .is("deactivated_at", null)
             .limit(200);
 
