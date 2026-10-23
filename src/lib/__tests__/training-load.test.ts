@@ -38,6 +38,18 @@ describe("estimateActivityTss", () => {
   it("devuelve 0 sin duración", () => {
     expect(estimateActivityTss({ moving_time: 0 }, 250, null, null)).toBe(0);
   });
+
+  it("normaliza milisegundos en estimaciones por potencia, pulso y fallback", () => {
+    expect(estimateActivityTss({ moving_time: 3600000, average_watts: 250 }, 250, null, null)).toBe(100);
+    expect(estimateActivityTss({ moving_time: 3600000, average_heartrate: 160 }, null, 160, null)).toBe(100);
+    expect(estimateActivityTss({ moving_time: 3600000 }, null, null, null)).toBe(50);
+  });
+
+  it("mantiene segundos hasta 86400 y normaliza valores mayores", () => {
+    expect(estimateActivityTss({ moving_time: 86400 }, null, null, null)).toBe(1200);
+    expect(estimateActivityTss({ moving_time: 86401 }, null, null, null)).toBe(1);
+    expect(estimateActivityTss({ moving_time: 38557999 }, null, null, null)).toBe(536);
+  });
 });
 
 describe("estimatePlanTss", () => {
@@ -75,6 +87,13 @@ describe("computeCtlAtl", () => {
 
   it("sin datos devuelve 0", () => {
     expect(computeCtlAtl([], "2026-08-29")).toEqual({ ctl: 0, atl: 0 });
+  });
+
+  it("CTL y ATL son iguales con duración en segundos o milisegundos", () => {
+    const seconds = [{ date: "2026-10-22", tss: estimateActivityTss({ moving_time: 4462 }, null, null, null) }];
+    const milliseconds = [{ date: "2026-10-22", tss: estimateActivityTss({ moving_time: 4462000 }, null, null, null) }];
+    expect(computeCtlAtl(milliseconds, "2026-10-23")).toEqual(computeCtlAtl(seconds, "2026-10-23"));
+    expect(computeCtlAtl(milliseconds, "2026-10-23")).toEqual({ ctl: 1.4, atl: 7.2 });
   });
 });
 
