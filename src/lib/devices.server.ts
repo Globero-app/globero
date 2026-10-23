@@ -6,6 +6,7 @@
  * Garmin se activa solo con GARMIN_CLIENT_ID y GARMIN_CLIENT_SECRET configurados.
  */
 import { encodeZwo } from "./zwo-writer";
+import { hammerheadTiming } from "./hammerhead-activity";
 import { credsFromProfile, hrRangeToLthrPct, type ZoneRefs } from "./intervals.server";
 
 const WAHOO = "https://api.wahooligan.com";
@@ -441,7 +442,8 @@ export async function pullDeviceActivities(supabase: any, userId: string): Promi
 }
 
 function hammerheadRow(a: any, userId: string, refs: ZoneRefs) {
-  const dur = Number(a?.movingTime ?? a?.duration ?? a?.elapsedTime ?? 0);
+  const timing = hammerheadTiming(a);
+  const dur = timing.duration;
   if (!a?.id || !dur) return null;
   const np = Number(a.normalizedPower ?? a.avgPower ?? 0);
   const avgHr = Number(a.avgHeartRate ?? 0);
@@ -451,7 +453,7 @@ function hammerheadRow(a: any, userId: string, refs: ZoneRefs) {
     user_id: userId,
     name: a.name ?? "Karoo",
     type: a.indoor ? "VirtualRide" : "Ride",
-    start_date: new Date(a.startTime ?? a.createdAt ?? Date.now()).toISOString(),
+    start_date: new Date(timing.start).toISOString(),
     moving_time: Math.round(dur),
     distance: Number(a.distance ?? 0) || null,
     total_elevation_gain: Number(a.elevationGain ?? a.ascent ?? 0) || null,
