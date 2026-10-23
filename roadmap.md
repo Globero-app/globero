@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] David: corregir 8 duraciones Hammerhead en milisegundos, eliminar solo copias confirmadas de Strava y proteger las estimaciones TSS/PMC.
+
 - [x] Hammerhead: cron incluye usuarios exclusivos y acepta X-Hmac-Signature; inicio real y milisegundos corregidos. Salida del 22/10 de David vinculada y entrenamiento completado, verificado en pantalla; 8 pruebas correctas.
 
 - [x] Prioridad Wahoo: wahoo_508494826 vinculada al entrenamiento del 2026-10-21 de Miguel, completado con informe guardado; descartes por ID en app y cron, pruebas correctas.
