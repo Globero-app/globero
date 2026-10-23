@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] David: corregir 8 duraciones Hammerhead en milisegundos, eliminar solo copias confirmadas de Strava y proteger las estimaciones TSS/PMC.
+- [x] David: corregidas 8 duraciones Hammerhead y eliminadas 9 copias confirmadas de Strava; vínculo e informe conservados. Guarda TSS y 21 pruebas correctas; pantalla autenticada muestra CTL 24, ATL 10 y TSB 14.
 
 - [x] Hammerhead: cron incluye usuarios exclusivos y acepta X-Hmac-Signature; inicio real y milisegundos corregidos. Salida del 22/10 de David vinculada y entrenamiento completado, verificado en pantalla; 8 pruebas correctas.
 
