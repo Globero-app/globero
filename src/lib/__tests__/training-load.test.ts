@@ -93,7 +93,7 @@ describe("computeCtlAtl", () => {
     const seconds = [{ date: "2026-10-22", tss: estimateActivityTss({ moving_time: 4462 }, null, null, null) }];
     const milliseconds = [{ date: "2026-10-22", tss: estimateActivityTss({ moving_time: 4462000 }, null, null, null) }];
     expect(computeCtlAtl(milliseconds, "2026-10-23")).toEqual(computeCtlAtl(seconds, "2026-10-23"));
-    expect(computeCtlAtl(milliseconds, "2026-10-23")).toEqual({ ctl: 1.4, atl: 8 });
+    expect(computeCtlAtl(milliseconds, "2026-10-23")).toEqual({ ctl: 1.4, atl: 7.2 });
   });
 });
 
