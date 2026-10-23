@@ -1,6 +1,8 @@
 /* Motor de carga de entrenamiento: TSS, CTL/ATL/TSB, adherencia y tendencias.
    Solo servidor: no importar desde el cliente. */
 
+import { activityDurationSeconds } from "./activity-duration";
+
 export interface LoadPoint {
   date: string; // YYYY-MM-DD
   tss: number;
@@ -65,7 +67,7 @@ export function estimateActivityTss(a: {
 }, ftp: number | null, lthr: number | null, maxHr: number | null): number {
   // 0) Carga real calculada por Intervals.icu
   if (a.icu_training_load && Number(a.icu_training_load) > 0) return Math.round(Number(a.icu_training_load));
-  const hours = (Number(a.moving_time) || 0) / 3600;
+  const hours = activityDurationSeconds(a.moving_time) / 3600;
   if (hours <= 0) return 0;
 
   // 1) Potencia

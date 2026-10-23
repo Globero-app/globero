@@ -1,6 +1,6 @@
 # Architecture rules
 
-- Normalize Hammerhead activity duration from milliseconds and prefer riding start over upload timestamps before load calculation and deduplication; share source-filter and signature-header rules between tested helpers and incoming handlers.
+- Normalize Hammerhead activity duration from milliseconds and prefer riding start over upload timestamps before load calculation and deduplication; defensively normalize activity durations above 86400 through a shared helper in TSS estimators to prevent inflated PMC; share source-filter and signature-header rules between tested helpers and incoming handlers.
 
 - Store generation entitlements in protected profile fields; enforce a shared server guard before AI generation and database triggers on new workouts/nutrition writes, without gating application login. Stripe uses authenticated server functions for checkout/portal and a signature-verified public webhook reading authoritative subscription state; only verified administrators can change free grants.
 
