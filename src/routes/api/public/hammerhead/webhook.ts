@@ -1,6 +1,7 @@
 // Webhook de Hammerhead: firma HMAC-SHA256 del cuerpo con HAMMERHEAD_WEBHOOK_SECRET.
 // Los datos se descargan de la API con el token del usuario, no se confía en el payload.
 import { createFileRoute } from "@tanstack/react-router";
+import { hammerheadSignature } from "@/lib/hammerhead-detection";
 
 async function validSignature(body: string, header: string | null, secret: string) {
   if (!header) return false;
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/api/public/hammerhead/webhook")({
         const secret = process.env["HAMMERHEAD_WEBHOOK_SECRET"];
         if (!secret) return new Response("Not configured", { status: 503 });
         const raw = await request.text();
-        const sig = request.headers.get("x-hammerhead-signature") ?? request.headers.get("x-signature");
+        const sig = hammerheadSignature(request.headers);
         if (!(await validSignature(raw, sig, secret))) return new Response("Unauthorized", { status: 401 });
         let body: any;
         try { body = JSON.parse(raw); } catch { return Response.json({ ok: false }, { status: 400 }); }
