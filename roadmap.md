@@ -1,10 +1,10 @@
 # Roadmap
 
-- [ ] Hammerhead: incluir usuarios exclusivos en detección periódica, admitir X-Hmac-Signature y sincronizar/vincular la actividad del 22/10/2026 de David.
+- [x] Hammerhead: cron incluye usuarios exclusivos y acepta X-Hmac-Signature; inicio real y milisegundos corregidos. Salida del 22/10 de David vinculada y entrenamiento completado, verificado en pantalla; 8 pruebas correctas.
 
 - [x] Prioridad Wahoo: wahoo_508494826 vinculada al entrenamiento del 2026-10-21 de Miguel, completado con informe guardado; descartes por ID en app y cron, pruebas correctas.
 
-- [ ] Fase 2 de suscripciones: prueba de 30 días, estado y concesión administrativa protegidos, checkout/portal y webhook firmado, autorización central de generación. Bloqueado: confirmar Stripe integrado o cuenta propia antes de habilitar pagos y configurar credenciales.
+- [ ] Fase 2 de suscripciones: campos y protección, prueba de 30 días, concesión administrativa, checkout/portal, webhook y guardia central implementados; pruebas correctas y estado de prueba verificado en pantalla. Bloqueado: falta STRIPE_PRICE_ID y configurar STRIPE_WEBHOOK_SECRET tras publicar; pago real pendiente.
 
 - [x] Salidas: tres tarjetas para Rutas, Garage y Baliza con acceso agrupado; enlaces verificados con cuenta real, sin desbordamiento móvil ni errores de página. Compilación automática correcta.
 
