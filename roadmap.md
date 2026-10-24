@@ -6,7 +6,7 @@
 
 - [x] Prioridad Wahoo: wahoo_508494826 vinculada al entrenamiento del 2026-10-21 de Miguel, completado con informe guardado; descartes por ID en app y cron, pruebas correctas.
 
-- [ ] Fase 2 de suscripciones: campos y protección, prueba de 30 días, concesión administrativa, checkout/portal, webhook y guardia central implementados; precio mensual existente de Globero consultado en Stripe y seleccionado para checkout/sincronización. Bloqueado: configurar STRIPE_WEBHOOK_SECRET tras publicar; pago real pendiente.
+- [ ] Fase 2 de suscripciones: campos y protección, prueba de 30 días, concesión administrativa, checkout/portal, webhook y guardia central implementados; precio mensual existente de Globero seleccionado. URL Stripe activa verificada; clave de firma guardada y evento firmado de diagnóstico sin cuenta aceptado en preview (200); 8 pruebas correctas. Bloqueado: publicar para desplegar la clave (producción aún devuelve 503), comprobar entrega real de Stripe y suscripción de extremo a extremo; pago real pendiente.
 
 - [x] Salidas: tres tarjetas para Rutas, Garage y Baliza con acceso agrupado; enlaces verificados con cuenta real, sin desbordamiento móvil ni errores de página. Compilación automática correcta.
 
