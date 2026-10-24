@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { GLOBERO_MONTHLY_PRICE_ID } from "./stripe-config";
 
 export function stripeClient() {
   const key = process.env["STRIPE_SECRET_KEY"];
@@ -12,8 +13,7 @@ export async function syncCustomerSubscription(stripe: Stripe, admin: any, custo
   if (error) throw new Error("No se pudo consultar la suscripción");
   if (!profile) return;
   const subscriptions = await stripe.subscriptions.list({ customer: customerId, status: "all", limit: 100 });
-  const priceId = process.env["STRIPE_PRICE_ID"];
-  if (!priceId) throw new Error("Falta configurar el precio de la suscripción");
+  const priceId = GLOBERO_MONTHLY_PRICE_ID;
   const matching = subscriptions.data.filter((s) => s.items.data.some((item) => item.price.id === priceId));
   const current = matching.find((s) => s.status === "active") ??
     matching.sort((a, b) => b.created - a.created)[0];

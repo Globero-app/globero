@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { GLOBERO_MONTHLY_PRICE_ID } from "./stripe-config";
 
 export const getMySubscription = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -16,8 +17,7 @@ export const createSubscriptionCheckout = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { stripeClient } = await import("./stripe.server");
     const stripe = stripeClient();
-    const priceId = process.env["STRIPE_PRICE_ID"];
-    if (!priceId) throw new Error("Falta configurar el precio de la suscripción");
+    const priceId = GLOBERO_MONTHLY_PRICE_ID;
     const { data: profile, error } = await context.supabase.from("profiles")
       .select("email,stripe_customer_id,admin_grant_active,deactivated_at")
       .eq("id", context.userId).maybeSingle();
