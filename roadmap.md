@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Aviso claro al bloquear nuevas creaciones, incluidas rutas y balizas; enlace directo a Perfil → Suscripción y Ajustes accesible.
+
 - [x] Perfil: pestaña Suscripción reutiliza activación, portal de gestión/cancelación y consulta de estado. Bloqueo tras 30 días comprobado en generadores, menús de competición, sustituciones e importación; 21 pruebas correctas. Triggers activos verificados; Perfil/Ajustes no dependen de la suscripción.
 - [ ] Verificación de pestaña Perfil y gestión Stripe con cuenta real: requiere sesión en la vista previa; prueba real de pago/publicación sigue pendiente en Fase 2.
 

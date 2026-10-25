@@ -12,6 +12,7 @@ import { notifyBeaconContacts } from "@/lib/beacon-alerts.functions";
 import { EmergencyContacts } from "@/components/EmergencyContacts";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useCreationAccess } from "@/components/CreationAccess";
 
 export const Route = createFileRoute("/_authenticated/baliza")({
   head: () => ({
@@ -40,6 +41,7 @@ function distM(a: { lat: number; lon: number }, b: { lat: number; lon: number })
 }
 
 function BeaconPage() {
+  const requireAccess = useCreationAccess();
   const { user } = useAuth();
   const online = useOnlineStatus();
   const [beacon, setBeacon] = useState<Beacon | null>(null);
@@ -144,6 +146,7 @@ function BeaconPage() {
   }, [beacon, user, flush]);
 
   const start = async () => {
+    if (!requireAccess()) return;
     if (!user) return;
     const { data, error } = await supabase.from("safety_beacons").insert({ user_id: user.id, name: tr("Salida") })
       .select("id,share_token,status,expires_at,last_seen_at").single();

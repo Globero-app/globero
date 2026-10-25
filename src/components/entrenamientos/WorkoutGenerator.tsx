@@ -9,6 +9,7 @@ import { Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { es, ca, fr, enGB, de } from "date-fns/locale";
+import { useCreationAccess } from "@/components/CreationAccess";
 
 export const BIKE_OPTIONS = [
 { value: "carretera", label: "Carretera" },
@@ -44,6 +45,7 @@ export function Field({ label, children }: {label: string;children: React.ReactN
 }
 
 export function WorkoutGenerator({ profile }: {profile: any;}) {
+  const requireAccess = useCreationAccess();
   const { user } = useAuth();
   const qc = useQueryClient();
   const gen = useServerFn(generateWorkouts);
@@ -257,7 +259,7 @@ export function WorkoutGenerator({ profile }: {profile: any;}) {
           <button
           type="button"
           disabled={generateMut.isPending}
-          onClick={() => generateMut.mutate({ replace_pending: true })}
+          onClick={() => { if (requireAccess()) generateMut.mutate({ replace_pending: true }); }}
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground disabled:opacity-50">
           
             {generateMut.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />} {tr("Regenerar con la nueva configuración")} 
@@ -325,7 +327,7 @@ export function WorkoutGenerator({ profile }: {profile: any;}) {
       <div className="flex flex-col sm:flex-row gap-2">
         <button
           disabled={generateMut.isPending || trainingDays.length === 0 || autoEnabled}
-          onClick={() => generateMut.mutate(undefined)}
+          onClick={() => { if (requireAccess()) generateMut.mutate(undefined); }}
           className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50 w-full sm:w-auto">
           
           {generateMut.isPending ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}

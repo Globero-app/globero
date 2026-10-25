@@ -11,12 +11,22 @@ import { useNavigate } from "@tanstack/react-router";
 import { generateRandomRoute } from "@/lib/random-route.functions";
 import { format } from "date-fns";
 import { es, ca, fr, enGB, de } from "date-fns/locale";
+import { useCreationAccess } from "@/components/CreationAccess";
 
 export const Route = createFileRoute("/_authenticated/competiciones/")({
+  head: () => ({ meta: [
+    { title: "Rutas y competiciones — Globero" },
+    { name: "description", content: "Consulta tus rutas ciclistas y planifica nuevas salidas y competiciones en Globero." },
+    { property: "og:title", content: "Rutas y competiciones — Globero" },
+    { property: "og:description", content: "Tus rutas, salidas y competiciones ciclistas en Globero." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: CompetitionsPage
 });
 
 function CompetitionsPage() {
+  const requireAccess = useCreationAccess();
   const { user } = useAuth();
   const qc = useQueryClient();
   const [editing, setEditing] = useState<any | null>(null);
@@ -47,10 +57,10 @@ function CompetitionsPage() {
           <h1 className="font-display text-4xl font-bold uppercase tracking-tight">{tr("Rutas")}</h1>
         </div>
         <div className="flex gap-2">
-        <button onClick={() => setRandomOpen(true)} className="inline-flex items-center gap-2 border px-4 py-2 rounded-lg text-sm font-semibold">
+        <button onClick={() => { if (requireAccess()) setRandomOpen(true); }} className="inline-flex items-center gap-2 border px-4 py-2 rounded-lg text-sm font-semibold">
           <Shuffle className="size-4" /> {tr("Crear ruta aleatoria")}
         </button>
-        <button onClick={() => {setEditing(null);setOpen(true);}} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold">
+        <button onClick={() => {if (!requireAccess()) return;setEditing(null);setOpen(true);}} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold">
           <Plus className="size-4" /> {tr("Nueva")} 
         </button>
         </div>
@@ -93,6 +103,7 @@ function CompetitionsPage() {
 }
 
 function CompetitionForm({ initial, onClose, onSaved }: any) {
+  const requireAccess = useCreationAccess();
   const { user } = useAuth();
   const [f, setF] = useState<any>(initial ?? {
     name: "", date: format(new Date(), "yyyy-MM-dd"), type: "carretera",
@@ -102,6 +113,7 @@ function CompetitionForm({ initial, onClose, onSaved }: any) {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!initial && !requireAccess()) return;
     setSaving(true);
     const payload = {
       user_id: user!.id,
@@ -170,6 +182,7 @@ function CompetitionForm({ initial, onClose, onSaved }: any) {
 }
 
 function RandomRouteForm({ onClose }: { onClose: () => void }) {
+  const requireAccess = useCreationAccess();
   const gen = useServerFn(generateRandomRoute);
   const navigate = useNavigate();
   const [f, setF] = useState<any>({ name: tr("Ruta aleatoria"), date: format(new Date(), "yyyy-MM-dd"), type: "carretera", distance_km: 60, elevation_m: 800, duration_hours: "" });
@@ -184,6 +197,7 @@ function RandomRouteForm({ onClose }: { onClose: () => void }) {
   const [saving, setSaving] = useState(false);
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!requireAccess()) return;
     if (start.touched && !start.pick) { toast.error(tr("Selecciona la población de salida de la lista")); return; }
     setSaving(true);
     try {
