@@ -21,6 +21,12 @@ describe("subscription generation permissions", () => {
     expect(canGenerate(trial, new Date(signup.getTime() + 30 * 86400000 - 1))).toBe(true);
     expect(canGenerate(trial, new Date(signup.getTime() + 30 * 86400000))).toBe(false);
   });
+  it.each(["entrenamientos", "menús", "rutas", "balizas"])("blocks new %s after the 30-day trial without an active subscription", () => {
+    const expired = new Date(signup.getTime() + 30 * 86400000);
+    expect(canGenerate(trial, expired)).toBe(false);
+    expect(canGenerate({ ...trial, subscription_status: "active" }, expired)).toBe(true);
+    expect(canGenerate({ ...trial, admin_grant_active: true }, expired)).toBe(true);
+  });
   it("reactivates generation with an active subscription", () => {
     expect(canGenerate({ subscription_status: "active" })).toBe(true);
     expect(canGenerate({ subscription_status: "canceled" })).toBe(false);
