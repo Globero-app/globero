@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Perfil: pestaña Suscripción reutiliza activación, portal de gestión/cancelación y consulta de estado. Bloqueo tras 30 días comprobado en generadores, menús de competición, sustituciones e importación; 21 pruebas correctas. Triggers activos verificados; Perfil/Ajustes no dependen de la suscripción.
+- [ ] Verificación de pestaña Perfil y gestión Stripe con cuenta real: requiere sesión en la vista previa; prueba real de pago/publicación sigue pendiente en Fase 2.
+
 - [x] Aviso preventivo desde el día 25 de prueba: aviso en la app con días restantes y acceso a Suscripción; excluye suscripción activa y concesión gratuita. 7 pruebas correctas y compilación automática correcta.
 - [ ] Verificación del aviso con cuenta real: bloqueada porque no hay sesión disponible de la cuenta solicitante; requiere iniciar sesión en la vista previa.
 

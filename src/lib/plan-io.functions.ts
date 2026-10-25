@@ -33,6 +33,9 @@ export const importWorkoutPlan = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
+    const { requireGenerationAccess } = await import("./subscription-access.server");
+    await requireGenerationAccess(supabase, userId);
+
     const { data: profile } = await supabase
       .from("profiles")
       .select("ftp,lthr,max_hr")

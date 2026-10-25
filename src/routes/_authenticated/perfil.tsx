@@ -16,6 +16,8 @@ import { ZonesPreview } from "@/components/perfil/ZonesPreview";
 import { DeleteAccountSection } from "@/components/perfil/DeleteAccountSection";
 
 import { AthleteProfileSection } from "@/components/perfil/AthleteProfileSection";
+import { SubscriptionPanel } from "@/components/SubscriptionPanel";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 
 
@@ -116,6 +118,13 @@ function PerfilPage() {
         </Link>
       </div>
 
+      <Tabs defaultValue="profile" className="space-y-6">
+        <TabsList aria-label="Secciones de Perfil">
+          <TabsTrigger value="profile">{tr("Perfil")}</TabsTrigger>
+          <TabsTrigger value="subscription">{tr("Suscripción")}</TabsTrigger>
+        </TabsList>
+        <TabsContent value="subscription"><SubscriptionPanel /></TabsContent>
+        <TabsContent value="profile" className="space-y-8">
       {(() => {
         const ftp = Number(profileQ.data?.ftp) || 0, w = Number(profileQ.data?.weight_kg) || 0, lthr = profileQ.data?.lthr;
         const M = ({ l, v, u }: { l: string; v: string; u?: string }) => (
@@ -265,6 +274,8 @@ function PerfilPage() {
       </form>
 
       <DeleteAccountSection />
+        </TabsContent>
+      </Tabs>
 
       <style>{`.input{width:100%;padding:.55rem .75rem;border-radius:.5rem;border:1px solid var(--border);background:var(--surface);font-size:.875rem;outline:none}.input:focus{box-shadow:0 0 0 2px var(--ring)}`}</style>
     </div>);
