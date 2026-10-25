@@ -57,6 +57,9 @@ export const generateMenu = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
+    const { requireGenerationAccess } = await import("./subscription-access.server");
+    await requireGenerationAccess(supabase, userId);
+
     const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
     const { data: comp } = await supabase.from("competitions").select("*").eq("id", data.competitionId).maybeSingle();
     if (!profile || !comp) throw new Error("Datos no encontrados");
@@ -115,6 +118,8 @@ export const swapRecipe = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => SwapInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const { requireGenerationAccess } = await import("./subscription-access.server");
+    await requireGenerationAccess(supabase, userId);
     const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
     const { data: comp } = await supabase.from("competitions").select("menu_plan").eq("id", data.competitionId).maybeSingle();
     if (!comp?.menu_plan) throw new Error("No hay menú generado");
