@@ -4,6 +4,7 @@
 
 - Store generation entitlements in protected profile fields; enforce a shared server guard before AI generation and database triggers on new workouts/nutrition writes, without gating application login. Stripe uses authenticated server functions for checkout/portal and a signature-verified public webhook reading authoritative subscription state; share the selected catalog price constant between checkout and synchronization to prevent entitlement mismatches; only verified administrators can change free grants.
 - Render the trial expiry notice in AppShell using the shared tested subscription helper and owner-readable profile fields; keep reminders separate from generation enforcement.
+- Reuse SubscriptionPanel in the Profile subscription tab and the standalone subscription route so checkout, portal and status controls cannot diverge; never gate account/settings navigation on generation entitlements.
 
 - Reject activity matches using per-target discarded activity IDs in both manual and scheduled matchers; legacy global rejection flags never block unrelated future activities.
 
