@@ -1,6 +1,7 @@
 # Roadmap
 
-- [ ] Aviso preventivo desde el día 25 de prueba: aviso en la app y acceso a Suscripción; verificar pruebas y pantalla.
+- [x] Aviso preventivo desde el día 25 de prueba: aviso en la app con días restantes y acceso a Suscripción; excluye suscripción activa y concesión gratuita. 7 pruebas correctas y compilación automática correcta.
+- [ ] Verificación del aviso con cuenta real: bloqueada porque no hay sesión disponible de la cuenta solicitante; requiere iniciar sesión en la vista previa.
 
 - [x] David: corregidas 8 duraciones Hammerhead y eliminadas 9 copias confirmadas de Strava; vínculo e informe conservados. Guarda TSS y 21 pruebas correctas; pantalla autenticada muestra CTL 24, ATL 10 y TSB 14.
 
