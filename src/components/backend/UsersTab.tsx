@@ -6,6 +6,7 @@ import { Plus, Trash2, Shield, User as UserIcon, ChevronDown } from "lucide-reac
 import { countryName } from "@/lib/countries";
 import { listAllUsers, createUser, setUserRole, deleteUser, setAdminSubscriptionGrant } from "@/lib/admin.functions";
 import { subscriptionLabel } from "@/lib/subscription-access";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/lib/use-auth";
 import { Field, Info, INPUT_STYLE } from "./AdminField";
 
@@ -23,6 +24,8 @@ export function UsersTab() {
     try {
       await grant({ data: { userId: uid, active } });
       await qc.invalidateQueries({ queryKey: ["all_users"] });
+      await qc.invalidateQueries({ queryKey: ["my-subscription"] });
+      await qc.invalidateQueries({ queryKey: ["trial-expiry-notice", uid] });
       toast.success(active ? "Acceso gratuito activado" : "Acceso gratuito desactivado");
     } catch (e) { toast.error(e instanceof Error ? e.message : "No se pudo guardar"); }
     finally { setGrantBusy(null); }
@@ -77,6 +80,7 @@ export function UsersTab() {
                   <div className="min-w-0">
                     <p className="font-semibold truncate">{u.full_name ?? u.email}</p>
                     <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                    <p className="mt-1 text-xs font-medium text-primary">{subscriptionLabel(u)}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -102,8 +106,8 @@ export function UsersTab() {
                      <Info label="Fin de prueba" value={u.trial_ends_at ? new Date(u.trial_ends_at).toLocaleDateString("es-ES") : "—"} />
                   </div>
                    <label className="flex items-center gap-2 text-sm">
-                     <input type="checkbox" checked={u.admin_grant_active} disabled={grantBusy === u.id} onChange={(e) => changeGrant(u.id, e.target.checked)} />
-                     Suscripción gratuita concedida por el administrador
+                     <Checkbox checked={u.admin_grant_active} disabled={grantBusy !== null} onCheckedChange={(checked) => changeGrant(u.id, checked === true)} />
+                     {grantBusy === u.id ? "Guardando…" : "Suscripción gratuita concedida por el administrador"}
                    </label>
                   {u.id !== me?.id &&
                 <div className="flex flex-wrap gap-2">
