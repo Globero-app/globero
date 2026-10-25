@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Perfil: pestaña Suscripción con gestión Stripe reutilizada y comprobación del bloqueo de generación tras 30 días, conservando Perfil/Ajustes.
+
 - [x] Aviso preventivo desde el día 25 de prueba: aviso en la app con días restantes y acceso a Suscripción; excluye suscripción activa y concesión gratuita. 7 pruebas correctas y compilación automática correcta.
 - [ ] Verificación del aviso con cuenta real: bloqueada porque no hay sesión disponible de la cuenta solicitante; requiere iniciar sesión en la vista previa.
 
