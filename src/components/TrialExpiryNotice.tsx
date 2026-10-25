@@ -36,6 +36,6 @@ export function TrialExpiryNotice({ userId }: { userId?: string }) {
         <p className="text-sm text-muted-foreground">Después podrás seguir accediendo a la app. Necesitarás una suscripción para crear entrenamientos y menús.</p>
       </div>
     </div>
-    <Button asChild className="self-start shrink-0"><Link to="/suscripcion">Ver suscripción</Link></Button>
+    <Button asChild className="self-start shrink-0"><Link to="/perfil" search={{ tab: "subscription" }}>Ver suscripción</Link></Button>
   </section>;
 }

@@ -147,7 +147,7 @@ function AjustesPage() {
         <>
           <div className="rounded-2xl bg-muted divide-y divide-border overflow-hidden">
             <Row icon={User} label={tr("Cuenta")} to="/perfil" />
-            <Row icon={CreditCard} label="Suscripción" to="/suscripcion" />
+            <Link to="/perfil" search={{ tab: "subscription" }} className="flex w-full min-w-0 items-center gap-4 px-5 py-4 text-left hover:bg-secondary/60"><CreditCard className="size-5 shrink-0" /><span className="min-w-0 flex-1 truncate text-base">Suscripción</span><ChevronRight className="size-5 shrink-0 text-muted-foreground" /></Link>
             <Row icon={Link2} label={tr("Conexiones")} onClick={() => setView("conexiones")} />
             <Row icon={Bell} label={tr("Notificaciones")} onClick={() => setView("notificaciones")} />
             <Row icon={SlidersHorizontal} label={tr("Aplicación")} onClick={() => setView("aplicacion")} />

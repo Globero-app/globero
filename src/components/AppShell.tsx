@@ -1,6 +1,7 @@
 import { ActivityMatchPrompt } from "@/components/ActivityMatchPrompt";
 import { AnnouncementPopup } from "@/components/AnnouncementPopup";
 import { TrialExpiryNotice } from "@/components/TrialExpiryNotice";
+import { CreationAccess } from "@/components/CreationAccess";
 import { ActivityFeedbackPrompt } from "@/components/ActivityFeedbackPrompt";
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/use-auth";
@@ -239,6 +240,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Main */}
       <main className="lg:pl-64 pb-20 lg:pb-0">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-6 lg:py-10">
+          <CreationAccess userId={user?.id} path={path}>
           <TrialExpiryNotice userId={user?.id} />
           <AnimatePresence mode="wait">
             <motion.div
@@ -251,6 +253,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               {children}
             </motion.div>
           </AnimatePresence>
+          </CreationAccess>
         </div>
         <SponsorsFooter />
       </main>

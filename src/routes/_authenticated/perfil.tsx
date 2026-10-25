@@ -23,6 +23,9 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 
 export const Route = createFileRoute("/_authenticated/perfil")({
+  validateSearch: (search: Record<string, unknown>): { tab?: "profile" | "subscription" } => ({
+    tab: search.tab === "subscription" || search.tab === "profile" ? search.tab : undefined,
+  }),
   head: () => ({ meta: [
     { title: "Perfil — Globero" },
     { name: "description", content: "Gestiona tus datos personales, perfil ciclista, zonas y preferencias nutricionales." },
@@ -35,6 +38,8 @@ export const Route = createFileRoute("/_authenticated/perfil")({
 });
 
 function PerfilPage() {
+  const { tab } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const { user } = useAuth();
   const qc = useQueryClient();
   const estimateFtp = useServerFn(intervalsEstimateFtp);
@@ -118,7 +123,7 @@ function PerfilPage() {
         </Link>
       </div>
 
-      <Tabs defaultValue="profile" className="space-y-6">
+      <Tabs value={tab ?? "profile"} onValueChange={(value) => { void navigate({ search: { tab: value === "subscription" ? "subscription" : "profile" }, replace: true }); }} className="space-y-6">
         <TabsList aria-label="Secciones de Perfil">
           <TabsTrigger value="profile">{tr("Perfil")}</TabsTrigger>
           <TabsTrigger value="subscription">{tr("Suscripción")}</TabsTrigger>

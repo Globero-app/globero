@@ -13,6 +13,7 @@ import { ArrowLeft, ChefHat, ChevronRight, Droplets, FlaskConical, Loader2, Spar
 import { format } from "date-fns";
 import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { toast } from "sonner";
+import { useCreationAccess } from "@/components/CreationAccess";
 
 export const Route = createFileRoute("/_authenticated/menus")({
   validateSearch: (search: Record<string, unknown>): { view?: "menus" | "fueling" | "mixes" } => ({
@@ -75,6 +76,7 @@ function NutritionPage() {
 }
 
 function MenusPage() {
+  const requireAccess = useCreationAccess();
   const { user } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -141,6 +143,7 @@ function MenusPage() {
     qc.invalidateQueries({ queryKey: ["recipe-feedback"] });
   };
   const swap = async (planId: string, dayIndex: number, mealKey: any) => {
+    if (!requireAccess()) return;
     setSwapping(`${planId}-${dayIndex}-${mealKey}`);
     try {
       await swapMeal({ data: { planId, dayIndex, mealKey } });
@@ -155,6 +158,7 @@ function MenusPage() {
   };
 
   const generate = async () => {
+    if (!requireAccess()) return;
     setBusy(true);
     try {
       await genNutrition({ data: { goal: effectiveGoal as any } });

@@ -17,6 +17,7 @@ import { Upload, Download, ChefHat, Sparkles, ArrowLeft, RefreshCcw, FileDown, X
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { useCreationAccess } from "@/components/CreationAccess";
 
 import { format } from "date-fns";
 import { es, ca, fr, enGB, de } from "date-fns/locale";
@@ -34,6 +35,7 @@ export const Route = createFileRoute("/_authenticated/competiciones/$id")({
 });
 
 function CompetitionDetail() {
+  const requireAccess = useCreationAccess();
   const { id } = Route.useParams();
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -215,6 +217,7 @@ function CompetitionDetail() {
   };
 
   const handleGenerateMenu = async () => {
+    if (!requireAccess()) return;
     setGenerating(true);
     try {
       await genFn({ data: { competitionId: id } });
@@ -225,6 +228,7 @@ function CompetitionDetail() {
   };
 
   const handleSwap = async (dayIndex: number, mealKey: any) => {
+    if (!requireAccess()) return;
     setSwapping(`${dayIndex}-${mealKey}`);
     try {
       await swapFn({ data: { competitionId: id, dayIndex, mealKey } });
