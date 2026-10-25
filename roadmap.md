@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Restaurar creación automática de perfiles, reparar los cuatro perfiles ausentes y asignar prueba desde la fecha real de alta; verificar el flujo y preservar suscripciones existentes.
+
 - [x] Aviso claro y diálogo al bloquear nuevas creaciones, incluidas rutas y balizas; enlace directo a Perfil → Suscripción y Ajustes accesible. 11 pruebas correctas y compilación automática correcta.
 - [ ] Verificar el aviso y la pestaña Suscripción con sesión real: no hay sesión disponible de la cuenta solicitante; requiere iniciar sesión en la vista previa.
 
