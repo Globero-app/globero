@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Aviso preventivo desde el día 25 de prueba: aviso en la app con días restantes y acceso a Suscripción; excluye suscripción activa y concesión gratuita. 7 pruebas correctas y compilación automática correcta.
+- [ ] Verificación del aviso con cuenta real: bloqueada porque no hay sesión disponible de la cuenta solicitante; requiere iniciar sesión en la vista previa.
+
 - [x] David: corregidas 8 duraciones Hammerhead y eliminadas 9 copias confirmadas de Strava; vínculo e informe conservados. Guarda TSS y 21 pruebas correctas; pantalla autenticada muestra CTL 24, ATL 10 y TSB 14.
 
 - [x] Hammerhead: cron incluye usuarios exclusivos y acepta X-Hmac-Signature; inicio real y milisegundos corregidos. Salida del 22/10 de David vinculada y entrenamiento completado, verificado en pantalla; 8 pruebas correctas.
