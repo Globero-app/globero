@@ -85,6 +85,13 @@
       "when": 1792580782882,
       "tag": "0011_subscription_trial_and_protected_entitlements",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792951261948,
+      "tag": "0012_restore_signup_profiles_and_trial_anchor",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Restaurado el disparador de alta ausente; reparados cuatro perfiles y diez roles básicos faltantes. Los 12 usuarios tienen perfil y fecha de prueba; las cuatro reparaciones conservan alta original + 30 días y no alteran perfiles existentes. 14 pruebas de suscripción y compilación correctas.
+- [ ] Prueba transaccional completa de alta/recreación en profile-trial.sql: bloqueada por permisos de mantenimiento sobre auth; comprobación de datos y disparador activo verificada.
+
 - [x] Aviso claro y diálogo al bloquear nuevas creaciones, incluidas rutas y balizas; enlace directo a Perfil → Suscripción y Ajustes accesible. 11 pruebas correctas y compilación automática correcta.
 - [ ] Verificar el aviso y la pestaña Suscripción con sesión real: no hay sesión disponible de la cuenta solicitante; requiere iniciar sesión en la vista previa.
 
