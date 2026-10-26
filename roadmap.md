@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Suscripción adaptada a Capacitor: pagos internos ocultos, gestión web con Browser nativo y alternativa target blank; Stripe web conservado y pruebas de detección/apertura añadidas.
+- [ ] Verificación de Suscripción en dispositivo físico: requiere recompilar e instalar APK con Browser; vista autenticada pendiente porque no hay cuenta asociada a la sesión solicitante.
+
 - [x] Restaurado el disparador de alta ausente; reparados cuatro perfiles y diez roles básicos faltantes. Los 12 usuarios tienen perfil y fecha de prueba; las cuatro reparaciones conservan alta original + 30 días y no alteran perfiles existentes. 14 pruebas de suscripción y compilación correctas.
 - [ ] Prueba transaccional completa de alta/recreación en profile-trial.sql: bloqueada por permisos de mantenimiento sobre auth; comprobación de datos y disparador activo verificada.
 
