@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { CreditCard, ExternalLink, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { EXTERNAL_SUBSCRIPTION_URL, isMobileContainer } from "@/lib/mobile-container";
+import { EXTERNAL_SUBSCRIPTION_URL, isMobileContainer, openExternalSubscription } from "@/lib/mobile-container";
 import { canGenerate, subscriptionLabel } from "@/lib/subscription-access";
 import { getMySubscription, createSubscriptionCheckout, createSubscriptionPortal, refreshMySubscription } from "@/lib/subscription.functions";
 
@@ -44,7 +44,10 @@ export function SubscriptionPanel() {
     {nativeContainer === true && <div className="space-y-4">
       <p className="text-sm text-muted-foreground">Para adquirir o gestionar tu suscripción Premium, por favor hazlo de forma segura a través de nuestra plataforma web corporativa.</p>
       <Button asChild className="h-auto min-h-10 whitespace-normal text-center">
-        <a href={EXTERNAL_SUBSCRIPTION_URL} target="_blank" rel="noopener noreferrer"><ExternalLink className="shrink-0" />Gestionar suscripción en la web</a>
+        <a href={EXTERNAL_SUBSCRIPTION_URL} target="_blank" rel="noopener noreferrer" onClick={(event) => {
+          event.preventDefault();
+          void openExternalSubscription().catch(() => toast.error("No se pudo abrir el navegador. Inténtalo de nuevo."));
+        }}><ExternalLink className="shrink-0" />Gestionar suscripción en la web</a>
       </Button>
     </div>}
     {q.isPending ? <p>Cargando…</p> : q.isError ? <p role="alert">No se pudo consultar la suscripción.</p> : q.data && <>
