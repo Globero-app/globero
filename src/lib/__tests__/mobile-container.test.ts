@@ -37,7 +37,7 @@ describe("external subscription navigation", () => {
     const open = vi.fn();
     vi.stubGlobal("window", { Capacitor: { getPlatform: () => "android" }, open });
     await openExternalSubscription();
-    expect(native.open).toHaveBeenCalledWith({ url: "https://coach.globero.app/perfil?tab=subscription" });
+    expect(native.open).toHaveBeenCalledWith({ url: "https://coach.globero.app/perfil?tab=subscription", windowName: "_system" });
     expect(open).not.toHaveBeenCalled();
   });
   it("falls back to a protected new window on older APKs without Browser", async () => {
@@ -45,6 +45,6 @@ describe("external subscription navigation", () => {
     const open = vi.fn();
     vi.stubGlobal("window", { Capacitor: { getPlatform: () => "android" }, open });
     await openExternalSubscription();
-    expect(open).toHaveBeenCalledWith(EXTERNAL_SUBSCRIPTION_URL, "_blank", "noopener,noreferrer");
+    expect(open).toHaveBeenCalledWith(EXTERNAL_SUBSCRIPTION_URL, "_system");
   });
 });

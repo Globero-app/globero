@@ -46,7 +46,10 @@ export function SubscriptionPanel() {
       <Button asChild className="h-auto min-h-10 whitespace-normal text-center">
         <a href={EXTERNAL_SUBSCRIPTION_URL} target="_blank" rel="noopener noreferrer" onClick={(event) => {
           event.preventDefault();
-          void openExternalSubscription().catch(() => toast.error("No se pudo abrir el navegador. Inténtalo de nuevo."));
+          event.stopPropagation();
+          void openExternalSubscription().catch(() => {
+            window.open(EXTERNAL_SUBSCRIPTION_URL, "_system");
+          });
         }}><ExternalLink className="shrink-0" />Gestionar suscripción en la web</a>
       </Button>
     </div>}
