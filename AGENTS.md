@@ -6,7 +6,7 @@
 - Create profiles and basic roles through the Auth signup lifecycle trigger; anchor every inserted profile's trial to the original Auth signup timestamp so profile repair cannot restart the trial, while preserving existing entitlements during backfills.
 - Render the trial expiry notice in AppShell using the shared tested subscription helper and owner-readable profile fields; keep reminders separate from generation enforcement.
 - Reuse SubscriptionPanel in the Profile subscription tab and the standalone subscription route so checkout, portal and status controls cannot diverge; never gate account/settings navigation on generation entitlements.
-- Detect native Capacitor after hydration in the shared SubscriptionPanel and suppress internal Stripe actions there; use an external browser link so web and native subscription presentation stay separate without changing web checkout.
+- Detect native Capacitor after hydration in the shared SubscriptionPanel and suppress internal Stripe actions there; open subscription links through the native Browser plugin with a protected new-window fallback so web checkout stays unchanged.
 - Share client creation checks and notices through CreationAccess in AppShell; deep-link subscription management through the validated Profile tab search parameter, preserving existing-data access and active beacon safety controls.
 
 - Reject activity matches using per-target discarded activity IDs in both manual and scheduled matchers; legacy global rejection flags never block unrelated future activities.
