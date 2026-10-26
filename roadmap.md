@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Adaptar Suscripción a Capacitor: ocultar pagos internos, abrir gestión web externa y conservar Stripe en navegador; probar detección y vistas.
+
 - [x] Restaurado el disparador de alta ausente; reparados cuatro perfiles y diez roles básicos faltantes. Los 12 usuarios tienen perfil y fecha de prueba; las cuatro reparaciones conservan alta original + 30 días y no alteran perfiles existentes. 14 pruebas de suscripción y compilación correctas.
 - [ ] Prueba transaccional completa de alta/recreación en profile-trial.sql: bloqueada por permisos de mantenimiento sobre auth; comprobación de datos y disparador activo verificada.
 
