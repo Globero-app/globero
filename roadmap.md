@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Mostrar todas las conexiones por usuario en Backend, incorporar futuras integraciones automáticamente y verificar estados sin exponer credenciales.
+- [ ] Corregir la dependencia vulnerable señalada por el análisis de seguridad.
+
 - [x] Suscripción adaptada a Capacitor: pagos internos ocultos, gestión web con Browser nativo y alternativa target blank; Stripe web conservado y pruebas de detección/apertura añadidas.
 - [ ] Verificación de Suscripción en dispositivo físico: requiere recompilar e instalar APK con Browser; vista autenticada pendiente porque no hay cuenta asociada a la sesión solicitante.
 
