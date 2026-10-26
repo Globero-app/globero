@@ -31,7 +31,7 @@ export function UsersTab() {
     finally { setGrantBusy(null); }
   };
 
-  const users = useQuery({ queryKey: ["all_users"], queryFn: () => list({ data: undefined }) });
+   const users = useQuery({ queryKey: ["all_users"], queryFn: () => list({ data: undefined }), refetchInterval: 30_000 });
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [f, setF] = useState({ email: "", password: "", full_name: "", role: "user" as "user" | "admin" });

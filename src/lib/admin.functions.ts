@@ -21,9 +21,10 @@ export const listAllUsers = createServerFn({ method: "GET" })
     const { data: list, error } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
     if (error) throw error;
     const { data: roles } = await supabaseAdmin.from("user_roles").select("user_id,role");
-    const { data: profiles } = await supabaseAdmin
+    const { data: profiles, error: profilesError } = await supabaseAdmin
       .from("profiles")
       .select(`id,full_name,country,deactivated_at,trial_ends_at,subscription_status,admin_grant_active,${CONNECTION_PROFILE_FIELDS}`);
+    if (profilesError) throw profilesError;
     const { data: garminDevices, error: garminError } = await supabaseAdmin
       .from("garmin_devices").select("user_id").eq("status", "active");
     if (garminError) throw garminError;
