@@ -100,8 +100,9 @@ export function UsersTab() {
                     <Info label={tr("Alta")} value={u.created_at ? new Date(u.created_at).toLocaleDateString("es-ES") : "—"} />
                     <Info label={tr("Llamadas IA")} value={String(u.ai_calls ?? 0)} />
                     <Info label={tr("Tokens IA")} value={(u.ai_tokens ?? 0).toLocaleString("es-ES")} />
-                    <Info label="Telegram" value={u.telegram ? "Conectado" : "No"} />
-                    <Info label="Intervals.icu" value={u.intervals ? "Conectado" : "No"} />
+                     {u.connections?.map((connection: { id: string; label: string; connected: boolean }) => (
+                       <Info key={connection.id} label={connection.label} value={connection.connected ? tr("Conectado") : tr("No")} />
+                     ))}
                      <Info label="Suscripción" value={subscriptionLabel(u)} />
                      <Info label="Fin de prueba" value={u.trial_ends_at ? new Date(u.trial_ends_at).toLocaleDateString("es-ES") : "—"} />
                   </div>

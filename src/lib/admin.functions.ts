@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { CONNECTION_PROFILE_FIELDS, userConnections } from "./user-connections";
 
 async function ensureAdmin(ctx: { supabase: any; userId: string }) {
   const { data } = await ctx.supabase
@@ -22,7 +23,11 @@ export const listAllUsers = createServerFn({ method: "GET" })
     const { data: roles } = await supabaseAdmin.from("user_roles").select("user_id,role");
     const { data: profiles } = await supabaseAdmin
       .from("profiles")
-      .select("id,full_name,country,deactivated_at,telegram_chat_id,intervals_athlete_id,intervals_oauth,trial_ends_at,subscription_status,admin_grant_active");
+      .select(`id,full_name,country,deactivated_at,trial_ends_at,subscription_status,admin_grant_active,${CONNECTION_PROFILE_FIELDS}`);
+    const { data: garminDevices, error: garminError } = await supabaseAdmin
+      .from("garmin_devices").select("user_id").eq("status", "active");
+    if (garminError) throw garminError;
+    const pairedUsers = new Set(garminDevices?.map((device) => device.user_id));
     const { data: usage } = await supabaseAdmin.rpc("ai_usage_by_user");
     const usageMap = new Map<string, { calls: number; tokens: number }>(
       ((usage ?? []) as any[]).map((r) => [r.user_id as string, { calls: Number(r.calls) || 0, tokens: Number(r.tokens) || 0 }]),
@@ -41,8 +46,7 @@ export const listAllUsers = createServerFn({ method: "GET" })
         trial_ends_at: p?.trial_ends_at ?? null,
         subscription_status: p?.subscription_status ?? "inactive",
         admin_grant_active: p?.admin_grant_active ?? false,
-        telegram: !!p?.telegram_chat_id,
-        intervals: !!(p?.intervals_athlete_id || p?.intervals_oauth),
+        connections: userConnections(p, pairedUsers.has(u.id)),
         ai_calls: mine.calls,
         ai_tokens: mine.tokens,
         roles: roles?.filter((r) => r.user_id === u.id).map((r) => r.role) ?? [],
