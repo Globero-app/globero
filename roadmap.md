@@ -1,7 +1,8 @@
 # Roadmap
 
-- [ ] Mostrar todas las conexiones por usuario en Backend, incorporar futuras integraciones automáticamente y verificar estados sin exponer credenciales.
-- [ ] Corregir la dependencia vulnerable señalada por el análisis de seguridad.
+- [x] Backend → Usuarios muestra todas las conexiones desde un registro común, incluye Garmin por vinculación activa y actualiza estados cada 30 segundos sin devolver credenciales. Ocho pruebas y compilación correctas; datos reales comprobados.
+- [ ] Verificación visual del panel Usuarios con sesión administradora: no existe cuenta asociada a la sesión solicitante; requiere iniciar sesión en la vista previa.
+- [x] Actualizada DOMPurify a 3.4.17; análisis de seguridad confirmó la corrección del hallazgo.
 
 - [x] Suscripción adaptada a Capacitor: pagos internos ocultos, gestión web con Browser nativo y alternativa target blank; Stripe web conservado y pruebas de detección/apertura añadidas.
 - [ ] Verificación de Suscripción en dispositivo físico: requiere recompilar e instalar APK con Browser; vista autenticada pendiente porque no hay cuenta asociada a la sesión solicitante.
