@@ -716,6 +716,36 @@ export type Database = {
         }
         Relationships: []
       }
+      glucose_entries: {
+        Row: {
+          context: string
+          created_at: string
+          id: string
+          measured_at: string
+          note: string | null
+          user_id: string
+          value_mgdl: number
+        }
+        Insert: {
+          context?: string
+          created_at?: string
+          id?: string
+          measured_at?: string
+          note?: string | null
+          user_id: string
+          value_mgdl: number
+        }
+        Update: {
+          context?: string
+          created_at?: string
+          id?: string
+          measured_at?: string
+          note?: string | null
+          user_id?: string
+          value_mgdl?: number
+        }
+        Relationships: []
+      }
       hrv_entries: {
         Row: {
           created_at: string
