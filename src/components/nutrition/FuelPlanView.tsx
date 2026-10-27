@@ -135,6 +135,7 @@ export function FuelingCalculator() {
         <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={indoor} onChange={(e) => setIndoor(e.target.checked)} />{t("indoor")}</label>
       </div>
       <FuelPlanView minutes={Math.round(hours * 60)} intensityFactor={IF} tolerance={tol} indoor={indoor} />
+      <DiabetesNotice />
     </div>
   );
 }
