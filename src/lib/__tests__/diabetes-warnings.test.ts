@@ -11,7 +11,6 @@ test("tipo 2 sin aviso nocturno", () => {
   expect(workoutDiabetesWarnings(120, 0.65, "type2")).not.toContain("night");
 });
 
-import { diabetesCoachContext } from "../diabetes";
 test("contexto coach solo con diabetes y sin dosis", () => {
   expect(diabetesCoachContext({ has_diabetes: false })).toBe("");
   const c = diabetesCoachContext({ has_diabetes: true, diabetes_type: "type1", cgm_device: "dexcom" });
