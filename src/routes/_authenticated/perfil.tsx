@@ -80,7 +80,10 @@ function PerfilPage() {
       strengths: form.strengths || null,
       weaknesses: form.weaknesses || null,
       country: form.country || "ES",
-      dietary_preferences: form.dietary_preferences
+      dietary_preferences: form.dietary_preferences,
+      has_diabetes: !!form.has_diabetes,
+      diabetes_type: form.has_diabetes ? form.diabetes_type || null : null,
+      cgm_device: form.has_diabetes ? form.cgm_device || null : null
     }, { onConflict: "id" });
     if (error) toast.error(error.message);else
     {
@@ -268,6 +271,38 @@ function PerfilPage() {
             <textarea className="input min-h-[80px]" placeholder={tr("Vegano, intolerancia lactosa, sin gluten…")} value={form.dietary_preferences ?? ""} onChange={(e) => setForm({ ...form, dietary_preferences: e.target.value })} />
           </Field>
           <p className="text-[11px] text-muted-foreground">{tr("Se tienen en cuenta siempre en el plan semanal y en el plan de competición (se adapta 5 días antes de cada carrera).")}</p>
+        </Section>
+
+        <Section title={tr("Diabetes")}>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={!!form.has_diabetes} onChange={(e) => setForm({ ...form, has_diabetes: e.target.checked })} />
+            {tr("Tengo diabetes")}
+          </label>
+          {form.has_diabetes &&
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Field label={tr("Tipo de diabetes")}>
+              <select className="input" value={form.diabetes_type ?? ""} onChange={(e) => setForm({ ...form, diabetes_type: e.target.value })}>
+                <option value="">—</option>
+                <option value="type1">{tr("Tipo 1")}</option>
+                <option value="type2">{tr("Tipo 2")}</option>
+                <option value="lada">LADA</option>
+                <option value="mody">MODY</option>
+                <option value="other">{tr("Otro")}</option>
+              </select>
+            </Field>
+            <Field label={tr("Monitor continuo de glucosa (MCG)")}>
+              <select className="input" value={form.cgm_device ?? ""} onChange={(e) => setForm({ ...form, cgm_device: e.target.value })}>
+                <option value="">—</option>
+                <option value="none">{tr("No uso MCG")}</option>
+                <option value="libre">FreeStyle Libre</option>
+                <option value="dexcom">Dexcom</option>
+                <option value="medtronic">Medtronic Guardian</option>
+                <option value="eversense">Eversense</option>
+                <option value="other">{tr("Otro")}</option>
+              </select>
+            </Field>
+          </div>}
+          <p className="text-[11px] text-muted-foreground">{tr("Información orientativa para adaptar recomendaciones. No sustituye el consejo de tu equipo médico.")}</p>
         </Section>
 
 
