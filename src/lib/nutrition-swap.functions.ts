@@ -1,3 +1,4 @@
+import { diabetesPrompt } from "@/lib/diabetes";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
@@ -41,14 +42,14 @@ export const swapWeeklyMeal = createServerFn({ method: "POST" })
     const plan = row?.plan as any;
     const original = plan?.dias?.[data.dayIndex]?.[data.mealKey];
     if (!original) throw new Error("Receta no encontrada");
-    const { data: profile } = await supabase.from("profiles").select("dietary_preferences,weight_kg,language").eq("id", userId).maybeSingle();
+    const { data: profile } = await supabase.from("profiles").select("dietary_preferences,weight_kg,language,has_diabetes,diabetes_type,cgm_device").eq("id", userId).maybeSingle();
     const { data: fb } = await supabase.from("recipe_feedback").select("recipe_name,liked").eq("user_id", userId);
     const disliked = (fb ?? []).filter((f: any) => !f.liked).map((f: any) => f.recipe_name);
     const m = original.macros ?? {};
     const prompt = `Sustituye esta receta de ${data.mealKey} por OTRA DISTINTA (ingredientes principales diferentes) con macros similares (±10%): ${Math.round(m.calorias_kcal ?? 0)} kcal, CHO ${Math.round(m.carbohidratos_g ?? 0)} g, proteína ${Math.round(m.proteinas_g ?? 0)} g, grasas ${Math.round(m.grasas_g ?? 0)} g.
 Receta actual (NO repetir): ${original.nombre}
 Recetas que NO le gustan (evitar): ${[original.nombre, ...disliked].join("; ")}
-Peso ${profile?.weight_kg ?? 70} kg. Preferencias/intolerancias (obligatorio): ${profile?.dietary_preferences || "ninguna"}.
+Peso ${profile?.weight_kg ?? 70} kg. Preferencias/intolerancias (obligatorio): ${profile?.dietary_preferences || "ninguna"}.${diabetesPrompt(profile as any)}
 Ingredientes con cantidades en gramos, preparación en 2-4 frases. Responde en el mismo idioma que la receta actual.`;
     const meal = await callAI([{ role: "user", content: prompt }], MealSchema, { fn: "meal-swap", userId });
     plan.dias[data.dayIndex][data.mealKey] = meal;
