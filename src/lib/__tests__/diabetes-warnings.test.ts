@@ -18,3 +18,23 @@ test("contexto coach solo con diabetes y sin dosis", () => {
   expect(c).toContain("Dexcom");
   expect(c).toContain("NUNCA indiques dosis");
 });
+
+import { glucoseTargets, diabetesPrompt, diabetesCoachContext } from "@/lib/diabetes";
+
+describe("glucoseTargets", () => {
+  it("usa valores seguros por defecto", () => {
+    expect(glucoseTargets(null)).toEqual({ min: 120, max: 180, rescue: 15 });
+    expect(glucoseTargets({ has_diabetes: true })).toEqual({ min: 120, max: 180, rescue: 15 });
+  });
+  it("respeta los valores personalizados del atleta", () => {
+    expect(glucoseTargets({ has_diabetes: true, glucose_target_min: 100, glucose_target_max: 160, glucose_rescue_grams: 20 }))
+      .toEqual({ min: 100, max: 160, rescue: 20 });
+  });
+  it("los prompts de IA incluyen los límites personalizados", () => {
+    const p = { has_diabetes: true, diabetes_type: "type1", cgm_device: "dexcom", glucose_target_min: 110, glucose_target_max: 170, glucose_rescue_grams: 25 };
+    expect(diabetesPrompt(p)).toContain("110–170 mg/dL");
+    expect(diabetesPrompt(p)).toContain("25 g de CHO de rescate");
+    expect(diabetesCoachContext(p)).toContain("110–170 mg/dL");
+    expect(diabetesCoachContext(p)).toContain("rescate 25 g CHO");
+  });
+});
