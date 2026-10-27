@@ -14,3 +14,15 @@ export function diabetesPrompt(p?: DiabetesProfile | null): string {
 export function hasDiabetes(p?: DiabetesProfile | null): boolean {
   return !!p?.has_diabetes;
 }
+
+export type DiabetesWarning = "pre" | "hypo" | "hyper" | "reserve" | "post" | "night";
+
+/** Avisos de sesión según intensidad (IF) y duración (min) para atletas con diabetes. */
+export function workoutDiabetesWarnings(minutes: number, intensityFactor: number, diabetesType?: string | null): DiabetesWarning[] {
+  const w: DiabetesWarning[] = ["pre"];
+  if (intensityFactor >= 0.85) w.push("hyper");
+  if (intensityFactor < 0.85 || minutes >= 60) w.push("hypo");
+  w.push("reserve", "post");
+  if ((minutes >= 90 || intensityFactor >= 0.85) && diabetesType !== "type2") w.push("night");
+  return w;
+}
