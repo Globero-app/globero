@@ -1,5 +1,14 @@
 /* Traducciones por frase original en castellano: [ca, fr, en, de]. */
 export const PHRASES: Record<string, [string, string, string, string]> = {
+  "Diabetes": ["Diabetis","Diabète","Diabetes","Diabetes"],
+  "Tengo diabetes": ["Tinc diabetis","J'ai du diabète","I have diabetes","Ich habe Diabetes"],
+  "Tipo de diabetes": ["Tipus de diabetis","Type de diabète","Diabetes type","Diabetes-Typ"],
+  "Tipo 1": ["Tipus 1","Type 1","Type 1","Typ 1"],
+  "Tipo 2": ["Tipus 2","Type 2","Type 2","Typ 2"],
+  "Otro": ["Altre","Autre","Other","Andere"],
+  "Monitor continuo de glucosa (MCG)": ["Monitor continu de glucosa (MCG)","Capteur de glucose en continu (CGM)","Continuous glucose monitor (CGM)","Kontinuierliche Glukosemessung (CGM)"],
+  "No uso MCG": ["No faig servir MCG","Je n'utilise pas de CGM","I don't use a CGM","Ich nutze kein CGM"],
+  "Información orientativa para adaptar recomendaciones. No sustituye el consejo de tu equipo médico.": ["Informació orientativa per adaptar recomanacions. No substitueix el consell del teu equip mèdic.","Information indicative pour adapter les recommandations. Ne remplace pas l'avis de ton équipe médicale.","Guidance information to tailor recommendations. It does not replace advice from your medical team.","Orientierende Angaben zur Anpassung der Empfehlungen. Ersetzt nicht den Rat deines Ärzteteams."],
   "% FTP": [
     "FTP%",
     "FTP%",
