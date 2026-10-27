@@ -84,7 +84,10 @@ function PerfilPage() {
       dietary_preferences: form.dietary_preferences,
       has_diabetes: !!form.has_diabetes,
       diabetes_type: form.has_diabetes ? form.diabetes_type || null : null,
-      cgm_device: form.has_diabetes ? form.cgm_device || null : null
+      cgm_device: form.has_diabetes ? form.cgm_device || null : null,
+      glucose_target_min: form.has_diabetes ? Number(form.glucose_target_min) || 120 : 120,
+      glucose_target_max: form.has_diabetes ? Number(form.glucose_target_max) || 180 : 180,
+      glucose_rescue_grams: form.has_diabetes ? Number(form.glucose_rescue_grams) || 15 : 15
     }, { onConflict: "id" });
     if (error) toast.error(error.message);else
     {
