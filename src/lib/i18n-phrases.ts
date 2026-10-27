@@ -5382,7 +5382,7 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "C'est de ça que je parle. L'AI utilisera ces domaines en créant une formation.",
     "That's what I'm talking about. The IA will use these areas by generating training.",
     "Das ist es, wovon ich spreche. Die FA wird diese Bereiche nutzen, indem sie Schulungen generiert."
-  ]
+  ],
   "Glucosa mínima para salir (mg/dL)": ["Glucosa mínima per sortir (mg/dL)", "Glycémie minimale avant de partir (mg/dL)", "Minimum glucose before setting off (mg/dL)", "Mindestblutzucker vor dem Start (mg/dL)"],
   "Glucosa máxima objetivo (mg/dL)": ["Glucosa màxima objectiu (mg/dL)", "Glycémie maximale cible (mg/dL)", "Target maximum glucose (mg/dL)", "Ziel-Maximalblutzucker (mg/dL)"],
   "Carbohidratos de rescate (g)": ["Carbohidrats de rescat (g)", "Glucides de secours (g)", "Rescue carbs (g)", "Notfall-Kohlenhydrate (g)"],
