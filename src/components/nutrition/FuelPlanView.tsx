@@ -1,3 +1,4 @@
+import { WorkoutDiabetesNotice } from "@/components/nutrition/WorkoutDiabetesNotice";
 import { DiabetesNotice } from "@/components/nutrition/DiabetesNotice";
 import { useEffect, useState } from "react";
 import { Droplets, Zap, Cookie, Clock } from "lucide-react";
@@ -150,7 +151,7 @@ export function WorkoutFuelCard({ minutes, intensityFactor, indoor }: { minutes:
         <ToleranceSelect value={tol} onChange={setTol} />
       </div>
       <FuelPlanView minutes={minutes} intensityFactor={intensityFactor} tolerance={tol} indoor={indoor} />
-      <DiabetesNotice />
+      <WorkoutDiabetesNotice minutes={minutes} intensityFactor={intensityFactor} />
     </div>
   );
 }
