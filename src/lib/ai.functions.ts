@@ -1,3 +1,4 @@
+import { diabetesPrompt } from "@/lib/diabetes";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
@@ -82,7 +83,7 @@ export const generateMenu = createServerFn({ method: "POST" })
     const prompt = `Eres un nutricionista deportivo especializado en CICLISMO. Genera un menú PRE-CARRERA de ${days} días para un ciclista con este perfil:
 - Edad: ${profile.age ?? "n/a"}, Sexo: ${profile.gender ?? "n/a"}, Peso: ${weight}kg, Altura: ${profile.height_cm ?? "n/a"}cm
 - FTP: ${profile.ftp ?? "n/a"}W
-- Preferencias/intolerancias: ${profile.dietary_preferences || "ninguna"}
+- Preferencias/intolerancias: ${profile.dietary_preferences || "ninguna"}${diabetesPrompt(profile as any)}
 
 Competición objetivo: "${comp.name}" el ${comp.date}
 - Distancia: ${comp.distance_km} km, Desnivel: ${comp.elevation_m} m
@@ -129,7 +130,7 @@ export const swapRecipe = createServerFn({ method: "POST" })
     const original = day[data.mealKey];
 
     const prompt = `Sustituye esta receta de ${data.mealKey} por OTRA DISTINTA con macros similares (±10%).
-Perfil ciclista: peso ${profile?.weight_kg ?? 70}kg, preferencias: ${profile?.dietary_preferences || "ninguna"}
+Perfil ciclista: peso ${profile?.weight_kg ?? 70}kg, preferencias: ${profile?.dietary_preferences || "ninguna"}${diabetesPrompt(profile as any)}
 Receta a sustituir: ${JSON.stringify(original)}
 Macros objetivo: carbohidratos ${original.macros.carbohidratos_g}g, calorías ${original.macros.calorias_kcal}.
 Incluye cantidades en gramos en cada ingrediente. TODO en ESPAÑOL.`;

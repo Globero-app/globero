@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { DiabetesNotice } from "@/components/nutrition/DiabetesNotice";
 import { FlaskConical } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -36,6 +37,7 @@ export function DrinkMixCalculator() {
   ];
   return <section className="space-y-5">
     <h2 className="font-display text-lg font-bold uppercase flex items-center gap-2"><FlaskConical className="size-5 text-primary" />{t(0)}</h2>
+    <DiabetesNotice />
     <div className="grid sm:grid-cols-2 gap-4">
       {fields.map((field) => <label key={field.label} className="text-sm space-y-1.5 block">
         <span>{t(field.label)}</span>

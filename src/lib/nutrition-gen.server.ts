@@ -1,3 +1,4 @@
+import { diabetesPrompt } from "@/lib/diabetes";
 import { callAI } from "./ai-call.server";
 
 export const NUTRITION_GOALS = ["perdida_peso", "mantenimiento", "masa_muscular"] as const;
@@ -176,7 +177,7 @@ export async function generateWeeklyNutritionCore(
   const prompt = `PERFIL:
 - Edad: ${profile.age ?? "n/a"} · Sexo: ${profile.gender ?? "n/a"} · Peso: ${profile.weight_kg ?? "n/a"} kg · Altura: ${profile.height_cm ?? "n/a"} cm
 - FTP: ${profile.ftp ?? "n/a"} W · FC máx: ${profile.max_hr ?? "n/a"} ppm
-- Preferencias / intolerancias (OBLIGATORIO respetarlas): ${profile.dietary_preferences || "ninguna"}
+- Preferencias / intolerancias (OBLIGATORIO respetarlas): ${profile.dietary_preferences || "ninguna"}${diabetesPrompt(profile as any)}
 
 OBJETIVO DEL PLAN: ${GOAL_LABEL[goal]}
 
