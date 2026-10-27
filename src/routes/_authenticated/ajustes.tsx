@@ -19,6 +19,11 @@ import { WeatherStatus } from "@/components/perfil/WeatherStatus";
 import { COUNTRIES } from "@/lib/countries";
 import { CityAutocomplete } from "@/components/perfil/CityAutocomplete";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import garminLogo from "@/assets/conn-garmin.jpg.asset.json";
+import wahooLogo from "@/assets/conn-wahoo.png.asset.json";
+import hammerheadLogo from "@/assets/conn-hammerhead.jpg.asset.json";
+import intervalsLogo from "@/assets/conn-intervals.png.asset.json";
+import stravaLogo from "@/assets/conn-strava.png.asset.json";
 
 export const Route = createFileRoute("/_authenticated/ajustes")({
   head: () => ({
@@ -160,11 +165,11 @@ function AjustesPage() {
 
       {view === "conexiones" && (
         <div className="space-y-4">
-          <ConnCard name="Garmin Connect" letter="G" desc={tr("Envía entrenamientos a tu Garmin y recibe tus actividades.")} connected={!!profileQ.data?.garmin_access_token}><GarminConnection profile={profileQ.data} /></ConnCard>
-          <ConnCard name="Wahoo" letter="W" desc={tr("Sincroniza entrenamientos y actividades con tu Wahoo ELEMNT.")} connected={!!profileQ.data?.wahoo_access_token}><WahooConnection profile={profileQ.data} /></ConnCard>
-          <ConnCard name="Hammerhead" letter="H" desc={tr("Sincroniza entrenamientos y actividades con tu Karoo.")} connected={!!profileQ.data?.hammerhead_access_token}><HammerheadConnection profile={profileQ.data} /></ConnCard>
-          <ConnCard name="Intervals.icu" letter="i" desc={tr("Calendario, actividades, wellness y carga de entrenamiento.")} connected={!!profileQ.data?.intervals_api_key}><IntervalsConnection profile={profileQ.data} /></ConnCard>
-          <ConnCard name="Strava" letter="S" desc={tr("Importa tus actividades y renombra las salidas detectadas.")} connected={!!profileQ.data?.strava_access_token}><StravaConnection profile={profileQ.data} /></ConnCard>
+          <ConnCard name="Garmin Connect" logo={garminLogo.url} desc={tr("Envía entrenamientos a tu Garmin y recibe tus actividades.")} connected={!!profileQ.data?.garmin_access_token}><GarminConnection profile={profileQ.data} /></ConnCard>
+          <ConnCard name="Wahoo" logo={wahooLogo.url} desc={tr("Sincroniza entrenamientos y actividades con tu Wahoo ELEMNT.")} connected={!!profileQ.data?.wahoo_access_token}><WahooConnection profile={profileQ.data} /></ConnCard>
+          <ConnCard name="Hammerhead" logo={hammerheadLogo.url} desc={tr("Sincroniza entrenamientos y actividades con tu Karoo.")} connected={!!profileQ.data?.hammerhead_access_token}><HammerheadConnection profile={profileQ.data} /></ConnCard>
+          <ConnCard name="Intervals.icu" logo={intervalsLogo.url} desc={tr("Calendario, actividades, wellness y carga de entrenamiento.")} connected={!!profileQ.data?.intervals_api_key}><IntervalsConnection profile={profileQ.data} /></ConnCard>
+          <ConnCard name="Strava" logo={stravaLogo.url} desc={tr("Importa tus actividades y renombra las salidas detectadas.")} connected={!!profileQ.data?.strava_access_token}><StravaConnection profile={profileQ.data} /></ConnCard>
         </div>
       )}
 
@@ -245,11 +250,15 @@ function AjustesPage() {
 }
 
 
-function ConnCard({ name, letter, desc, connected, children }: { name: string; letter: string; desc: string; connected: boolean; children: ReactNode }) {
+function ConnCard({ name, logo, desc, connected, children }: { name: string; logo?: string; desc: string; connected: boolean; children: ReactNode }) {
   return (
     <div className="rounded-2xl bg-muted p-4 sm:p-5 space-y-3 min-w-0">
       <div className="flex min-w-0 items-center gap-3">
-        <div className="size-11 shrink-0 rounded-xl bg-primary text-primary-foreground grid place-items-center font-display text-lg font-bold">{letter}</div>
+        <div className="size-11 shrink-0 rounded-xl bg-background border border-border grid place-items-center overflow-hidden">
+          {logo
+            ? <img src={logo} alt={name} className="max-w-full max-h-full object-contain" />
+            : <span className="font-display text-lg font-bold">{name.charAt(0)}</span>}
+        </div>
         <div className="min-w-0 flex-1">
           <p className="font-semibold truncate">{name}</p>
           <p className="text-xs text-muted-foreground">{connected ? tr("Conectado") : tr("No conectado")} · {desc}</p>
