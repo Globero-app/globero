@@ -909,11 +909,13 @@ export type Database = {
         Row: {
           admin_grant_active: boolean
           age: number | null
+          cgm_device: string | null
           country: string | null
           created_at: string
           cyclist_type: Database["public"]["Enums"]["cyclist_type_enum"]
           daily_brief_cache: Json | null
           deactivated_at: string | null
+          diabetes_type: string | null
           dietary_preferences: string | null
           email: string
           ftp: number | null
@@ -929,6 +931,7 @@ export type Database = {
           hammerhead_refresh_token: string | null
           hammerhead_token_expires_at: string | null
           hammerhead_user_id: string | null
+          has_diabetes: boolean
           height_cm: number | null
           id: string
           intervals_api_key: string | null
@@ -994,11 +997,13 @@ export type Database = {
         Insert: {
           admin_grant_active?: boolean
           age?: number | null
+          cgm_device?: string | null
           country?: string | null
           created_at?: string
           cyclist_type?: Database["public"]["Enums"]["cyclist_type_enum"]
           daily_brief_cache?: Json | null
           deactivated_at?: string | null
+          diabetes_type?: string | null
           dietary_preferences?: string | null
           email: string
           ftp?: number | null
@@ -1014,6 +1019,7 @@ export type Database = {
           hammerhead_refresh_token?: string | null
           hammerhead_token_expires_at?: string | null
           hammerhead_user_id?: string | null
+          has_diabetes?: boolean
           height_cm?: number | null
           id: string
           intervals_api_key?: string | null
@@ -1079,11 +1085,13 @@ export type Database = {
         Update: {
           admin_grant_active?: boolean
           age?: number | null
+          cgm_device?: string | null
           country?: string | null
           created_at?: string
           cyclist_type?: Database["public"]["Enums"]["cyclist_type_enum"]
           daily_brief_cache?: Json | null
           deactivated_at?: string | null
+          diabetes_type?: string | null
           dietary_preferences?: string | null
           email?: string
           ftp?: number | null
@@ -1099,6 +1107,7 @@ export type Database = {
           hammerhead_refresh_token?: string | null
           hammerhead_token_expires_at?: string | null
           hammerhead_user_id?: string | null
+          has_diabetes?: boolean
           height_cm?: number | null
           id?: string
           intervals_api_key?: string | null
