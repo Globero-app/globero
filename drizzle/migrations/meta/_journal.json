@@ -99,6 +99,13 @@
       "when": 1793092681119,
       "tag": "0013_profile_diabetes",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793092917497,
+      "tag": "0014_glucose_entries",
+      "breakpoints": true
     }
   ]
 }

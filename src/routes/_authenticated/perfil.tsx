@@ -1,3 +1,4 @@
+import { GlucoseLog } from "@/components/perfil/GlucoseLog";
 import { tr } from "@/lib/i18n";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
@@ -304,6 +305,7 @@ function PerfilPage() {
           </div>}
           <p className="text-[11px] text-muted-foreground">{tr("Información orientativa para adaptar recomendaciones. No sustituye el consejo de tu equipo médico.")}</p>
         </Section>
+        {profileQ.data?.has_diabetes && <GlucoseLog />}
 
 
         <div className="lg:col-span-2 flex justify-end">
