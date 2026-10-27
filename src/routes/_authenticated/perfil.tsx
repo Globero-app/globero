@@ -64,6 +64,19 @@ function PerfilPage() {
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (form.has_diabetes) {
+      const gmin = Number(form.glucose_target_min) || 120;
+      const gmax = Number(form.glucose_target_max) || 180;
+      const gres = Number(form.glucose_rescue_grams) || 15;
+      if (gmin < 60 || gmin > 200 || gmax < 100 || gmax > 300 || gmin >= gmax) {
+        toast.error(tr("Revisa el rango glucémico: el mínimo (60–200) debe ser menor que el máximo (100–300)."));
+        return;
+      }
+      if (gres < 5 || gres > 60) {
+        toast.error(tr("Los carbohidratos de rescate deben estar entre 5 y 60 g."));
+        return;
+      }
+    }
     const { error } = await supabase.from("profiles").upsert({
       id: user!.id,
       email: user!.email ?? "",
@@ -305,7 +318,17 @@ function PerfilPage() {
                 <option value="other">{tr("Otro")}</option>
               </select>
             </Field>
+            <Field label={tr("Glucosa mínima para salir (mg/dL)")}>
+              <input type="number" min={60} max={200} className="input" value={form.glucose_target_min ?? 120} onChange={(e) => setForm({ ...form, glucose_target_min: e.target.value })} />
+            </Field>
+            <Field label={tr("Glucosa máxima objetivo (mg/dL)")}>
+              <input type="number" min={100} max={300} className="input" value={form.glucose_target_max ?? 180} onChange={(e) => setForm({ ...form, glucose_target_max: e.target.value })} />
+            </Field>
+            <Field label={tr("Carbohidratos de rescate (g)")}>
+              <input type="number" min={5} max={60} className="input" value={form.glucose_rescue_grams ?? 15} onChange={(e) => setForm({ ...form, glucose_rescue_grams: e.target.value })} />
+            </Field>
           </div>}
+          {form.has_diabetes && <p className="text-[11px] text-muted-foreground">{tr("Rango glucémico objetivo para antes de salir y en reposo, y gramos de CHO rápidos que debes llevar siempre de reserva. Las calculadoras, avisos e informes usarán tus valores.")}</p>}
           <p className="text-[11px] text-muted-foreground">{tr("Información orientativa para adaptar recomendaciones. No sustituye el consejo de tu equipo médico.")}</p>
         </Section>
         {profileQ.data?.has_diabetes && <GlucoseLog />}
