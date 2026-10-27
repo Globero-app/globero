@@ -1,3 +1,4 @@
+import { diabetesCoachContext } from "@/lib/diabetes";
 /* Informe IA del entrenamiento realizado (planificado vs ejecutado).
    Solo servidor: no importar desde el cliente. */
 
@@ -162,6 +163,8 @@ export async function buildWorkoutReport(
     }
   }
 
+  const dia = diabetesCoachContext(profile as any);
+  if (dia) facts.push(dia);
   const system = `${langInstruction(lang)} Eres el entrenador de ciclismo del usuario. Escribe un informe BREVE comparando lo planificado con lo ejecutado.
 Formato exacto (sin markdown, sin emojis, sin negritas):
 Línea 1: "He completado el análisis del entrenamiento planificado "<título>" del <DD/MM>."

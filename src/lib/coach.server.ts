@@ -1,3 +1,4 @@
+import { diabetesCoachContext } from "@/lib/diabetes";
 /* Coach IA proactivo: resumen diario y alertas de fatiga.
    Solo servidor: no importar desde el cliente. */
 
@@ -89,6 +90,8 @@ export async function buildDailyBrief(supabase: any, userId: string) {
   }
 
   // Caché diaria: se reutiliza el consejo de hoy salvo que cambie el entreno del día.
+  const dia = diabetesCoachContext(profile as any);
+  if (dia) lines.push(dia);
   const inputHash = briefHash(lines.join("\n"));
   const workoutSig = briefHash(
     todayWorkout

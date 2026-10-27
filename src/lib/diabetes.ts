@@ -26,3 +26,11 @@ export function workoutDiabetesWarnings(minutes: number, intensityFactor: number
   if ((minutes >= 90 || intensityFactor >= 0.85) && diabetesType !== "type2") w.push("night");
   return w;
 }
+
+/** Contexto médico seguro para informes post-sesión y Coach IA. */
+export function diabetesCoachContext(p?: DiabetesProfile | null): string {
+  if (!p?.has_diabetes) return "";
+  const t = TYPE[p.diabetes_type ?? ""] ?? "tipo no indicado";
+  const cgm = !!p.cgm_device && p.cgm_device !== "none";
+  return `ATLETA CON DIABETES (${t}; ${cgm ? `usa MCG ${CGM[p.cgm_device!] ?? ""}` : "sin MCG, mide con glucómetro"}). En tus consejos incluye UNA recomendación breve y segura de control glucémico relacionada con la sesión (medir antes/después${cgm ? ", revisar la tendencia del MCG" : ""}, CHO rápidos de reserva, riesgo de hipoglucemia tardía/nocturna tras sesiones largas o intensas, posible hiperglucemia transitoria en series intensas). NUNCA indiques dosis ni ajustes de insulina o medicación; remite a su equipo médico para ello.`;
+}
