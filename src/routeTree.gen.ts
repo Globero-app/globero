@@ -55,6 +55,7 @@ import { Route as ApiPublicHooksFtpReprocessRouteImport } from './routes/api/pub
 import { Route as ApiPublicHooksIntervalsDetectRouteImport } from './routes/api/public/hooks/intervals-detect'
 import { Route as ApiPublicHooksIntervalsSyncRouteImport } from './routes/api/public/hooks/intervals-sync'
 import { Route as ApiPublicHooksReadinessPushRouteImport } from './routes/api/public/hooks/readiness-push'
+import { Route as ApiPublicHooksTrialAccountNoticeRouteImport } from './routes/api/public/hooks/trial-account-notice'
 import { Route as ApiPublicHooksWeeklyWorkoutsRouteImport } from './routes/api/public/hooks/weekly-workouts'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe/webhook'
 import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
@@ -306,6 +307,12 @@ const ApiPublicHooksReadinessPushRoute =
     path: '/api/public/hooks/readiness-push',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksTrialAccountNoticeRoute =
+  ApiPublicHooksTrialAccountNoticeRouteImport.update({
+    id: '/api/public/hooks/trial-account-notice',
+    path: '/api/public/hooks/trial-account-notice',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksWeeklyWorkoutsRoute =
   ApiPublicHooksWeeklyWorkoutsRouteImport.update({
     id: '/api/public/hooks/weekly-workouts',
@@ -391,6 +398,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
   '/api/public/hooks/intervals-sync': typeof ApiPublicHooksIntervalsSyncRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
+  '/api/public/hooks/trial-account-notice': typeof ApiPublicHooksTrialAccountNoticeRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
@@ -445,6 +453,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
   '/api/public/hooks/intervals-sync': typeof ApiPublicHooksIntervalsSyncRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
+  '/api/public/hooks/trial-account-notice': typeof ApiPublicHooksTrialAccountNoticeRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
@@ -501,6 +510,7 @@ export interface FileRoutesById {
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
   '/api/public/hooks/intervals-sync': typeof ApiPublicHooksIntervalsSyncRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
+  '/api/public/hooks/trial-account-notice': typeof ApiPublicHooksTrialAccountNoticeRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
@@ -557,6 +567,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/intervals-detect'
     | '/api/public/hooks/intervals-sync'
     | '/api/public/hooks/readiness-push'
+    | '/api/public/hooks/trial-account-notice'
     | '/api/public/hooks/weekly-workouts'
     | '/api/public/stripe/webhook'
     | '/api/public/telegram/webhook'
@@ -611,6 +622,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/intervals-detect'
     | '/api/public/hooks/intervals-sync'
     | '/api/public/hooks/readiness-push'
+    | '/api/public/hooks/trial-account-notice'
     | '/api/public/hooks/weekly-workouts'
     | '/api/public/stripe/webhook'
     | '/api/public/telegram/webhook'
@@ -666,6 +678,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/intervals-detect'
     | '/api/public/hooks/intervals-sync'
     | '/api/public/hooks/readiness-push'
+    | '/api/public/hooks/trial-account-notice'
     | '/api/public/hooks/weekly-workouts'
     | '/api/public/stripe/webhook'
     | '/api/public/telegram/webhook'
@@ -703,6 +716,7 @@ export interface RootRouteChildren {
   ApiPublicHooksIntervalsDetectRoute: typeof ApiPublicHooksIntervalsDetectRoute
   ApiPublicHooksIntervalsSyncRoute: typeof ApiPublicHooksIntervalsSyncRoute
   ApiPublicHooksReadinessPushRoute: typeof ApiPublicHooksReadinessPushRoute
+  ApiPublicHooksTrialAccountNoticeRoute: typeof ApiPublicHooksTrialAccountNoticeRoute
   ApiPublicHooksWeeklyWorkoutsRoute: typeof ApiPublicHooksWeeklyWorkoutsRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
   ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
@@ -1036,6 +1050,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksReadinessPushRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/trial-account-notice': {
+      id: '/api/public/hooks/trial-account-notice'
+      path: '/api/public/hooks/trial-account-notice'
+      fullPath: '/api/public/hooks/trial-account-notice'
+      preLoaderRoute: typeof ApiPublicHooksTrialAccountNoticeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/weekly-workouts': {
       id: '/api/public/hooks/weekly-workouts'
       path: '/api/public/hooks/weekly-workouts'
@@ -1163,6 +1184,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksIntervalsDetectRoute: ApiPublicHooksIntervalsDetectRoute,
   ApiPublicHooksIntervalsSyncRoute: ApiPublicHooksIntervalsSyncRoute,
   ApiPublicHooksReadinessPushRoute: ApiPublicHooksReadinessPushRoute,
+  ApiPublicHooksTrialAccountNoticeRoute: ApiPublicHooksTrialAccountNoticeRoute,
   ApiPublicHooksWeeklyWorkoutsRoute: ApiPublicHooksWeeklyWorkoutsRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
   ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
