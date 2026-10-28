@@ -31,20 +31,26 @@ describe("mobile container detection", () => {
 });
 
 describe("external subscription navigation", () => {
-  it("uses the native browser without an internal checkout navigation", async () => {
+  it.each(["android", "ios"])("blocks external payment navigation on %s", async (platform) => {
     native.available = true;
     native.open.mockClear();
     const open = vi.fn();
-    vi.stubGlobal("window", { Capacitor: { getPlatform: () => "android" }, open });
+    vi.stubGlobal("window", { Capacitor: { getPlatform: () => platform }, open });
     await openExternalSubscription();
-    expect(native.open).toHaveBeenCalledWith({ url: "https://coach.globero.app/perfil?tab=subscription", windowName: "_system" });
+    expect(native.open).not.toHaveBeenCalled();
     expect(open).not.toHaveBeenCalled();
   });
-  it("falls back to a protected new window on older APKs without Browser", async () => {
+  it("does not fall back to payment links on older APKs without Browser", async () => {
     native.available = false;
     const open = vi.fn();
     vi.stubGlobal("window", { Capacitor: { getPlatform: () => "android" }, open });
     await openExternalSubscription();
-    expect(open).toHaveBeenCalledWith(EXTERNAL_SUBSCRIPTION_URL, "_system");
+    expect(open).not.toHaveBeenCalled();
+  });
+  it("preserves external subscription navigation in normal browsers", async () => {
+    const open = vi.fn();
+    vi.stubGlobal("window", { open });
+    await openExternalSubscription();
+    expect(open).toHaveBeenCalledWith(EXTERNAL_SUBSCRIPTION_URL, "_blank", "noopener,noreferrer");
   });
 });

@@ -10,20 +10,6 @@ export function isMobileContainer(): boolean {
 export const EXTERNAL_SUBSCRIPTION_URL = "https://coach.globero.app/perfil?tab=subscription";
 
 export async function openExternalSubscription(): Promise<void> {
-  if (typeof window === "undefined") return;
-  if (isMobileContainer()) {
-    try {
-      const { Capacitor } = await import("@capacitor/core");
-      if (Capacitor.isPluginAvailable("Browser")) {
-        const { Browser } = await import("@capacitor/browser");
-        await Browser.open({ url: EXTERNAL_SUBSCRIPTION_URL, windowName: "_system" });
-        return;
-      }
-    } catch {
-      // fall through to system window
-    }
-    window.open(EXTERNAL_SUBSCRIPTION_URL, "_system");
-    return;
-  }
+  if (typeof window === "undefined" || isMobileContainer()) return;
   window.open(EXTERNAL_SUBSCRIPTION_URL, "_blank", "noopener,noreferrer");
 }
