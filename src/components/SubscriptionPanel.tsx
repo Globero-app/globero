@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { CreditCard, ExternalLink, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { EXTERNAL_SUBSCRIPTION_URL, isMobileContainer, openExternalSubscription } from "@/lib/mobile-container";
+import { isMobileContainer } from "@/lib/mobile-container";
 import { canGenerate, subscriptionLabel } from "@/lib/subscription-access";
 import { getMySubscription, createSubscriptionCheckout, createSubscriptionPortal, refreshMySubscription } from "@/lib/subscription.functions";
 
@@ -42,16 +42,7 @@ export function SubscriptionPanel() {
   }, [refresh, qc]);
   return <div className="max-w-2xl space-y-6">
     {nativeContainer === true && <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">Para adquirir o gestionar tu suscripción Premium, por favor hazlo de forma segura a través de nuestra plataforma web corporativa.</p>
-      <Button asChild className="h-auto min-h-10 whitespace-normal text-center">
-        <a href={EXTERNAL_SUBSCRIPTION_URL} target="_blank" rel="noopener noreferrer" onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          void openExternalSubscription().catch(() => {
-            window.open(EXTERNAL_SUBSCRIPTION_URL, "_system");
-          });
-        }}><ExternalLink className="shrink-0" />Gestionar suscripción en la web</a>
-      </Button>
+      <p className="text-sm text-muted-foreground">Aquí puedes consultar el estado de tu cuenta y la disponibilidad de las funciones. Esta app no permite realizar compras ni gestionar pagos.</p>
     </div>}
     {q.isPending ? <p>Cargando…</p> : q.isError ? <p role="alert">No se pudo consultar la suscripción.</p> : q.data && <>
       <div className="space-y-2 border-b pb-5">
@@ -59,7 +50,7 @@ export function SubscriptionPanel() {
         {!q.data.admin_grant_active && q.data.subscription_status !== "active" && <p className="text-sm text-muted-foreground">
           Prueba gratuita hasta el {new Date(q.data.trial_ends_at).toLocaleDateString("es-ES")}.
         </p>}
-        <p className="text-sm text-muted-foreground">{canGenerate(q.data) ? "Creación de entrenamientos y menús activada." : "Puedes seguir accediendo a tus datos. Activa una suscripción para crear nuevos entrenamientos y menús."}</p>
+        <p className="text-sm text-muted-foreground">{canGenerate(q.data) ? "Creación de entrenamientos y menús activada." : nativeContainer === false ? "Puedes seguir accediendo a tus datos. Activa una suscripción para crear nuevos entrenamientos y menús." : "Puedes seguir consultando tus datos. La creación de nuevos entrenamientos y menús no está disponible para tu cuenta."}</p>
       </div>
       <div className="flex flex-wrap gap-3">
         {nativeContainer === false && !q.data.admin_grant_active && q.data.subscription_status !== "active" && <Button disabled={busy} onClick={() => paymentAction(() => checkout())}><CreditCard />Activar suscripción</Button>}
