@@ -55,12 +55,14 @@ import { Route as ApiPublicHooksFtpReprocessRouteImport } from './routes/api/pub
 import { Route as ApiPublicHooksIntervalsDetectRouteImport } from './routes/api/public/hooks/intervals-detect'
 import { Route as ApiPublicHooksIntervalsSyncRouteImport } from './routes/api/public/hooks/intervals-sync'
 import { Route as ApiPublicHooksReadinessPushRouteImport } from './routes/api/public/hooks/readiness-push'
+import { Route as ApiPublicHooksTrialAccountNoticeRouteImport } from './routes/api/public/hooks/trial-account-notice'
 import { Route as ApiPublicHooksWeeklyWorkoutsRouteImport } from './routes/api/public/hooks/weekly-workouts'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe/webhook'
 import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
 import { Route as ApiPublicWahooWebhookRouteImport } from './routes/api/public/wahoo/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -305,6 +307,12 @@ const ApiPublicHooksReadinessPushRoute =
     path: '/api/public/hooks/readiness-push',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksTrialAccountNoticeRoute =
+  ApiPublicHooksTrialAccountNoticeRouteImport.update({
+    id: '/api/public/hooks/trial-account-notice',
+    path: '/api/public/hooks/trial-account-notice',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksWeeklyWorkoutsRoute =
   ApiPublicHooksWeeklyWorkoutsRouteImport.update({
     id: '/api/public/hooks/weekly-workouts',
@@ -337,6 +345,12 @@ const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
   path: '/lovable/email/auth/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -384,12 +398,14 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
   '/api/public/hooks/intervals-sync': typeof ApiPublicHooksIntervalsSyncRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
+  '/api/public/hooks/trial-account-notice': typeof ApiPublicHooksTrialAccountNoticeRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/wahoo/webhook': typeof ApiPublicWahooWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -437,12 +453,14 @@ export interface FileRoutesByTo {
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
   '/api/public/hooks/intervals-sync': typeof ApiPublicHooksIntervalsSyncRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
+  '/api/public/hooks/trial-account-notice': typeof ApiPublicHooksTrialAccountNoticeRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/wahoo/webhook': typeof ApiPublicWahooWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -492,12 +510,14 @@ export interface FileRoutesById {
   '/api/public/hooks/intervals-detect': typeof ApiPublicHooksIntervalsDetectRoute
   '/api/public/hooks/intervals-sync': typeof ApiPublicHooksIntervalsSyncRoute
   '/api/public/hooks/readiness-push': typeof ApiPublicHooksReadinessPushRoute
+  '/api/public/hooks/trial-account-notice': typeof ApiPublicHooksTrialAccountNoticeRoute
   '/api/public/hooks/weekly-workouts': typeof ApiPublicHooksWeeklyWorkoutsRoute
   '/api/public/stripe/webhook': typeof ApiPublicStripeWebhookRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/wahoo/webhook': typeof ApiPublicWahooWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -547,12 +567,14 @@ export interface FileRouteTypes {
     | '/api/public/hooks/intervals-detect'
     | '/api/public/hooks/intervals-sync'
     | '/api/public/hooks/readiness-push'
+    | '/api/public/hooks/trial-account-notice'
     | '/api/public/hooks/weekly-workouts'
     | '/api/public/stripe/webhook'
     | '/api/public/telegram/webhook'
     | '/api/public/wahoo/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
+    | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -600,12 +622,14 @@ export interface FileRouteTypes {
     | '/api/public/hooks/intervals-detect'
     | '/api/public/hooks/intervals-sync'
     | '/api/public/hooks/readiness-push'
+    | '/api/public/hooks/trial-account-notice'
     | '/api/public/hooks/weekly-workouts'
     | '/api/public/stripe/webhook'
     | '/api/public/telegram/webhook'
     | '/api/public/wahoo/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
+    | '/lovable/email/transactional/preview'
   id:
     | '__root__'
     | '/'
@@ -654,12 +678,14 @@ export interface FileRouteTypes {
     | '/api/public/hooks/intervals-detect'
     | '/api/public/hooks/intervals-sync'
     | '/api/public/hooks/readiness-push'
+    | '/api/public/hooks/trial-account-notice'
     | '/api/public/hooks/weekly-workouts'
     | '/api/public/stripe/webhook'
     | '/api/public/telegram/webhook'
     | '/api/public/wahoo/webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
+    | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -690,12 +716,14 @@ export interface RootRouteChildren {
   ApiPublicHooksIntervalsDetectRoute: typeof ApiPublicHooksIntervalsDetectRoute
   ApiPublicHooksIntervalsSyncRoute: typeof ApiPublicHooksIntervalsSyncRoute
   ApiPublicHooksReadinessPushRoute: typeof ApiPublicHooksReadinessPushRoute
+  ApiPublicHooksTrialAccountNoticeRoute: typeof ApiPublicHooksTrialAccountNoticeRoute
   ApiPublicHooksWeeklyWorkoutsRoute: typeof ApiPublicHooksWeeklyWorkoutsRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
   ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
   ApiPublicWahooWebhookRoute: typeof ApiPublicWahooWebhookRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1022,6 +1050,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksReadinessPushRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/trial-account-notice': {
+      id: '/api/public/hooks/trial-account-notice'
+      path: '/api/public/hooks/trial-account-notice'
+      fullPath: '/api/public/hooks/trial-account-notice'
+      preLoaderRoute: typeof ApiPublicHooksTrialAccountNoticeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/weekly-workouts': {
       id: '/api/public/hooks/weekly-workouts'
       path: '/api/public/hooks/weekly-workouts'
@@ -1062,6 +1097,13 @@ declare module '@tanstack/react-router' {
       path: '/lovable/email/auth/webhook'
       fullPath: '/lovable/email/auth/webhook'
       preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -1142,12 +1184,14 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksIntervalsDetectRoute: ApiPublicHooksIntervalsDetectRoute,
   ApiPublicHooksIntervalsSyncRoute: ApiPublicHooksIntervalsSyncRoute,
   ApiPublicHooksReadinessPushRoute: ApiPublicHooksReadinessPushRoute,
+  ApiPublicHooksTrialAccountNoticeRoute: ApiPublicHooksTrialAccountNoticeRoute,
   ApiPublicHooksWeeklyWorkoutsRoute: ApiPublicHooksWeeklyWorkoutsRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
   ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
   ApiPublicWahooWebhookRoute: ApiPublicWahooWebhookRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
