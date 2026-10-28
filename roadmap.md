@@ -1,6 +1,7 @@
 # Roadmap
 
-- [ ] Correo de bienvenida al registrarse y avisos individuales de prueba en el día 25 y al vencer los 30 días, con enlace web de suscripción; comprobar envío y programación.
+- [x] Bienvenida incorporada al correo de confirmación del registro, con web corporativa y prueba de 30 días. Plantillas de día 25/vencimiento y callback individual protegido preparados; 14 pruebas y compilación correctas.
+- [ ] Activar programación individual de avisos de prueba: falta un servicio compatible de ejecución diferida; el servicio de correo actual no ofrece programación documentada y no se han creado colas ni envíos masivos. Publicación y entrega real pendientes; no hay cuentas que cumplan hoy los hitos de aviso.
 
 - [x] Backend → Usuarios muestra todas las conexiones desde un registro común, incluye Garmin por vinculación activa y actualiza estados cada 30 segundos sin devolver credenciales. Ocho pruebas y compilación correctas; datos reales comprobados.
 - [ ] Verificación visual del panel Usuarios con sesión administradora: no existe cuenta asociada a la sesión solicitante; requiere iniciar sesión en la vista previa.
