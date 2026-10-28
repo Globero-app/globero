@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react'
+import { day25Template, expiredTemplate } from './trial-status'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -18,6 +19,6 @@ export interface TemplateEntry {
  *   // then add to TEMPLATES: 'welcome': welcomeTemplate
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
-  // Add templates here as they are created, e.g.:
-  // 'welcome': welcomeTemplate,
+  'trial-day-25': day25Template,
+  'trial-expired': expiredTemplate,
 }

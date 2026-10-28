@@ -119,6 +119,7 @@ export default defineConfig({
       alias: {
         "entities/lib/decode.js": `${entitiesRoot}/lib/decode.js`,
         "entities/lib/encode.js": `${entitiesRoot}/lib/encode.js`,
+        "entities": entitiesRoot,
       },
     },
 

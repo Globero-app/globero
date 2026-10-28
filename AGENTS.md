@@ -1,5 +1,7 @@
 # Architecture rules
 
+- Send individual trial account notices through the managed template helper from a secret-authenticated per-account callback, deriving eligibility and recipient from authoritative account data with event-specific idempotency; never expose recipients or send bulk mail. Welcome copy belongs in the existing verified signup email to preserve authentication delivery.
+
 - Register integrations once in the shared user-connections registry so admin field selection and rendered statuses stay aligned; return only boolean connection statuses after server-side administrator verification, including active Garmin device pairing separately from OAuth.
 
 - Normalize Hammerhead activity duration from milliseconds and prefer riding start over upload timestamps before load calculation and deduplication; defensively normalize activity durations above 86400 through a shared helper in TSS estimators to prevent inflated PMC; share source-filter and signature-header rules between tested helpers and incoming handlers.
