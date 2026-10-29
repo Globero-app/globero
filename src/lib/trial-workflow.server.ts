@@ -4,7 +4,7 @@ import { trialNoticeDate, trialWorkflowData } from "./trial-workflow";
 import { sendTrialAccountNotice } from "./trial-notice.server";
 
 export function createTrialWorkflowHandler() {
-  const client = new Inngest({ id: "globero-account-notices", isDev: false });
+  const client = new Inngest({ id: "globero-account-notices", isDev: false, signingKey: process.env["INNGEST_SIGNING_KEY"] });
   const notice = client.createFunction({
     id: "individual-trial-account-notice",
     triggers: [{ event: "globero/account.trial-notice" }],
@@ -15,7 +15,7 @@ export function createTrialWorkflowHandler() {
     await step.sleepUntil("wait-for-trial-milestone", trialNoticeDate(data.trialEnd, data.kind));
     return step.run("send-account-notice", () => sendTrialAccountNotice(data.userId, { kind: data.kind, trialEnd: data.trialEnd }));
   });
-  return serve({ client, functions: [notice], signingKey: process.env["INNGEST_SIGNING_KEY"] });
+  return serve({ client, functions: [notice] });
 }
 
 export async function scheduleTrialNotices(userId: string) {
