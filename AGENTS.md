@@ -1,6 +1,6 @@
 # Architecture rules
 
-- Send individual trial account notices through the managed template helper from a secret-authenticated per-account callback, deriving eligibility and recipient from authoritative account data with event-specific idempotency; never expose recipients or send bulk mail. Welcome copy belongs in the existing verified signup email to preserve authentication delivery.
+- Schedule individual trial notices with Inngest durable sleeps from per-profile lifecycle webhooks; verify signed workflow calls and re-read account eligibility, trial version and recipient before each managed email send. Share the send helper with the secret-authenticated per-account callback and use event-specific idempotency; never expose recipients, poll or send bulk mail. Welcome copy belongs in the existing verified signup email.
 
 - Register integrations once in the shared user-connections registry so admin field selection and rendered statuses stay aligned; return only boolean connection statuses after server-side administrator verification, including active Garmin device pairing separately from OAuth.
 
