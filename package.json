@@ -66,6 +66,7 @@
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.40.0",
     "html2canvas": "^1.4.1",
+    "inngest": "^4.26.1",
     "input-otp": "^1.4.2",
     "jspdf": "^4.2.1",
     "leaflet": "^1.9.4",

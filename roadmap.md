@@ -1,7 +1,8 @@
 # Roadmap
 
 - [x] Bienvenida incorporada al correo de confirmación del registro, con web corporativa y prueba de 30 días. Plantillas de día 25/vencimiento y callback individual protegido preparados; 14 pruebas y compilación correctas.
-- [ ] Conectar los avisos al ciclo de suscripción y activar programación individual del día 25/vencimiento: falta conectar un servicio compatible de ejecución diferida; el servicio de correo actual no ofrece programación documentada y no se han creado colas ni envíos masivos. Publicación y entrega real pendientes.
+- [x] Conectado Inngest y el ciclo de altas/cambios de suscripción: disparador activo, avisos individuales con espera hasta día 25/vencimiento, comprobación de suscripción antes de enviar, destinatario verificado e idempotencia. 16 pruebas y compilación correctas; solicitudes no firmadas rechazadas.
+- [ ] Activación en producción: publicar y sincronizar la app en Inngest mediante https://coach.globero.app/api/public/hooks/trial-workflow; después programar los hitos pendientes de cuentas existentes y verificar una ejecución real. La versión publicada aún no contiene estos endpoints.
 
 - [x] Backend → Usuarios muestra todas las conexiones desde un registro común, incluye Garmin por vinculación activa y actualiza estados cada 30 segundos sin devolver credenciales. Ocho pruebas y compilación correctas; datos reales comprobados.
 - [ ] Verificación visual del panel Usuarios con sesión administradora: no existe cuenta asociada a la sesión solicitante; requiere iniciar sesión en la vista previa.
