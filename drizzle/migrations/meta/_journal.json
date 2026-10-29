@@ -113,6 +113,13 @@
       "when": 1793094894139,
       "tag": "0015_profile_glucose_targets",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1793254390730,
+      "tag": "0016_trial_notice_lifecycle",
+      "breakpoints": true
     }
   ]
 }
