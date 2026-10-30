@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      HAS_KEYSTORE: ${{ secrets.GLOBERO_KEYSTORE_BASE64 != '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -20,9 +22,10 @@ jobs:
       - run: bun install
       - run: bunx cap sync android
       - name: Decode upload keystore (optional)
-        if: ${{ secrets.GLOBERO_KEYSTORE_BASE64 != '' }}
+        if: env.HAS_KEYSTORE == 'true'
         run: echo "${{ secrets.GLOBERO_KEYSTORE_BASE64 }}" | base64 -d > android/keystore.jks
-      - name: Build debug + release APK and AAB
+      - name: Build signed release APK + AAB
+        if: env.HAS_KEYSTORE == 'true'
         working-directory: android
         run: |
           chmod +x gradlew
@@ -31,6 +34,12 @@ jobs:
             -PGLOBERO_KEYSTORE_PASSWORD="${{ secrets.GLOBERO_KEYSTORE_PASSWORD }}" \
             -PGLOBERO_KEY_ALIAS="${{ secrets.GLOBERO_KEY_ALIAS }}" \
             -PGLOBERO_KEY_PASSWORD="${{ secrets.GLOBERO_KEY_PASSWORD }}"
+      - name: Build unsigned release APK + AAB
+        if: env.HAS_KEYSTORE != 'true'
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug assembleRelease bundleRelease --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: globero-apk
