@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Mostrar entrenamientos omitidos con etiqueta traducida y estilo neutro en todas las vistas; impedir acciones rápidas y completar.
+
 - [x] Bienvenida incorporada al correo de confirmación del registro, con web corporativa y prueba de 30 días. Plantillas de día 25/vencimiento y callback individual protegido preparados; 14 pruebas y compilación correctas.
 - [x] Conectado Inngest y el ciclo de altas/cambios de suscripción: disparador activo, avisos individuales con espera hasta día 25/vencimiento, comprobación de suscripción antes de enviar, destinatario verificado e idempotencia. 16 pruebas y compilación correctas; solicitudes no firmadas rechazadas.
 - [ ] Activación en producción: publicar y sincronizar la app en Inngest mediante https://coach.globero.app/api/public/hooks/trial-workflow; después programar los hitos pendientes de cuentas existentes y verificar una ejecución real. La versión publicada aún no contiene estos endpoints.
