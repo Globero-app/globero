@@ -41,14 +41,20 @@ export function SubscriptionPanel() {
     }
   }, [refresh, qc]);
   return <div className="max-w-2xl space-y-6">
-    {nativeContainer === true && <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">Aquí puedes consultar el estado de tu cuenta y la disponibilidad de las funciones. Esta app no permite realizar compras ni gestionar pagos.</p>
-    </div>}
+    {nativeContainer === true && <p className="text-sm text-muted-foreground">Aquí puedes consultar el estado de tu cuenta y la disponibilidad de las funciones. Esta app no permite realizar compras ni gestionar pagos.</p>}
     {q.isPending ? <p>Cargando…</p> : q.isError ? <p role="alert">No se pudo consultar la suscripción.</p> : q.data && <>
-      <div className="space-y-2 border-b pb-5">
-        <p className="text-lg font-semibold">{subscriptionLabel(q.data)}</p>
-        {!q.data.admin_grant_active && q.data.subscription_status !== "active" && <p className="text-sm text-muted-foreground">
-          Prueba gratuita hasta el {new Date(q.data.trial_ends_at).toLocaleDateString("es-ES")}.
+      <div className="space-y-3 rounded-xl border bg-card p-4 sm:p-5">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <p className="min-w-0 truncate text-base font-semibold sm:text-lg">{subscriptionLabel(q.data)}</p>
+          <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${canGenerate(q.data) ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" : "bg-amber-500/15 text-amber-600 dark:text-amber-400"}`}>
+            {canGenerate(q.data) ? "Activa" : "Sin generación"}
+          </span>
+        </div>
+        {!q.data.admin_grant_active && q.data.subscription_status !== "active" && q.data.trial_ends_at && <p className="text-sm text-muted-foreground">
+          Prueba gratuita hasta el {new Date(q.data.trial_ends_at).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })}.
+        </p>}
+        {q.data.subscription_status === "active" && q.data.current_period_end && <p className="text-sm text-muted-foreground">
+          Vigente hasta el {new Date(q.data.current_period_end).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })}.
         </p>}
         <p className="text-sm text-muted-foreground">{canGenerate(q.data) ? "Creación de entrenamientos y menús activada." : nativeContainer === false ? "Puedes seguir accediendo a tus datos. Activa una suscripción para crear nuevos entrenamientos y menús." : "Puedes seguir consultando tus datos. La creación de nuevos entrenamientos y menús no está disponible para tu cuenta."}</p>
       </div>
