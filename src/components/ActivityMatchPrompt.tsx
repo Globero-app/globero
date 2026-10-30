@@ -9,6 +9,9 @@ import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/use-auth";
 import { activitySource } from "@/lib/activity-source";
+import { supabase } from "@/integrations/supabase/client";
+import { canActOnWorkout } from "@/lib/workout-status";
+import { WorkoutStatusBadge } from "@/components/entrenamientos/WorkoutStatusBadge";
 
 /** Pregunta si una actividad de Intervals.icu corresponde al entreno/competición del día */
 export function ActivityMatchPrompt({ enabled = true }: {enabled?: boolean;}) {
@@ -26,16 +29,33 @@ export function ActivityMatchPrompt({ enabled = true }: {enabled?: boolean;}) {
     retry: false
   });
 
+  const workoutIds = (q.data ?? []).filter((match) => match.target_kind === "workout").map((match) => match.target_id);
+  const statuses = useQuery({
+    queryKey: ["workouts", "match-statuses", user?.id, workoutIds],
+    queryFn: async () => {
+      if (!user || !workoutIds.length) return [];
+      const { data, error } = await supabase.from("workouts").select("id,status").eq("user_id", user.id).in("id", workoutIds);
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: enabled && !!user && workoutIds.length > 0,
+  });
+
+  const targetStatus = (match: ActivityMatch) => statuses.data?.find((workout) => workout.id === match.target_id)?.status;
+  const canAccept = (match: ActivityMatch) => match.target_kind !== "workout" || (statuses.isSuccess && targetStatus(match) != null && canActOnWorkout(targetStatus(match)));
+
   const m = useMutation({
-    mutationFn: (v: {match: ActivityMatch;accept: boolean;}) =>
-    link({
+    mutationFn: (v: {match: ActivityMatch;accept: boolean;}) => {
+      if (v.accept && !canAccept(v.match)) throw new Error(tr("Omitido"));
+      return link({
       data: {
         activity_id: v.match.activity_id,
         target_kind: v.match.target_kind,
         target_id: v.match.target_id,
         accept: v.accept
       }
-    }),
+      });
+    },
     onSuccess: (_r, v) => {
       setDismissed((d) => [...d, v.match.activity_id]);
       if (v.accept) {
@@ -86,6 +106,7 @@ export function ActivityMatchPrompt({ enabled = true }: {enabled?: boolean;}) {
               <TargetIcon className="size-3.5" /> {match.target_title}
             </p>
             <p className="text-xs text-muted-foreground">{match.target_subtitle}</p>
+            <WorkoutStatusBadge status={match.target_kind === "workout" ? targetStatus(match) : undefined} />
           </div>
         </div>
 
@@ -97,13 +118,13 @@ export function ActivityMatchPrompt({ enabled = true }: {enabled?: boolean;}) {
 
 
           </button>
-          <button
+          {canAccept(match) && <button
             disabled={m.isPending}
             onClick={() => m.mutate({ match, accept: true })}
             className="px-3 py-1.5 text-xs rounded-md bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"> {tr("Sí, asignar")} 
 
 
-          </button>
+          </button>}
         </div>
       </DialogContent>
     </Dialog>);
