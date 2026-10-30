@@ -15,6 +15,8 @@ import { WorkoutIntervalsChart } from "./WorkoutIntervalsChart";
 import { WorkoutFuelCard } from "@/components/nutrition/FuelPlanView";
 import { estimateIF } from "@/lib/fueling";
 import { WorkoutStoryShare } from './WorkoutStoryShare';
+import { WorkoutStatusBadge } from './WorkoutStatusBadge';
+import { canActOnWorkout } from '@/lib/workout-status';
 
 export type ZoneRefs = {ftp: number | null;lthr: number | null;maxHr: number | null;};
 
@@ -50,6 +52,8 @@ export function WorkoutCard({
 
   const plan = w.plan ?? {};
   const completed = w.status === "completed";
+  const skipped = w.status === "skipped";
+  const actionable = canActOnWorkout(w.status);
 
   const handleDownload = () => {
     const fit: FitWorkout = {
@@ -95,12 +99,13 @@ export function WorkoutCard({
 
   return (
     <>
-      <div className={`bg-surface border rounded-xl overflow-hidden ${completed ? "opacity-75" : ""}`}>
+      <div className={`bg-surface border rounded-xl overflow-hidden ${completed || skipped ? "opacity-75" : ""}`}>
         <div className="p-4 flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-semibold truncate">{plan.title ?? plan.name ?? "Entrenamiento"}</h3>
               {completed && <span className="text-[10px] font-mono uppercase bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">{tr("Completado")}</span>}
+              <WorkoutStatusBadge status={w.status} />
               <span className="text-[10px] font-mono uppercase bg-secondary px-2 py-0.5 rounded">{w.training_type}</span>
               <span className="text-[10px] font-mono uppercase bg-secondary px-2 py-0.5 rounded">{w.bike_type}</span>
             </div>
@@ -134,10 +139,10 @@ export function WorkoutCard({
               <Eye className="size-4" />
             </button>
 
-            {!completed && isIndoor &&
+            {actionable && isIndoor &&
             <button
               onClick={async () => {
-                if (converting) return;
+                if (!actionable || converting) return;
                 if (!confirm(tr("¿Volver a la versión de EXTERIOR?\n\nSe restaurará el entrenamiento original, se recalculará el TSS previsto y se actualizará el evento en Intervals.icu."))) return;
                 setConverting(true);
                 try {await onOutdoor();}
@@ -151,10 +156,10 @@ export function WorkoutCard({
                 {converting ? <Loader2 className="size-4 animate-spin" /> : <Bike className="size-4" />}
               </button>
             }
-            {!completed && !isIndoor &&
+            {actionable && !isIndoor &&
             <button
               onClick={async () => {
-                if (converting) return;
+                if (!actionable || converting) return;
                 if (!confirm(tr("¿Adaptar este entrenamiento a RODILLO (60-90 min)?\n\nSe recalculará el TSS previsto y se actualizará el evento en Intervals.icu. Podrás volver a exterior cuando quieras."))) return;
                 setConverting(true);
                 try {await onTrainer();}
@@ -168,13 +173,13 @@ export function WorkoutCard({
                 {converting ? <Loader2 className="size-4 animate-spin" /> : <Home className="size-4" />}
               </button>
             }
-            {!completed &&
+            {actionable &&
             <button onClick={() => setShowRpe((s) => !s)} title={tr("Marcar completado")} className="p-2 rounded-md hover:bg-secondary text-emerald-600">
                 <CheckCircle2 className="size-4" />
               </button>
             }
 
-            {!completed &&
+            {actionable &&
             <button onClick={onDelete} title={tr("Eliminar")} className="p-2 rounded-md hover:bg-secondary text-destructive">
                 <Trash2 className="size-4" />
               </button>
@@ -186,7 +191,7 @@ export function WorkoutCard({
           </div>
         </div>
 
-        {!completed && w.status !== "skipped" && onQuick &&
+        {actionable && onQuick &&
         <div className="border-t px-4 py-2 flex flex-wrap gap-2">
             {([
           ["skip", "Hoy no puedo"],
@@ -198,6 +203,7 @@ export function WorkoutCard({
             key={k}
             disabled={quick !== null}
             onClick={async () => {
+              if (!actionable) return;
               if (k === "skip" && !confirm(tr("¿Marcar este entreno como no realizado? Te propondremos reubicarlo en un día libre de esta semana."))) return;
               setQuick(k);
               try {await onQuick(k);}
@@ -212,7 +218,7 @@ export function WorkoutCard({
           </div>
         }
 
-        {showRpe && !completed &&
+        {showRpe && actionable &&
         <div className="border-t bg-secondary/40 p-4 space-y-3">
             <p className="text-sm font-semibold">{tr("¿Cómo te has sentido?")}</p>
             <div className="flex gap-2">
@@ -238,6 +244,7 @@ export function WorkoutCard({
               <button
               disabled={submitting}
               onClick={async () => {
+                if (!actionable) return;
                 setSubmitting(true);
                 try {await onComplete(rpe, notes || undefined);setShowRpe(false);} finally
                 {setSubmitting(false);}
@@ -292,6 +299,7 @@ export function WorkoutCard({
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-display text-xl uppercase">{plan.title ?? plan.name ?? "Entrenamiento"}</DialogTitle>
+            <WorkoutStatusBadge status={w.status} />
             <DialogDescription>
               {w.duration_minutes} {tr("min ·")} {plan.steps?.length ?? 0} {tr("bloques ·")} {w.training_type} · {w.bike_type}
             </DialogDescription>

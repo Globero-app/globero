@@ -12,12 +12,18 @@ import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { WorkoutStatusBadge } from "@/components/entrenamientos/WorkoutStatusBadge";
+import { canActOnWorkout } from "@/lib/workout-status";
 
 export const Route = createFileRoute("/_authenticated/calendario")({
   head: () => ({
     meta: [
     { title: "Calendario — Globero" },
-    { name: "description", content: "Calendario unificado: entrenamientos, competiciones y actividades reales de Intervals.icu." }]
+    { name: "description", content: "Calendario unificado: entrenamientos, competiciones y actividades reales de Intervals.icu." },
+    { property: "og:title", content: "Calendario — Globero" },
+    { property: "og:description", content: "Consulta tus sesiones planificadas, completadas y omitidas en Globero." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" }]
 
   }),
   component: CalendarioPage
@@ -198,6 +204,8 @@ function CalendarioPage() {
                     const workoutId = e.dataTransfer.getData("text/workout-id");
                     const originDate = e.dataTransfer.getData("text/origin-date");
                     if (workoutId && originDate !== key) {
+                      const workout = q.data?.find((event) => event.kind === "workout" && event.meta?.workout_id === workoutId);
+                      if (!workout || !canActOnWorkout(workout.status)) return;
                       mv.mutate({ workout_id: workoutId, scheduled_date: key });
                     }
                   }}
@@ -214,7 +222,8 @@ function CalendarioPage() {
                     <div className="flex flex-col gap-1 overflow-hidden">
                       {dayEvents.slice(0, view === "week" ? 20 : 3).map((e) => {
                       const s = KIND_STYLES[e.kind];
-                      const draggable = e.kind === "workout";
+                      const skipped = e.kind === "workout" && e.status === "skipped";
+                      const draggable = e.kind === "workout" && canActOnWorkout(e.status);
                       return (
                         <button
                           key={e.id}
@@ -226,13 +235,14 @@ function CalendarioPage() {
                             ev.dataTransfer.effectAllowed = "move";
                           }}
                           onClick={() => setSelected(e)}
-                          className={`text-left text-[11px] leading-tight px-1.5 py-1 rounded border ${s.bg} ${s.text} truncate hover:brightness-125 ${draggable ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
+                          className={`text-left text-[11px] leading-tight px-1.5 py-1 rounded border ${skipped ? "bg-muted border-border text-muted-foreground opacity-75" : `${s.bg} ${s.text}`} truncate hover:brightness-125 ${draggable ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"}`}
                           title={e.title}>
                           
                             <span className="inline-flex items-center gap-1">
                               <s.icon className="size-2.5 shrink-0" />
                               <span className="truncate">{e.title}</span>
                             </span>
+                            {skipped && <span className="block mt-1 whitespace-normal"><WorkoutStatusBadge status={e.status} /></span>}
                           </button>);
 
                     })}
@@ -262,7 +272,7 @@ function CalendarioPage() {
                 </DialogDescription>
               </DialogHeader>
               {selected.subtitle && <p className="text-sm text-muted-foreground">{selected.subtitle}</p>}
-              {selected.status && <p className="text-xs mt-2">{tr("Estado:")} <span className="font-medium">{selected.status}</span></p>}
+              {selected.status && <div className="text-xs mt-2 flex items-center gap-2">{tr("Estado:")} {selected.kind === "workout" && selected.status === "skipped" ? <WorkoutStatusBadge status={selected.status} /> : <span className="font-medium">{selected.status === "completed" ? tr("Completado") : selected.status}</span>}</div>}
               <div className="flex justify-end gap-2 mt-4">
                 <button
                 onClick={() => downloadIcs(`${selected.title}.ics`, [selected])}

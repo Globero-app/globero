@@ -18,8 +18,17 @@ import {
 import { ArrowLeft, ExternalLink, Activity, Zap, Heart, Gauge, Target, CheckCircle2, XCircle } from "lucide-react";
 import { format } from "date-fns";
 import { es, ca, fr, enGB, de } from "date-fns/locale";
+import { WorkoutStatusBadge } from "@/components/entrenamientos/WorkoutStatusBadge";
 
 export const Route = createFileRoute("/_authenticated/actividades/$id")({
+  head: () => ({ meta: [
+    { title: "Detalle de actividad — Globero" },
+    { name: "description", content: "Analiza tu salida y consulta el entrenamiento planificado en Globero." },
+    { property: "og:title", content: "Detalle de actividad — Globero" },
+    { property: "og:description", content: "Analiza tu salida y consulta el entrenamiento planificado en Globero." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: ActivityDetailPage
 });
 
@@ -252,11 +261,12 @@ function ActivityDetailPage() {
       </div>
 
       {planned.data &&
-      <div className="bg-surface border rounded-xl p-5">
-          <div className="flex items-center gap-2 mb-4">
+      <div className={`bg-surface border rounded-xl p-5 ${planned.data.status === "skipped" ? "opacity-75" : ""}`}>
+          <div className="flex flex-wrap items-center gap-2 mb-4">
             <CheckCircle2 className="size-4 text-primary" />
             <h2 className="font-display text-lg font-bold uppercase">{tr("Planificado vs Realizado")}</h2>
             <span className="text-xs text-muted-foreground ml-auto">{tr("Plan:")} {(planned.data.plan as any)?.title ?? planned.data.training_type}</span>
+            <WorkoutStatusBadge status={planned.data.status} />
           </div>
           {plannedIntervals.length === 0 ?
         <p className="text-sm text-muted-foreground">{tr("El plan encontrado no tiene intervalos de potencia comparables.")}</p> :

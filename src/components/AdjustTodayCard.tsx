@@ -5,6 +5,8 @@ import { getTodayWorkout, adjustTodayWorkout } from "@/lib/adjust.functions";
 import { SlidersHorizontal, Loader2, Timer, Gauge } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/use-auth";
+import { WorkoutStatusBadge } from "@/components/entrenamientos/WorkoutStatusBadge";
+import { canActOnWorkout } from "@/lib/workout-status";
 
 /** Módulo rápido del panel: recalcula la sesión de hoy (menos tiempo / más suave). */
 export function AdjustTodayCard() {
@@ -30,9 +32,11 @@ export function AdjustTodayCard() {
   if (q.isLoading || !w) return null;
 
   const base = Number(w.duration_minutes) || 60;
+  const actionable = canActOnWorkout(w.status);
   const options = [30, 45, 60, 90].filter((m) => m < base);
 
   const run = async () => {
+    if (!actionable) return;
     if (!minutes && !easier) {toast.error(tr("Elige menos tiempo o marcar 'voy más suave'"));return;}
     setBusy(true);
     try {
@@ -54,7 +58,7 @@ export function AdjustTodayCard() {
   };
 
   return (
-    <div className="bg-surface border rounded-xl p-5">
+    <div className={`bg-surface border rounded-xl p-5 ${w.status === "skipped" ? "opacity-75" : ""}`}>
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="min-w-0">
           <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-2">
@@ -63,21 +67,22 @@ export function AdjustTodayCard() {
           <p className="font-display text-xl font-bold uppercase tracking-tight mt-1 truncate">
             {w.plan?.title ?? w.plan?.name ?? "Sesión de hoy"}
           </p>
+          <WorkoutStatusBadge status={w.status} />
           <p className="text-xs text-muted-foreground">
             {base} {tr("min ·")} {w.training_type} · {w.bike_type}
             {w.planned_tss ? ` · ${Math.round(Number(w.planned_tss))} TSS` : ""}
             {w.plan?.adjust_notes ? ` · ${w.plan.adjust_notes}` : ""}
           </p>
         </div>
-        <button
+        {actionable && <button
           onClick={() => setOpen((o) => !o)}
           className="text-xs font-semibold px-3 py-2 rounded-lg border-2 border-primary text-primary hover:bg-primary/10">
           
           {open ? "Cerrar" : "Recalcular"}
-        </button>
+        </button>}
       </div>
 
-      {open &&
+      {open && actionable &&
       <div className="mt-4 space-y-3 border-t pt-4">
           <div>
             <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-1.5">

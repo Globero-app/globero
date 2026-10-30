@@ -792,6 +792,12 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Completed",
     "Abgeschlossen"
   ],
+  "Omitido": [
+    "Omès",
+    "Non effectué",
+    "Skipped",
+    "Ausgelassen"
+  ],
   "Componente añadido": [
     "S' ha afegit un component",
     "Composante ajoutée",
