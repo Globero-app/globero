@@ -16,10 +16,26 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            // Firma de subida a Play Store: se activa solo si existen las propiedades
+            // (gradle.properties local o -P en CI). Sin ellas, el release queda sin firmar.
+            def ksFile = project.findProperty('GLOBERO_KEYSTORE_FILE')
+            if (ksFile) {
+                storeFile file(ksFile)
+                storePassword project.findProperty('GLOBERO_KEYSTORE_PASSWORD')
+                keyAlias project.findProperty('GLOBERO_KEY_ALIAS')
+                keyPassword project.findProperty('GLOBERO_KEY_PASSWORD')
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (project.findProperty('GLOBERO_KEYSTORE_FILE')) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
