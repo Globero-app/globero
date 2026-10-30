@@ -6,6 +6,7 @@ import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { toast } from "sonner";
 import { CalendarClock } from "lucide-react";
 import { listRescheduleProposals, resolveReschedule } from "@/lib/workout-actions.functions";
+import { WorkoutStatusBadge } from "./WorkoutStatusBadge";
 
 export function RescheduleProposals() {
   const qc = useQueryClient();
@@ -47,6 +48,7 @@ export function RescheduleProposals() {
             <CalendarClock className="size-4 text-amber-700 mt-0.5 shrink-0" />
             <div className="min-w-0">
               <p className="text-sm font-semibold text-amber-900">{tr("Entrenamiento no realizado")}</p>
+              <WorkoutStatusBadge status="skipped" />
               <p className="text-xs text-amber-800">
                 "{it.title}"{it.original_date ? ` del ${fmt(it.original_date)}` : ""} ({it.duration_minutes} {tr("min). ¿Quieres reubicarlo el")} 
               {fmt(it.proposed_date)}?
