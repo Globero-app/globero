@@ -53,9 +53,6 @@ export function SubscriptionPanel() {
         {!q.data.admin_grant_active && q.data.subscription_status !== "active" && q.data.trial_ends_at && <p className="text-sm text-muted-foreground">
           Prueba gratuita hasta el {new Date(q.data.trial_ends_at).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })}.
         </p>}
-        {q.data.subscription_status === "active" && q.data.current_period_end && <p className="text-sm text-muted-foreground">
-          Vigente hasta el {new Date(q.data.current_period_end).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })}.
-        </p>}
         <p className="text-sm text-muted-foreground">{canGenerate(q.data) ? "Creación de entrenamientos y menús activada." : nativeContainer === false ? "Puedes seguir accediendo a tus datos. Activa una suscripción para crear nuevos entrenamientos y menús." : "Puedes seguir consultando tus datos. La creación de nuevos entrenamientos y menús no está disponible para tu cuenta."}</p>
       </div>
       <div className="flex flex-wrap gap-3">
