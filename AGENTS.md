@@ -1,5 +1,7 @@
 # Architecture rules
 
+- Resolve the next dated, explicitly marked competition through the shared competition-target query in both the read-only generator display and generation core; re-read it server-side for manual and scheduled runs so routes and stale client IDs cannot change the target.
+
 - Share skipped-workout badges and individual UI action eligibility across session views; skipped sessions remain readable but cannot expose quick adjustments or completion controls.
 
 - Schedule individual trial notices with Inngest durable sleeps from per-profile lifecycle webhooks; verify signed workflow calls and re-read account eligibility, trial version and recipient before each managed email send. Share the send helper with the secret-authenticated per-account callback and use event-specific idempotency; never expose recipients, poll or send bulk mail. Welcome copy belongs in the existing verified signup email.

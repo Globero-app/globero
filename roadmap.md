@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Generación manual y automática adaptada a la próxima competición marcada como tal, excluyendo rutas y fechas pasadas; objetivo informativo con nombre/fecha o Entrenamiento libre. 13 pruebas y compilación correctas.
+- [ ] Comprobar el campo de competición y generación con la cuenta real: no hay sesión disponible; requiere iniciar sesión en la vista previa.
+
 - [x] Entrenamientos omitidos: etiqueta neutra en cinco idiomas en tarjetas, detalles, Calendario y propuestas; acciones rápidas, conversión y completar bloqueados. Cinco pruebas y compilación correctas; tarjeta y detalle comprobados visualmente. Verificación con cuenta real pendiente: la cuenta solicitante no tiene sesión disponible.
 
 - [x] Bienvenida incorporada al correo de confirmación del registro, con web corporativa y prueba de 30 días. Plantillas de día 25/vencimiento y callback individual protegido preparados; 14 pruebas y compilación correctas.

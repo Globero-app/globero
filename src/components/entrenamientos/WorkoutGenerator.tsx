@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { useCreationAccess } from "@/components/CreationAccess";
+import { competitionToday, getNextActiveCompetition } from "@/lib/competition-target";
 
 export const BIKE_OPTIONS = [
 { value: "carretera", label: "Carretera" },
@@ -53,7 +54,6 @@ export function WorkoutGenerator({ profile }: {profile: any;}) {
 
   const [bikeType, setBikeType] = useState<typeof BIKE_OPTIONS[number]["value"]>("carretera");
   const [duration, setDuration] = useState(60);
-  const [competitionId, setCompetitionId] = useState<string>("");
   const [trainingDays, setTrainingDays] = useState<number[]>([2, 4, 6]);
   const [longRideDay, setLongRideDay] = useState<number | null>(6);
   const [nutritionEnabled, setNutritionEnabled] = useState(false);
@@ -62,16 +62,10 @@ export function WorkoutGenerator({ profile }: {profile: any;}) {
   const [autoEnabled, setAutoEnabled] = useState<boolean>(profile?.weekly_auto_enabled ?? false);
 
   const competitions = useQuery({
-    queryKey: ["competitions-future", user?.id],
+    queryKey: ["competitions", user?.id, "next-active", competitionToday()],
     queryFn: async () => {
-      const today = new Date().toISOString().slice(0, 10);
-      const { data } = await supabase.
-      from("competitions").
-      select("id,name,date").
-      eq("user_id", user!.id).
-      gte("date", today).
-      order("date", { ascending: true });
-      return data ?? [];
+      if (!user) return null;
+      return getNextActiveCompetition(supabase, user.id);
     },
     enabled: !!user
   });
@@ -128,6 +122,7 @@ export function WorkoutGenerator({ profile }: {profile: any;}) {
   nutritionEnabled && savedDays.goal !== nutritionGoal ||
   savedDays.basis !== effectiveBasis);
 
+  const competitionId = competitions.data?.id ?? null;
   const hasCompetition = !!competitionId;
 
   const generateMut = useMutation({
@@ -160,23 +155,12 @@ export function WorkoutGenerator({ profile }: {profile: any;}) {
     <div className="bg-surface border rounded-xl p-4 sm:p-5 space-y-4">
       <h2 className="font-display text-lg font-bold uppercase">{tr("Generar nuevos entrenamientos")}</h2>
 
-      {competitions.data && competitions.data.length > 0 &&
-      <Field label={tr("Competición objetivo (opcional)")}>
-          <select className="input" value={competitionId} onChange={(e) => setCompetitionId(e.target.value)}>
-            <option value="">{tr("— Sin competición (entrenamiento libre) —")}</option>
-            {competitions.data.map((c: any) =>
-          <option key={c.id} value={c.id}>
-                {c.name} · {format(new Date(c.date), "d MMM yyyy", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}
-              </option>
-          )}
-          </select>
-          {hasCompetition &&
-        <p className="text-[11px] text-muted-foreground mt-1.5"> {tr("La IA generará un plan periodizado y mixto hasta el día del evento, en los días que marques abajo.")} 
-
-        </p>
-        }
-        </Field>
-      }
+      <Field label={tr("Competición objetivo")}>
+        <div role="status" className="rounded-lg border bg-background px-3 py-2 text-sm break-words">
+          {competitions.isPending ? <Loader2 className="size-4 animate-spin" aria-label={tr("Cargando…")} /> : competitions.isError ? tr("Error cargando competición") : competitions.data ?
+          `${competitions.data.name} · ${format(new Date(`${competitions.data.date}T12:00:00`), "d MMM yyyy", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}` : tr("Entrenamiento libre")}
+        </div>
+      </Field>
 
       <div className="grid md:grid-cols-2 gap-4">
         <Field label={tr("Tipo de bicicleta")}>
@@ -258,7 +242,7 @@ export function WorkoutGenerator({ profile }: {profile: any;}) {
         </p>
           <button
           type="button"
-          disabled={generateMut.isPending}
+          disabled={generateMut.isPending || competitions.isPending || competitions.isError}
           onClick={() => { if (requireAccess()) generateMut.mutate({ replace_pending: true }); }}
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground disabled:opacity-50">
           
@@ -326,7 +310,7 @@ export function WorkoutGenerator({ profile }: {profile: any;}) {
 
       <div className="flex flex-col sm:flex-row gap-2">
         <button
-          disabled={generateMut.isPending || trainingDays.length === 0 || autoEnabled}
+          disabled={generateMut.isPending || competitions.isPending || competitions.isError || trainingDays.length === 0 || autoEnabled}
           onClick={() => { if (requireAccess()) generateMut.mutate(undefined); }}
           className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50 w-full sm:w-auto">
           
