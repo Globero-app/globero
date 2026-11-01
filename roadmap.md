@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Refrescar objetivo tras altas, cambios y desactivación; resumen de influencia por entrenamiento y pruebas de selección actualizada.
+
 - [x] Generación manual y automática adaptada a la próxima competición marcada como tal, excluyendo rutas y fechas pasadas; objetivo informativo con nombre/fecha o Entrenamiento libre. 13 pruebas y compilación correctas.
 - [ ] Comprobar el campo de competición y generación con la cuenta real: no hay sesión disponible; requiere iniciar sesión en la vista previa.
 
