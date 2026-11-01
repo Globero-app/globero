@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Refrescar objetivo tras altas, cambios y desactivación; resumen de influencia por entrenamiento y pruebas de selección actualizada.
+- [x] Objetivo refrescado tras altas, cambios y desactivación mediante invalidación compartida y recarga al volver; actualizaciones GPX también refrescan datos. Resumen de influencia en generador y explicación por sesión en tarjetas, traducidos a cinco idiomas. 14 pruebas y compilación correctas; se aplica a nuevas generaciones, sin regenerar sesiones existentes automáticamente.
 
 - [x] Generación manual y automática adaptada a la próxima competición marcada como tal, excluyendo rutas y fechas pasadas; objetivo informativo con nombre/fecha o Entrenamiento libre. 13 pruebas y compilación correctas.
 - [ ] Comprobar el campo de competición y generación con la cuenta real: no hay sesión disponible; requiere iniciar sesión en la vista previa.
