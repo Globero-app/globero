@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Adaptar generación manual y automática a la próxima competición activa y sustituir el desplegable por nombre/fecha de solo lectura o Entrenamiento libre.
+
 - [x] Entrenamientos omitidos: etiqueta neutra en cinco idiomas en tarjetas, detalles, Calendario y propuestas; acciones rápidas, conversión y completar bloqueados. Cinco pruebas y compilación correctas; tarjeta y detalle comprobados visualmente. Verificación con cuenta real pendiente: la cuenta solicitante no tiene sesión disponible.
 
 - [x] Bienvenida incorporada al correo de confirmación del registro, con web corporativa y prueba de 30 días. Plantillas de día 25/vencimiento y callback individual protegido preparados; 14 pruebas y compilación correctas.
