@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { useCreationAccess } from "@/components/CreationAccess";
-import { competitionToday, getNextActiveCompetition } from "@/lib/competition-target";
+import { nextCompetitionOptions } from "@/lib/competition-target";
 
 export const BIKE_OPTIONS = [
 { value: "carretera", label: "Carretera" },
@@ -62,11 +62,7 @@ export function WorkoutGenerator({ profile }: {profile: any;}) {
   const [autoEnabled, setAutoEnabled] = useState<boolean>(profile?.weekly_auto_enabled ?? false);
 
   const competitions = useQuery({
-    queryKey: ["competitions", user?.id, "next-active", competitionToday()],
-    queryFn: async () => {
-      if (!user) return null;
-      return getNextActiveCompetition(supabase, user.id);
-    },
+    ...nextCompetitionOptions(supabase, user?.id ?? ""),
     enabled: !!user
   });
 
@@ -160,6 +156,9 @@ export function WorkoutGenerator({ profile }: {profile: any;}) {
           {competitions.isPending ? <Loader2 className="size-4 animate-spin" aria-label={tr("Cargando…")} /> : competitions.isError ? tr("Error cargando competición") : competitions.data ?
           `${competitions.data.name} · ${format(new Date(`${competitions.data.date}T12:00:00`), "d MMM yyyy", { locale: ({ es, ca, fr, en: enGB, de } as const)[activeLang()] })}` : tr("Entrenamiento libre")}
         </div>
+        {!competitions.isPending && !competitions.isError && <p className="text-xs text-muted-foreground mt-2">
+          {tr(hasCompetition ? "La fecha ajusta la fase y la carga; la distancia y el desnivel orientan la resistencia y los intervalos. Cerca del evento se reduce el volumen para llegar fresco." : "Sin competición objetivo: resistencia, intervalos y fuerza según tu disponibilidad, recuperación y progreso.")}
+        </p>}
       </Field>
 
       <div className="grid md:grid-cols-2 gap-4">

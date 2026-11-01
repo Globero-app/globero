@@ -168,6 +168,7 @@ function CompetitionDetail() {
 
       toast.success(tr("GPX procesado"));
       await qc.invalidateQueries({ queryKey: ["competition", id] });
+      await qc.invalidateQueries({ queryKey: ["competitions"] });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : tr("No se pudo procesar el GPX"));
     } finally {

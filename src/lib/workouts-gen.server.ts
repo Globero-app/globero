@@ -36,7 +36,7 @@ const WorkoutSchema = {
       enum: ["aerobico", "umbral", "vo2", "anaerobico", "neuromuscular"],
       description: "Sistema energético dominante de la sesión",
     },
-    why: { type: "string", description: "Una frase: por qué esta sesión hoy para este ciclista" },
+    why: { type: "string", description: "Una frase: por qué esta sesión hoy para este ciclista; con competición explica cómo su fecha, distancia o desnivel influye en esta sesión y su fase" },
     estimated_tss: { type: "number" },
     scheduled_date: { type: "string", description: "Fecha planificada YYYY-MM-DD" },
     steps: { type: "array", items: StepSchema, minItems: 3 },
