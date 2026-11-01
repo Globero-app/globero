@@ -24,7 +24,7 @@ vi.mock("../athlete-profile.server", () => ({
   athletePromptBlock: () => "", minutesForDay: () => 60,
 }));
 
-function database(profile: any) {
+function database(profile: any, competition: any = null) {
   profile = { trial_ends_at: "2099-01-01T00:00:00Z", ...profile };
   return {
     from(table: string) {
@@ -34,7 +34,7 @@ function database(profile: any) {
         gte: () => query, lte: () => query, order: () => query, limit: () => query,
         upsert: (row: any) => { saved = row; return query; },
         update: () => query,
-        maybeSingle: async () => ({ data: saved ?? (table === "profiles" ? profile : null) }),
+        maybeSingle: async () => ({ data: saved ?? (table === "profiles" ? profile : table === "competitions" ? competition : null) }),
         then: (resolve: (value: any) => any) => Promise.resolve({ data: [], count: 1 }).then(resolve),
       };
       return query;
@@ -107,6 +107,23 @@ it("workouts keep the system prefix stable across FTP, prescription basis and la
   expect(a[1].content).toContain("237W");
   expect(b[1].content).toContain("319W");
   expect(b[1].content).toContain("FRECUENCIA CARDÍACA");
+});
+
+it("manual and scheduled generation use the authoritative next competition instead of a client selection", async () => {
+  callAI.mockRejectedValue(new Error("captured request"));
+  for (const competition_id of [undefined, "stale-selection"]) {
+    await expect(generateWorkoutsCore(database({ ftp: 250 }, {
+      id: "next", name: "Próxima competición", date: "2099-06-15", intensity: "competicion",
+    }), "user", {
+      bike_type: "carretera", duration_minutes: 60, training_days: [1, 3], competition_id,
+    })).rejects.toThrow("captured request");
+  }
+  for (const [messages] of callAI.mock.calls) {
+    expect(messages[1].content).toContain("Nombre: Próxima competición");
+    expect(messages[1].content).toContain("Fecha del evento: 2099-06-15");
+    expect(messages[1].content).toContain("preparación específica para la competición indicada");
+    expect(messages[1].content).not.toContain("stale-selection");
+  }
 });
 
 it("coach keeps fixed role and format stable across context and language", async () => {
