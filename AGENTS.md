@@ -1,6 +1,6 @@
 # Architecture rules
 
-- Resolve the next dated, explicitly marked competition through the shared competition-target query in both the read-only generator display and generation core; re-read it server-side for manual and scheduled runs so routes and stale client IDs cannot change the target.
+- Resolve the next dated, explicitly marked competition through the shared competition-target query in both the read-only generator display and generation core; re-read it server-side for manual and scheduled runs so routes and stale client IDs cannot change the target. Invalidate the competitions query prefix after relevant writes, refresh the target on mount/focus, and display the generated plan.why as the per-session preparation explanation.
 
 - Share skipped-workout badges and individual UI action eligibility across session views; skipped sessions remain readable but cannot expose quick adjustments or completion controls.
 
