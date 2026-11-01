@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { competitionToday, getNextActiveCompetition } from "../competition-target";
+import { nextCompetitionOptions } from "../competition-target";
+import { QueryClient, QueryObserver } from "@tanstack/react-query";
 
 const rows = [
   { id: "past", user_id: "miguel", name: "Anterior", date: "2026-10-31", intensity: "competicion" },
@@ -26,6 +28,34 @@ function database(entries = rows, error: { message: string } | null = null) {
 }
 
 describe("automatic competition target", () => {
+  it("refreshes the displayed target and generation context after adding, editing and deactivating competitions", async () => {
+    const entries = rows.map(row => ({ ...row }));
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const options = nextCompetitionOptions(database(entries), "miguel", competitionToday());
+    // Use a stable future test date, independent of the machine clock.
+    options.queryFn = () => getNextActiveCompetition(database(entries), "miguel", "2026-11-01");
+    const observer = new QueryObserver(client, options);
+    const unsubscribe = observer.subscribe(() => {});
+    try {
+      await observer.refetch();
+      expect(observer.getCurrentResult().data?.id).toBe("next");
+      entries.push({ id: "added", user_id: "miguel", name: "Añadida", date: "2026-11-04", intensity: "competicion" });
+      await client.invalidateQueries({ queryKey: ["competitions"] });
+      expect(observer.getCurrentResult().data?.id).toBe("added");
+      const added = entries.find(row => row.id === "added");
+      if (!added) throw new Error("missing test competition");
+      added.date = "2026-11-20";
+      added.name = "Editada";
+      await client.invalidateQueries({ queryKey: ["competitions"] });
+      expect(observer.getCurrentResult().data?.id).toBe("next");
+      for (const row of entries) row.intensity = "media";
+      await client.invalidateQueries({ queryKey: ["competitions"] });
+      expect(observer.getCurrentResult().data).toBeNull();
+    } finally {
+      unsubscribe();
+      client.clear();
+    }
+  });
   it("selects the earliest upcoming marked competition owned by the athlete, excluding routes and past events", async () => {
     const target = await getNextActiveCompetition(database(), "miguel", "2026-11-01");
     expect(target?.id).toBe("next");
