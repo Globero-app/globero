@@ -2,6 +2,7 @@ import { fetchDailyWeather, adviseForWorkout } from "./weather-daily.server";
 import type { WeatherDay } from "./weather";
 
 import { callAI } from "./ai-call.server";
+import { getNextActiveCompetition } from "./competition-target";
 
 const StepSchema = {
   type: "object",
@@ -210,21 +211,13 @@ export async function generateWorkoutsCore(supabase: any, userId: string, input:
   const basis: "power" | "hr" = input.target_basis === "hr" && !maxHr && !lthr && ftp ? "power" : (input.target_basis ?? "power");
   const basisBlock = `BASE DE PRESCRIPCIÓN: ${basis === "hr" ? "FRECUENCIA CARDÍACA" : "POTENCIA / FTP"}`;
 
-  let competition: any = null;
+  const competition = await getNextActiveCompetition(supabase, userId, madridToday);
   let competitionBlock = "";
-  if (input.competition_id) {
-    const { data: comp } = await supabase
-      .from("competitions")
-      .select("name,date,type,distance_km,elevation_m,duration_hours,intensity,notes")
-      .eq("id", input.competition_id)
-      .eq("user_id", userId)
-      .maybeSingle();
-    if (!comp) throw new Error("Competición no encontrada");
-    competition = comp;
-    const today = new Date();
-    const eventDate = new Date(comp.date);
+  if (competition) {
+    const comp = competition;
+    const today = new Date(`${madridToday}T12:00:00Z`);
+    const eventDate = new Date(`${comp.date}T12:00:00Z`);
     const daysUntil = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    if (daysUntil <= 0) throw new Error("La competición ya ha pasado");
     const weeksUntil = Math.max(1, Math.ceil(daysUntil / 7));
     competitionBlock = `
 
@@ -487,7 +480,7 @@ HISTÓRICO READINESS 14 días: ${readinessArr.length ? JSON.stringify(readinessA
     plan: {
       ...it.plan,
       target_basis: basis,
-      competition_id: input.competition_id ?? null,
+      competition_id: competition?.id ?? null,
       competition_name: competition?.name ?? null,
       scheduled_date: it.date,
       long_ride: it.isLong,
@@ -541,7 +534,7 @@ HISTÓRICO READINESS 14 días: ${readinessArr.length ? JSON.stringify(readinessA
   if (blockRow?.id) {
     await supabase
       .from("training_blocks")
-      .update({ focus: blockFocus, week_index: weekIndex, target_tss: totalTss, competition_id: input.competition_id ?? null })
+      .update({ focus: blockFocus, week_index: weekIndex, target_tss: totalTss, competition_id: competition?.id ?? null })
       .eq("id", blockRow.id)
       .eq("user_id", userId);
   } else {
@@ -551,7 +544,7 @@ HISTÓRICO READINESS 14 días: ${readinessArr.length ? JSON.stringify(readinessA
       focus: blockFocus,
       week_index: weekIndex,
       target_tss: totalTss,
-      competition_id: input.competition_id ?? null,
+      competition_id: competition?.id ?? null,
       notes: week.reason,
     });
   }
