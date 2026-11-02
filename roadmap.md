@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Rutas con GPX: hora de salida, duración estimada, previsión horaria localizada hasta la llegada, equipación y estado sin previsión a más de tres días; pruebas y comprobación del flujo.
+
 - [x] Objetivo refrescado tras altas, cambios y desactivación mediante invalidación compartida y recarga al volver; actualizaciones GPX también refrescan datos. Resumen de influencia en generador y explicación por sesión en tarjetas, traducidos a cinco idiomas. 14 pruebas y compilación correctas; se aplica a nuevas generaciones, sin regenerar sesiones existentes automáticamente.
 
 - [x] Generación manual y automática adaptada a la próxima competición marcada como tal, excluyendo rutas y fechas pasadas; objetivo informativo con nombre/fecha o Entrenamiento libre. 13 pruebas y compilación correctas.
