@@ -4,6 +4,13 @@ import { fetchRaceWeather } from "@/lib/weather.functions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { differenceInCalendarDays } from "date-fns";
+import { useEffect, useState } from "react";
+import { activeLang, localeCode } from "@/lib/i18n";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { RouteClothingForecast } from "./RouteClothingForecast";
+import { clothingText } from "@/lib/route-clothing-i18n";
+import { estimatedRouteHours, forecastAvailability, routeDeparture, routeWeatherSignature, type RouteForecast } from "@/lib/route-weather";
 
 const RISK_STYLES: Record<string, string> = {
   bajo: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30",
@@ -18,12 +25,31 @@ export function RaceWeatherCard({ competition }: {competition: any;}) {
   const forecast = competition.weather_forecast as any;
   const hydration = competition.hydration_plan as any;
   const hasTrack = (competition.track_points as any[] | null ?? []).length > 0;
+  const hourly = forecast?.route_hourly as RouteForecast | undefined;
+  const text = (key: string) => clothingText(key, activeLang());
+  const [departure, setDeparture] = useState(hourly?.departureTime ?? "08:00");
+  const [duration, setDuration] = useState(String(hourly?.durationHours ?? Math.round(estimatedRouteHours(competition) * 100) / 100));
+  useEffect(() => {
+    setDeparture(hourly?.departureTime ?? "08:00");
+    setDuration(String(hourly?.durationHours ?? Math.round(estimatedRouteHours(competition) * 100) / 100));
+  }, [competition.id]);
+  const durationHours = Number(duration);
+  const valid = /^([01]\d|2[0-3]):[0-5]\d$/.test(departure) && Number.isFinite(durationHours) && durationHours >= 0.1 && durationHours <= 24;
+  const signature = routeWeatherSignature(competition.track_points ?? [], competition.date, durationHours);
+  const currentHourly = hourly?.date === competition.date && hourly?.departureTime === departure && hourly?.durationHours === durationHours && hourly?.signature === signature;
+  let arrival = "";
+  if (valid) {
+    try {
+      arrival = new Intl.DateTimeFormat(localeCode(), { timeZone: hourly?.timeZone ?? "Europe/Madrid", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(routeDeparture(competition.date, departure, hourly?.timeZone ?? "Europe/Madrid") + durationHours * 3600000));
+    } catch { /* Invalid local time during a daylight-saving transition. */ }
+  }
 
   const daysAway = differenceInCalendarDays(new Date(competition.date), new Date());
-  const inRange = daysAway >= 0 && daysAway <= 3;
+  const availability = forecastAvailability(competition.date);
+  const inRange = availability === "available";
 
   const mut = useMutation({
-    mutationFn: async () => fetchFn({ data: { competitionId: competition.id } }),
+    mutationFn: async () => fetchFn({ data: { competitionId: competition.id, departureTime: departure, durationHours } }),
     onSuccess: () => {
       toast.success(tr("Previsión actualizada"));
       qc.invalidateQueries({ queryKey: ["competition", competition.id] });
@@ -38,31 +64,39 @@ export function RaceWeatherCard({ competition }: {competition: any;}) {
           <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary">{tr("Clima e hidratación")}</p>
           <h2 className="font-display text-xl font-bold uppercase">{tr("Previsión para la ruta")}</h2>
         </div>
-        <button
+        <Button type="button" size="sm"
           onClick={() => mut.mutate()}
-          disabled={mut.isPending || !hasTrack || !inRange}
-          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-50">
+          disabled={mut.isPending || !hasTrack || !inRange || !valid}
+          className="text-xs">
           
           <RefreshCw className={`size-3.5 ${mut.isPending ? "animate-spin" : ""}`} />
-          {mut.isPending ? "Consultando…" : forecast ? "Actualizar" : "Consultar previsión"}
-        </button>
+          {mut.isPending ? text("loading") : text("update")}
+        </Button>
       </div>
+
+      {hasTrack && <div className="space-y-2">
+        <div className="grid sm:grid-cols-2 gap-3">
+          <label className="space-y-1 min-w-0 text-xs font-semibold">{text("departure")}<Input type="time" value={departure} disabled={mut.isPending} onChange={e => setDeparture(e.target.value)} /></label>
+          <label className="space-y-1 min-w-0 text-xs font-semibold">{text("duration")}<Input type="number" min="0.1" max="24" step="0.1" value={duration} disabled={mut.isPending} onChange={e => setDuration(e.target.value)} /></label>
+        </div>
+        {!valid && <p role="alert" className="text-xs text-destructive">{text("invalid")}</p>}
+        {arrival && <p className="text-xs text-muted-foreground">{text("arrival")}: {arrival} · {text("zone")} ({hourly?.timeZone ?? "Europe/Madrid"})</p>}
+        {inRange && (!hourly || !currentHourly) && <p role="status" className="text-xs text-muted-foreground">{text(hourly ? "changed" : "pending")}</p>}
+      </div>}
 
       {!hasTrack &&
       <p className="text-xs text-muted-foreground border border-dashed rounded-lg p-4"> {tr("Sube el GPX de la ruta para localizarla y consultar el clima previsto.")} 
 
       </p>
       }
-      {hasTrack && !inRange && !forecast &&
+      {hasTrack && !inRange &&
       <p className="text-xs text-muted-foreground border border-dashed rounded-lg p-4 flex items-start gap-2">
           <AlertTriangle className="size-4 text-amber-500 shrink-0 mt-0.5" />
-          {daysAway < 0 ?
-        "Esta ruta ya ha pasado." :
-        "La previsión puede no ser correcta con tanta antelación: solo está disponible desde 3 días antes hasta el mismo día de la ruta."}
+          {text(availability === "past" ? "past" : "far")}
         </p>
       }
 
-      {forecast &&
+      {forecast && forecast.date === competition.date && inRange &&
       <>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Metric icon={Thermometer} label={tr("Sensación máx.")} value={`${Math.round(forecast.apparent_max_c)}°C`} sub={`${Math.round(forecast.temp_min_c)}–${Math.round(forecast.temp_max_c)}°C`} />
@@ -74,7 +108,9 @@ export function RaceWeatherCard({ competition }: {competition: any;}) {
         </>
       }
 
-      {hydration &&
+      {hasTrack && inRange && currentHourly && hourly && <RouteClothingForecast forecast={hourly} />}
+
+      {hydration && forecast?.date === competition.date && inRange && (!hourly || currentHourly) &&
       <div className="border-t pt-4 space-y-3">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{tr("Plan de hidratación ajustado al clima")}</p>
