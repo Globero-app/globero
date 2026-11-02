@@ -3,7 +3,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { fetchRaceWeather } from "@/lib/weather.functions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { differenceInCalendarDays } from "date-fns";
 import { useEffect, useState } from "react";
 import { activeLang, localeCode } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -44,7 +43,6 @@ export function RaceWeatherCard({ competition }: {competition: any;}) {
     } catch { /* Invalid local time during a daylight-saving transition. */ }
   }
 
-  const daysAway = differenceInCalendarDays(new Date(competition.date), new Date());
   const availability = forecastAvailability(competition.date);
   const inRange = availability === "available";
 
