@@ -1,0 +1,46 @@
+import type { Lang } from "./i18n";
+
+const phrases: Record<string, [string, string, string, string, string]> = {
+  title: ["Equipación para la ruta", "Equipació per a la ruta", "Tenue pour le parcours", "Clothing for your ride", "Bekleidung für die Route"],
+  departure: ["Hora de salida", "Hora de sortida", "Heure de départ", "Departure time", "Startzeit"],
+  duration: ["Duración estimada (h)", "Durada estimada (h)", "Durée estimée (h)", "Estimated duration (h)", "Geschätzte Dauer (h)"],
+  arrival: ["Llegada estimada", "Arribada estimada", "Arrivée estimée", "Estimated arrival", "Geschätzte Ankunft"],
+  zone: ["Hora local de la ruta", "Hora local de la ruta", "Heure locale du parcours", "Route local time", "Ortszeit der Route"],
+  far: ["La previsión horaria estará disponible desde 3 días antes de la ruta. Puedes elegir ya tu hora de salida.", "La previsió horària estarà disponible des de 3 dies abans de la ruta. Ja pots triar l’hora de sortida.", "Les prévisions horaires seront disponibles 3 jours avant le parcours. Vous pouvez déjà choisir l’heure de départ.", "Hourly forecasts become available 3 days before the ride. You can choose your departure time now.", "Die stündliche Vorhersage ist ab 3 Tagen vor der Route verfügbar. Die Startzeit kannst du bereits wählen."],
+  past: ["Esta ruta ya ha pasado; no hay previsión horaria disponible.", "Aquesta ruta ja ha passat; no hi ha previsió horària disponible.", "Ce parcours est passé ; les prévisions horaires ne sont plus disponibles.", "This ride is in the past; hourly forecasts are unavailable.", "Diese Route liegt in der Vergangenheit; keine stündliche Vorhersage verfügbar."],
+  pending: ["Consulta la previsión para obtener la equipación recomendada.", "Consulta la previsió per obtenir l’equipació recomanada.", "Consultez les prévisions pour obtenir la tenue recommandée.", "Check the forecast for clothing recommendations.", "Rufe die Vorhersage für Bekleidungsempfehlungen ab."],
+  changed: ["Hora, duración o ruta modificadas. Actualiza la previsión.", "Hora, durada o ruta modificades. Actualitza la previsió.", "Heure, durée ou parcours modifiés. Actualisez les prévisions.", "Time, duration or route changed. Update the forecast.", "Zeit, Dauer oder Route geändert. Aktualisiere die Vorhersage."],
+  incomplete: ["No hay datos para todo el recorrido. No se recomienda equipación con una previsión incompleta.", "No hi ha dades per a tot el recorregut. No es recomana equipació amb una previsió incompleta.", "Données manquantes sur le parcours. Pas de tenue recommandée avec des prévisions incomplètes.", "Forecast data is missing for part of the ride. Clothing recommendations need a complete forecast.", "Für Teile der Route fehlen Daten. Bekleidungsempfehlungen benötigen eine vollständige Vorhersage."],
+  invalid: ["Introduce una hora válida y una duración entre 0,1 y 24 horas.", "Introdueix una hora vàlida i una durada entre 0,1 i 24 hores.", "Saisissez une heure valide et une durée entre 0,1 et 24 heures.", "Enter a valid time and a duration between 0.1 and 24 hours.", "Gib eine gültige Zeit und eine Dauer zwischen 0,1 und 24 Stunden ein."],
+  loading: ["Consultando…", "Consultant…", "Consultation…", "Checking…", "Wird abgerufen…"],
+  update: ["Actualizar previsión", "Actualitzar previsió", "Actualiser les prévisions", "Update forecast", "Vorhersage aktualisieren"],
+  upper: ["Parte superior", "Part superior", "Haut", "Upper body", "Oberkörper"],
+  legs: ["Piernas", "Cames", "Jambes", "Legs", "Beine"],
+  extras: ["Accesorios / por si acaso", "Accessoris / per si de cas", "Accessoires / au cas où", "Accessories / just in case", "Zubehör / für alle Fälle"],
+  thermal_top: ["Maillot térmico de manga larga", "Mallot tèrmic de màniga llarga", "Maillot thermique à manches longues", "Thermal long-sleeve jersey", "Thermo-Langarmtrikot"],
+  long_top: ["Maillot de manga larga", "Mallot de màniga llarga", "Maillot à manches longues", "Long-sleeve jersey", "Langarmtrikot"],
+  short_top: ["Maillot de manga corta", "Mallot de màniga curta", "Maillot à manches courtes", "Short-sleeve jersey", "Kurzarmtrikot"],
+  light_top: ["Maillot ligero y transpirable", "Mallot lleuger i transpirable", "Maillot léger et respirant", "Lightweight breathable jersey", "Leichtes, atmungsaktives Trikot"],
+  base_layer: ["Camiseta interior térmica", "Samarreta interior tèrmica", "Sous-couche thermique", "Thermal base layer", "Thermo-Unterhemd"],
+  thermal_tights: ["Culote largo térmico", "Culot llarg tèrmic", "Cuissard long thermique", "Thermal bib tights", "Thermo-Trägerhose lang"],
+  tights: ["Culote largo", "Culot llarg", "Cuissard long", "Bib tights", "Lange Trägerhose"],
+  shorts: ["Culote corto", "Culot curt", "Cuissard court", "Bib shorts", "Kurze Trägerhose"],
+  leg_warmers: ["Perneras", "Camals", "Jambières", "Leg warmers", "Beinlinge"],
+  arm_warmers: ["Manguitos desmontables", "Maniguets extraïbles", "Manchettes amovibles", "Removable arm warmers", "Abnehmbare Armlinge"],
+  vest: ["Chaleco para descensos y cambios de temperatura", "Armilla per a baixades i canvis de temperatura", "Gilet pour les descentes et variations de température", "Vest for descents and temperature changes", "Weste für Abfahrten und Temperaturwechsel"],
+  windbreaker: ["Cortavientos plegable", "Paravent plegable", "Coupe-vent compact", "Packable windbreaker", "Packbare Windjacke"],
+  rain_jacket: ["Chaqueta impermeable plegable", "Jaqueta impermeable plegable", "Veste imperméable compacte", "Packable waterproof jacket", "Packbare Regenjacke"],
+  full_gloves: ["Guantes largos", "Guants llargs", "Gants longs", "Full-finger gloves", "Langfingerhandschuhe"],
+  light_gloves: ["Guantes ligeros", "Guants lleugers", "Gants légers", "Lightweight gloves", "Leichte Handschuhe"],
+  overshoes: ["Cubrezapatillas", "Cobre-sabates", "Couvre-chaussures", "Overshoes", "Überschuhe"],
+  cap: ["Gorro fino bajo el casco", "Gorra fina sota el casc", "Bonnet fin sous le casque", "Thin cap under helmet", "Dünne Mütze unter dem Helm"],
+  sunscreen: ["Protección solar", "Protecció solar", "Protection solaire", "Sun protection", "Sonnenschutz"],
+  guidance: ["Recomendación orientativa según el frío y la sensación térmica más bajos del recorrido. Ajusta las capas a tu tolerancia; las paradas y los descensos pueden enfriar más.", "Recomanació orientativa segons el fred i la sensació tèrmica més baixos del recorregut. Ajusta les capes a la teva tolerància; les parades i les baixades poden refredar més.", "Conseil indicatif selon la température et le ressenti les plus bas. Adaptez les couches à votre tolérance ; arrêts et descentes peuvent refroidir davantage.", "Guidance based on the lowest temperature and feels-like conditions. Adjust layers to your tolerance; stops and descents can feel colder.", "Orientierung anhand der niedrigsten Temperatur und gefühlten Temperatur. Passe Schichten an dein Empfinden an; Pausen und Abfahrten können kälter sein."],
+  conditions: ["Clima durante el recorrido", "Clima durant el recorregut", "Météo sur le parcours", "Weather during the ride", "Wetter entlang der Route"],
+  risk: ["Frío intenso, viento fuerte o lluvia intensa previstos: valora acortar o aplazar la salida.", "Fred intens, vent fort o pluja intensa previstos: valora escurçar o ajornar la sortida.", "Froid, vent ou pluie intenses prévus : envisagez de raccourcir ou reporter la sortie.", "Very cold, strong wind or heavy rain expected: consider shortening or postponing the ride.", "Starke Kälte, Wind oder Regen erwartet: Erwäge, die Fahrt zu verkürzen oder zu verschieben."],
+  feel: ["Sensación", "Sensació", "Ressenti", "Feels like", "Gefühlt"],
+};
+
+export function clothingText(key: string, lang: Lang) {
+  return phrases[key]?.[({ es: 0, ca: 1, fr: 2, en: 3, de: 4 } as const)[lang]] ?? key;
+}

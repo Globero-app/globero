@@ -1,6 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { planHydration, describeWeather, type WeatherDay } from "./weather";
+import { z } from "zod";
+import { estimatedRouteHours, forecastAvailability, mapRouteHours, routeDeparture, routeSchedule, routeWeatherSignature, type HourlyForecast } from "./route-weather";
+import type { TrackPoint } from "./gpx";
 
 interface OMDaily {
   time: string[];
@@ -15,7 +18,11 @@ interface OMDaily {
 
 export const fetchRaceWeather = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { competitionId: string }) => d)
+  .inputValidator((d: { competitionId: string; departureTime?: string; durationHours?: number }) => z.object({
+    competitionId: z.string().uuid(),
+    departureTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).optional(),
+    durationHours: z.number().min(0.1).max(24).optional(),
+  }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: comp, error } = await supabase
@@ -26,20 +33,15 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!comp || comp.user_id !== userId) throw new Error("Competición no encontrada");
 
-    const pts = (comp.track_points as any[] | null) ?? [];
-    if (!pts.length) throw new Error("Sube primero el archivo GPX de la competición");
+    const pts = ((comp.track_points as unknown as TrackPoint[] | null) ?? []).filter(p => Number.isFinite(p.lat) && Number.isFinite(p.lon) && Math.abs(p.lat) <= 90 && Math.abs(p.lon) <= 180);
+    if (pts.length < 2) throw new Error("Sube primero el archivo GPX de la competición");
     const mid = pts[Math.floor(pts.length / 2)];
     const lat: number = mid.lat;
     const lon: number = mid.lon;
 
-    // Open-Meteo — hasta 16 días de forecast, no requiere API key
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const race = new Date(comp.date);
-    race.setHours(0, 0, 0, 0);
-    const diffDays = Math.round((race.getTime() - today.getTime()) / 86400000);
-    if (diffDays < 0) throw new Error("La ruta ya ha pasado");
-    if (diffDays > 3) throw new Error("La previsión solo está disponible desde 3 días antes de la ruta");
+    const availability = forecastAvailability(comp.date);
+    if (availability === "past") throw new Error("La ruta ya ha pasado");
+    if (availability !== "available") throw new Error("La previsión solo está disponible desde 3 días antes de la ruta");
 
     const params = new URLSearchParams({
       latitude: lat.toFixed(4),
@@ -50,14 +52,14 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
       end_date: comp.date,
     });
     const url = `https://api.open-meteo.com/v1/forecast?${params.toString()}`;
-    let res = await fetch(url);
+    let res = await fetch(url, { signal: AbortSignal.timeout(15000) });
     for (let i = 0; i < 3 && res.status === 429; i++) {
       await new Promise((r) => setTimeout(r, 2000 * (i + 1)));
-      res = await fetch(url);
+      res = await fetch(url, { signal: AbortSignal.timeout(15000) });
     }
     if (res.status === 429) throw new Error("El servicio meteorológico está saturado. Inténtalo de nuevo en un minuto.");
     if (!res.ok) throw new Error(`Open-Meteo ${res.status}`);
-    const json = (await res.json()) as { daily: OMDaily };
+    const json = (await res.json()) as { daily: OMDaily; timezone: string };
     const d = json.daily;
     if (!d?.time?.length) throw new Error("Sin datos meteorológicos");
 
@@ -75,12 +77,25 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
     weather.summary = describeWeather(weather);
 
     // Duración estimada (misma lógica que carbs.ts, simple)
-    const durationH =
-      comp.duration_hours && comp.duration_hours > 0
-        ? comp.duration_hours
-        : comp.distance_km /
-            ((comp.intensity === "alta" || comp.intensity === "competicion") ? 28 : 24) +
-          (comp.elevation_m / 1000) * 0.6;
+    const durationH = data.durationHours ?? estimatedRouteHours(comp);
+    const departureTime = data.departureTime ?? "08:00";
+    const timeZone = json.timezone || "Europe/Madrid";
+    const schedule = routeSchedule(pts, durationH, routeDeparture(comp.date, departureTime, timeZone));
+    const endDate = new Date(Date.parse(`${comp.date}T00:00:00Z`) + 86400000).toISOString().slice(0, 10);
+    const hourlyParams = new URLSearchParams({
+      latitude: schedule.map(p => p.lat.toFixed(4)).join(","),
+      longitude: schedule.map(p => p.lon.toFixed(4)).join(","),
+      hourly: "temperature_2m,apparent_temperature,wind_speed_10m,precipitation,precipitation_probability",
+      timezone: timeZone,
+      timeformat: "unixtime",
+      start_date: comp.date,
+      end_date: endDate,
+    });
+    const hourlyRes = await fetch(`https://api.open-meteo.com/v1/forecast?${hourlyParams}`, { signal: AbortSignal.timeout(15000) });
+    if (!hourlyRes.ok) throw new Error(`Open-Meteo ${hourlyRes.status}`);
+    const hourlyJson = await hourlyRes.json() as { hourly: HourlyForecast }[] | { hourly: HourlyForecast };
+    const mapped = mapRouteHours(schedule, Array.isArray(hourlyJson) ? hourlyJson : [hourlyJson]);
+    const routeHourly = { date: comp.date, departureTime, durationHours: durationH, signature: routeWeatherSignature(pts, comp.date, durationH), timeZone, ...mapped };
 
     const { data: profile } = await supabase
       .from("profiles")
@@ -94,11 +109,11 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
     const { error: uErr } = await supabase
       .from("competitions")
       .update({
-        weather_forecast: { ...weather, lat, lon, fetched_at: new Date().toISOString() } as any,
+        weather_forecast: { ...weather, lat, lon, fetched_at: new Date().toISOString(), route_hourly: routeHourly } as any,
         hydration_plan: hydration as any,
       })
       .eq("id", comp.id);
     if (uErr) throw new Error(uErr.message);
 
-    return { weather, hydration };
+    return { weather, hydration, routeHourly };
   });
