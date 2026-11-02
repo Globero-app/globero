@@ -1,6 +1,7 @@
 # Roadmap
 
-- [ ] Rutas con GPX: hora de salida, duración estimada, previsión horaria localizada hasta la llegada, equipación y estado sin previsión a más de tres días; pruebas y comprobación del flujo.
+- [x] Rutas con GPX: hora de salida, duración estimada ajustable, previsión horaria localizada hasta la llegada (incluido cambio de día), equipación en cinco idiomas y estado sin previsión a más de tres días; 14 pruebas correctas y compilación automática correcta. Servicio horario real y presentación de recomendaciones comprobados en móvil/escritorio sin desbordamiento.
+- [ ] Verificar consulta y persistencia meteorológica completa en Rutas con la cuenta solicitante: no existe cuenta asociada para iniciar sesión automáticamente; requiere iniciar sesión en la vista previa.
 
 - [x] Objetivo refrescado tras altas, cambios y desactivación mediante invalidación compartida y recarga al volver; actualizaciones GPX también refrescan datos. Resumen de influencia en generador y explicación por sesión en tarjetas, traducidos a cinco idiomas. 14 pruebas y compilación correctas; se aplica a nuevas generaciones, sin regenerar sesiones existentes automáticamente.
 
