@@ -93,6 +93,15 @@ export function mapRouteHours(schedule: ReturnType<typeof routeSchedule>, foreca
 }
 
 export type ClothingItem = "thermal_top" | "long_top" | "short_top" | "light_top" | "base_layer" | "thermal_tights" | "tights" | "shorts" | "leg_warmers" | "arm_warmers" | "vest" | "windbreaker" | "rain_jacket" | "full_gloves" | "light_gloves" | "overshoes" | "cap" | "sunscreen";
+export function clothingFromForecast(forecast?: RouteForecast | null) {
+  if (!forecast?.complete || !Array.isArray(forecast.samples) || forecast.samples.length < 2) return null;
+  const expected = Math.ceil(Math.round(forecast.durationHours * 60) / 60) + 1;
+  if (forecast.samples.length !== expected || forecast.samples.some(s =>
+    ![s.timestamp, s.km, s.temperature, s.apparent, s.wind, s.rain, s.rainProbability].every(Number.isFinite)
+  )) return null;
+  return recommendClothing(forecast.samples);
+}
+
 export function recommendClothing(samples: RouteHour[]) {
   if (!samples.length) return null;
   const min = Math.min(...samples.map(s => Math.min(s.temperature, s.apparent)));

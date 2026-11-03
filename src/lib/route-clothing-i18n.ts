@@ -2,6 +2,12 @@ import type { Lang } from "./i18n";
 
 const phrases: Record<string, [string, string, string, string, string]> = {
   title: ["Equipación para la ruta", "Equipació per a la ruta", "Tenue pour le parcours", "Clothing for your ride", "Bekleidung für die Route"],
+  no_track: ["Añade un GPX válido para recomendar equipación durante el recorrido.", "Afegeix un GPX vàlid per recomanar equipació durant el recorregut.", "Ajoutez un GPX valide pour recommander une tenue sur le parcours.", "Add a valid GPX to get clothing recommendations for the ride.", "Füge eine gültige GPX-Datei für Bekleidungsempfehlungen hinzu."],
+  error: ["No se pudo actualizar la previsión. Vuelve a intentarlo.", "No s’ha pogut actualitzar la previsió. Torna-ho a provar.", "Impossible d’actualiser les prévisions. Réessayez.", "Could not update the forecast. Please try again.", "Die Vorhersage konnte nicht aktualisiert werden. Versuche es erneut."],
+  kit_image: ["Imagen orientativa de equipación ciclista", "Imatge orientativa d’equipació ciclista", "Illustration indicative d’une tenue cycliste", "Illustrative cycling clothing image", "Beispielbild einer Radausrüstung"],
+  cold_kit: ["Abrigo térmico", "Abric tèrmic", "Protection thermique", "Thermal protection", "Thermoschutz"],
+  mild_kit: ["Capas versátiles", "Capes versàtils", "Couches polyvalentes", "Versatile layers", "Vielseitige Schichten"],
+  warm_kit: ["Ligero y transpirable", "Lleuger i transpirable", "Léger et respirant", "Light and breathable", "Leicht und atmungsaktiv"],
   departure: ["Hora de salida", "Hora de sortida", "Heure de départ", "Departure time", "Startzeit"],
   duration: ["Duración estimada (h)", "Durada estimada (h)", "Durée estimée (h)", "Estimated duration (h)", "Geschätzte Dauer (h)"],
   arrival: ["Llegada estimada", "Arribada estimada", "Arrivée estimée", "Estimated arrival", "Geschätzte Ankunft"],

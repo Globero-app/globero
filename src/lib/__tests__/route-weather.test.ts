@@ -1,9 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { estimatedRouteHours, forecastAvailability, routeDeparture, routeSchedule, mapRouteHours, recommendClothing, routeWeatherSignature, type RouteHour } from "../route-weather";
+import { clothingFromForecast, estimatedRouteHours, forecastAvailability, routeDeparture, routeSchedule, mapRouteHours, recommendClothing, routeWeatherSignature, type RouteHour } from "../route-weather";
 
 const points = [{ lat: 41, lon: 2 }, { lat: 41, lon: 2.5 }, { lat: 41, lon: 3 }];
 const sample = (temperature: number, wind = 5, rain = 0, rainProbability = 0): RouteHour => ({ timestamp: 0, km: 0, lat: 41, lon: 2, temperature, apparent: temperature, wind, rain, rainProbability });
 describe("route hourly clothing", () => {
+  it("withholds clothing for empty and incomplete forecasts even if complete was incorrectly stored", () => {
+    const forecast = { date: "2026-11-03", departureTime: "08:00", durationHours: 2, signature: "test", timeZone: "Europe/Madrid", complete: true, samples: [] as RouteHour[] };
+    expect(clothingFromForecast(undefined)).toBeNull();
+    expect(clothingFromForecast(forecast)).toBeNull();
+    expect(clothingFromForecast({ ...forecast, samples: [sample(15)] })).toBeNull();
+    expect(clothingFromForecast({ ...forecast, complete: false, samples: [sample(15), sample(16), sample(17)] })).toBeNull();
+    expect(clothingFromForecast({ ...forecast, samples: [sample(15), sample(16), sample(17)] })?.upper).toEqual(["long_top"]);
+  });
+  it("withholds recommendations for non-finite hourly data", () => {
+    expect(clothingFromForecast({ date: "2026-11-03", departureTime: "08:00", durationHours: 1, signature: "test", timeZone: "Europe/Madrid", complete: true, samples: [sample(15), sample(NaN)] })).toBeNull();
+  });
   it("makes hourly forecasts available up to 3 days, not 4 days", () => {
     const now = new Date("2026-11-02T07:00:00Z");
     expect(forecastAvailability("2026-11-05", now)).toBe("available");
