@@ -22,8 +22,8 @@ export function RaceWeatherCard({ competition }: {competition: any;}) {
   const qc = useQueryClient();
   const fetchFn = useServerFn(fetchRaceWeather);
   const [fresh, setFresh] = useState<{ id: string; weather: any; hydration: any } | null>(null);
-  const forecast = fresh?.id === competition.id ? fresh.weather : competition.weather_forecast as any;
-  const hydration = fresh?.id === competition.id ? fresh.hydration : competition.hydration_plan as any;
+  const forecast = fresh && fresh.id === competition.id ? fresh.weather : competition.weather_forecast as any;
+  const hydration = fresh && fresh.id === competition.id ? fresh.hydration : competition.hydration_plan as any;
   const hasTrack = (competition.track_points as any[] | null ?? []).filter(p => Number.isFinite(p?.lat) && Number.isFinite(p?.lon) && Math.abs(p.lat) <= 90 && Math.abs(p.lon) <= 180).length >= 2;
   const hourly = forecast?.route_hourly as RouteForecast | undefined;
   const text = (key: string) => clothingText(key, activeLang());
@@ -63,13 +63,13 @@ export function RaceWeatherCard({ competition }: {competition: any;}) {
   const requestKey = `${competition.id}:${signature}:${departure}`;
   const { mutate, isPending } = mut;
   useEffect(() => {
-    if (!edited.current || !valid || !hasTrack || !inRange || currentHourly || isPending || attempted.current === requestKey) return;
+    if (!edited.current || !valid || !arrival || !hasTrack || !inRange || currentHourly || isPending || attempted.current === requestKey) return;
     const timer = setTimeout(() => {
       attempted.current = requestKey;
       mutate({ competitionId: competition.id, departureTime: departure, durationHours, automatic: true });
     }, 600);
     return () => clearTimeout(timer);
-  }, [requestKey, competition.id, departure, durationHours, valid, hasTrack, inRange, currentHourly, isPending, mutate]);
+  }, [requestKey, competition.id, departure, durationHours, valid, arrival, hasTrack, inRange, currentHourly, isPending, mutate]);
   const clothingStatus = !hasTrack ? "no_track" : !inRange ? availability === "past" ? "past" : "far" : !valid || !arrival ? "invalid" : !currentHourly ? mut.isError && attempted.current === requestKey ? "error" : mut.isPending || edited.current ? "loading" : "pending" : undefined;
 
   return (
@@ -81,7 +81,7 @@ export function RaceWeatherCard({ competition }: {competition: any;}) {
         </div>
         <Button type="button" size="sm"
           onClick={() => { attempted.current = requestKey; mut.mutate({ competitionId: competition.id, departureTime: departure, durationHours }); }}
-          disabled={mut.isPending || !hasTrack || !inRange || !valid}
+          disabled={mut.isPending || !hasTrack || !inRange || !valid || !arrival}
           className="text-xs">
           
           <RefreshCw className={`size-3.5 ${mut.isPending ? "animate-spin" : ""}`} />
