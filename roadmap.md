@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Lote 2 de equipación: tarjeta visual bajo la previsión, actualización automática al cambiar hora/duración y validación de estados vacíos y obsoletos.
+
 - [x] Rutas con GPX: hora de salida, duración estimada ajustable, previsión horaria localizada hasta la llegada (incluido cambio de día), equipación en cinco idiomas y estado sin previsión a más de tres días; 14 pruebas correctas y compilación automática correcta. Servicio horario real y presentación de recomendaciones comprobados en móvil/escritorio sin desbordamiento.
 - [ ] Verificar consulta y persistencia meteorológica completa en Rutas con la cuenta solicitante: no existe cuenta asociada para iniciar sesión automáticamente; requiere iniciar sesión en la vista previa.
 
