@@ -155,55 +155,65 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
       return { weather: { ...cached, route_hourly: undefined }, hydration: comp.hydration_plan, routeHourly: cachedHourly, cached: true };
     }
 
-    const params = new URLSearchParams({
-      latitude: lat.toFixed(4),
-      longitude: lon.toFixed(4),
-      daily: "weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,relative_humidity_2m_mean,precipitation_sum,wind_speed_10m_max",
-      timezone: "auto",
-      start_date: comp.date,
-      end_date: comp.date,
-    });
-    const res = await fetchOpenMeteo("/v1/forecast", params);
-    if (res.status === 429) throw new Error("El servicio meteorológico está saturado. Inténtalo de nuevo en un minuto.");
-    if (!res.ok) throw new Error(`Open-Meteo ${res.status}`);
-    const json = (await res.json()) as { daily: OMDaily; timezone: string };
-    const d = json.daily;
-    if (!d?.time?.length) throw new Error("Sin datos meteorológicos");
+    let weather!: WeatherDay;
+    let routeHourly!: { date: string; departureTime: string; durationHours: number; signature: string; timeZone: string; samples: unknown[]; complete: boolean };
+    try {
+      const params = new URLSearchParams({
+        latitude: lat.toFixed(4),
+        longitude: lon.toFixed(4),
+        daily: "weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,relative_humidity_2m_mean,precipitation_sum,wind_speed_10m_max",
+        timezone: "auto",
+        start_date: comp.date,
+        end_date: comp.date,
+      });
+      const res = await fetchOpenMeteo("/v1/forecast", params);
+      if (res.status === 429) throw new Error("El servicio meteorológico está saturado. Inténtalo de nuevo en un minuto.");
+      if (!res.ok) throw new Error(`Open-Meteo ${res.status}`);
+      const json = (await res.json()) as { daily: OMDaily; timezone: string };
+      const d = json.daily;
+      if (!d?.time?.length) throw new Error("Sin datos meteorológicos");
 
-    const weather: WeatherDay = {
-      date: d.time[0],
-      temp_max_c: d.temperature_2m_max[0],
-      temp_min_c: d.temperature_2m_min[0],
-      apparent_max_c: d.apparent_temperature_max[0],
-      humidity_pct: d.relative_humidity_2m_mean?.[0] ?? 60,
-      wind_kmh: d.wind_speed_10m_max[0],
-      precip_mm: d.precipitation_sum[0],
-      weather_code: d.weather_code[0],
-      summary: "",
-    };
-    weather.summary = describeWeather(weather);
+      weather = {
+        date: d.time[0],
+        temp_max_c: d.temperature_2m_max[0],
+        temp_min_c: d.temperature_2m_min[0],
+        apparent_max_c: d.apparent_temperature_max[0],
+        humidity_pct: d.relative_humidity_2m_mean?.[0] ?? 60,
+        wind_kmh: d.wind_speed_10m_max[0],
+        precip_mm: d.precipitation_sum[0],
+        weather_code: d.weather_code[0],
+        summary: "",
+      };
+      weather.summary = describeWeather(weather);
 
-    // Duración estimada (misma lógica que carbs.ts, simple)
-    const durationH = data.durationHours ?? estimatedRouteHours(comp);
-    const departureTime = data.departureTime ?? "08:00";
-    const timeZone = json.timezone || "Europe/Madrid";
-    const schedule = routeSchedule(pts, durationH, routeDeparture(comp.date, departureTime, timeZone));
-    const endDate = new Date(Date.parse(`${comp.date}T00:00:00Z`) + 86400000).toISOString().slice(0, 10);
-    const hourlyParams = new URLSearchParams({
-      latitude: schedule.map(p => p.lat.toFixed(4)).join(","),
-      longitude: schedule.map(p => p.lon.toFixed(4)).join(","),
-      hourly: "temperature_2m,apparent_temperature,wind_speed_10m,precipitation,precipitation_probability",
-      timezone: timeZone,
-      timeformat: "unixtime",
-      start_date: comp.date,
-      end_date: endDate,
-    });
-    const hourlyRes = await fetchOpenMeteo("/v1/forecast", hourlyParams);
-    if (hourlyRes.status === 429) throw new Error("El servicio meteorológico está saturado. Inténtalo de nuevo en un minuto.");
-    if (!hourlyRes.ok) throw new Error(`Open-Meteo ${hourlyRes.status}`);
-    const hourlyJson = await hourlyRes.json() as { hourly: HourlyForecast }[] | { hourly: HourlyForecast };
-    const mapped = mapRouteHours(schedule, Array.isArray(hourlyJson) ? hourlyJson : [hourlyJson]);
-    const routeHourly = { date: comp.date, departureTime, durationHours: durationH, signature: routeWeatherSignature(pts, comp.date, durationH), timeZone, ...mapped };
+      const timeZone = json.timezone || "Europe/Madrid";
+      const schedule = routeSchedule(pts, requestedDuration, routeDeparture(comp.date, requestedDeparture, timeZone));
+      const endDate = new Date(Date.parse(`${comp.date}T00:00:00Z`) + 86400000).toISOString().slice(0, 10);
+      const hourlyParams = new URLSearchParams({
+        latitude: schedule.map(p => p.lat.toFixed(4)).join(","),
+        longitude: schedule.map(p => p.lon.toFixed(4)).join(","),
+        hourly: "temperature_2m,apparent_temperature,wind_speed_10m,precipitation,precipitation_probability",
+        timezone: timeZone,
+        timeformat: "unixtime",
+        start_date: comp.date,
+        end_date: endDate,
+      });
+      const hourlyRes = await fetchOpenMeteo("/v1/forecast", hourlyParams);
+      if (hourlyRes.status === 429) throw new Error("El servicio meteorológico está saturado. Inténtalo de nuevo en un minuto.");
+      if (!hourlyRes.ok) throw new Error(`Open-Meteo ${hourlyRes.status}`);
+      const hourlyJson = await hourlyRes.json() as { hourly: HourlyForecast }[] | { hourly: HourlyForecast };
+      const mapped = mapRouteHours(schedule, Array.isArray(hourlyJson) ? hourlyJson : [hourlyJson]);
+      routeHourly = { date: comp.date, departureTime: requestedDeparture, durationHours: requestedDuration, signature: requestedSignature, timeZone, ...mapped };
+    } catch (primaryError) {
+      // Respaldo automático: MET Norway (Yr) cuando Open-Meteo falla.
+      try {
+        const fallback = await metNoRouteForecast(pts, comp.date, requestedDeparture, requestedDuration, requestedSignature);
+        weather = fallback.weather;
+        routeHourly = fallback.routeHourly;
+      } catch {
+        throw primaryError instanceof Error ? primaryError : new Error("Servicio meteorológico no disponible");
+      }
+    }
 
     const { data: profile } = await supabase
       .from("profiles")
