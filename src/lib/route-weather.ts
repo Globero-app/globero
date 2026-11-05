@@ -92,6 +92,33 @@ export function mapRouteHours(schedule: ReturnType<typeof routeSchedule>, foreca
   return { samples, complete: samples.length === schedule.length };
 }
 
+/** Mapeo de símbolos MET Norway (locationforecast) a códigos WMO usados por describeWeather. */
+export function metNoSymbolToWmo(symbol: string): number {
+  const base = symbol.split("_")[0];
+  if (base.includes("thunder")) return 95;
+  switch (base) {
+    case "clearsky": return 0;
+    case "fair": return 1;
+    case "partlycloudy": return 2;
+    case "fog": return 45;
+    case "lightdrizzle": case "drizzle": return 51;
+    case "lightrain": return 61;
+    case "rain": return 63;
+    case "heavyrain": return 65;
+    case "lightsleet": case "sleet": case "heavysleet": return 68;
+    case "lightsnow": return 71;
+    case "snow": return 73;
+    case "heavysnow": return 75;
+    case "lightrainshowers": return 80;
+    case "rainshowers": return 81;
+    case "heavyrainshowers": return 82;
+    case "lightsleetshowers": case "sleetshowers": case "heavysleetshowers": return 83;
+    case "lightsnowshowers": return 85;
+    case "snowshowers": case "heavysnowshowers": return 86;
+    case "cloudy": default: return 3;
+  }
+}
+
 export type ClothingItem = "thermal_top" | "long_top" | "short_top" | "light_top" | "base_layer" | "thermal_tights" | "tights" | "shorts" | "leg_warmers" | "arm_warmers" | "vest" | "windbreaker" | "rain_jacket" | "full_gloves" | "light_gloves" | "overshoes" | "cap" | "sunscreen";
 export function clothingFromForecast(forecast?: RouteForecast | null) {
   if (!forecast?.complete || !Array.isArray(forecast.samples) || forecast.samples.length < 2) return null;
