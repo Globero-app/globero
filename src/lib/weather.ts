@@ -28,8 +28,9 @@ const WCODE: Record<number, string> = {
   45: "Niebla", 48: "Niebla helada",
   51: "Llovizna débil", 53: "Llovizna", 55: "Llovizna intensa",
   61: "Lluvia débil", 63: "Lluvia", 65: "Lluvia intensa",
-  71: "Nieve débil", 73: "Nieve", 75: "Nieve intensa",
+  68: "Lluvia y nieve", 71: "Nieve débil", 73: "Nieve", 75: "Nieve intensa",
   80: "Chubascos", 81: "Chubascos fuertes", 82: "Chubascos violentos",
+  83: "Chubascos de lluvia y nieve", 85: "Chubascos de nieve", 86: "Chubascos de nieve intensos",
   95: "Tormenta", 96: "Tormenta con granizo", 99: "Tormenta con granizo intenso",
 };
 
