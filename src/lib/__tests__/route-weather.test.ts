@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clothingFromForecast, estimatedRouteHours, forecastAvailability, mapRouteHours, metNoSymbolToWmo, routeDeparture, routeSchedule, routeWeatherSignature, type RouteHour } from "../route-weather";
+import { clothingFromForecast, estimatedRouteHours, forecastAvailability, mapRouteHours, metNoSymbolToWmo, recommendClothing, routeDeparture, routeSchedule, routeWeatherSignature, type RouteHour } from "../route-weather";
 
 const points = [{ lat: 41, lon: 2 }, { lat: 41, lon: 2.5 }, { lat: 41, lon: 3 }];
 const sample = (temperature: number, wind = 5, rain = 0, rainProbability = 0): RouteHour => ({ timestamp: 0, km: 0, lat: 41, lon: 2, temperature, apparent: temperature, wind, rain, rainProbability });

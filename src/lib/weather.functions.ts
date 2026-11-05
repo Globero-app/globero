@@ -156,7 +156,7 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
     }
 
     let weather!: WeatherDay;
-    let routeHourly!: { date: string; departureTime: string; durationHours: number; signature: string; timeZone: string; samples: unknown[]; complete: boolean };
+    let routeHourly!: { date: string; departureTime: string; durationHours: number; signature: string; timeZone: string; samples: RouteHour[]; complete: boolean };
     try {
       const params = new URLSearchParams({
         latitude: lat.toFixed(4),
