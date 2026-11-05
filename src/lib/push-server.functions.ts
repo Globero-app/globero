@@ -12,8 +12,10 @@ export const saveSubscription = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => SubSchema.parse(d))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context as any;
-    const { error } = await supabase.from("push_subscriptions").upsert({
+    const { userId } = context as any;
+    // Admin client: el guardado no debe depender de las políticas RLS del usuario.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("push_subscriptions").upsert({
       user_id: userId,
       endpoint: data.endpoint,
       p256dh: data.keys.p256dh,
