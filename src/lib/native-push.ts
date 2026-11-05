@@ -35,21 +35,15 @@ async function ensureNativeListeners(): Promise<void> {
   nativeListenersReady = true;
   const { PushNotifications } = await import("@capacitor/push-notifications");
 
-  // Android entrega el push a la WebView cuando la app está abierta, pero no lo
-  // muestra en la bandeja automáticamente. Lo convertimos en notificación local.
   await PushNotifications.addListener("pushNotificationReceived", async (notification) => {
+    // Android entrega el push a la WebView cuando la app está abierta, pero no lo
+    // muestra en la bandeja automáticamente. Lo convertimos en notificación local.
     try {
-      const { LocalNotifications } = await import("@capacitor/local-notifications");
-      const perm = await LocalNotifications.checkPermissions();
-      if (perm.display !== "granted") return;
-      await LocalNotifications.schedule({
-        notifications: [{
-          id: Date.now() % 2147483647,
-          title: notification.title ?? "Globero",
-          body: notification.body ?? "",
-          extra: notification.data ?? {},
-        }],
-      });
+      await showLocalForegroundNotification(
+        notification.title ?? "Globero",
+        notification.body ?? "",
+        notification.data ?? {},
+      );
     } catch (error) {
       console.error("No se pudo mostrar la notificación en primer plano", error);
     }
