@@ -144,6 +144,14 @@ export function WorkoutCard({
                 <FileText className="size-3.5" /> {tr("Ver informe")} 
             </button>
             }
+            {needsFeedback &&
+            <button
+              onClick={() => setShowFeedback(true)}
+              className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-mono uppercase rounded-md border border-amber-300 bg-amber-50 text-amber-700 px-2 py-1 hover:bg-amber-100">
+              
+                <CheckCircle2 className="size-3.5" /> {tr("Valorar sensaciones y generar informe")} 
+            </button>
+            }
           </div>
           <div className="flex items-center gap-1 shrink-0">
             {completed && <WorkoutStoryShare workout={w} />}
@@ -377,6 +385,66 @@ export function WorkoutCard({
                 
                 <Download className="size-4" /> {tr("Descargar .FIT")} 
 
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showFeedback} onOpenChange={setShowFeedback}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl uppercase">{tr("¿Cómo te has sentido?")}</DialogTitle>
+            <DialogDescription>{plan.title ?? plan.name ?? "Entrenamiento"}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-2">{tr("RPE (1-10)")}</p>
+              <div className="grid grid-cols-10 gap-1">
+                {Array.from({ length: 10 }, (_, i) => i + 1).map((n) =>
+                <button key={n} type="button" onClick={() => setFbRpe(n)}
+                className={`py-2 rounded-md border text-xs font-bold ${fbRpe === n ? "bg-primary text-primary-foreground border-primary" : "hover:bg-muted"}`}>
+                    {n}
+                  </button>
+                )}
+              </div>
+            </div>
+            <div>
+              <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-2">{tr("Sensaciones (1-5)")}</p>
+              <div className="grid grid-cols-5 gap-1">
+                {[tr("Muy mal"), tr("Mal"), tr("Normal"), tr("Bien"), tr("Muy bien")].map((label, i) =>
+                <button key={label} type="button" onClick={() => setFbFeel(i + 1)}
+                className={`py-2 rounded-md border text-[10px] font-semibold ${fbFeel === i + 1 ? "bg-primary text-primary-foreground border-primary" : "hover:bg-muted"}`}>
+                    {i + 1}
+                    <span className="block font-normal opacity-80">{label}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button type="button" onClick={() => setShowFeedback(false)} className="text-xs px-3 py-1.5 rounded-md hover:bg-secondary">{tr("Cancelar")}</button>
+              <button
+                type="button"
+                disabled={fbBusy || !linkedActivityId}
+                onClick={async () => {
+                  if (!linkedActivityId) return;
+                  setFbBusy(true);
+                  try {
+                    await saveFeedback({ data: { activity_id: linkedActivityId, rpe: fbRpe, feel: fbFeel } });
+                    toast.success(tr("Valoración guardada"));
+                    setShowFeedback(false);
+                    qc.invalidateQueries({ queryKey: ["activity-feedback-pending"] });
+                    qc.invalidateQueries({ queryKey: ["workouts"] });
+                    qc.invalidateQueries({ queryKey: ["calendar"] });
+                  } catch (e: any) {
+                    toast.error(e?.message ?? tr("No se ha podido guardar"));
+                  } finally {
+                    setFbBusy(false);
+                  }
+                }}
+                className="text-xs font-semibold px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50">
+                
+                {fbBusy ? tr("Guardando…") : tr("Guardar y generar informe")}
               </button>
             </div>
           </div>
