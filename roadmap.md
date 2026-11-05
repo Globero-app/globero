@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Equipación de respaldo con clima general cuando falten datos horarios; mantener validación y supresión de recomendaciones obsoletas.
+- [x] Equipación de respaldo con clima general cuando falten datos horarios, identificada como orientativa; validación y supresión de recomendaciones obsoletas conservadas. 15 pruebas y compilación correctas; tarjeta comprobada en móvil/escritorio. Consulta autenticada continúa bloqueada por sesión externa no disponible.
 
 - [x] Lote 2 de equipación: tarjeta visual bajo la previsión, actualización automática al cambiar hora/duración y estados sin GPX, inválido, carga, error e incompleto. Once pruebas y compilación correctas; tarjeta móvil/escritorio y supresión inmediata de recomendaciones obsoletas verificadas con datos de prueba. Consulta y guardado con cuenta real pendientes en la comprobación meteorológica indicada abajo.
 
