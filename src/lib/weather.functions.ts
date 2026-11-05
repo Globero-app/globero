@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { planHydration, describeWeather, type WeatherDay } from "./weather";
 import { z } from "zod";
-import { estimatedRouteHours, forecastAvailability, mapRouteHours, metNoSymbolToWmo, routeDeparture, routeSchedule, routeWeatherSignature, type HourlyForecast } from "./route-weather";
+import { estimatedRouteHours, forecastAvailability, mapRouteHours, metNoSymbolToWmo, routeDeparture, routeSchedule, routeWeatherSignature, type HourlyForecast, type RouteHour } from "./route-weather";
 import type { TrackPoint } from "./gpx";
 
 function openMeteoUrl(path: string, params: URLSearchParams) {
@@ -72,7 +72,7 @@ async function metNoRouteForecast(pts: TrackPoint[], date: string, departureTime
   const midPick = Math.floor(schedule.length / 2);
   const picks = [...new Set([0, midPick, schedule.length - 1])];
   const series = await Promise.all(picks.map(i => fetchMetNoSeries(schedule[i].lat, schedule[i].lon)));
-  const samples: any[] = [];
+  const samples: RouteHour[] = [];
   for (let i = 0; i < schedule.length; i++) {
     let best = 0;
     for (let k = 1; k < picks.length; k++) if (Math.abs(picks[k] - i) < Math.abs(picks[best] - i)) best = k;
