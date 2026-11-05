@@ -101,7 +101,25 @@ export async function linkWorkoutActivity(
         .eq("user_id", userId)
         .eq("activity_id", String(activityId))
         .maybeSingle();
-      if (fb?.feedback_completed) {
+      if (!fb) {
+        // Sin registro de valoración: crearlo pendiente para pedir RPE/sensaciones
+        let day = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid" }).format(new Date());
+        try {
+          const { data: a2 } = await supabase
+            .from("intervals_activities")
+            .select("start_date")
+            .eq("id", String(activityId))
+            .eq("user_id", userId)
+            .maybeSingle();
+          if (a2?.start_date) {
+            day = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid" }).format(new Date(a2.start_date));
+          }
+        } catch { /* fecha por defecto: hoy */ }
+        await supabase.from("daily_activities").upsert(
+          { user_id: userId, activity_id: String(activityId), date: day, feedback_completed: false },
+          { onConflict: "user_id,activity_id", ignoreDuplicates: true },
+        );
+      } else if (fb.feedback_completed) {
         if (fb.rpe) {
           await supabase
             .from("workouts")

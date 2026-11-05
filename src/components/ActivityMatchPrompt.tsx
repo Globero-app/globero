@@ -65,6 +65,7 @@ export function ActivityMatchPrompt({ enabled = true }: {enabled?: boolean;}) {
           tr("Actividad asignada a la competición")
         );
       }
+      if (v.accept) qc.invalidateQueries({ queryKey: ["activity-feedback-pending"] });
       qc.invalidateQueries({ queryKey: ["activity-matches"] });
       qc.invalidateQueries({ queryKey: ["calendar"] });
       qc.invalidateQueries({ queryKey: ["workouts"] });

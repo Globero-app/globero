@@ -29,6 +29,15 @@ export const saveActivityFeedback = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => Input.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    // Asegura que exista el registro (p. ej. actividad vinculada manualmente)
+    await supabase.from("daily_activities").upsert(
+      {
+        user_id: userId,
+        activity_id: data.activity_id,
+        date: new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Madrid" }).format(new Date()),
+      },
+      { onConflict: "user_id,activity_id", ignoreDuplicates: true },
+    );
     const { error } = await supabase
       .from("daily_activities")
       .update({ rpe: data.rpe, feel: data.feel, feedback_completed: true })
