@@ -48,27 +48,36 @@ export async function enableServerPush(): Promise<{ ok: true } | { ok: false; re
   const np = await import("./native-push");
   if (np.isNativePush()) return np.enableNativePush();
   if (!serverPushSupported()) return { ok: false, reason: "Tu navegador no soporta Web Push" };
+  try {
   const perm = await Notification.requestPermission();
   if (perm !== "granted") return { ok: false, reason: "Permiso denegado" };
   const reg = await registerServiceWorker();
   if (!reg) return { ok: false, reason: "No se pudo registrar el service worker" };
   await navigator.serviceWorker.ready;
-  let sub = await reg.pushManager.getSubscription();
-  if (!sub) {
-    sub = await reg.pushManager.subscribe({
+  const previous = await reg.pushManager.getSubscription();
+  if (previous && !(await previous.unsubscribe())) {
+    return { ok: false, reason: "No se pudo renovar la suscripción push anterior" };
+  }
+  const sub = await reg.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
     });
+  const json = sub.toJSON();
+  if (!json.endpoint || !json.keys?.p256dh || !json.keys.auth) {
+    return { ok: false, reason: "La suscripción push no contiene las claves necesarias" };
   }
-  const json = sub.toJSON() as any;
-  await saveSubscription({
+  const saved = await saveSubscription({
     data: {
       endpoint: json.endpoint,
       keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
       user_agent: navigator.userAgent,
     },
   });
+  if (!saved?.ok) return { ok: false, reason: "No se pudo guardar la suscripción push en el servidor" };
   return { ok: true };
+  } catch (error) {
+    return { ok: false, reason: error instanceof Error ? error.message : String(error) };
+  }
 }
 
 export async function disableServerPush(): Promise<void> {
