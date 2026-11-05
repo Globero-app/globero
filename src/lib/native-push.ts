@@ -1,10 +1,34 @@
 // Notificaciones nativas (Capacitor) en Android/iOS. En navegador no hace nada.
 import { Capacitor } from "@capacitor/core";
+import { toast } from "sonner";
 import { saveDeviceToken, removeDeviceToken } from "./push-server.functions";
 
 export const isNativePush = () => Capacitor.isNativePlatform();
 
 let nativeListenersReady = false;
+
+// LocalNotifications no es obligatorio: si el binario del APK no lo incluye,
+// mostramos el aviso en primer plano con un toast en su lugar.
+async function showLocalForegroundNotification(title: string, body: string, extra: unknown): Promise<boolean> {
+  try {
+    const { LocalNotifications } = await import("@capacitor/local-notifications");
+    const perm = await LocalNotifications.checkPermissions();
+    if (perm.display !== "granted") return false;
+    await LocalNotifications.schedule({
+      notifications: [{
+        id: Date.now() % 2147483647,
+        title,
+        body,
+        extra: extra as any,
+      }],
+    });
+    return true;
+  } catch (error) {
+    console.error("No se pudo mostrar la notificación en primer plano", error);
+    toast.message(title, { description: body });
+    return false;
+  }
+}
 
 async function ensureNativeListeners(): Promise<void> {
   if (nativeListenersReady) return;
