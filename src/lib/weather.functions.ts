@@ -45,7 +45,7 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { data: comp, error } = await supabase
       .from("competitions")
-      .select("id,user_id,date,track_points,distance_km,elevation_m,intensity,duration_hours")
+      .select("id,user_id,date,track_points,distance_km,elevation_m,intensity,duration_hours,weather_forecast,hydration_plan")
       .eq("id", data.competitionId)
       .maybeSingle();
     if (error) throw new Error(error.message);
