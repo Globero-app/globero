@@ -61,9 +61,14 @@ export async function enableNativePush(): Promise<{ ok: true } | { ok: false; re
   if (perm.receive === "prompt" || perm.receive === "prompt-with-rationale") perm = await PushNotifications.requestPermissions();
   if (perm.receive !== "granted") return { ok: false, reason: "Permiso denegado" };
 
-  const { LocalNotifications } = await import("@capacitor/local-notifications");
-  const localPerm = await LocalNotifications.checkPermissions();
-  if (localPerm.display !== "granted") await LocalNotifications.requestPermissions();
+  // LocalNotifications es opcional: si falta en el binario, seguimos sin bloquear.
+  try {
+    const { LocalNotifications } = await import("@capacitor/local-notifications");
+    const localPerm = await LocalNotifications.checkPermissions();
+    if (localPerm.display !== "granted") await LocalNotifications.requestPermissions();
+  } catch (error) {
+    console.error("LocalNotifications no disponible en este binario", error);
+  }
   await ensureNativeListeners();
 
   const platform = Capacitor.getPlatform() as "android" | "ios";
