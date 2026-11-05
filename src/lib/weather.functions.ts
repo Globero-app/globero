@@ -34,7 +34,7 @@ async function resolveTimeZone(lat: number, lon: number) {
   return "Europe/Madrid";
 }
 
-interface MetNoPoint { temp: number; humidity: number; windKmh: number; precip: number; prob: number; code: number }
+interface MetNoPoint { temp: number; apparent: number; humidity: number; windKmh: number; precip: number; prob: number; code: number }
 
 async function fetchMetNoSeries(lat: number, lon: number) {
   const res = await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}`, {
@@ -54,10 +54,11 @@ async function fetchMetNoSeries(lat: number, lon: number) {
     const precip = next?.details?.precipitation_amount;
     map.set(Math.floor(t / 3600000) * 3600, {
       temp: details.air_temperature,
+      apparent: details.apparent_air_temperature ?? details.air_temperature,
       humidity: details.relative_humidity ?? 60,
       windKmh: (details.wind_speed ?? 0) * 3.6,
       precip: precip != null ? (next1 ? precip : precip / 6) : 0,
-      prob: next?.details?.probability_of_precipitation ?? (precip > 0 ? 60 : 0),
+      prob: next1?.details?.probability_of_precipitation ?? next6?.details?.probability_of_precipitation ?? (precip > 0 ? 60 : 0),
       code: metNoSymbolToWmo(next?.summary?.symbol_code ?? "cloudy"),
     });
   }
