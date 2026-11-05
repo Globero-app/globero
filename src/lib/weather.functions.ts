@@ -61,6 +61,22 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
     if (availability === "past") throw new Error("La ruta ya ha pasado");
     if (availability !== "available") throw new Error("La previsión solo está disponible desde 3 días antes de la ruta");
 
+    // Caché de 30 min: si ya hay previsión con los mismos parámetros, se reutiliza sin llamar a Open-Meteo.
+    const requestedDuration = data.durationHours ?? estimatedRouteHours(comp);
+    const requestedDeparture = data.departureTime ?? "08:00";
+    const requestedSignature = routeWeatherSignature(pts, comp.date, requestedDuration);
+    const cached = comp.weather_forecast as any;
+    const cachedHourly = cached?.route_hourly as any;
+    const cachedAge = cached?.fetched_at ? Date.now() - Date.parse(cached.fetched_at) : Infinity;
+    if (
+      cached?.date === comp.date && cachedAge < 30 * 60 * 1000 &&
+      cachedHourly?.signature === requestedSignature &&
+      cachedHourly?.departureTime === requestedDeparture &&
+      cachedHourly?.durationHours === requestedDuration
+    ) {
+      return { weather: { ...cached, route_hourly: undefined }, hydration: comp.hydration_plan, routeHourly: cachedHourly, cached: true };
+    }
+
     const params = new URLSearchParams({
       latitude: lat.toFixed(4),
       longitude: lon.toFixed(4),
