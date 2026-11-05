@@ -39,6 +39,12 @@ import { enableNativePush } from "./native-push";
 beforeEach(() => {
   for (const key of Object.keys(listeners)) delete listeners[key];
   vi.clearAllMocks();
+  const storage = new Map<string, string>();
+  vi.stubGlobal("localStorage", {
+    getItem: (key: string) => storage.get(key) ?? null,
+    setItem: (key: string, value: string) => storage.set(key, value),
+    removeItem: (key: string) => storage.delete(key),
+  });
 });
 
 describe("enableNativePush", () => {
