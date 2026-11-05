@@ -222,7 +222,7 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
       .maybeSingle();
     const weight = profile?.weight_kg ?? 70;
 
-    const hydration = planHydration(weight, durationH, weather);
+    const hydration = planHydration(weight, requestedDuration, weather);
 
     const { error: uErr } = await supabase
       .from("competitions")
