@@ -40,8 +40,9 @@ export const saveDeviceToken = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ token: z.string().min(10).max(4096), platform: z.enum(["android", "ios"]) }).parse(d))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context as any;
-    const { error } = await supabase.from("device_push_tokens").upsert(
+    const { userId } = context as any;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("device_push_tokens").upsert(
       { user_id: userId, token: data.token, platform: data.platform, last_used_at: new Date().toISOString() },
       { onConflict: "token" },
     );
@@ -64,23 +65,27 @@ export const sendTestPush = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { userId } = context as any;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const payload = {
+      title: "🔔 Push del servidor activo",
+      body: "Recibirás avisos aunque cierres la app.",
+      tag: "test-server",
+      url: "/perfil",
+    };
     const { data: subs } = await supabaseAdmin
       .from("push_subscriptions").select("*").eq("user_id", userId);
-    if (!subs || !subs.length) throw new Error("No hay suscripciones. Activa el push primero.");
+    const { count: devices } = await supabaseAdmin
+      .from("device_push_tokens").select("token", { count: "exact", head: true }).eq("user_id", userId);
+    if (!subs?.length && !devices) throw new Error("No hay suscripciones. Activa el push primero.");
     const { sendWebPush } = await import("./web-push.server");
     let sent = 0;
-    for (const s of subs as any[]) {
-      const ok = await sendWebPush(
-        { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
-        {
-          title: "🔔 Push del servidor activo",
-          body: "Recibirás avisos aunque cierres la app.",
-          tag: "test-server",
-          url: "/perfil",
-        },
-      );
+    for (const s of (subs ?? []) as any[]) {
+      const ok = await sendWebPush({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, payload);
       if (ok) sent++;
       else await supabaseAdmin.from("push_subscriptions").delete().eq("endpoint", s.endpoint);
+    }
+    if (devices) {
+      const { sendNativeToUser } = await import("./native-push.server");
+      sent += await sendNativeToUser(userId, payload);
     }
     return { sent };
   });
