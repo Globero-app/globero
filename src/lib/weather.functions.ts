@@ -85,12 +85,7 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
       start_date: comp.date,
       end_date: comp.date,
     });
-    const url = `https://api.open-meteo.com/v1/forecast?${params.toString()}`;
-    let res = await fetch(url, { signal: AbortSignal.timeout(15000) });
-    for (let i = 0; i < 3 && res.status === 429; i++) {
-      await new Promise((r) => setTimeout(r, 2000 * (i + 1)));
-      res = await fetch(url, { signal: AbortSignal.timeout(15000) });
-    }
+    const res = await fetchOpenMeteo("/v1/forecast", params);
     if (res.status === 429) throw new Error("El servicio meteorológico está saturado. Inténtalo de nuevo en un minuto.");
     if (!res.ok) throw new Error(`Open-Meteo ${res.status}`);
     const json = (await res.json()) as { daily: OMDaily; timezone: string };
@@ -125,7 +120,8 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
       start_date: comp.date,
       end_date: endDate,
     });
-    const hourlyRes = await fetch(`https://api.open-meteo.com/v1/forecast?${hourlyParams}`, { signal: AbortSignal.timeout(15000) });
+    const hourlyRes = await fetchOpenMeteo("/v1/forecast", hourlyParams);
+    if (hourlyRes.status === 429) throw new Error("El servicio meteorológico está saturado. Inténtalo de nuevo en un minuto.");
     if (!hourlyRes.ok) throw new Error(`Open-Meteo ${hourlyRes.status}`);
     const hourlyJson = await hourlyRes.json() as { hourly: HourlyForecast }[] | { hourly: HourlyForecast };
     const mapped = mapRouteHours(schedule, Array.isArray(hourlyJson) ? hourlyJson : [hourlyJson]);
