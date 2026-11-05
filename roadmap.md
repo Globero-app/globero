@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Equipación de respaldo con clima general cuando falten datos horarios; mantener validación y supresión de recomendaciones obsoletas.
+
 - [x] Lote 2 de equipación: tarjeta visual bajo la previsión, actualización automática al cambiar hora/duración y estados sin GPX, inválido, carga, error e incompleto. Once pruebas y compilación correctas; tarjeta móvil/escritorio y supresión inmediata de recomendaciones obsoletas verificadas con datos de prueba. Consulta y guardado con cuenta real pendientes en la comprobación meteorológica indicada abajo.
 
 - [x] Rutas con GPX: hora de salida, duración estimada ajustable, previsión horaria localizada hasta la llegada (incluido cambio de día), equipación en cinco idiomas y estado sin previsión a más de tres días; 14 pruebas correctas y compilación automática correcta. Servicio horario real y presentación de recomendaciones comprobados en móvil/escritorio sin desbordamiento.

@@ -122,7 +122,7 @@ export function RaceWeatherCard({ competition }: {competition: any;}) {
         </>
       }
 
-      <RouteClothingForecast forecast={currentHourly && inRange && hasTrack ? hourly : undefined} status={clothingStatus} />
+      <RouteClothingForecast forecast={currentHourly && inRange && hasTrack ? hourly : undefined} generalWeather={hasTrack && inRange && valid && arrival && !isPending && forecast?.date === competition.date && (currentHourly || (!hourly && !edited.current)) ? forecast : undefined} status={clothingStatus} />
 
       {hasTrack && hydration && forecast?.date === competition.date && inRange && currentHourly && !clothingStatus &&
       <div className="border-t pt-4 space-y-3">
