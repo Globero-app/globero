@@ -123,7 +123,8 @@ export function NotificationsPrefs() {
       // Resincroniza la suscripción del navegador en el servidor antes de probar,
       // por si la suscripción cambió o no llegó a guardarse.
       const r0 = await enableServerPush();
-      if (r0.ok) setServerSub("subscribed");
+      if (!r0.ok) throw new Error(r0.reason);
+      setServerSub("subscribed");
       const r = (await testFn({})) as {sent: number;};
       toast.success(r.sent === 1 ? tr("Enviado a 1 dispositivo") : `${tr("Enviado a")} ${r.sent} ${tr("dispositivos")}`);
     } catch (e: any) {toast.error(e.message);} finally
