@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clothingFromForecast, estimatedRouteHours, forecastAvailability, routeDeparture, routeSchedule, mapRouteHours, recommendClothing, routeWeatherSignature, type RouteHour } from "../route-weather";
+import { clothingFromForecast, estimatedRouteHours, forecastAvailability, mapRouteHours, metNoSymbolToWmo, routeDeparture, routeSchedule, routeWeatherSignature, type RouteHour } from "../route-weather";
 
 const points = [{ lat: 41, lon: 2 }, { lat: 41, lon: 2.5 }, { lat: 41, lon: 3 }];
 const sample = (temperature: number, wind = 5, rain = 0, rainProbability = 0): RouteHour => ({ timestamp: 0, km: 0, lat: 41, lon: 2, temperature, apparent: temperature, wind, rain, rainProbability });
@@ -71,5 +71,20 @@ describe("route hourly clothing", () => {
     expect(routeWeatherSignature(points, "2026-11-03", 2)).not.toBe(original);
     expect(routeWeatherSignature(points, "2026-11-02", 3)).not.toBe(original);
     expect(routeWeatherSignature([...points, { lat: 42, lon: 3 }], "2026-11-02", 2)).not.toBe(original);
+  });
+});
+describe("metNoSymbolToWmo", () => {
+  it("maps MET Norway symbols to WMO weather codes", () => {
+    expect(metNoSymbolToWmo("clearsky_day")).toBe(0);
+    expect(metNoSymbolToWmo("fair_night")).toBe(1);
+    expect(metNoSymbolToWmo("partlycloudy_day")).toBe(2);
+    expect(metNoSymbolToWmo("cloudy")).toBe(3);
+    expect(metNoSymbolToWmo("fog")).toBe(45);
+    expect(metNoSymbolToWmo("lightrain")).toBe(61);
+    expect(metNoSymbolToWmo("heavyrain")).toBe(65);
+    expect(metNoSymbolToWmo("sleetshowers_day")).toBe(83);
+    expect(metNoSymbolToWmo("heavysnow")).toBe(75);
+    expect(metNoSymbolToWmo("rainshowersandthunder_polartwilight")).toBe(95);
+    expect(metNoSymbolToWmo("unknown_symbol")).toBe(3);
   });
 });
