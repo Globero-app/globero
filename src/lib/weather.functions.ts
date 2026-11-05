@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { planHydration, describeWeather, type WeatherDay } from "./weather";
 import { z } from "zod";
-import { estimatedRouteHours, forecastAvailability, mapRouteHours, routeDeparture, routeSchedule, routeWeatherSignature, type HourlyForecast } from "./route-weather";
+import { estimatedRouteHours, forecastAvailability, mapRouteHours, metNoSymbolToWmo, routeDeparture, routeSchedule, routeWeatherSignature, type HourlyForecast } from "./route-weather";
 import type { TrackPoint } from "./gpx";
 
 function openMeteoUrl(path: string, params: URLSearchParams) {
@@ -21,6 +21,84 @@ async function fetchOpenMeteo(path: string, params: URLSearchParams) {
     res = await fetch(url, { signal: AbortSignal.timeout(15000) });
   }
   return res;
+}
+
+// --- MET Norway (respaldo) ---
+
+async function resolveTimeZone(lat: number, lon: number) {
+  try {
+    const res = await fetch(`https://timeapi.io/api/timezone/coordinate?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}`, { signal: AbortSignal.timeout(5000) });
+    const json = (await res.json()) as { timeZone?: string };
+    if (res.ok && json?.timeZone) return json.timeZone;
+  } catch { /* Zona horaria por defecto abajo. */ }
+  return "Europe/Madrid";
+}
+
+interface MetNoPoint { temp: number; humidity: number; windKmh: number; precip: number; prob: number; code: number }
+
+async function fetchMetNoSeries(lat: number, lon: number) {
+  const res = await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}`, {
+    headers: { "User-Agent": "Globero/1.0 (https://coach.globero.app)" },
+    signal: AbortSignal.timeout(15000),
+  });
+  if (!res.ok) throw new Error(`MET Norway ${res.status}`);
+  const json = (await res.json()) as any;
+  const map = new Map<number, MetNoPoint>();
+  for (const entry of json?.properties?.timeseries ?? []) {
+    const t = Date.parse(entry.time);
+    if (!Number.isFinite(t)) continue;
+    const details = entry.data?.instant?.details ?? {};
+    const next1 = entry.data?.next_1_hours;
+    const next6 = entry.data?.next_6_hours;
+    const next = next1 ?? next6;
+    const precip = next?.details?.precipitation_amount;
+    map.set(Math.floor(t / 3600000) * 3600, {
+      temp: details.air_temperature,
+      humidity: details.relative_humidity ?? 60,
+      windKmh: (details.wind_speed ?? 0) * 3.6,
+      precip: precip != null ? (next1 ? precip : precip / 6) : 0,
+      prob: next?.details?.probability_of_precipitation ?? (precip > 0 ? 60 : 0),
+      code: metNoSymbolToWmo(next?.summary?.symbol_code ?? "cloudy"),
+    });
+  }
+  if (!map.size) throw new Error("Sin datos meteorológicos");
+  return map;
+}
+
+async function metNoRouteForecast(pts: TrackPoint[], date: string, departureTime: string, durationH: number, signature: string) {
+  const mid = pts[Math.floor(pts.length / 2)];
+  const timeZone = await resolveTimeZone(mid.lat, mid.lon);
+  const schedule = routeSchedule(pts, durationH, routeDeparture(date, departureTime, timeZone));
+  const midPick = Math.floor(schedule.length / 2);
+  const picks = [...new Set([0, midPick, schedule.length - 1])];
+  const series = await Promise.all(picks.map(i => fetchMetNoSeries(schedule[i].lat, schedule[i].lon)));
+  const samples: any[] = [];
+  for (let i = 0; i < schedule.length; i++) {
+    let best = 0;
+    for (let k = 1; k < picks.length; k++) if (Math.abs(picks[k] - i) < Math.abs(picks[best] - i)) best = k;
+    const point = series[best].get(Math.floor(schedule[i].timestamp / 3600000) * 3600);
+    if (!point || !Number.isFinite(point.temp)) continue;
+    samples.push({ ...schedule[i], temperature: point.temp, apparent: point.temp, wind: point.windKmh, rain: point.precip, rainProbability: point.prob });
+  }
+  const dayFmt = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" });
+  const dayEntries = [...series[picks.indexOf(midPick) >= 0 ? picks.indexOf(midPick) : 0].entries()]
+    .filter(([hour]) => dayFmt.format(new Date(hour * 1000)) === date)
+    .map(([, v]) => v);
+  const temps = dayEntries.map(e => e.temp).filter(Number.isFinite);
+  if (!temps.length) throw new Error("Sin datos meteorológicos");
+  const weather: WeatherDay = {
+    date,
+    temp_max_c: Math.max(...temps),
+    temp_min_c: Math.min(...temps),
+    apparent_max_c: Math.max(...temps),
+    humidity_pct: dayEntries.reduce((a, e) => a + e.humidity, 0) / dayEntries.length,
+    wind_kmh: Math.max(...dayEntries.map(e => e.windKmh)),
+    precip_mm: dayEntries.reduce((a, e) => a + e.precip, 0),
+    weather_code: Math.max(...dayEntries.map(e => e.code)),
+    summary: "",
+  };
+  weather.summary = describeWeather(weather);
+  return { weather, routeHourly: { date, departureTime, durationHours: durationH, signature, timeZone, samples, complete: samples.length === schedule.length } };
 }
 
 interface OMDaily {
