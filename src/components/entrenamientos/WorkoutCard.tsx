@@ -1,4 +1,7 @@
 import { tr, activeLang } from "@/lib/i18n";import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { saveActivityFeedback } from "@/lib/activity-feedback.functions";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { es, ca, fr, enGB, de } from "date-fns/locale";
@@ -48,10 +51,18 @@ export function WorkoutCard({
   const [submitting, setSubmitting] = useState(false);
   const [converting, setConverting] = useState(false);
   const [showReport, setShowReport] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [fbRpe, setFbRpe] = useState(5);
+  const [fbFeel, setFbFeel] = useState(3);
+  const [fbBusy, setFbBusy] = useState(false);
+  const qc = useQueryClient();
+  const saveFeedback = useServerFn(saveActivityFeedback);
   const isIndoor = w.bike_type === "rodillo" || !!(w.plan as any)?.indoor;
 
   const plan = w.plan ?? {};
   const completed = w.status === "completed";
+  const linkedActivityId = plan.strava_activity_id ? String(plan.strava_activity_id) : null;
+  const needsFeedback = completed && !!linkedActivityId && !plan.report?.text;
   const skipped = w.status === "skipped";
   const actionable = canActOnWorkout(w.status);
 
