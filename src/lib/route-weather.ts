@@ -1,4 +1,5 @@
 import { pointAtKm, trackStats, type TrackPoint } from "./gpx";
+import type { WeatherDay } from "./weather";
 
 export interface RouteHour {
   timestamp: number;
@@ -120,6 +121,17 @@ export function metNoSymbolToWmo(symbol: string): number {
 }
 
 export type ClothingItem = "thermal_top" | "long_top" | "short_top" | "light_top" | "base_layer" | "thermal_tights" | "tights" | "shorts" | "leg_warmers" | "arm_warmers" | "vest" | "windbreaker" | "rain_jacket" | "full_gloves" | "light_gloves" | "overshoes" | "cap" | "sunscreen";
+/** Daily totals are not hourly rain intensity; use them only to recommend rain protection. */
+export function clothingFromWeather(weather?: WeatherDay | null) {
+  if (!weather || ![weather.temp_min_c, weather.temp_max_c, weather.apparent_max_c, weather.wind_kmh, weather.precip_mm].every(Number.isFinite) || weather.temp_min_c > weather.temp_max_c || weather.wind_kmh < 0 || weather.precip_mm < 0) return null;
+  const wet = weather.precip_mm > 0 || [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 68, 71, 73, 75, 77, 80, 81, 82, 83, 85, 86, 95, 96, 99].includes(weather.weather_code);
+  return recommendClothing([weather.temp_min_c, weather.temp_max_c].map(temperature => ({
+    timestamp: 0, km: 0, lat: 0, lon: 0, temperature,
+    apparent: Math.min(temperature, weather.apparent_max_c), wind: weather.wind_kmh,
+    rain: 0, rainProbability: wet ? 40 : 0,
+  })));
+}
+
 export function clothingFromForecast(forecast?: RouteForecast | null) {
   if (!forecast?.complete || !Array.isArray(forecast.samples) || forecast.samples.length < 2) return null;
   const expected = Math.ceil(Math.round(forecast.durationHours * 60) / 60) + 1;

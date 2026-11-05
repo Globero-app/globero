@@ -1,9 +1,29 @@
 import { describe, expect, it } from "vitest";
-import { clothingFromForecast, estimatedRouteHours, forecastAvailability, mapRouteHours, metNoSymbolToWmo, recommendClothing, routeDeparture, routeSchedule, routeWeatherSignature, type RouteHour } from "../route-weather";
+import { clothingFromForecast, clothingFromWeather, estimatedRouteHours, forecastAvailability, mapRouteHours, metNoSymbolToWmo, recommendClothing, routeDeparture, routeSchedule, routeWeatherSignature, type RouteHour } from "../route-weather";
 
 const points = [{ lat: 41, lon: 2 }, { lat: 41, lon: 2.5 }, { lat: 41, lon: 3 }];
 const sample = (temperature: number, wind = 5, rain = 0, rainProbability = 0): RouteHour => ({ timestamp: 0, km: 0, lat: 41, lon: 2, temperature, apparent: temperature, wind, rain, rainProbability });
 describe("route hourly clothing", () => {
+  const general = { date: "2026-11-08", temp_min_c: 7, temp_max_c: 19, apparent_max_c: 18, humidity_pct: 60, wind_kmh: 25, precip_mm: 8, weather_code: 63, summary: "" };
+  it("falls back to general weather when hourly coverage is incomplete", () => {
+    const hourly = { date: general.date, departureTime: "08:00", durationHours: 2, signature: "test", timeZone: "Europe/Madrid", complete: false, samples: [sample(19)] };
+    const result = clothingFromForecast(hourly) ?? clothingFromWeather(general);
+    expect(result?.upper).toEqual(["thermal_top", "base_layer"]);
+    expect(result?.legs).toEqual(["thermal_tights"]);
+    expect(result?.accessories).toEqual(expect.arrayContaining(["windbreaker", "rain_jacket"]));
+    expect(result?.min).toBe(7);
+    expect(result?.max).toBe(19);
+    expect(result?.heavyRain).toBe(false);
+  });
+  it("does not recommend clothing without valid general weather", () => {
+    expect(clothingFromWeather(undefined)).toBeNull();
+    expect(clothingFromWeather({ ...general, temp_min_c: NaN })).toBeNull();
+    expect(clothingFromWeather({ ...general, temp_min_c: 20 })).toBeNull();
+  });
+  it("uses rain symbols for protection but keeps dry weather free of rain gear", () => {
+    expect(clothingFromWeather({ ...general, precip_mm: 0 })?.accessories).toContain("rain_jacket");
+    expect(clothingFromWeather({ ...general, precip_mm: 0, weather_code: 0 })?.accessories).not.toContain("rain_jacket");
+  });
   it("withholds clothing for empty and incomplete forecasts even if complete was incorrectly stored", () => {
     const forecast = { date: "2026-11-03", departureTime: "08:00", durationHours: 2, signature: "test", timeZone: "Europe/Madrid", complete: true, samples: [] as RouteHour[] };
     expect(clothingFromForecast(undefined)).toBeNull();

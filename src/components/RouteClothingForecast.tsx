@@ -1,20 +1,23 @@
 import { activeLang, localeCode } from "@/lib/i18n";
 import { clothingText } from "@/lib/route-clothing-i18n";
-import { clothingFromForecast, type RouteForecast } from "@/lib/route-weather";
+import { clothingFromForecast, clothingFromWeather, type RouteForecast } from "@/lib/route-weather";
+import type { WeatherDay } from "@/lib/weather";
 import { Shirt, Wind, Droplets, AlertTriangle, Layers, Thermometer, LoaderCircle } from "lucide-react";
 import kitImage from "@/assets/route-cycling-kit.jpg";
 
-export function RouteClothingForecast({ forecast, status }: { forecast?: RouteForecast; status?: string }) {
+export function RouteClothingForecast({ forecast, generalWeather, status }: { forecast?: RouteForecast; generalWeather?: WeatherDay; status?: string }) {
   const lang = activeLang();
   const text = (key: string) => clothingText(key, lang);
-  const recommendation = status ? null : clothingFromForecast(forecast);
+  const hourlyRecommendation = status ? null : clothingFromForecast(forecast);
+  const recommendation = hourlyRecommendation ?? (!status || status === "pending" || status === "error" ? clothingFromWeather(generalWeather) : null);
+  const isFallback = Boolean(recommendation && !hourlyRecommendation);
   const samples = (forecast?.samples ?? []).filter(sample => [sample.timestamp, sample.temperature, sample.apparent, sample.km, sample.wind, sample.rain, sample.rainProbability].every(Number.isFinite));
   const time = (timestamp: number) => new Intl.DateTimeFormat(localeCode(), { timeZone: forecast?.timeZone ?? "Europe/Madrid", hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" }).format(new Date(timestamp));
   return <section className="space-y-4 border-t pt-4 min-w-0">
     {forecast && !status && <>
     <h3 className="font-display text-lg font-bold">{text("conditions")}</h3>
     <p className="text-xs text-muted-foreground">{text("zone")}: {forecast.timeZone}</p>
-    {recommendation && <p className="text-sm font-semibold">{Math.round(recommendation.min)}–{Math.round(recommendation.max)} °C · <Wind className="inline size-3.5" /> {Math.round(recommendation.wind)} km/h · <Droplets className="inline size-3.5" /> {recommendation.rain.toFixed(1)} mm/h · {recommendation.probability}%</p>}
+    {hourlyRecommendation && <p className="text-sm font-semibold">{Math.round(hourlyRecommendation.min)}–{Math.round(hourlyRecommendation.max)} °C · <Wind className="inline size-3.5" /> {Math.round(hourlyRecommendation.wind)} km/h · <Droplets className="inline size-3.5" /> {hourlyRecommendation.rain.toFixed(1)} mm/h · {hourlyRecommendation.probability}%</p>}
     <div className="flex gap-2 overflow-x-auto pb-2" aria-label={text("conditions")}>
       {samples.map(sample => <div key={sample.timestamp} className="shrink-0 w-32 rounded-lg border bg-background p-3 space-y-1 text-xs">
         <p className="text-muted-foreground">{time(sample.timestamp)}</p>
@@ -48,7 +51,7 @@ export function RouteClothingForecast({ forecast, status }: { forecast?: RouteFo
         </div>)}
       </dl>
       </div>
-      <p className="text-xs text-muted-foreground">{text("guidance")}</p>
+      <p className="text-xs text-muted-foreground">{text(isFallback ? "fallback_guidance" : "guidance")}</p>
       {(recommendation.cold || recommendation.strongWind || recommendation.heavyRain) && <p className="flex gap-2 text-sm text-destructive"><AlertTriangle className="size-4 shrink-0" />{text("risk")}</p>}
     </>}
     </div>
