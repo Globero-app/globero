@@ -34,7 +34,7 @@ async function resolveTimeZone(lat: number, lon: number) {
   return "Europe/Madrid";
 }
 
-interface MetNoPoint { temp: number; humidity: number; windKmh: number; precip: number; prob: number; code: number }
+interface MetNoPoint { temp: number; apparent: number; humidity: number; windKmh: number; precip: number; prob: number; code: number }
 
 async function fetchMetNoSeries(lat: number, lon: number) {
   const res = await fetch(`https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=${lat.toFixed(4)}&lon=${lon.toFixed(4)}`, {
@@ -54,10 +54,11 @@ async function fetchMetNoSeries(lat: number, lon: number) {
     const precip = next?.details?.precipitation_amount;
     map.set(Math.floor(t / 3600000) * 3600, {
       temp: details.air_temperature,
+      apparent: details.apparent_air_temperature ?? details.air_temperature,
       humidity: details.relative_humidity ?? 60,
       windKmh: (details.wind_speed ?? 0) * 3.6,
       precip: precip != null ? (next1 ? precip : precip / 6) : 0,
-      prob: next?.details?.probability_of_precipitation ?? (precip > 0 ? 60 : 0),
+      prob: next1?.details?.probability_of_precipitation ?? next6?.details?.probability_of_precipitation ?? (precip > 0 ? 60 : 0),
       code: metNoSymbolToWmo(next?.summary?.symbol_code ?? "cloudy"),
     });
   }
@@ -78,19 +79,20 @@ async function metNoRouteForecast(pts: TrackPoint[], date: string, departureTime
     for (let k = 1; k < picks.length; k++) if (Math.abs(picks[k] - i) < Math.abs(picks[best] - i)) best = k;
     const point = series[best].get(Math.floor(schedule[i].timestamp / 3600000) * 3600);
     if (!point || !Number.isFinite(point.temp)) continue;
-    samples.push({ ...schedule[i], temperature: point.temp, apparent: point.temp, wind: point.windKmh, rain: point.precip, rainProbability: point.prob });
+    samples.push({ ...schedule[i], temperature: point.temp, apparent: point.apparent, wind: point.windKmh, rain: point.precip, rainProbability: point.prob });
   }
   const dayFmt = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" });
   const dayEntries = [...series[picks.indexOf(midPick) >= 0 ? picks.indexOf(midPick) : 0].entries()]
     .filter(([hour]) => dayFmt.format(new Date(hour * 1000)) === date)
     .map(([, v]) => v);
   const temps = dayEntries.map(e => e.temp).filter(Number.isFinite);
+  const apparents = dayEntries.map(e => e.apparent).filter(Number.isFinite);
   if (!temps.length) throw new Error("Sin datos meteorológicos");
   const weather: WeatherDay = {
     date,
     temp_max_c: Math.max(...temps),
     temp_min_c: Math.min(...temps),
-    apparent_max_c: Math.max(...temps),
+    apparent_max_c: apparents.length ? Math.max(...apparents) : Math.max(...temps),
     humidity_pct: dayEntries.reduce((a, e) => a + e.humidity, 0) / dayEntries.length,
     wind_kmh: Math.max(...dayEntries.map(e => e.windKmh)),
     precip_mm: dayEntries.reduce((a, e) => a + e.precip, 0),
