@@ -5,6 +5,24 @@ import { z } from "zod";
 import { estimatedRouteHours, forecastAvailability, mapRouteHours, routeDeparture, routeSchedule, routeWeatherSignature, type HourlyForecast } from "./route-weather";
 import type { TrackPoint } from "./gpx";
 
+function openMeteoUrl(path: string, params: URLSearchParams) {
+  const key = process.env.OPEN_METEO_API_KEY;
+  if (key) params.set("apikey", key);
+  return `https://${key ? "customer-api" : "api"}.open-meteo.com${path}?${params.toString()}`;
+}
+
+async function fetchOpenMeteo(path: string, params: URLSearchParams) {
+  const url = openMeteoUrl(path, params);
+  let res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+  for (let i = 0; i < 3 && res.status === 429; i++) {
+    const retryAfter = Number(res.headers.get("Retry-After"));
+    const wait = (Number.isFinite(retryAfter) && retryAfter > 0 ? Math.min(retryAfter, 30) : [4, 10, 25][i]) * 1000 + Math.random() * 1000;
+    await new Promise((r) => setTimeout(r, wait));
+    res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+  }
+  return res;
+}
+
 interface OMDaily {
   time: string[];
   temperature_2m_max: number[];
@@ -27,7 +45,7 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { data: comp, error } = await supabase
       .from("competitions")
-      .select("id,user_id,date,track_points,distance_km,elevation_m,intensity,duration_hours")
+      .select("id,user_id,date,track_points,distance_km,elevation_m,intensity,duration_hours,weather_forecast,hydration_plan")
       .eq("id", data.competitionId)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -43,6 +61,22 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
     if (availability === "past") throw new Error("La ruta ya ha pasado");
     if (availability !== "available") throw new Error("La previsión solo está disponible desde 3 días antes de la ruta");
 
+    // Caché de 30 min: si ya hay previsión con los mismos parámetros, se reutiliza sin llamar a Open-Meteo.
+    const requestedDuration = data.durationHours ?? estimatedRouteHours(comp);
+    const requestedDeparture = data.departureTime ?? "08:00";
+    const requestedSignature = routeWeatherSignature(pts, comp.date, requestedDuration);
+    const cached = comp.weather_forecast as any;
+    const cachedHourly = cached?.route_hourly as any;
+    const cachedAge = cached?.fetched_at ? Date.now() - Date.parse(cached.fetched_at) : Infinity;
+    if (
+      cached?.date === comp.date && cachedAge < 30 * 60 * 1000 &&
+      cachedHourly?.signature === requestedSignature &&
+      cachedHourly?.departureTime === requestedDeparture &&
+      cachedHourly?.durationHours === requestedDuration
+    ) {
+      return { weather: { ...cached, route_hourly: undefined }, hydration: comp.hydration_plan, routeHourly: cachedHourly, cached: true };
+    }
+
     const params = new URLSearchParams({
       latitude: lat.toFixed(4),
       longitude: lon.toFixed(4),
@@ -51,12 +85,7 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
       start_date: comp.date,
       end_date: comp.date,
     });
-    const url = `https://api.open-meteo.com/v1/forecast?${params.toString()}`;
-    let res = await fetch(url, { signal: AbortSignal.timeout(15000) });
-    for (let i = 0; i < 3 && res.status === 429; i++) {
-      await new Promise((r) => setTimeout(r, 2000 * (i + 1)));
-      res = await fetch(url, { signal: AbortSignal.timeout(15000) });
-    }
+    const res = await fetchOpenMeteo("/v1/forecast", params);
     if (res.status === 429) throw new Error("El servicio meteorológico está saturado. Inténtalo de nuevo en un minuto.");
     if (!res.ok) throw new Error(`Open-Meteo ${res.status}`);
     const json = (await res.json()) as { daily: OMDaily; timezone: string };
@@ -91,7 +120,8 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
       start_date: comp.date,
       end_date: endDate,
     });
-    const hourlyRes = await fetch(`https://api.open-meteo.com/v1/forecast?${hourlyParams}`, { signal: AbortSignal.timeout(15000) });
+    const hourlyRes = await fetchOpenMeteo("/v1/forecast", hourlyParams);
+    if (hourlyRes.status === 429) throw new Error("El servicio meteorológico está saturado. Inténtalo de nuevo en un minuto.");
     if (!hourlyRes.ok) throw new Error(`Open-Meteo ${hourlyRes.status}`);
     const hourlyJson = await hourlyRes.json() as { hourly: HourlyForecast }[] | { hourly: HourlyForecast };
     const mapped = mapRouteHours(schedule, Array.isArray(hourlyJson) ? hourlyJson : [hourlyJson]);
