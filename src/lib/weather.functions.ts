@@ -79,19 +79,20 @@ async function metNoRouteForecast(pts: TrackPoint[], date: string, departureTime
     for (let k = 1; k < picks.length; k++) if (Math.abs(picks[k] - i) < Math.abs(picks[best] - i)) best = k;
     const point = series[best].get(Math.floor(schedule[i].timestamp / 3600000) * 3600);
     if (!point || !Number.isFinite(point.temp)) continue;
-    samples.push({ ...schedule[i], temperature: point.temp, apparent: point.temp, wind: point.windKmh, rain: point.precip, rainProbability: point.prob });
+    samples.push({ ...schedule[i], temperature: point.temp, apparent: point.apparent, wind: point.windKmh, rain: point.precip, rainProbability: point.prob });
   }
   const dayFmt = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" });
   const dayEntries = [...series[picks.indexOf(midPick) >= 0 ? picks.indexOf(midPick) : 0].entries()]
     .filter(([hour]) => dayFmt.format(new Date(hour * 1000)) === date)
     .map(([, v]) => v);
   const temps = dayEntries.map(e => e.temp).filter(Number.isFinite);
+  const apparents = dayEntries.map(e => e.apparent).filter(Number.isFinite);
   if (!temps.length) throw new Error("Sin datos meteorológicos");
   const weather: WeatherDay = {
     date,
     temp_max_c: Math.max(...temps),
     temp_min_c: Math.min(...temps),
-    apparent_max_c: Math.max(...temps),
+    apparent_max_c: apparents.length ? Math.max(...apparents) : Math.max(...temps),
     humidity_pct: dayEntries.reduce((a, e) => a + e.humidity, 0) / dayEntries.length,
     wind_kmh: Math.max(...dayEntries.map(e => e.windKmh)),
     precip_mm: dayEntries.reduce((a, e) => a + e.precip, 0),
