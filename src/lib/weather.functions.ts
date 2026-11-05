@@ -5,6 +5,24 @@ import { z } from "zod";
 import { estimatedRouteHours, forecastAvailability, mapRouteHours, routeDeparture, routeSchedule, routeWeatherSignature, type HourlyForecast } from "./route-weather";
 import type { TrackPoint } from "./gpx";
 
+function openMeteoUrl(path: string, params: URLSearchParams) {
+  const key = process.env.OPEN_METEO_API_KEY;
+  if (key) params.set("apikey", key);
+  return `https://${key ? "customer-api" : "api"}.open-meteo.com${path}?${params.toString()}`;
+}
+
+async function fetchOpenMeteo(path: string, params: URLSearchParams) {
+  const url = openMeteoUrl(path, params);
+  let res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+  for (let i = 0; i < 3 && res.status === 429; i++) {
+    const retryAfter = Number(res.headers.get("Retry-After"));
+    const wait = (Number.isFinite(retryAfter) && retryAfter > 0 ? Math.min(retryAfter, 30) : [4, 10, 25][i]) * 1000 + Math.random() * 1000;
+    await new Promise((r) => setTimeout(r, wait));
+    res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+  }
+  return res;
+}
+
 interface OMDaily {
   time: string[];
   temperature_2m_max: number[];
