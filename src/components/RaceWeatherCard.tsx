@@ -7,6 +7,8 @@ import { useEffect, useRef, useState } from "react";
 import { activeLang, localeCode } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
 import { RouteClothingForecast } from "./RouteClothingForecast";
 import { clothingText } from "@/lib/route-clothing-i18n";
 import { estimatedRouteHours, forecastAvailability, routeDeparture, routeWeatherSignature, type RouteForecast } from "@/lib/route-weather";
