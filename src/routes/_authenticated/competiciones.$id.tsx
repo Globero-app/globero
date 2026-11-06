@@ -11,7 +11,7 @@ import { buildTcxWithCoursePoints } from "@/lib/tcx";
 import { planRaceNutrition, dailyMacros } from "@/lib/carbs";
 import { GpxMap } from "@/components/GpxMap";
 import { GpxElevationChart } from "@/components/GpxElevationChart";
-import { injectWaterWaypoints, type WaterSource } from "@/utils/gpxWaterFinder";
+import { type WaterSource } from "@/utils/gpxWaterFinder";
 import { isNative } from "@/lib/native-geo";
 import { RaceWeatherCard } from "@/components/RaceWeatherCard";
 import { Upload, Download, ChefHat, Sparkles, ArrowLeft, RefreshCcw, FileDown, X, Eye } from "lucide-react";
