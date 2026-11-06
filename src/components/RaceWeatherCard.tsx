@@ -64,6 +64,20 @@ export function RaceWeatherCard({ competition }: {competition: any;}) {
   });
   const requestKey = `${competition.id}:${signature}:${departure}`;
   const { mutate, isPending } = mut;
+  const [progressStep, setProgressStep] = useState(0);
+  useEffect(() => {
+    if (!isPending) {
+      setProgressStep(0);
+      return;
+    }
+    setProgressStep(0);
+    const weatherTimer = setTimeout(() => setProgressStep(1), 900);
+    const adviceTimer = setTimeout(() => setProgressStep(2), 2200);
+    return () => {
+      clearTimeout(weatherTimer);
+      clearTimeout(adviceTimer);
+    };
+  }, [isPending]);
   useEffect(() => {
     if (!edited.current || !valid || !arrival || !hasTrack || !inRange || currentHourly || isPending || attempted.current === requestKey) return;
     const timer = setTimeout(() => {
