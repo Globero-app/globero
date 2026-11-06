@@ -36,4 +36,4 @@
 - Keep Android launcher artwork in density-specific native resources, with matching adaptive and legacy icons; Android launchers cannot resolve CDN asset pointers.
 - Mirror native Firebase messages received while the Capacitor app is foregrounded through guarded LocalNotifications listeners; FCM accepts those messages without automatically showing them in the Android tray.
 - Use the shared GPX elevation chart in route details for uploaded and generated routes, computing cumulative kilometres from original GPX points to avoid distance loss from map simplification.
-- Build route nutrition TCX exports through the pure tested TCX module, reading every original GPX trackpoint when available and emitting each carbohydrate intake as a Food CoursePoint.
+- Build route nutrition TCX exports through the pure tested TCX module, reading every original GPX trackpoint when available and emitting each carbohydrate intake as a Food CoursePoint whose name and notes carry the planned grams and elapsed time from the start, so the cycle computer can show them.

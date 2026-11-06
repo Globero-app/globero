@@ -2,9 +2,17 @@ import { cleanLabel, nearestTrackPointAtKm, type TrackPoint } from "./gpx";
 
 export interface TcxCoursePointInput {
   km: number;
+  /** Minutos transcurridos desde la salida para esta toma. */
+  minute?: number | null;
   label?: string | null;
   note?: string | null;
   carbs_g?: number | null;
+}
+
+/** Minutos desde la salida → "H:MM" legible en el ciclocomputador. */
+export function formatRideClock(minutes: number): string {
+  const total = Math.max(0, Math.round(Number(minutes) || 0));
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
 }
 
 function escapeXml(value: unknown): string {
@@ -77,7 +85,15 @@ ${p.ele != null ? `          <AltitudeMeters>${p.ele}</AltitudeMeters>\n` : ""} 
     if (!point) return "";
     const label = cleanLabel(waypoint.label || waypoint.note || (waypoint.carbs_g ? `CHO ${waypoint.carbs_g}g` : "Avituallamiento"));
     const amount = waypoint.carbs_g || Number(label.match(/(\d+)\s*g/i)?.[1]);
-    const name = amount ? `CHO ${amount}g` : label.slice(0, 15);
+    const minute = Number(waypoint.minute);
+    const clock = Number.isFinite(minute) && waypoint.minute != null ? formatRideClock(minute) : "";
+    const name = `${amount ? `CHO ${amount}g` : label.slice(0, 12)}${clock ? ` ${clock}` : ""}`.slice(0, 24) || "Food";
+    const notes = [
+      `KM ${Number(waypoint.km) || 0}`,
+      clock ? `t+${clock}` : "",
+      amount ? `${amount} g CHO` : "",
+      label,
+    ].filter(Boolean).join(" - ");
     return `      <CoursePoint>
         <Name>${escapeXml(name)}</Name>
         <Time>${escapeXml(point.time || points[0].time || generatedAt)}</Time>
@@ -86,7 +102,7 @@ ${p.ele != null ? `          <AltitudeMeters>${p.ele}</AltitudeMeters>\n` : ""} 
           <LongitudeDegrees>${point.lon}</LongitudeDegrees>
         </Position>
 ${point.ele != null ? `        <AltitudeMeters>${point.ele}</AltitudeMeters>\n` : ""}        <PointType>Food</PointType>
-        <Notes>KM ${Number(waypoint.km) || 0} - ${escapeXml(label)}</Notes>
+        <Notes>${escapeXml(notes)}</Notes>
       </CoursePoint>`;
   }).filter(Boolean).join("\n");
 
