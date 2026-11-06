@@ -183,6 +183,7 @@ function CompetitionDetail() {
       if (!c.gpx_data && points.length < 2) {toast.error(tr("Sube un GPX y genera el plan primero"));return;}
       const newTcx = buildTcxWithCoursePoints(c.gpx_data || "", points, wpts.map((w: any) => ({
         km: Number(w.km) || 0,
+        minute: w.minute == null ? null : Number(w.minute),
         label: w.label,
         note: w.note,
         carbs_g: w.carbs_g,

@@ -102,7 +102,7 @@ ${p.ele != null ? `          <AltitudeMeters>${p.ele}</AltitudeMeters>\n` : ""} 
           <LongitudeDegrees>${point.lon}</LongitudeDegrees>
         </Position>
 ${point.ele != null ? `        <AltitudeMeters>${point.ele}</AltitudeMeters>\n` : ""}        <PointType>Food</PointType>
-        <Notes>KM ${Number(waypoint.km) || 0} - ${escapeXml(label)}</Notes>
+        <Notes>${escapeXml(notes)}</Notes>
       </CoursePoint>`;
   }).filter(Boolean).join("\n");
 
