@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n";import { CloudSun, Droplets, Wind, Thermometer, RefreshCw, AlertTriangle } from "lucide-react";
+import { tr } from "@/lib/i18n";import { CloudSun, Droplets, Wind, Thermometer, RefreshCw, AlertTriangle, Check, LoaderCircle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { fetchRaceWeather } from "@/lib/weather.functions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
