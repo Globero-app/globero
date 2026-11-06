@@ -95,19 +95,6 @@ ${point.ele != null ? `        <AltitudeMeters>${point.ele}</AltitudeMeters>\n` 
   <Courses>
     <Course>
       <Name>${escapeXml(routeName)}</Name>
-      <Lap>
-        <TotalTimeSeconds>0</TotalTimeSeconds>
-        <DistanceMeters>0</DistanceMeters>
-        <BeginPosition>
-          <LatitudeDegrees>${points[0].lat}</LatitudeDegrees>
-          <LongitudeDegrees>${points[0].lon}</LongitudeDegrees>
-        </BeginPosition>
-        <EndPosition>
-          <LatitudeDegrees>${points[points.length - 1].lat}</LatitudeDegrees>
-          <LongitudeDegrees>${points[points.length - 1].lon}</LongitudeDegrees>
-        </EndPosition>
-        <Intensity>Active</Intensity>
-      </Lap>
       <Track>
 ${trackXml}
       </Track>

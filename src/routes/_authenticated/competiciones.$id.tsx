@@ -287,8 +287,8 @@ function CompetitionDetail() {
                   <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{tr("Plan en carrera")}</p>
                   <p className="font-semibold text-sm">{np.perHour} {tr("g/h ·")} {np.total}{tr("g total ·")} {np.durationH}{tr("h estimadas")}</p>
                 </div>
-                <button onClick={downloadGpx} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs font-semibold">
-                  <Download className="size-3.5" /> {tr("Descargar GPX con waypoints")} 
+                <button onClick={downloadTcx} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs font-semibold">
+                  <Download className="size-3.5" /> {tr("Descargar TCX con waypoints")} 
               </button>
               </div>
               <p className="text-[10px] text-muted-foreground mb-2"> {tr("Dosis ajustadas por perfil, forma (Intervals.icu últimas 4 semanas) y perfil altimétrico.")} 
