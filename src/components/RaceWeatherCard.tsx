@@ -1,4 +1,4 @@
-import { tr } from "@/lib/i18n";import { CloudSun, Droplets, Wind, Thermometer, RefreshCw, AlertTriangle } from "lucide-react";
+import { tr } from "@/lib/i18n";import { CloudSun, Droplets, Wind, Thermometer, RefreshCw, AlertTriangle, Check, LoaderCircle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { fetchRaceWeather } from "@/lib/weather.functions";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -7,6 +7,8 @@ import { useEffect, useRef, useState } from "react";
 import { activeLang, localeCode } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
 import { RouteClothingForecast } from "./RouteClothingForecast";
 import { clothingText } from "@/lib/route-clothing-i18n";
 import { estimatedRouteHours, forecastAvailability, routeDeparture, routeWeatherSignature, type RouteForecast } from "@/lib/route-weather";
@@ -62,6 +64,20 @@ export function RaceWeatherCard({ competition }: {competition: any;}) {
   });
   const requestKey = `${competition.id}:${signature}:${departure}`;
   const { mutate, isPending } = mut;
+  const [progressStep, setProgressStep] = useState(0);
+  useEffect(() => {
+    if (!isPending) {
+      setProgressStep(0);
+      return;
+    }
+    setProgressStep(0);
+    const weatherTimer = setTimeout(() => setProgressStep(1), 900);
+    const adviceTimer = setTimeout(() => setProgressStep(2), 2200);
+    return () => {
+      clearTimeout(weatherTimer);
+      clearTimeout(adviceTimer);
+    };
+  }, [isPending]);
   useEffect(() => {
     if (!edited.current || !valid || !arrival || !hasTrack || !inRange || currentHourly || isPending || attempted.current === requestKey) return;
     const timer = setTimeout(() => {
@@ -72,8 +88,36 @@ export function RaceWeatherCard({ competition }: {competition: any;}) {
   }, [requestKey, competition.id, departure, durationHours, valid, arrival, hasTrack, inRange, currentHourly, isPending, mutate]);
   const clothingStatus = !hasTrack ? "no_track" : !inRange ? availability === "past" ? "past" : "far" : !valid || !arrival ? "invalid" : !currentHourly ? mut.isError && attempted.current === requestKey ? "error" : mut.isPending || edited.current ? "loading" : "pending" : undefined;
 
+  const progressStages = [text("progress_gpx"), text("progress_weather"), text("progress_advice")];
+
   return (
-    <div className="bg-surface border rounded-xl p-5 space-y-4">
+    <>
+      <Dialog open={isPending} onOpenChange={() => undefined}>
+        <DialogContent
+          className="max-w-sm"
+          onEscapeKeyDown={event => event.preventDefault()}
+          onPointerDownOutside={event => event.preventDefault()}
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <DialogHeader>
+            <DialogTitle>{text("progress_title")}</DialogTitle>
+            <DialogDescription>{text("progress_description")}</DialogDescription>
+          </DialogHeader>
+          <Progress value={[22, 60, 90][progressStep]} className="h-2.5" />
+          <ol className="space-y-3">
+            {progressStages.map((stage, index) => (
+              <li key={stage} className={`flex items-center gap-3 text-sm ${index > progressStep ? "text-muted-foreground/60" : "text-foreground"}`}>
+                <span className={`flex size-6 shrink-0 items-center justify-center rounded-full border ${index < progressStep ? "border-primary bg-primary text-primary-foreground" : index === progressStep ? "border-primary text-primary" : "border-border"}`}>
+                  {index < progressStep ? <Check className="size-3.5" /> : index === progressStep ? <LoaderCircle className="size-3.5 animate-spin" /> : <span className="size-1.5 rounded-full bg-current" />}
+                </span>
+                <span>{stage}</span>
+              </li>
+            ))}
+          </ol>
+        </DialogContent>
+      </Dialog>
+      <div className="bg-surface border rounded-xl p-5 space-y-4">
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div>
           <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary">{tr("Clima e hidratación")}</p>
@@ -147,7 +191,8 @@ export function RaceWeatherCard({ competition }: {competition: any;}) {
         }
         </div>
       }
-    </div>);
+      </div>
+    </>);
 
 }
 
