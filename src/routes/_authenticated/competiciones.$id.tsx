@@ -178,43 +178,46 @@ function CompetitionDetail() {
   };
   processRef.current = processGpxText;
 
-  const downloadGpx = async () => {
+  const downloadTcx = async () => {
     try {
       if (!c.gpx_data && points.length < 2) {toast.error(tr("Sube un GPX y genera el plan primero"));return;}
-      let newGpx = buildGpxWithWaypoints(c.gpx_data || "", points, wpts.map((w: any) => ({ km: Number(w.km) || 0, label: w.label || w.note || (w.carbs_g ? "CHO " + w.carbs_g + "g" : "Avituallamiento") })), c.name || "Ruta");
-      try { if (displayedWaterSources.length) newGpx = injectWaterWaypoints(newGpx, displayedWaterSources, points); } catch (e) { console.error(e); }
-      const filename = `${(c.name || "ruta").replace(/[\\/:*?"<>|]/g, "_")}_nutricion.gpx`;
-      if (!newGpx.trim().startsWith("<?xml")) newGpx = `<?xml version="1.0" encoding="UTF-8"?>\n${newGpx.trim()}`;
-      if (!/<\/gpx>\s*$/.test(newGpx)) throw new Error(tr("GPX incompleto"));
+      const newTcx = buildTcxWithCoursePoints(c.gpx_data || "", points, wpts.map((w: any) => ({
+        km: Number(w.km) || 0,
+        label: w.label,
+        note: w.note,
+        carbs_g: w.carbs_g,
+      })), c.name || "Ruta");
+      const filename = `${(c.name || "ruta").replace(/[\\/:*?"<>|]/g, "_")}_nutricion.tcx`;
+      if (!/<\/TrainingCenterDatabase>\s*$/.test(newTcx)) throw new Error(tr("TCX incompleto"));
       if (isNative()) {
         const { Filesystem, Directory, Encoding } = await import("@capacitor/filesystem");
         try {
-          await Filesystem.writeFile({ path: `Globero/${filename}`, data: newGpx, directory: Directory.Documents, encoding: Encoding.UTF8, recursive: true });
-          toast.success(`${tr("GPX descargado en")} Documentos/Globero/${filename}`);
+          await Filesystem.writeFile({ path: `Globero/${filename}`, data: newTcx, directory: Directory.Documents, encoding: Encoding.UTF8, recursive: true });
+          toast.success(`${tr("TCX descargado en")} Documentos/Globero/${filename}`);
         } catch (err) {
           console.error(err);
           const { Share } = await import("@capacitor/share");
-          const file = await Filesystem.writeFile({ path: filename, data: newGpx, directory: Directory.Cache, encoding: Encoding.UTF8 });
-          await Share.share({ title: filename, url: file.uri, dialogTitle: tr("Compartir GPX") });
+          const file = await Filesystem.writeFile({ path: filename, data: newTcx, directory: Directory.Cache, encoding: Encoding.UTF8 });
+          await Share.share({ title: filename, url: file.uri, dialogTitle: tr("Compartir TCX") });
         }
         return;
       }
-      const blob = new Blob([newGpx], { type: "application/gpx+xml;charset=utf-8" });
+      const blob = new Blob([newTcx], { type: "application/vnd.garmin.tcx+xml;charset=utf-8" });
       const nav: any = navigator;
-      if (nav.msSaveOrOpenBlob) { nav.msSaveOrOpenBlob(blob, filename); toast.success(tr("Descarga del GPX iniciada")); return; }
+      if (nav.msSaveOrOpenBlob) { nav.msSaveOrOpenBlob(blob, filename); toast.success(tr("Descarga del TCX iniciada")); return; }
       if (gpxFallback) URL.revokeObjectURL(gpxFallback.url);
       const url = URL.createObjectURL(blob);
-      setGpxFallback({ url, filename, xml: newGpx });
+      setGpxFallback({ url, filename, xml: newTcx });
       const a = document.createElement("a");a.href = url;a.download = filename;a.target = "_blank";a.rel = "noopener noreferrer";a.style.display = "none";
       document.body.appendChild(a);a.click();
       setTimeout(() => a.remove(), 1000);
       let inIframe = false;
       try { inIframe = window.self !== window.top; } catch { inIframe = true; }
       if (inIframe) { try { window.open(url, "_blank"); } catch { /* usar enlaces alternativos */ } }
-      toast.success(tr("Descarga del GPX iniciada"));
+      toast.success(tr("Descarga del TCX iniciada"));
     } catch (err) {
-      console.error("downloadGpx", err);
-      toast.error(err instanceof Error ? err.message : tr("No se pudo descargar el GPX"));
+      console.error("downloadTcx", err);
+      toast.error(err instanceof Error ? err.message : tr("No se pudo descargar el TCX"));
     }
   };
 
