@@ -191,7 +191,8 @@ export function RaceWeatherCard({ competition }: {competition: any;}) {
         }
         </div>
       }
-    </div>);
+      </div>
+    </>);
 
 }
 
