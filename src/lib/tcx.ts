@@ -131,7 +131,7 @@ ${point.ele != null && Number.isFinite(point.ele) ? `        <AltitudeMeters>${p
 <TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd">
   <Courses>
     <Course>
-      <Name>${escapeXml(cleanLabel(routeName).slice(0, 15))}</Name>
+      <Name>${escapeXml((routeName.trim() || "Ruta").slice(0, 15))}</Name>
       <Lap>
         <TotalTimeSeconds>${totalSeconds}</TotalTimeSeconds>
         <DistanceMeters>${totalDistance.toFixed(3)}</DistanceMeters>
