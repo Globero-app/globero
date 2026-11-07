@@ -21,8 +21,8 @@ describe("buildTcxWithCoursePoints", () => {
     expect(tcx).toContain("<LatitudeDegrees>40.030004</LatitudeDegrees>");
     expect(tcx.match(/<CoursePoint>/g)).toHaveLength(2);
     expect(tcx.match(/<PointType>Food<\/PointType>/g)).toHaveLength(2);
-    expect(tcx).toContain("<Name>CHO 30g 0:45</Name>");
-    expect(tcx).toContain("<Name>CHO 40g 1:30</Name>");
+    expect(tcx).toContain("<Name>30g 0:45</Name>");
+    expect(tcx).toContain("<Name>40g 1:30</Name>");
     expect(tcx).toContain("<Name>Ruta &amp; prueba</Name>");
     expect(tcx).not.toContain("<wpt");
   });
@@ -32,7 +32,7 @@ describe("buildTcxWithCoursePoints", () => {
       { km: 15, minute: 45, label: "tramo llano", carbs_g: 30 },
     ]);
 
-    expect(tcx).toContain("<Name>CHO 30g 0:45</Name>");
+    expect(tcx).toContain("<Name>30g 0:45</Name>");
     expect(tcx).toContain("<Notes>KM 15 - t+0:45 - 30 g CHO - tramo llano</Notes>");
   });
 
@@ -54,7 +54,42 @@ describe("buildTcxWithCoursePoints", () => {
     expect(tcx.match(/<Trackpoint>/g)).toHaveLength(2);
     expect(tcx.match(/<CoursePoint>/g)).toHaveLength(1);
     expect(tcx).toContain("<PointType>Food</PointType>");
-    expect(tcx).toContain("<Name>CHO 25g 0:12</Name>");
+    expect(tcx).toContain("<Name>25g 0:12</Name>");
+  });
+
+  it("incluye tiempo obligatorio y distancia acumulada en cada punto aunque el GPX no tenga tiempos", () => {
+    const tcx = buildTcxWithCoursePoints("", [
+      { lat: 0, lon: 0 }, { lat: 0, lon: 0.01 }, { lat: 0, lon: 0.02 },
+    ], []);
+    const trackpoints = [...tcx.matchAll(/<Trackpoint>([\s\S]*?)<\/Trackpoint>/g)].map((m) => m[1]);
+    const times = trackpoints.map((p) => Date.parse(p.match(/<Time>(.*?)<\/Time>/)?.[1] || ""));
+    const distances = trackpoints.map((p) => Number(p.match(/<DistanceMeters>(.*?)<\/DistanceMeters>/)?.[1]));
+    expect(times.every(Number.isFinite)).toBe(true);
+    expect(times[1]).toBeGreaterThan(times[0]);
+    expect(times[2]).toBeGreaterThan(times[1]);
+    expect(distances[0]).toBe(0);
+    expect(distances[1]).toBeCloseTo(1111.949, 2);
+    expect(distances[2]).toBeCloseTo(2223.899, 2);
+    const lap = tcx.match(/<Lap>([\s\S]*?)<\/Lap>/)?.[1] || "";
+    expect(Number(lap.match(/<DistanceMeters>(.*?)<\/DistanceMeters>/)?.[1])).toBe(distances[2]);
+    expect(Number(lap.match(/<TotalTimeSeconds>(.*?)<\/TotalTimeSeconds>/)?.[1])).toBeGreaterThan(0);
+  });
+
+  it("conserva el track con namespace GPX y limita los nombres según el esquema Garmin", () => {
+    const tcx = buildTcxWithCoursePoints(originalGpx.replace(/(<\/?)(trkpt|ele|time)\b/g, "$1gpx:$2"), [], [
+      { km: 1, minute: 90, carbs_g: 30 },
+    ], "Ruta con un nombre muy largo");
+    expect(tcx.match(/<Trackpoint>/g)).toHaveLength(4);
+    expect(tcx).toContain("<AltitudeMeters>610</AltitudeMeters>");
+    const courseName = tcx.match(/<Course>\s*<Name>(.*?)<\/Name>/)?.[1] || "";
+    const foodName = tcx.match(/<CoursePoint>\s*<Name>(.*?)<\/Name>/)?.[1] || "";
+    expect(courseName.length).toBe(15);
+    expect(foodName).toBe("30g 1:30");
+    expect(tcx).toContain("<Notes>KM 1 - t+1:30 - 30 g CHO - CHO 30g</Notes>");
+  });
+
+  it("rechaza coordenadas inválidas en lugar de descargar una ruta vacía", () => {
+    expect(() => buildTcxWithCoursePoints("", [{ lat: NaN, lon: 0 }, { lat: 0, lon: 1 }], [])).toThrow("coordenadas");
   });
 });
 

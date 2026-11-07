@@ -1,4 +1,4 @@
-import { cleanLabel, nearestTrackPointAtKm, type TrackPoint } from "./gpx";
+import { cleanLabel, elevationProfile, nearestTrackPointAtKm, type TrackPoint } from "./gpx";
 
 export interface TcxCoursePointInput {
   km: number;
@@ -35,14 +35,14 @@ function attribute(source: string, name: string): number | undefined {
 }
 
 function child(source: string, name: string): string | undefined {
-  const match = source.match(new RegExp(`<${name}\\b[^>]*>([\\s\\S]*?)<\\/${name}>`, "i"));
+  const match = source.match(new RegExp(`<(?:[\\w.-]+:)?${name}\\b[^>]*>([\\s\\S]*?)<\\/(?:[\\w.-]+:)?${name}>`, "i"));
   return match ? decodeXml(match[1].trim()) : undefined;
 }
 
 /** Lee todos los puntos del GPX original sin reducir el recorrido. */
 export function parseGpxTrackForTcx(xml: string): TrackPoint[] {
   const points: TrackPoint[] = [];
-  const pattern = /<trkpt\b([^>]*?)(?:\/>|>([\s\S]*?)<\/trkpt>)/gi;
+  const pattern = /<(?:[\w.-]+:)?trkpt\b([^>]*?)(?:\/>|>([\s\S]*?)<\/(?:[\w.-]+:)?trkpt>)/gi;
   let match: RegExpExecArray | null;
   while ((match = pattern.exec(xml))) {
     const lat = attribute(match[1], "lat");
@@ -71,14 +71,33 @@ export function buildTcxWithCoursePoints(
   const originalPoints = parseGpxTrackForTcx(originalGpx);
   const points = originalPoints.length >= 2 ? originalPoints : fallbackPoints;
   if (points.length < 2) throw new Error("TCX incompleto: el track no tiene suficientes puntos");
+  if (points.some((p) => !Number.isFinite(p.lat) || !Number.isFinite(p.lon) || Math.abs(p.lat) > 90 || Math.abs(p.lon) > 180)) {
+    throw new Error("TCX incompleto: coordenadas del track inválidas");
+  }
 
-  const generatedAt = new Date().toISOString();
-  const trackXml = points.map((p) => `        <Trackpoint>
-${p.time ? `          <Time>${escapeXml(p.time)}</Time>\n` : ""}          <Position>
+  const profile = elevationProfile(points);
+  const distances = profile.map((p) => p.km * 1000);
+  const originalStart = Date.parse(points[0].time || "");
+  const start = Number.isFinite(originalStart) ? originalStart : Date.now();
+  let previousTime = start - 1000;
+  // TCX exige Time en TODOS los Trackpoint, incluso en GPX sin tiempos.
+  const times = points.map((p, index) => {
+    const originalTime = Date.parse(p.time || "");
+    const estimatedTime = start + Math.round(distances[index] / (20_000 / 3600)) * 1000;
+    const time = Math.max(previousTime + 1000, Number.isFinite(originalTime) ? originalTime : estimatedTime);
+    previousTime = time;
+    return new Date(time).toISOString();
+  });
+  const totalDistance = distances[distances.length - 1];
+  const totalSeconds = (previousTime - start) / 1000;
+  const trackXml = points.map((p, index) => `        <Trackpoint>
+          <Time>${times[index]}</Time>
+          <Position>
             <LatitudeDegrees>${p.lat}</LatitudeDegrees>
             <LongitudeDegrees>${p.lon}</LongitudeDegrees>
           </Position>
-${p.ele != null ? `          <AltitudeMeters>${p.ele}</AltitudeMeters>\n` : ""}        </Trackpoint>`).join("\n");
+${p.ele != null && Number.isFinite(p.ele) ? `          <AltitudeMeters>${p.ele}</AltitudeMeters>\n` : ""}          <DistanceMeters>${distances[index].toFixed(3)}</DistanceMeters>
+        </Trackpoint>`).join("\n");
 
   const coursePointsXml = coursePoints.map((waypoint) => {
     const point = nearestTrackPointAtKm(points, Number(waypoint.km) || 0);
@@ -87,7 +106,9 @@ ${p.ele != null ? `          <AltitudeMeters>${p.ele}</AltitudeMeters>\n` : ""} 
     const amount = waypoint.carbs_g || Number(label.match(/(\d+)\s*g/i)?.[1]);
     const minute = Number(waypoint.minute);
     const clock = Number.isFinite(minute) && waypoint.minute != null ? formatRideClock(minute) : "";
-    const name = `${amount ? `CHO ${amount}g` : label.slice(0, 12)}${clock ? ` ${clock}` : ""}`.slice(0, 24) || "Food";
+    // Garmin limita CoursePoint/Name a 10 caracteres; las notas conservan todo.
+    const name = `${amount ? (clock ? `${amount}g` : `CHO ${amount}g`) : label}${clock ? ` ${clock}` : ""}`.slice(0, 10) || "Food";
+    const time = clock ? new Date(start + Math.max(0, minute) * 60_000).toISOString() : times[points.indexOf(point)];
     const notes = [
       `KM ${Number(waypoint.km) || 0}`,
       clock ? `t+${clock}` : "",
@@ -96,12 +117,12 @@ ${p.ele != null ? `          <AltitudeMeters>${p.ele}</AltitudeMeters>\n` : ""} 
     ].filter(Boolean).join(" - ");
     return `      <CoursePoint>
         <Name>${escapeXml(name)}</Name>
-        <Time>${escapeXml(point.time || points[0].time || generatedAt)}</Time>
+        <Time>${time}</Time>
         <Position>
           <LatitudeDegrees>${point.lat}</LatitudeDegrees>
           <LongitudeDegrees>${point.lon}</LongitudeDegrees>
         </Position>
-${point.ele != null ? `        <AltitudeMeters>${point.ele}</AltitudeMeters>\n` : ""}        <PointType>Food</PointType>
+${point.ele != null && Number.isFinite(point.ele) ? `        <AltitudeMeters>${point.ele}</AltitudeMeters>\n` : ""}        <PointType>Food</PointType>
         <Notes>${escapeXml(notes)}</Notes>
       </CoursePoint>`;
   }).filter(Boolean).join("\n");
@@ -110,10 +131,24 @@ ${point.ele != null ? `        <AltitudeMeters>${point.ele}</AltitudeMeters>\n` 
 <TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd">
   <Courses>
     <Course>
-      <Name>${escapeXml(routeName)}</Name>
+      <Name>${escapeXml(cleanLabel(routeName).slice(0, 15))}</Name>
+      <Lap>
+        <TotalTimeSeconds>${totalSeconds}</TotalTimeSeconds>
+        <DistanceMeters>${totalDistance.toFixed(3)}</DistanceMeters>
+        <BeginPosition>
+          <LatitudeDegrees>${points[0].lat}</LatitudeDegrees>
+          <LongitudeDegrees>${points[0].lon}</LongitudeDegrees>
+        </BeginPosition>
+        <EndPosition>
+          <LatitudeDegrees>${points[points.length - 1].lat}</LatitudeDegrees>
+          <LongitudeDegrees>${points[points.length - 1].lon}</LongitudeDegrees>
+        </EndPosition>
+        <Intensity>Active</Intensity>
+      </Lap>
       <Track>
 ${trackXml}
       </Track>
+      <Notes>${escapeXml(routeName)}</Notes>
 ${coursePointsXml}
     </Course>
   </Courses>
