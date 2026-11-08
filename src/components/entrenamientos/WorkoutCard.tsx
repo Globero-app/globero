@@ -1,7 +1,9 @@
 import { tr, activeLang } from "@/lib/i18n";import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { saveActivityFeedback } from "@/lib/activity-feedback.functions";
+import { generateWorkoutReport, saveWorkoutFeedback } from "@/lib/workout-report.functions";
+import { needsWorkoutReport } from "@/lib/workout-report.helpers";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { es, ca, fr, enGB, de } from "date-fns/locale";
@@ -54,15 +56,37 @@ export function WorkoutCard({
   const [showFeedback, setShowFeedback] = useState(false);
   const [fbRpe, setFbRpe] = useState(5);
   const [fbFeel, setFbFeel] = useState(3);
-  const [fbBusy, setFbBusy] = useState(false);
   const qc = useQueryClient();
-  const saveFeedback = useServerFn(saveActivityFeedback);
+  const saveFeedback = useServerFn(saveWorkoutFeedback);
+  const generateReport = useServerFn(generateWorkoutReport);
+  const refreshReports = async () => {
+    await Promise.all([
+      qc.invalidateQueries({ queryKey: ["activity-feedback-pending"] }),
+      qc.invalidateQueries({ queryKey: ["workouts"] }),
+      qc.invalidateQueries({ queryKey: ["calendar"] }),
+    ]);
+  };
+  const reportMutation = useMutation({
+    mutationFn: () => generateReport({ data: { workout_id: w.id } }),
+    onSuccess: () => { toast.success(tr("Informe generado")); },
+    onError: (error: Error) => toast.error(error.message),
+    onSettled: refreshReports,
+  });
+  const feedbackMutation = useMutation({
+    mutationFn: () => saveFeedback({ data: { workout_id: w.id, rpe: fbRpe, feel: fbFeel } }),
+    onSuccess: (result) => {
+      toast.success(tr(result.report ? "Valoración guardada. Informe generado" : "Valoración guardada"));
+      if (!result.report) toast.error(tr("No se ha podido generar el informe. Inténtalo de nuevo."));
+      setShowFeedback(false);
+    },
+    onError: (error: Error) => toast.error(error.message),
+    onSettled: refreshReports,
+  });
   const isIndoor = w.bike_type === "rodillo" || !!(w.plan as any)?.indoor;
 
   const plan = w.plan ?? {};
   const completed = w.status === "completed";
-  const linkedActivityId = plan.strava_activity_id ? String(plan.strava_activity_id) : null;
-  const needsFeedback = completed && !!linkedActivityId && !plan.report?.text;
+  const needsFeedback = needsWorkoutReport(w.status, plan);
   const skipped = w.status === "skipped";
   const actionable = canActOnWorkout(w.status);
 
@@ -145,12 +169,17 @@ export function WorkoutCard({
             </button>
             }
             {needsFeedback &&
-            <button
-              onClick={() => setShowFeedback(true)}
-              className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-mono uppercase rounded-md border border-amber-300 bg-amber-50 text-amber-700 px-2 py-1 hover:bg-amber-100">
-              
-                <CheckCircle2 className="size-3.5" /> {tr("Valorar sensaciones y generar informe")} 
-            </button>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button type="button" size="sm" disabled={reportMutation.isPending || feedbackMutation.isPending}
+                onClick={() => reportMutation.mutate()}>
+                {reportMutation.isPending ? <Loader2 className="animate-spin" /> : <FileText />}
+                {tr(reportMutation.isPending ? "Generando informe…" : "Generar informe")}
+              </Button>
+              <Button type="button" size="sm" variant="outline" disabled={reportMutation.isPending || feedbackMutation.isPending}
+                onClick={() => setShowFeedback(true)}>
+                <CheckCircle2 /> {tr("Valorar sensaciones")}
+              </Button>
+            </div>
             }
           </div>
           <div className="flex items-center gap-1 shrink-0">
@@ -425,26 +454,11 @@ export function WorkoutCard({
               <button type="button" onClick={() => setShowFeedback(false)} className="text-xs px-3 py-1.5 rounded-md hover:bg-secondary">{tr("Cancelar")}</button>
               <button
                 type="button"
-                disabled={fbBusy || !linkedActivityId}
-                onClick={async () => {
-                  if (!linkedActivityId) return;
-                  setFbBusy(true);
-                  try {
-                    await saveFeedback({ data: { activity_id: linkedActivityId, rpe: fbRpe, feel: fbFeel } });
-                    toast.success(tr("Valoración guardada"));
-                    setShowFeedback(false);
-                    qc.invalidateQueries({ queryKey: ["activity-feedback-pending"] });
-                    qc.invalidateQueries({ queryKey: ["workouts"] });
-                    qc.invalidateQueries({ queryKey: ["calendar"] });
-                  } catch (e: any) {
-                    toast.error(e?.message ?? tr("No se ha podido guardar"));
-                  } finally {
-                    setFbBusy(false);
-                  }
-                }}
+                disabled={feedbackMutation.isPending}
+                onClick={() => feedbackMutation.mutate()}
                 className="text-xs font-semibold px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50">
                 
-                {fbBusy ? tr("Guardando…") : tr("Guardar y generar informe")}
+                {feedbackMutation.isPending ? tr("Generando informe…") : tr("Guardar y generar informe")}
               </button>
             </div>
           </div>

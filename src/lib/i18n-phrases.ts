@@ -1,5 +1,12 @@
 /* Traducciones por frase original en castellano: [ca, fr, en, de]. */
 export const PHRASES: Record<string, [string, string, string, string]> = {
+  "Guardar y generar informe": ["Desar i generar informe", "Enregistrer et générer le rapport", "Save and generate report", "Speichern und Bericht erstellen"],
+  "Generar informe": ["Generar informe", "Générer le rapport", "Generate report", "Bericht erstellen"],
+  "Generando informe…": ["Generant informe…", "Génération du rapport…", "Generating report…", "Bericht wird erstellt…"],
+  "Informe generado": ["Informe generat", "Rapport généré", "Report generated", "Bericht erstellt"],
+  "Valorar sensaciones": ["Valorar sensacions", "Évaluer les sensations", "Rate how you felt", "Empfinden bewerten"],
+  "Valoración guardada. Informe generado": ["Valoració desada. Informe generat", "Évaluation enregistrée. Rapport généré", "Feedback saved. Report generated", "Bewertung gespeichert. Bericht erstellt"],
+  "No se ha podido generar el informe. Inténtalo de nuevo.": ["No s'ha pogut generar l'informe. Torna-ho a provar.", "Impossible de générer le rapport. Réessaie.", "Unable to generate the report. Please try again.", "Bericht konnte nicht erstellt werden. Bitte erneut versuchen."],
   "Buscando hasta 4 trazados": ["Cercant fins a 4 traçats", "Recherche de 4 tracés maximum", "Finding up to 4 routes", "Suche nach bis zu 4 Routen"],
   "Consultando carreteras y caminos": ["Consultant carreteres i camins", "Consultation des routes et chemins", "Checking roads and trails", "Straßen und Wege werden geprüft"],
   "Simplificando y guardando el GPX": ["Simplificant i desant el GPX", "Simplification et enregistrement du GPX", "Simplifying and saving the GPX", "GPX wird vereinfacht und gespeichert"],
