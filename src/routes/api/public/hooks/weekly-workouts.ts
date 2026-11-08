@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 /**
- * Cron semanal (domingos 21:00 Europa/Madrid). Genera los entrenamientos mixtos
+ * Cron semanal (domingos a partir de las 22:00 Europa/Madrid). Genera los entrenamientos mixtos
  * de la semana siguiente para cada usuario con generación automática activada,
  * según sus días de entreno, su día de tirada larga y su progreso previo.
  *
