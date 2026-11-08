@@ -36,7 +36,7 @@ export async function buildWorkoutReport(
   const rawActId = plan.strava_activity_id ?? plan.intervals_activity_id ?? null;
   const activityId: string | null = rawActId ? String(rawActId) : null;
 
-  const [{ data: profile }, { data: act }, { data: daily }] = await Promise.all([
+  const [{ data: profile }, { data: activity }, { data: daily }] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
     activityId
       ? supabase
@@ -58,10 +58,10 @@ export async function buildWorkoutReport(
       : Promise.resolve({ data: null }),
   ]);
 
-  const actual = act;
+  const actual = activity;
   // A manually completed session can still be analysed from the plan and feedback.
   // Never substitute planned duration or metrics for missing measured data.
-  const metrics = actual ?? {};
+  const act = actual ?? {};
 
   // Sin potencia ni FC no hay análisis útil: informe determinista breve (sin IA).
   if (actual && !daily?.rpe && !daily?.feel && !Number(act.average_watts) && !Number(act.average_heartrate)) {
@@ -104,6 +104,7 @@ export async function buildWorkoutReport(
   facts.push(`Entrenamiento planificado: "${planTitle}" del ${dateISO}`);
   if (plan.summary) facts.push(`Objetivo del plan: ${plan.summary}`);
   facts.push(`Duración planificada: ${w.duration_minutes} min · real: ${fmtMin(act.moving_time) ?? "n/d"}`);
+  if (!actual) facts.push("No hay métricas de una actividad registrada. Analiza solo el plan y las sensaciones disponibles; no afirmes cumplimiento medido.");
   if (w.planned_tss) facts.push(`TSS previsto: ${Math.round(Number(w.planned_tss))}`);
   if (act.icu_training_load) facts.push(`Carga real (TSS): ${Math.round(Number(act.icu_training_load))}`);
   if (act.icu_intensity) facts.push(`Intensidad (IF): ${Number(act.icu_intensity).toFixed(2)}`);
@@ -199,6 +200,7 @@ export async function generateAndNotifyWorkoutReport(
   supabase: any,
   userId: string,
   workoutId: string,
+  regenerate = false,
 ): Promise<boolean> {
   try {
     const { getUserLang } = await import("./user-lang.server");
@@ -211,7 +213,7 @@ export async function generateAndNotifyWorkoutReport(
       .eq("user_id", userId)
       .maybeSingle();
     const prevReport: any = (existing?.plan as any)?.report;
-    if (prevReport?.text) {
+    if (prevReport?.text && !regenerate) {
       const ep: any = existing?.plan ?? {};
       report = { text: String(prevReport.text), title: ep.title ?? ep.name ?? "" };
     } else {
@@ -221,7 +223,7 @@ export async function generateAndNotifyWorkoutReport(
       } catch (e) {
         console.error("[workout-report] ftp-test", e);
       }
-      if (!report) report = await buildWorkoutReport(supabase, userId, workoutId);
+      if (!report) report = await buildWorkoutReport(supabase, userId, workoutId, regenerate);
     }
     if (!report) return false;
 
@@ -232,7 +234,7 @@ export async function generateAndNotifyWorkoutReport(
       .eq("user_id", userId)
       .maybeSingle();
     const plan: any = { ...(((w?.plan as any) ?? {}) as Record<string, unknown>) };
-    plan.report = prevReport?.text ? prevReport : { text: report.text, created_at: new Date().toISOString() };
+    plan.report = prevReport?.text && !regenerate ? prevReport : { text: report.text, created_at: new Date().toISOString() };
 
     let gamiText = "";
     try {
@@ -246,11 +248,13 @@ export async function generateAndNotifyWorkoutReport(
       console.error("[workout-report] gamification", e);
     }
 
-    await supabase
+    const { error: saveError } = await supabase
       .from("workouts")
       .update({ plan, updated_at: new Date().toISOString() })
       .eq("id", workoutId)
       .eq("user_id", userId);
+
+    if (saveError) throw new Error(saveError.message);
 
     const { data: prof } = await supabase
       .from("profiles")
