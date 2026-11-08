@@ -63,6 +63,11 @@ async function resolveStravaActivityId(
   intervalsActivityId: string,
   token: string,
 ): Promise<string | null> {
+  const pref = /^strava_(\d+)$/.exec(String(intervalsActivityId));
+  if (pref) return pref[1];
+  if (/^\d{8,}$/.test(String(intervalsActivityId)) && !(await supabase.from("intervals_activities").select("id").eq("id", String(intervalsActivityId)).eq("user_id", userId).maybeSingle()).data) {
+    return String(intervalsActivityId);
+  }
   const { data: act } = await supabase
     .from("intervals_activities")
     .select("start_date,moving_time,raw")
@@ -70,7 +75,7 @@ async function resolveStravaActivityId(
     .eq("user_id", userId)
     .maybeSingle();
   const raw = (act?.raw ?? {}) as any;
-  const direct = raw.strava_id ?? raw.stravaId ?? raw.external_id;
+  const direct = raw.strava_id ?? raw.stravaId ?? raw.external_id ?? (raw.source === "strava" ? raw.id : undefined);
   if (direct && /^\d+$/.test(String(direct))) return String(direct);
   const realStart = raw.workout_summary?.started_at ?? raw.started_at ?? act?.start_date;
   if (!realStart) return null;
