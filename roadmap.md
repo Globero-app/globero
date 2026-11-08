@@ -1,5 +1,9 @@
 # Roadmap
 
+- [ ] Rendimiento: limitar listados de rutas/competiciones a columnas de resumen y conservar el detalle completo al abrir cada ruta.
+- [ ] Rendimiento: generar rutas aleatorias con una sola ronda de hasta cuatro intentos, simplificar el trazado y mostrar progreso.
+- [ ] Rendimiento: usar MET Norway inmediatamente ante fallo/espera de Open-Meteo, ampliar caché a 60 minutos y mantener progreso por etapas.
+
 - [x] Equipación de respaldo con clima general cuando falten datos horarios, identificada como orientativa; validación y supresión de recomendaciones obsoletas conservadas. 15 pruebas y compilación correctas; tarjeta comprobada en móvil/escritorio. Consulta autenticada continúa bloqueada por sesión externa no disponible.
 
 - [x] Lote 2 de equipación: tarjeta visual bajo la previsión, actualización automática al cambiar hora/duración y estados sin GPX, inválido, carga, error e incompleto. Once pruebas y compilación correctas; tarjeta móvil/escritorio y supresión inmediata de recomendaciones obsoletas verificadas con datos de prueba. Consulta y guardado con cuenta real pendientes en la comprobación meteorológica indicada abajo.
