@@ -56,7 +56,6 @@ export function WorkoutCard({
   const [showFeedback, setShowFeedback] = useState(false);
   const [fbRpe, setFbRpe] = useState(5);
   const [fbFeel, setFbFeel] = useState(3);
-  const [fbBusy, setFbBusy] = useState(false);
   const qc = useQueryClient();
   const saveFeedback = useServerFn(saveWorkoutFeedback);
   const generateReport = useServerFn(generateWorkoutReport);
