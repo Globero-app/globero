@@ -1,5 +1,9 @@
 # Roadmap
 
+- [x] Rendimiento: listados de Rutas y panel limitados a columnas de resumen; detalle completo conservado por ID. Prueba de proyección y tipos correctos.
+- [x] Rendimiento: ruta aleatoria con una ronda paralela de cuatro candidatas, GPX de hasta 800 puntos con extremos preservados y progreso en tres etapas. Pruebas y compilación correctas; generación autenticada no comprobada por Supabase externo.
+- [x] Rendimiento: Open-Meteo sin reintentos, espera máxima de 5 s antes de MET Norway y caché de 60 minutos; progreso meteorológico por etapas conservado. Pruebas y tipos correctos; consulta autenticada pendiente.
+
 - [x] Equipación de respaldo con clima general cuando falten datos horarios, identificada como orientativa; validación y supresión de recomendaciones obsoletas conservadas. 15 pruebas y compilación correctas; tarjeta comprobada en móvil/escritorio. Consulta autenticada continúa bloqueada por sesión externa no disponible.
 
 - [x] Lote 2 de equipación: tarjeta visual bajo la previsión, actualización automática al cambiar hora/duración y estados sin GPX, inválido, carga, error e incompleto. Once pruebas y compilación correctas; tarjeta móvil/escritorio y supresión inmediata de recomendaciones obsoletas verificadas con datos de prueba. Consulta y guardado con cuenta real pendientes en la comprobación meteorológica indicada abajo.

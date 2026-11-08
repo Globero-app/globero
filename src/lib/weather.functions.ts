@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { planHydration, describeWeather, type WeatherDay } from "./weather";
 import { z } from "zod";
-import { estimatedRouteHours, forecastAvailability, mapRouteHours, metNoSymbolToWmo, routeDeparture, routeSchedule, routeWeatherSignature, type HourlyForecast, type RouteHour } from "./route-weather";
+import { estimatedRouteHours, forecastAvailability, isWeatherCacheFresh, mapRouteHours, metNoSymbolToWmo, routeDeparture, routeSchedule, routeWeatherSignature, type HourlyForecast, type RouteHour } from "./route-weather";
 import type { TrackPoint } from "./gpx";
 
 function openMeteoUrl(path: string, params: URLSearchParams) {
@@ -12,15 +12,8 @@ function openMeteoUrl(path: string, params: URLSearchParams) {
 }
 
 async function fetchOpenMeteo(path: string, params: URLSearchParams) {
-  const url = openMeteoUrl(path, params);
-  let res = await fetch(url, { signal: AbortSignal.timeout(15000) });
-  for (let i = 0; i < 3 && res.status === 429; i++) {
-    const retryAfter = Number(res.headers.get("Retry-After"));
-    const wait = (Number.isFinite(retryAfter) && retryAfter > 0 ? Math.min(retryAfter, 30) : [4, 10, 25][i]) * 1000 + Math.random() * 1000;
-    await new Promise((r) => setTimeout(r, wait));
-    res = await fetch(url, { signal: AbortSignal.timeout(15000) });
-  }
-  return res;
+  // Una sola consulta: un 429 o una espera de 5 s activa MET Norway sin reintentos.
+  return fetch(openMeteoUrl(path, params), { signal: AbortSignal.timeout(5000) });
 }
 
 // --- MET Norway (respaldo) ---
@@ -141,15 +134,14 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
     if (availability === "past") throw new Error("La ruta ya ha pasado");
     if (availability !== "available") throw new Error("La previsión solo está disponible desde 3 días antes de la ruta");
 
-    // Caché de 30 min: si ya hay previsión con los mismos parámetros, se reutiliza sin llamar a Open-Meteo.
+    // Caché de 60 min: mismos parámetros y trazado, sin nueva consulta meteorológica.
     const requestedDuration = data.durationHours ?? estimatedRouteHours(comp);
     const requestedDeparture = data.departureTime ?? "08:00";
     const requestedSignature = routeWeatherSignature(pts, comp.date, requestedDuration);
     const cached = comp.weather_forecast as any;
     const cachedHourly = cached?.route_hourly as any;
-    const cachedAge = cached?.fetched_at ? Date.now() - Date.parse(cached.fetched_at) : Infinity;
     if (
-      cached?.date === comp.date && cachedAge < 30 * 60 * 1000 &&
+      cached?.date === comp.date && isWeatherCacheFresh(cached?.fetched_at) &&
       cachedHourly?.signature === requestedSignature &&
       cachedHourly?.departureTime === requestedDeparture &&
       cachedHourly?.durationHours === requestedDuration

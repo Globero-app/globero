@@ -1,8 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { clothingFromForecast, clothingFromWeather, estimatedRouteHours, forecastAvailability, mapRouteHours, metNoSymbolToWmo, recommendClothing, routeDeparture, routeSchedule, routeWeatherSignature, type RouteHour } from "../route-weather";
+import { clothingFromForecast, clothingFromWeather, estimatedRouteHours, forecastAvailability, isWeatherCacheFresh, mapRouteHours, metNoSymbolToWmo, recommendClothing, routeDeparture, routeSchedule, routeWeatherSignature, WEATHER_CACHE_TTL_MS, type RouteHour } from "../route-weather";
 
 const points = [{ lat: 41, lon: 2 }, { lat: 41, lon: 2.5 }, { lat: 41, lon: 3 }];
 const sample = (temperature: number, wind = 5, rain = 0, rainProbability = 0): RouteHour => ({ timestamp: 0, km: 0, lat: 41, lon: 2, temperature, apparent: temperature, wind, rain, rainProbability });
+describe("weather cache", () => {
+  it("reuses matching forecasts for 60 minutes and expires older data", () => {
+    const now = Date.parse("2026-11-08T12:00:00Z");
+    expect(WEATHER_CACHE_TTL_MS).toBe(60 * 60 * 1000);
+    expect(isWeatherCacheFresh("2026-11-08T11:00:01Z", now)).toBe(true);
+    expect(isWeatherCacheFresh("2026-11-08T11:00:00Z", now)).toBe(false);
+    expect(isWeatherCacheFresh(undefined, now)).toBe(false);
+    expect(isWeatherCacheFresh("2026-11-08T13:00:00Z", now)).toBe(false);
+  });
+});
+
 describe("route hourly clothing", () => {
   const general = { date: "2026-11-08", temp_min_c: 7, temp_max_c: 19, apparent_max_c: 18, humidity_pct: 60, wind_kmh: 25, precip_mm: 8, weather_code: 63, summary: "" };
   it("falls back to general weather when hourly coverage is incomplete", () => {

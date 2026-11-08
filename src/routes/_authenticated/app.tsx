@@ -6,6 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { intervalsSyncActivities } from "@/lib/intervals.functions";
 import { getTrainingLoad } from "@/lib/workouts.functions";
 import { getFtpTestStatus } from "@/lib/diag.functions";
+import { COMPETITION_SUMMARY_COLUMNS } from "@/lib/competition-summary";
 import { Trophy, Flame, Bike, ChevronRight, Plus, Trash2, Activity, Timer, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -50,7 +51,7 @@ function Dashboard() {
   const comps = useQuery({
     queryKey: ["competitions", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("competitions").select("*").eq("user_id", user!.id).order("date", { ascending: true });
+      const { data } = await supabase.from("competitions").select(COMPETITION_SUMMARY_COLUMNS).eq("user_id", user!.id).order("date", { ascending: true });
       return data ?? [];
     },
     enabled: !!user
