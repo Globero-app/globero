@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 /**
- * Cron semanal (domingos 21:00 Europa/Madrid). Genera los entrenamientos mixtos
+ * Cron semanal (domingos a partir de las 22:00 Europa/Madrid). Genera los entrenamientos mixtos
  * de la semana siguiente para cada usuario con generación automática activada,
  * según sus días de entreno, su día de tirada larga y su progreso previo.
  *
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/api/public/hooks/weekly-workouts")({
           new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", hour: "2-digit", hour12: false }).format(now),
         );
         const url = new URL(request.url);
-        if (url.searchParams.get("force") !== "1" && madridHour !== 23 && madridHour !== 0) {
+        if (url.searchParams.get("force") !== "1" && madridHour !== 22 && madridHour !== 23 && madridHour !== 0) {
           return new Response(JSON.stringify({ ok: true, skipped: true, hour: madridHour }), { headers: { "content-type": "application/json" } });
         }
 
