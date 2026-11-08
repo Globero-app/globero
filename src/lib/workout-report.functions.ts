@@ -24,9 +24,26 @@ export const saveWorkoutFeedback = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { resolveWorkoutReportActivity } = await import("./workout-report-link.server");
     const { feedbackId } = await resolveWorkoutReportActivity(supabase, userId, data.workout_id);
-    const { error } = await supabase.from("daily_activities").update({ rpe: data.rpe, feel: data.feel, feedback_completed: true })
-      .eq("user_id", userId).eq("activity_id", feedbackId);
-    if (error) throw new Error(error.message);
+    if (feedbackId) {
+      const { error } = await supabase.from("daily_activities").update({ rpe: data.rpe, feel: data.feel, feedback_completed: true })
+        .eq("user_id", userId).eq("activity_id", feedbackId);
+      if (error) throw new Error(error.message);
+      // Preserve the existing Intervals feedback synchronization, when connected.
+      const { data: profile } = await supabase.from("profiles").select("intervals_athlete_id,intervals_api_key,intervals_oauth").eq("id", userId).maybeSingle();
+      const { credsFromProfile, intervalsUpdateActivity } = await import("./intervals.server");
+      const creds = credsFromProfile(profile);
+      if (creds) {
+        try { await intervalsUpdateActivity(creds, feedbackId, { rpe: data.rpe, feel: data.feel }); }
+        catch (error) { console.error("[workout-feedback] intervals sync", error); }
+      }
+    } else {
+      const { data: workout, error: readError } = await supabase.from("workouts").select("plan").eq("user_id", userId).eq("id", data.workout_id).maybeSingle();
+      if (readError || !workout) throw new Error("Entrenamiento no encontrado");
+      const plan = workout.plan && typeof workout.plan === "object" && !Array.isArray(workout.plan) ? workout.plan : {};
+      const { error } = await supabase.from("workouts").update({ plan: { ...plan, workout_feedback: { rpe: data.rpe, feel: data.feel } } })
+        .eq("user_id", userId).eq("id", data.workout_id);
+      if (error) throw new Error(error.message);
+    }
     const { error: workoutError } = await supabase.from("workouts").update({ rpe: Math.max(1, Math.round(data.rpe / 2)) })
       .eq("user_id", userId).eq("id", data.workout_id);
     if (workoutError) throw new Error(workoutError.message);

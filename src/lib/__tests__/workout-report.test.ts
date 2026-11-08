@@ -67,8 +67,9 @@ describe("completed workout reports", () => {
       workouts: [{ id: "w", user_id: "u", status: "completed", plan: { scheduled_date: "2026-11-08" }, duration_minutes: 60 }],
       intervals_activities: [], daily_activities: [],
     };
-    await resolveWorkoutReportActivity(database(tables), "u", "w");
-    expect(tables.daily_activities[0]).toMatchObject({ activity_id: "workout:w", date: "2026-11-08", feedback_completed: false });
+    const result = await resolveWorkoutReportActivity(database(tables), "u", "w");
+    expect(result.feedbackId).toBeNull();
+    expect(tables.daily_activities).toHaveLength(0);
     expect(tables.workouts[0].plan.intervals_activity_id).toBeUndefined();
   });
   it("rejects another user's workout", async () => {

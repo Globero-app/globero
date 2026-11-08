@@ -27,16 +27,19 @@ export async function resolveWorkoutReportActivity(supabase: any, userId: string
     activityId = activity?.id ?? (daily ?? []).find((d: any) => !excluded.has(d.activity_id) && !d.activity_id.startsWith("workout:"))?.activity_id ?? null;
     if (activityId) plan.intervals_activity_id = String(activityId);
   }
-  const feedbackId = String(activityId ?? plan.feedback_activity_id ?? `workout:${workoutId}`);
-  plan.feedback_activity_id = feedbackId;
-  const feedback = (daily ?? []).find((d: any) => d.activity_id === feedbackId)
-    ?? (daily ?? []).find((d: any) => d.feedback_completed && d.rpe != null && d.feel != null);
-  const { error: insertError } = await supabase.from("daily_activities").upsert({
+  const feedbackId = activityId ? String(activityId) : null;
+  if (feedbackId) {
+    const { data: exactFeedback, error: feedbackError } = await supabase.from("daily_activities")
+      .select("rpe,feel,feedback_completed,date").eq("user_id", userId).eq("activity_id", feedbackId).maybeSingle();
+    if (feedbackError) throw new Error(feedbackError.message);
+    const feedback = exactFeedback ?? ((daily ?? []).length === 1 ? daily[0] : null);
+    const { error: insertError } = await supabase.from("daily_activities").upsert({
     user_id: userId, activity_id: feedbackId, date: day,
     feedback_completed: feedback?.feedback_completed ?? false,
     rpe: feedback?.rpe ?? null, feel: feedback?.feel ?? null,
   }, { onConflict: "user_id,activity_id", ignoreDuplicates: true });
-  if (insertError) throw new Error(insertError.message);
+    if (insertError) throw new Error(insertError.message);
+  }
   const { error: updateError } = await supabase.from("workouts").update({ plan, updated_at: new Date().toISOString() })
     .eq("id", workoutId).eq("user_id", userId);
   if (updateError) throw new Error(updateError.message);

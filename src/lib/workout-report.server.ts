@@ -36,7 +36,7 @@ export async function buildWorkoutReport(
   const rawActId = plan.strava_activity_id ?? plan.intervals_activity_id ?? null;
   const activityId: string | null = rawActId ? String(rawActId) : null;
 
-  const [{ data: profile }, { data: activity }, { data: daily }] = await Promise.all([
+  const [{ data: profile }, { data: activity }, { data: storedDaily }] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
     activityId
       ? supabase
@@ -48,15 +48,16 @@ export async function buildWorkoutReport(
           .eq("user_id", userId)
           .maybeSingle()
       : Promise.resolve({ data: null }),
-    (activityId ?? plan.feedback_activity_id)
+    activityId
       ? supabase
           .from("daily_activities")
           .select("rpe,feel,date")
           .eq("user_id", userId)
-          .eq("activity_id", activityId ?? plan.feedback_activity_id)
+          .eq("activity_id", activityId)
           .maybeSingle()
       : Promise.resolve({ data: null }),
   ]);
+  const daily = storedDaily ?? plan.workout_feedback ?? null;
 
   const actual = activity;
   // A manually completed session can still be analysed from the plan and feedback.

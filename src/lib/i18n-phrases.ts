@@ -1,5 +1,6 @@
 /* Traducciones por frase original en castellano: [ca, fr, en, de]. */
 export const PHRASES: Record<string, [string, string, string, string]> = {
+  "Guardar y generar informe": ["Desar i generar informe", "Enregistrer et générer le rapport", "Save and generate report", "Speichern und Bericht erstellen"],
   "Generar informe": ["Generar informe", "Générer le rapport", "Generate report", "Bericht erstellen"],
   "Generando informe…": ["Generant informe…", "Génération du rapport…", "Generating report…", "Bericht wird erstellt…"],
   "Informe generado": ["Informe generat", "Rapport généré", "Report generated", "Bericht erstellt"],
