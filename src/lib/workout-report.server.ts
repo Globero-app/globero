@@ -14,6 +14,7 @@ export async function buildWorkoutReport(
   supabase: any,
   userId: string,
   workoutId: string,
+  regenerate = false,
 ): Promise<{ text: string; title: string } | null> {
   const [{ getUserLang, langInstruction }, { noMetricsReport, serverText }] = await Promise.all([
     import("./user-lang.server"),
@@ -29,7 +30,7 @@ export async function buildWorkoutReport(
   if (!w) return null;
 
   const plan: any = w.plan ?? {};
-  if (plan.report?.text) {
+  if (plan.report?.text && !regenerate) {
     return { text: String(plan.report.text), title: plan.title ?? plan.name ?? serverText(lang, "session") };
   }
   const rawActId = plan.strava_activity_id ?? plan.intervals_activity_id ?? null;
@@ -47,20 +48,23 @@ export async function buildWorkoutReport(
           .eq("user_id", userId)
           .maybeSingle()
       : Promise.resolve({ data: null }),
-    activityId
+    (activityId ?? plan.feedback_activity_id)
       ? supabase
           .from("daily_activities")
           .select("rpe,feel,date")
           .eq("user_id", userId)
-          .eq("activity_id", activityId)
+          .eq("activity_id", activityId ?? plan.feedback_activity_id)
           .maybeSingle()
       : Promise.resolve({ data: null }),
   ]);
 
-  if (!act) return null;
+  const actual = act;
+  // A manually completed session can still be analysed from the plan and feedback.
+  // Never substitute planned duration or metrics for missing measured data.
+  const metrics = actual ?? {};
 
   // Sin potencia ni FC no hay análisis útil: informe determinista breve (sin IA).
-  if (!Number(act.average_watts) && !Number(act.average_heartrate)) {
+  if (actual && !daily?.rpe && !daily?.feel && !Number(act.average_watts) && !Number(act.average_heartrate)) {
     const mins = Math.round(Number(act.moving_time ?? 0) / 60);
     const km = Number(act.distance ?? 0) / 1000;
     return {
