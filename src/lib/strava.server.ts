@@ -63,6 +63,11 @@ async function resolveStravaActivityId(
   intervalsActivityId: string,
   token: string,
 ): Promise<string | null> {
+  const pref = /^strava_(\d+)$/.exec(String(intervalsActivityId));
+  if (pref) return pref[1];
+  if (/^\d{8,}$/.test(String(intervalsActivityId)) && !(await supabase.from("intervals_activities").select("id").eq("id", String(intervalsActivityId)).eq("user_id", userId).maybeSingle()).data) {
+    return String(intervalsActivityId);
+  }
   const { data: act } = await supabase
     .from("intervals_activities")
     .select("start_date,moving_time,raw")

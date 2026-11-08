@@ -35,10 +35,12 @@ export function ActivityFeedbackPrompt() {
   const submit = async () => {
     setBusy(true);
     try {
-      await saveFn({ data: { activity_id: String(pending.activity_id), rpe, feel } });
-      toast.success(tr("Valoración guardada"));
+      const r: any = await saveFn({ data: { activity_id: String(pending.activity_id), rpe, feel } });
+      toast.success(r?.report ? tr("Valoración guardada. Informe generado") : tr("Valoración guardada"));
       setOpen(false);
       qc.invalidateQueries({ queryKey: ["activity-feedback-pending"] });
+      qc.invalidateQueries({ queryKey: ["workouts"] });
+      qc.invalidateQueries();
     } catch (e: any) {
       toast.error(e.message);
     } finally {

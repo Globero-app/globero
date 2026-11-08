@@ -72,9 +72,11 @@ export const saveActivityFeedback = createServerFn({ method: "POST" })
         .eq("status", "completed")
         .order("updated_at", { ascending: false })
         .limit(50);
-      const match = (candidates ?? []).find(
-        (w: any) => String((w.plan as any)?.strava_activity_id ?? "") === String(data.activity_id),
-      );
+      const aid = String(data.activity_id);
+      const match = (candidates ?? []).find((w: any) => {
+        const p = (w.plan as any) ?? {};
+        return String(p.strava_activity_id ?? "") === aid || String(p.intervals_activity_id ?? "") === aid;
+      });
       if (match) {
         await supabase
           .from("workouts")
