@@ -75,7 +75,7 @@ async function resolveStravaActivityId(
     .eq("user_id", userId)
     .maybeSingle();
   const raw = (act?.raw ?? {}) as any;
-  const direct = raw.strava_id ?? raw.stravaId ?? raw.external_id;
+  const direct = raw.strava_id ?? raw.stravaId ?? raw.external_id ?? (raw.source === "strava" ? raw.id : undefined);
   if (direct && /^\d+$/.test(String(direct))) return String(direct);
   const realStart = raw.workout_summary?.started_at ?? raw.started_at ?? act?.start_date;
   if (!realStart) return null;
