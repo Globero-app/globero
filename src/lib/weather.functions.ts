@@ -12,15 +12,8 @@ function openMeteoUrl(path: string, params: URLSearchParams) {
 }
 
 async function fetchOpenMeteo(path: string, params: URLSearchParams) {
-  const url = openMeteoUrl(path, params);
-  let res = await fetch(url, { signal: AbortSignal.timeout(15000) });
-  for (let i = 0; i < 3 && res.status === 429; i++) {
-    const retryAfter = Number(res.headers.get("Retry-After"));
-    const wait = (Number.isFinite(retryAfter) && retryAfter > 0 ? Math.min(retryAfter, 30) : [4, 10, 25][i]) * 1000 + Math.random() * 1000;
-    await new Promise((r) => setTimeout(r, wait));
-    res = await fetch(url, { signal: AbortSignal.timeout(15000) });
-  }
-  return res;
+  // Una sola consulta: un 429 o una espera de 5 s activa MET Norway sin reintentos.
+  return fetch(openMeteoUrl(path, params), { signal: AbortSignal.timeout(5000) });
 }
 
 // --- MET Norway (respaldo) ---

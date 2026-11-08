@@ -9,6 +9,8 @@ import { Plus, Trash2, ChevronRight, Pencil, X, Shuffle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useNavigate } from "@tanstack/react-router";
 import { generateRandomRoute } from "@/lib/random-route.functions";
+import { COMPETITION_SUMMARY_COLUMNS } from "@/lib/competition-summary";
+import { Progress } from "@/components/ui/progress";
 import { format } from "date-fns";
 import { es, ca, fr, enGB, de } from "date-fns/locale";
 import { useCreationAccess } from "@/components/CreationAccess";

@@ -21,6 +21,13 @@ export interface RouteForecast {
   complete: boolean;
   samples: RouteHour[];
 }
+export const WEATHER_CACHE_TTL_MS = 60 * 60 * 1000;
+
+export function isWeatherCacheFresh(fetchedAt: unknown, now = Date.now()) {
+  const timestamp = typeof fetchedAt === "string" ? Date.parse(fetchedAt) : NaN;
+  return Number.isFinite(timestamp) && now - timestamp >= 0 && now - timestamp < WEATHER_CACHE_TTL_MS;
+}
+
 export interface HourlyForecast {
   time: number[];
   temperature_2m: (number | null)[];
