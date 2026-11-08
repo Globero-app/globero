@@ -197,6 +197,13 @@ function RandomRouteForm({ onClose }: { onClose: () => void }) {
     });
   }, [user?.id]);
   const [saving, setSaving] = useState(false);
+  const [progressStep, setProgressStep] = useState(0);
+  useEffect(() => {
+    if (!saving) { setProgressStep(0); return; }
+    const second = setTimeout(() => setProgressStep(1), 700);
+    const third = setTimeout(() => setProgressStep(2), 1800);
+    return () => { clearTimeout(second); clearTimeout(third); };
+  }, [saving]);
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!requireAccess()) return;
