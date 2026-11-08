@@ -51,7 +51,7 @@ function Dashboard() {
   const comps = useQuery({
     queryKey: ["competitions", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("competitions").select("*").eq("user_id", user!.id).order("date", { ascending: true });
+      const { data } = await supabase.from("competitions").select(COMPETITION_SUMMARY_COLUMNS).eq("user_id", user!.id).order("date", { ascending: true });
       return data ?? [];
     },
     enabled: !!user

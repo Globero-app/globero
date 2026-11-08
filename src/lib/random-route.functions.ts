@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { RANDOM_ROUTE_POINTS, simplifyRandomRouteCoordinates } from "./random-route";
 
 const PROFILES = { carretera: "cycling-road", mtb: "cycling-mountain", gravel: "cycling-regular" } as const;
 

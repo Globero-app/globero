@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { planHydration, describeWeather, type WeatherDay } from "./weather";
 import { z } from "zod";
-import { estimatedRouteHours, forecastAvailability, mapRouteHours, metNoSymbolToWmo, routeDeparture, routeSchedule, routeWeatherSignature, type HourlyForecast, type RouteHour } from "./route-weather";
+import { estimatedRouteHours, forecastAvailability, isWeatherCacheFresh, mapRouteHours, metNoSymbolToWmo, routeDeparture, routeSchedule, routeWeatherSignature, type HourlyForecast, type RouteHour } from "./route-weather";
 import type { TrackPoint } from "./gpx";
 
 function openMeteoUrl(path: string, params: URLSearchParams) {

@@ -1,5 +1,8 @@
 /* Traducciones por frase original en castellano: [ca, fr, en, de]. */
 export const PHRASES: Record<string, [string, string, string, string]> = {
+  "Buscando hasta 4 trazados": ["Cercant fins a 4 traçats", "Recherche de 4 tracés maximum", "Finding up to 4 routes", "Suche nach bis zu 4 Routen"],
+  "Consultando carreteras y caminos": ["Consultant carreteres i camins", "Consultation des routes et chemins", "Checking roads and trails", "Straßen und Wege werden geprüft"],
+  "Simplificando y guardando el GPX": ["Simplificant i desant el GPX", "Simplification et enregistrement du GPX", "Simplifying and saving the GPX", "GPX wird vereinfacht und gespeichert"],
   "Preparación para la competición": ["Preparació per a la competició", "Préparation à la compétition", "Competition preparation", "Wettkampfvorbereitung"],
   "Objetivo de la sesión": ["Objectiu de la sessió", "Objectif de la séance", "Session goal", "Trainingsziel"],
   "La fecha ajusta la fase y la carga; la distancia y el desnivel orientan la resistencia y los intervalos. Cerca del evento se reduce el volumen para llegar fresco.": ["La data ajusta la fase i la càrrega; la distància i el desnivell orienten la resistència i els intervals. A prop de l'esdeveniment es redueix el volum per arribar fresc.", "La date ajuste la phase et la charge ; la distance et le dénivelé orientent l'endurance et les intervalles. À l'approche de l'événement, le volume diminue pour arriver frais.", "The date adjusts the phase and load; distance and elevation guide endurance and intervals. Volume decreases near the event to arrive fresh.", "Das Datum bestimmt Phase und Belastung; Distanz und Höhenmeter steuern Ausdauer und Intervalle. Vor dem Wettkampf sinkt der Umfang für frische Beine."],
