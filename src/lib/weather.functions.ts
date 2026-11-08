@@ -140,9 +140,8 @@ export const fetchRaceWeather = createServerFn({ method: "POST" })
     const requestedSignature = routeWeatherSignature(pts, comp.date, requestedDuration);
     const cached = comp.weather_forecast as any;
     const cachedHourly = cached?.route_hourly as any;
-    const cachedAge = cached?.fetched_at ? Date.now() - Date.parse(cached.fetched_at) : Infinity;
     if (
-      cached?.date === comp.date && cachedAge < 30 * 60 * 1000 &&
+      cached?.date === comp.date && isWeatherCacheFresh(cached?.fetched_at) &&
       cachedHourly?.signature === requestedSignature &&
       cachedHourly?.departureTime === requestedDeparture &&
       cachedHourly?.durationHours === requestedDuration

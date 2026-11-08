@@ -245,8 +245,18 @@ function RandomRouteForm({ onClose }: { onClose: () => void }) {
           <Field label={tr("Desnivel (m)")}><input type="number" min={0} className="input" value={f.elevation_m} onChange={(e) => setF({ ...f, elevation_m: e.target.value })} /></Field>
           <Field label={tr("Tiempo (h)")}><input type="number" step="0.1" className="input" value={f.duration_hours} onChange={(e) => setF({ ...f, duration_hours: e.target.value })} /></Field>
         </div>
+        {saving && <div className="rounded-lg border bg-surface p-3 space-y-2" role="status" aria-live="polite">
+          <div className="flex items-center justify-between gap-3 text-xs font-semibold">
+            <span>{tr(["Buscando hasta 4 trazados", "Consultando carreteras y caminos", "Simplificando y guardando el GPX"][progressStep])}</span>
+            <span className="text-muted-foreground">{progressStep + 1}/3</span>
+          </div>
+          <Progress value={[25, 65, 90][progressStep]} className="h-2" />
+          <div className="grid grid-cols-3 gap-2" aria-hidden="true">
+            {["Buscando hasta 4 trazados", "Consultando carreteras y caminos", "Simplificando y guardando el GPX"].map((label, index) => <span key={label} className={`h-1 rounded-full ${index <= progressStep ? "bg-primary" : "bg-muted"}`} />)}
+          </div>
+        </div>}
         <div className="flex gap-2 justify-end">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm border rounded-lg">{tr("Cancelar")}</button>
+          <button type="button" onClick={onClose} disabled={saving} className="px-4 py-2 text-sm border rounded-lg disabled:opacity-50">{tr("Cancelar")}</button>
           <button type="submit" disabled={saving} className="bg-primary text-primary-foreground px-4 py-2 text-sm rounded-lg font-semibold disabled:opacity-50">{saving ? tr("Generando…") : tr("Generar")}</button>
         </div>
         <style>{`.input{width:100%;padding:.55rem .75rem;border-radius:.5rem;border:1px solid var(--border);background:var(--surface);font-size:.875rem;outline:none}.input:focus{box-shadow:0 0 0 2px var(--ring)}`}</style>
