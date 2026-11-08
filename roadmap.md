@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Entrenamientos completados sin informe: botones siempre visibles, generación bajo demanda con vínculo por fecha y reutilización de sensaciones, actualización inmediata de tarjetas/calendario.
+
 - [x] Rendimiento: listados de Rutas y panel limitados a columnas de resumen; detalle completo conservado por ID. Prueba de proyección y tipos correctos.
 - [x] Rendimiento: ruta aleatoria con una ronda paralela de cuatro candidatas, GPX de hasta 800 puntos con extremos preservados y progreso en tres etapas. Pruebas y compilación correctas; generación autenticada no comprobada por Supabase externo.
 - [x] Rendimiento: Open-Meteo sin reintentos, espera máxima de 5 s antes de MET Norway y caché de 60 minutos; progreso meteorológico por etapas conservado. Pruebas y tipos correctos; consulta autenticada pendiente.
