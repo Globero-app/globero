@@ -88,6 +88,26 @@ describe("buildTcxWithCoursePoints", () => {
     expect(tcx).toContain("<Notes>KM 1 - t+1:30 - 30 g CHO - CHO 30g</Notes>");
   });
 
+  it("sincroniza y ordena los CoursePoints con sus Trackpoints aunque lleguen desordenados", () => {
+    const tcx = buildTcxWithCoursePoints(originalGpx, [], [
+      { km: 3, minute: 5, label: "Final", carbs_g: 40 },
+      { km: 1, minute: 90, label: "Inicio", carbs_g: 30 },
+    ]);
+    const trackTimes = new Map([...tcx.matchAll(/<Trackpoint>([\s\S]*?)<\/Trackpoint>/g)].map((match) => [
+      match[1].match(/<LatitudeDegrees>(.*?)<\/LatitudeDegrees>/)?.[1],
+      match[1].match(/<Time>(.*?)<\/Time>/)?.[1],
+    ]));
+    const coursePoints = [...tcx.matchAll(/<CoursePoint>([\s\S]*?)<\/CoursePoint>/g)].map((match) => ({
+      latitude: match[1].match(/<LatitudeDegrees>(.*?)<\/LatitudeDegrees>/)?.[1],
+      time: match[1].match(/<Time>(.*?)<\/Time>/)?.[1],
+    }));
+
+    expect(coursePoints.map((point) => point.time)).toEqual(coursePoints.map((point) => trackTimes.get(point.latitude)));
+    expect(coursePoints.map((point) => Date.parse(point.time || ""))).toEqual(
+      [...coursePoints.map((point) => Date.parse(point.time || ""))].sort((a, b) => a - b),
+    );
+  });
+
   it("rechaza coordenadas inválidas en lugar de descargar una ruta vacía", () => {
     expect(() => buildTcxWithCoursePoints("", [{ lat: NaN, lon: 0 }, { lat: 0, lon: 1 }], [])).toThrow("coordenadas");
   });
