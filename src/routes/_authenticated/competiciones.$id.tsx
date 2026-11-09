@@ -298,13 +298,15 @@ function CompetitionDetail() {
               </button>
               </div>
               <details className="mb-3 rounded-lg border bg-muted/30 p-3 text-xs">
-                <summary className="cursor-pointer font-medium">{tr("Aviso para Wahoo ELEMNT")}</summary>
+                <summary className="cursor-pointer font-medium">{tr(useGpx ? "Formato de descarga: GPX" : "Formato de descarga: TCX")}</summary>
                 <div className="mt-2 space-y-2 text-muted-foreground">
-                  <p>{tr("La importación directa del TCX en la app Wahoo ELEMNT ignora los avisos de nutrición (CoursePoints Food).")}</p>
-                  <ol className="list-decimal space-y-1.5 pl-4">
+                  <p>{tr(pr?.garmin_access_token ? "Garmin conectado: se descarga TCX con las tomas como CoursePoints Food." : pr?.wahoo_access_token ? "Wahoo conectado: se descarga GPX con las tomas como waypoints Food." : pr?.hammerhead_access_token ? "Hammerhead conectado: se descarga GPX con las tomas como waypoints Food." : "Sin ciclocomputador conectado: se descarga TCX, el formato con avisos de ruta más compatible.")}</p>
+                  <p>{tr("Cada ciclocomputador, modelo y app de importación trata los waypoints de forma distinta: la ruta se conserva, pero no se garantiza que los avisos de nutrición aparezcan en pantalla.")}</p>
+                  {pr?.wahoo_access_token && !pr?.garmin_access_token && <ol className="list-decimal space-y-1.5 pl-4">
                     <li>{tr("RideWithGPS o Komoot: sube el archivo a RideWithGPS o Komoot con tu cuenta vinculada en la app ELEMNT. La ruta se transferirá al ciclocomputador con su Cue Sheet.")}</li>
                     <li>{tr("Alertas por tiempo: configura en tu Wahoo ELEMNT alertas periódicas, por ejemplo cada 20–30 min, como recordatorio para comer.")}</li>
-                  </ol>
+                  </ol>}
+                  {!pr?.wahoo_access_token && <p>{tr("Como respaldo, configura alertas por tiempo cada 20–30 min en tu ciclocomputador.")}</p>}
                 </div>
               </details>
               <p className="text-[10px] text-muted-foreground mb-2"> {tr("Dosis ajustadas por perfil, forma (Intervals.icu últimas 4 semanas) y perfil altimétrico.")} 
