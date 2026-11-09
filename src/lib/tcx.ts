@@ -99,16 +99,19 @@ export function buildTcxWithCoursePoints(
 ${p.ele != null && Number.isFinite(p.ele) ? `          <AltitudeMeters>${p.ele}</AltitudeMeters>\n` : ""}          <DistanceMeters>${distances[index].toFixed(3)}</DistanceMeters>
         </Trackpoint>`).join("\n");
 
-  const coursePointsXml = coursePoints.map((waypoint) => {
+  const resolvedCoursePoints = coursePoints.map((waypoint, order) => {
     const point = nearestTrackPointAtKm(points, Number(waypoint.km) || 0);
-    if (!point) return "";
+    return point ? { waypoint, point, trackIndex: points.indexOf(point), order } : null;
+  }).filter((coursePoint): coursePoint is NonNullable<typeof coursePoint> => coursePoint !== null)
+    .sort((a, b) => a.trackIndex - b.trackIndex || a.order - b.order);
+
+  const coursePointsXml = resolvedCoursePoints.map(({ waypoint, point, trackIndex }) => {
     const label = cleanLabel(waypoint.label || waypoint.note || (waypoint.carbs_g ? `CHO ${waypoint.carbs_g}g` : "Avituallamiento"));
     const amount = waypoint.carbs_g || Number(label.match(/(\d+)\s*g/i)?.[1]);
     const minute = Number(waypoint.minute);
     const clock = Number.isFinite(minute) && waypoint.minute != null ? formatRideClock(minute) : "";
     // Garmin limita CoursePoint/Name a 10 caracteres; las notas conservan todo.
     const name = `${amount ? (clock ? `${amount}g` : `CHO ${amount}g`) : label}${clock ? ` ${clock}` : ""}`.slice(0, 10) || "Food";
-    const time = clock ? new Date(start + Math.max(0, minute) * 60_000).toISOString() : times[points.indexOf(point)];
     const notes = [
       `KM ${Number(waypoint.km) || 0}`,
       clock ? `t+${clock}` : "",
@@ -117,7 +120,7 @@ ${p.ele != null && Number.isFinite(p.ele) ? `          <AltitudeMeters>${p.ele}<
     ].filter(Boolean).join(" - ");
     return `      <CoursePoint>
         <Name>${escapeXml(name)}</Name>
-        <Time>${time}</Time>
+        <Time>${times[trackIndex]}</Time>
         <Position>
           <LatitudeDegrees>${point.lat}</LatitudeDegrees>
           <LongitudeDegrees>${point.lon}</LongitudeDegrees>
@@ -125,7 +128,7 @@ ${p.ele != null && Number.isFinite(p.ele) ? `          <AltitudeMeters>${p.ele}<
 ${point.ele != null && Number.isFinite(point.ele) ? `        <AltitudeMeters>${point.ele}</AltitudeMeters>\n` : ""}        <PointType>Food</PointType>
         <Notes>${escapeXml(notes)}</Notes>
       </CoursePoint>`;
-  }).filter(Boolean).join("\n");
+  }).join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd">
