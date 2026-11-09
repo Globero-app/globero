@@ -292,6 +292,16 @@ function CompetitionDetail() {
                   <Download className="size-3.5" /> {tr("Descargar TCX con waypoints")} 
               </button>
               </div>
+              <details className="mb-3 rounded-lg border bg-muted/30 p-3 text-xs">
+                <summary className="cursor-pointer font-medium">{tr("Aviso para Wahoo ELEMNT")}</summary>
+                <div className="mt-2 space-y-2 text-muted-foreground">
+                  <p>{tr("La importación directa del TCX en la app Wahoo ELEMNT ignora los avisos de nutrición (CoursePoints Food).")}</p>
+                  <ol className="list-decimal space-y-1.5 pl-4">
+                    <li>{tr("RideWithGPS o Komoot: sube el archivo a RideWithGPS o Komoot con tu cuenta vinculada en la app ELEMNT. La ruta se transferirá al ciclocomputador con su Cue Sheet.")}</li>
+                    <li>{tr("Alertas por tiempo: configura en tu Wahoo ELEMNT alertas periódicas, por ejemplo cada 20–30 min, como recordatorio para comer.")}</li>
+                  </ol>
+                </div>
+              </details>
               <p className="text-[10px] text-muted-foreground mb-2"> {tr("Dosis ajustadas por perfil, forma (Intervals.icu últimas 4 semanas) y perfil altimétrico.")} 
 
             </p>
