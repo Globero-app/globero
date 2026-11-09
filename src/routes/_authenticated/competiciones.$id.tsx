@@ -199,18 +199,18 @@ function CompetitionDetail() {
         const { Filesystem, Directory, Encoding } = await import("@capacitor/filesystem");
         try {
           await Filesystem.writeFile({ path: `Globero/${filename}`, data: out, directory: Directory.Documents, encoding: Encoding.UTF8, recursive: true });
-          toast.success(`${tr("TCX descargado en")} Documentos/Globero/${filename}`);
+          toast.success(`${tr(useGpx ? "GPX descargado en" : "TCX descargado en")} Documentos/Globero/${filename}`);
         } catch (err) {
           console.error(err);
           const { Share } = await import("@capacitor/share");
           const file = await Filesystem.writeFile({ path: filename, data: out, directory: Directory.Cache, encoding: Encoding.UTF8 });
-          await Share.share({ title: filename, url: file.uri, dialogTitle: tr("Compartir TCX") });
+          await Share.share({ title: filename, url: file.uri, dialogTitle: tr(useGpx ? "Compartir GPX" : "Compartir TCX") });
         }
         return;
       }
       const blob = new Blob([out], { type: useGpx ? "application/gpx+xml;charset=utf-8" : "application/vnd.garmin.tcx+xml;charset=utf-8" });
       const nav: any = navigator;
-      if (nav.msSaveOrOpenBlob) { nav.msSaveOrOpenBlob(blob, filename); toast.success(tr("Descarga del TCX iniciada")); return; }
+      if (nav.msSaveOrOpenBlob) { nav.msSaveOrOpenBlob(blob, filename); toast.success(tr(useGpx ? "Descarga del GPX iniciada" : "Descarga del TCX iniciada")); return; }
       if (gpxFallback) URL.revokeObjectURL(gpxFallback.url);
       const url = URL.createObjectURL(blob);
       setGpxFallback({ url, filename, xml: out });
@@ -220,10 +220,10 @@ function CompetitionDetail() {
       let inIframe = false;
       try { inIframe = window.self !== window.top; } catch { inIframe = true; }
       if (inIframe) { try { window.open(url, "_blank"); } catch { /* usar enlaces alternativos */ } }
-      toast.success(tr("Descarga del TCX iniciada"));
+      toast.success(tr(useGpx ? "Descarga del GPX iniciada" : "Descarga del TCX iniciada"));
     } catch (err) {
       console.error("downloadTcx", err);
-      toast.error(err instanceof Error ? err.message : tr("No se pudo descargar el TCX"));
+      toast.error(err instanceof Error ? err.message : tr(useGpx ? "No se pudo descargar el GPX" : "No se pudo descargar el TCX"));
     }
   };
 
