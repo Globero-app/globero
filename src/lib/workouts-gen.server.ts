@@ -232,7 +232,8 @@ COMPETICIÓN OBJETIVO:
 
   const chosenDays = input.training_days.slice().sort((a, b) => a - b);
   const maxCount = input.max_count ?? chosenDays.length;
-  const limits = [competition?.date, input.until].filter(Boolean) as string[];
+  const compDate = competition && competition.date > madridToday ? competition.date : null;
+  const limits = [compDate, input.until].filter(Boolean) as string[];
   const maxDate = limits.length ? limits.sort()[0] : undefined;
   const schedule = buildSchedule(chosenDays, maxCount, maxDate, input.from);
   if (!schedule.length) throw new Error("No hay días de entrenamiento disponibles");
