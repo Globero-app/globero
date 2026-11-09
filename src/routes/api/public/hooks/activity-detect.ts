@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
 import { ACTIVITY_SOURCE_FILTER } from "@/lib/hammerhead-detection";
 
 /**
@@ -12,6 +13,11 @@ export const Route = createFileRoute("/api/public/hooks/activity-detect")({
       POST: async ({ request }) => {
         const { verifyCronRequest } = await import("@/lib/cron-auth.server");
         if (!(await verifyCronRequest(request))) return new Response("Unauthorized", { status: 401 });
+        const url = new URL(request.url);
+        const userId = url.searchParams.get("userId");
+        if (userId !== null && !z.string().uuid().safeParse(userId).success) {
+          return new Response("Invalid userId", { status: 400 });
+        }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { acquireJobLock, releaseJobLock, detectAndAssign, remindPendingWorkout } = await import(
@@ -42,20 +48,24 @@ export const Route = createFileRoute("/api/public/hooks/activity-detect")({
         let auto = 0;
         let asked = 0;
         let reminded = 0;
+        const results: { user: string; auto: number; asked: number }[] = [];
         try {
-          const { data: users } = await supabaseAdmin
+          let query = supabaseAdmin
             .from("profiles")
-            .select("id, notify_strava_push, notify_training_push, intervals_api_key, intervals_oauth, intervals_athlete_id")
+            .select("id, notify_strava_push, notify_training_push, intervals_api_key, intervals_oauth, intervals_athlete_id, strava_access_token")
             .or(ACTIVITY_SOURCE_FILTER)
             .is("deactivated_at", null)
             .limit(200);
-
+          if (userId) query = query.eq("id", userId);
+          const { data: users, error } = await query;
+          if (error) throw error;
 
           for (const u of (users ?? []) as any[]) {
             try {
               const r = await detectAndAssign(supabaseAdmin, u.id, todayISO);
               auto += r.auto;
               asked += r.asked;
+              results.push({ user: u.id, auto: r.auto, asked: r.asked });
               if (madridHour === 20 && u.notify_training_push) {
                 if (await remindPendingWorkout(supabaseAdmin, u.id, todayISO)) reminded++;
               }
@@ -73,7 +83,7 @@ export const Route = createFileRoute("/api/public/hooks/activity-detect")({
           await releaseJobLock(supabaseAdmin, JOB, { auto, asked, reminded, at: new Date().toISOString() });
         }
 
-        return new Response(JSON.stringify({ ok: true, auto, asked, reminded }), {
+        return new Response(JSON.stringify({ ok: true, auto, asked, reminded, results }), {
           headers: { "content-type": "application/json" },
         });
       },
