@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Corregir límites de competición y cron semanal: ventana Madrid domingo 21:00–lunes 14:00, usuario/lote, semana correcta e idempotencia por entrenamientos; conservar nutrición y resúmenes y comprobar pruebas.
+
 - [x] Entrenamientos completados sin informe: ambos botones visibles, generación bajo demanda con vínculo por fecha y reutilización de sensaciones; valoración manual sin inventar actividades y actualización de tarjetas/calendario. 12 pruebas y compilación correctas.
 - [ ] Verificar generación/valoración desde una tarjeta con la cuenta real: Supabase externo sin sesión disponible; la comprobación del navegador termina en acceso.
 
