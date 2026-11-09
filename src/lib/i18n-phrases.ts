@@ -1113,6 +1113,10 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Download .zwo (Zwift)",
     "Download .zwo (Zwift)"
   ],
+  "GPX descargado en": ["GPX descarregat a", "GPX téléchargé dans", "GPX downloaded to", "GPX heruntergeladen nach"],
+  "Compartir GPX": ["Comparteix GPX", "Partager le GPX", "Share GPX", "GPX teilen"],
+  "Descarga del GPX iniciada": ["Descàrrega del GPX iniciada", "Téléchargement du GPX lancé", "GPX download started", "GPX-Download gestartet"],
+  "No se pudo descargar el GPX": ["No s'ha pogut descarregar el GPX", "Impossible de télécharger le GPX", "Could not download the GPX", "GPX konnte nicht heruntergeladen werden"],
   "Descargar ruta con waypoints": ["Descarrega ruta amb punts de pas", "Télécharger l'itinéraire avec points de passage", "Download route with waypoints", "Route mit Wegpunkten herunterladen"],
   "Descargar TCX con waypoints": [
     "Descarrega TCX amb punts de marxa",
