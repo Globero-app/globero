@@ -69,6 +69,12 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
   } catch (e) {
     console.error("[activity-detect] devices", e);
   }
+  try {
+    const { pullStravaActivities } = await import("./strava.server");
+    await pullStravaActivities(admin, userId);
+  } catch (e) {
+    console.error("[activity-detect] strava", e);
+  }
 
   const sinceISO = new Date(Date.now() - 2 * 86400000).toISOString();
   const sinceDay = sinceISO.slice(0, 10);
