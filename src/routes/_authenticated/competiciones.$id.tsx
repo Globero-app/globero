@@ -294,7 +294,7 @@ function CompetitionDetail() {
                   <p className="font-semibold text-sm">{np.perHour} {tr("g/h ·")} {np.total}{tr("g total ·")} {np.durationH}{tr("h estimadas")}</p>
                 </div>
                 <button onClick={downloadTcx} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs font-semibold">
-                  <Download className="size-3.5" /> {fmt === "GPX" ? tr("Descargar GPX con waypoints") : tr("Descargar TCX con waypoints")} 
+                  <Download className="size-3.5" /> {tr("Descargar ruta con waypoints")} 
               </button>
               </div>
               <details className="mb-3 rounded-lg border bg-muted/30 p-3 text-xs">

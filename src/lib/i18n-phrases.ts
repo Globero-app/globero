@@ -1113,6 +1113,7 @@ export const PHRASES: Record<string, [string, string, string, string]> = {
     "Download .zwo (Zwift)",
     "Download .zwo (Zwift)"
   ],
+  "Descargar ruta con waypoints": ["Descarrega ruta amb punts de pas", "Télécharger l'itinéraire avec points de passage", "Download route with waypoints", "Route mit Wegpunkten herunterladen"],
   "Descargar TCX con waypoints": [
     "Descarrega TCX amb punts de marxa",
     "Télécharger TCX avec les points de repère",
