@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { generateMenu, swapRecipe } from "@/lib/ai.functions";
-import { parseGpx, simplifyTrack, trackStats, pointAtKm } from "@/lib/gpx";
+import { parseGpx, simplifyTrack, trackStats, pointAtKm, buildGpxWithWaypoints } from "@/lib/gpx";
 import { buildTcxWithCoursePoints } from "@/lib/tcx";
 import { planRaceNutrition, dailyMacros } from "@/lib/carbs";
 import { GpxMap } from "@/components/GpxMap";
@@ -178,6 +178,9 @@ function CompetitionDetail() {
   };
   processRef.current = processGpxText;
 
+  const pr: any = profile.data;
+  const useGpx = !pr?.garmin_access_token && !!(pr?.wahoo_access_token || pr?.hammerhead_access_token);
+  const fmt = useGpx ? "GPX" : "TCX";
   const downloadTcx = async () => {
     try {
       if (!c.gpx_data && points.length < 2) {toast.error(tr("Sube un GPX y genera el plan primero"));return;}
@@ -188,27 +191,29 @@ function CompetitionDetail() {
         note: w.note,
         carbs_g: w.carbs_g,
       })), c.name || "Ruta");
-      const filename = `${(c.name || "ruta").replace(/[\\/:*?"<>|]/g, "_")}_nutricion.tcx`;
-      if (!/<\/TrainingCenterDatabase>\s*$/.test(newTcx)) throw new Error(tr("TCX incompleto"));
+      const wIn = wpts.map((w: any) => ({ km: Number(w.km) || 0, label: w.label || w.note || (w.carbs_g ? "CHO " + w.carbs_g + "g" : "Avituallamiento") }));
+      const out = useGpx ? buildGpxWithWaypoints(c.gpx_data || "", points, wIn as any, c.name || "Ruta") : newTcx;
+      const filename = `${(c.name || "ruta").replace(/[\\/:*?"<>|]/g, "_")}_nutricion.${useGpx ? "gpx" : "tcx"}`;
+      if (!useGpx && !/<\/TrainingCenterDatabase>\s*$/.test(newTcx)) throw new Error(tr("TCX incompleto"));
       if (isNative()) {
         const { Filesystem, Directory, Encoding } = await import("@capacitor/filesystem");
         try {
-          await Filesystem.writeFile({ path: `Globero/${filename}`, data: newTcx, directory: Directory.Documents, encoding: Encoding.UTF8, recursive: true });
+          await Filesystem.writeFile({ path: `Globero/${filename}`, data: out, directory: Directory.Documents, encoding: Encoding.UTF8, recursive: true });
           toast.success(`${tr("TCX descargado en")} Documentos/Globero/${filename}`);
         } catch (err) {
           console.error(err);
           const { Share } = await import("@capacitor/share");
-          const file = await Filesystem.writeFile({ path: filename, data: newTcx, directory: Directory.Cache, encoding: Encoding.UTF8 });
+          const file = await Filesystem.writeFile({ path: filename, data: out, directory: Directory.Cache, encoding: Encoding.UTF8 });
           await Share.share({ title: filename, url: file.uri, dialogTitle: tr("Compartir TCX") });
         }
         return;
       }
-      const blob = new Blob([newTcx], { type: "application/vnd.garmin.tcx+xml;charset=utf-8" });
+      const blob = new Blob([out], { type: useGpx ? "application/gpx+xml;charset=utf-8" : "application/vnd.garmin.tcx+xml;charset=utf-8" });
       const nav: any = navigator;
       if (nav.msSaveOrOpenBlob) { nav.msSaveOrOpenBlob(blob, filename); toast.success(tr("Descarga del TCX iniciada")); return; }
       if (gpxFallback) URL.revokeObjectURL(gpxFallback.url);
       const url = URL.createObjectURL(blob);
-      setGpxFallback({ url, filename, xml: newTcx });
+      setGpxFallback({ url, filename, xml: out });
       const a = document.createElement("a");a.href = url;a.download = filename;a.target = "_blank";a.rel = "noopener noreferrer";a.style.display = "none";
       document.body.appendChild(a);a.click();
       setTimeout(() => a.remove(), 1000);
@@ -289,7 +294,7 @@ function CompetitionDetail() {
                   <p className="font-semibold text-sm">{np.perHour} {tr("g/h ·")} {np.total}{tr("g total ·")} {np.durationH}{tr("h estimadas")}</p>
                 </div>
                 <button onClick={downloadTcx} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs font-semibold">
-                  <Download className="size-3.5" /> {tr("Descargar TCX con waypoints")} 
+                  <Download className="size-3.5" /> {fmt === "GPX" ? tr("Descargar GPX con waypoints") : tr("Descargar TCX con waypoints")} 
               </button>
               </div>
               <details className="mb-3 rounded-lg border bg-muted/30 p-3 text-xs">
