@@ -1,5 +1,7 @@
 # Architecture rules
 
+- Derive weekly cron dates and execution eligibility through the tested Madrid calendar helper; use persisted scheduled workouts for weekly idempotency and bound generation attempts per request while preserving summary delivery.
+
 - Resolve on-demand reports and workout feedback through a shared owner-scoped completed-workout resolver; match activities on the session's Madrid date, preserve stored feedback, and keep manual-session feedback separate from provider IDs. Explicit regeneration bypasses report reuse without deleting the previous report before success.
 
 - Keep route-weather scheduling, geometry signatures and clothing rules in a pure tested module; fetch hourly forecasts for distance-interpolated GPX positions in the authenticated weather function, use the provider's IANA timezone, and suppress stale clothing recommendations. Incomplete hourly coverage may use validated same-day general weather for explicitly approximate clothing advice; daily rain totals must never imply hourly intensity. Fall back automatically to MET Norway (start/mid/end GPX points, symbol codes mapped to WMO, timezone resolved via timeapi.io) when Open-Meteo fails. Debounce automatic time/duration refreshes in the weather UI, serialize requests, and match response parameters before displaying equipment so older responses cannot describe a newer departure.

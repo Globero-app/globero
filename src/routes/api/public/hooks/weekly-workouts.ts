@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { weeklyWorkoutParams, weeklyWorkoutWindow } from "@/lib/weekly-workout-window";
 
 /**
- * Cron semanal (domingos a partir de las 22:00 Europa/Madrid). Genera los entrenamientos mixtos
+ * Cron semanal (domingo 21:00–lunes 14:00 Europa/Madrid). Genera los entrenamientos mixtos
  * de la semana siguiente para cada usuario con generación automática activada,
  * según sus días de entreno, su día de tirada larga y su progreso previo.
  *
@@ -14,46 +15,55 @@ export const Route = createFileRoute("/api/public/hooks/weekly-workouts")({
         const { verifyCronRequest } = await import("@/lib/cron-auth.server");
         if (!(await verifyCronRequest(request))) return new Response("Unauthorized", { status: 401 });
 
-        const now = new Date();
-        const madrid = new Intl.DateTimeFormat("en-CA", {
-          timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit",
-        }).format(now);
-
-        const madridHour = Number(
-          new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", hour: "2-digit", hour12: false }).format(now),
-        );
         const url = new URL(request.url);
-        if (url.searchParams.get("force") !== "1" && madridHour !== 22 && madridHour !== 23 && madridHour !== 0) {
-          return new Response(JSON.stringify({ ok: true, skipped: true, hour: madridHour }), { headers: { "content-type": "application/json" } });
+        const params = weeklyWorkoutParams.safeParse(Object.fromEntries(url.searchParams));
+        if (!params.success) return Response.json({ error: "Invalid query parameters" }, { status: 400 });
+        const { userId, limit } = params.data;
+        const force = params.data.force === "1" || Boolean(userId);
+        const { date: madrid, allowed, hour, mondayISO, untilSunday, from } = weeklyWorkoutWindow(new Date());
+        const window = { mondayISO, untilSunday };
+        if (!force && !allowed) {
+          return Response.json({ ok: true, skipped: true, hour, processed: 0, window, results: [] });
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { generateWorkoutsCore } = await import("@/lib/workouts-gen.server");
 
-        const { data: users, error } = await supabaseAdmin
+        let usersQuery = supabaseAdmin
           .from("profiles")
           .select("id, weekly_training_days, weekly_long_ride_day, weekly_bike_type, weekly_duration_minutes, weekly_target_basis, weekly_last_generated_at, nutrition_plan_enabled, nutrition_goal")
-          .eq("weekly_auto_enabled", true)
-          .is("deactivated_at", null);
+          .is("deactivated_at", null)
+          .order("id");
+        usersQuery = userId ? usersQuery.eq("id", userId) : usersQuery.eq("weekly_auto_enabled", true);
+        const { data: users, error } = await usersQuery;
         if (error) {
           return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { "content-type": "application/json" } });
         }
 
         const results: any[] = [];
+        let processed = 0;
         for (const u of users ?? []) {
+          if (processed >= limit) break;
           const days = ((u as any).weekly_training_days ?? []).map((d: any) => Number(d)).filter((d: number) => d >= 0 && d <= 6);
           if (!days.length) continue;
 
-          // Idempotencia: no repetir si ya se generó hoy
-          const last = (u as any).weekly_last_generated_at ? new Date((u as any).weekly_last_generated_at) : null;
-          if (last) {
-            const lastMadrid = new Intl.DateTimeFormat("en-CA", {
-              timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit",
-            }).format(last);
-            if (lastMadrid === madrid) continue;
-          }
-
           try {
+            // Idempotencia por calendario real; una marca antigua no bloquea una semana vacía.
+            if (!force) {
+              const { data: existing, error: existingError } = await supabaseAdmin
+                .from("workouts")
+                .select("id")
+                .eq("user_id", u.id)
+                .gte("plan->>scheduled_date", mondayISO)
+                .lte("plan->>scheduled_date", untilSunday)
+                .limit(1);
+              if (existingError) throw existingError;
+              if (existing?.length) {
+                results.push({ user: u.id, skipped: true, reason: "workouts_exist" });
+                continue;
+              }
+            }
+            processed++;
             const inserted = await generateWorkoutsCore(supabaseAdmin, u.id, {
               bike_type: (u as any).weekly_bike_type ?? "carretera",
               duration_minutes: (u as any).weekly_duration_minutes ?? 60,
@@ -61,22 +71,18 @@ export const Route = createFileRoute("/api/public/hooks/weekly-workouts")({
               training_days: days,
               long_ride_day: (u as any).weekly_long_ride_day ?? null,
               max_count: days.length,
-              until: (() => {
-                const base = new Date(`${madrid}T12:00:00Z`);
-                const dow = base.getUTCDay(); // domingo = 0
-                const toNextSunday = dow === 0 ? 7 : 7 - dow + 7;
-                return new Date(base.getTime() + toNextSunday * 86400000).toISOString().slice(0, 10);
-              })(),
+              from,
+              until: untilSunday,
               nutrition_goal: (u as any).nutrition_plan_enabled ? ((u as any).nutrition_goal ?? "mantenimiento") : null,
             });
 
             // Plan nutricional de la semana siguiente
             if ((u as any).nutrition_plan_enabled) {
               try {
-                const { generateWeeklyNutritionCore, weekStartISO } = await import("@/lib/nutrition-gen.server");
+                const { generateWeeklyNutritionCore } = await import("@/lib/nutrition-gen.server");
                 await generateWeeklyNutritionCore(supabaseAdmin, u.id, {
                   goal: (u as any).nutrition_goal ?? "mantenimiento",
-                  week_start: weekStartISO(new Date(), true),
+                  week_start: mondayISO,
                 });
               } catch (e) { console.error("weekly-nutrition", e); }
             }
@@ -111,14 +117,17 @@ export const Route = createFileRoute("/api/public/hooks/weekly-workouts")({
         // Resumen semanal también para quienes no tienen generación automática
         try {
           const { sendWeeklySummary } = await import("@/lib/weekly-summary.server");
-          const { data: rest } = await supabaseAdmin
+          let restQuery = supabaseAdmin
             .from("profiles")
             .select("id")
-            .eq("weekly_auto_enabled", false);
+            .eq("weekly_auto_enabled", false)
+            .is("deactivated_at", null);
+          if (userId) restQuery = restQuery.eq("id", userId);
+          const { data: rest } = await restQuery;
           for (const p of rest ?? []) await sendWeeklySummary(supabaseAdmin, (p as any).id);
         } catch (e) { console.error("weekly-summary-rest", e); }
 
-        return new Response(JSON.stringify({ ok: true, date: madrid, users: results.length, results }), {
+        return new Response(JSON.stringify({ ok: true, date: madrid, users: processed, processed, window, results }), {
           headers: { "content-type": "application/json" },
         });
       },
