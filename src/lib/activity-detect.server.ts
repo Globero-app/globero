@@ -104,11 +104,17 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
 
   // Descarta registros STRAVA sin datos reales (no disponibles vía API de Intervals)
   const { isSameActivity } = await import("./activity-dedupe.server");
+  // Prioridad: ciclocomputador > Strava > Intervals; duplicados se agrupan bajo la principal
+  const rank = (a: any) => { const s = activitySource(a.id).toLowerCase(); return s === "strava" ? 1 : s.startsWith("intervals") ? 2 : 0; };
   const activities: any[] = [];
-  for (const a of (aRes.data ?? []) as any[]) {
-    if (!a.type || !(Number(a.moving_time ?? 0) > 0)) continue;
-    if (activities.some((k) => isSameActivity(k, a))) continue;
+  const dupes = new Map<any, string[]>();
+  const valid = ((aRes.data ?? []) as any[]).filter((a) => a.type && Number(a.moving_time ?? 0) > 0)
+    .sort((x, y) => rank(x) - rank(y));
+  for (const a of valid) {
+    const k = activities.find((p) => isSameActivity(p, a));
+    if (k) { dupes.get(k)!.push(String(a.id)); continue; }
     activities.push(a);
+    dupes.set(a, []);
   }
   if (!activities.length) return out;
 
@@ -147,6 +153,15 @@ export async function detectAndAssign(admin: any, userId: string, todayISO: stri
   const feedbackAsked = new Set(
     ((dRes.data ?? []) as any[]).filter((d) => d.notification_sent).map((d) => String(d.activity_id)),
   );
+  // Si una copia (p. ej. Strava) ya se avisó/vinculó, la principal (Wahoo) hereda ese estado
+  for (const a of activities) {
+    const id = String(a.id);
+    for (const d of dupes.get(a) ?? []) {
+      if (linked.has(d)) { linked.add(id); const w = workoutByActivity.get(d); if (w) workoutByActivity.set(id, w); }
+      if (notified.has(d)) notified.add(id);
+      if (feedbackAsked.has(d)) feedbackAsked.add(id);
+    }
+  }
 
   const { linkWorkoutActivity } = await import("./activity-link.server");
   const { notifyUser } = await import("./web-push.server");
