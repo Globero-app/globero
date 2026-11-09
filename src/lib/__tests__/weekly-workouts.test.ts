@@ -41,7 +41,8 @@ import { Route } from "../../routes/api/public/hooks/weekly-workouts";
 
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const run = (query = "") => {
-  const handler = Route.options.server?.handlers?.POST;
+  const handlers = Route.options.server?.handlers;
+  const handler = typeof handlers === "function" ? undefined : handlers?.POST;
   if (typeof handler !== "function") throw new Error("POST handler missing");
   return handler({ request: new Request(`http://localhost/api/public/hooks/weekly-workouts${query}`, { method: "POST" }) } as Parameters<typeof handler>[0]) as Promise<Response>;
 };

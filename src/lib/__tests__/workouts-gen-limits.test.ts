@@ -5,10 +5,16 @@ vi.mock("../weather-daily.server", () => ({ fetchDailyWeather: vi.fn(), adviseFo
 vi.mock("../ai-call.server", () => ({ callAI: vi.fn() }));
 vi.mock("../competition-target", () => ({ getNextActiveCompetition: mocks.competition }));
 vi.mock("../subscription-access.server", () => ({ requireGenerationAccess: vi.fn() }));
-vi.mock("../training-load.server", () => ({ weekStart: (date: string) => date }));
+vi.mock("../training-load.server", () => ({
+  weekStart: (date: string) => date, buildTrainingLoad: vi.fn(), prescribeWeek: vi.fn(), loadPromptBlock: vi.fn(),
+}));
 vi.mock("../user-lang.server", () => ({ getUserLang: () => "es", langInstruction: () => "es" }));
-vi.mock("../workout-validator.server", () => ({}));
-vi.mock("../athlete-profile.server", () => ({}));
+vi.mock("../workout-validator.server", () => ({
+  validateWorkout: vi.fn(), enforceWeeklyTss: vi.fn(), avoidBackToBackHard: vi.fn(), enforcePolarized: vi.fn(),
+}));
+vi.mock("../athlete-profile.server", () => ({
+  refreshAthleteProfile: vi.fn(), athletePromptBlock: vi.fn(), minutesForDay: vi.fn(),
+}));
 vi.mock("../periodization.server", () => ({ resolvePeriodization: mocks.periodization }));
 import { generateWorkoutsCore } from "../workouts-gen.server";
 
