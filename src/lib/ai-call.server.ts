@@ -1,6 +1,8 @@
 /* Llamada única al AI Gateway: modelo por defecto, tool-calling opcional
    y registro de uso en ai_usage_log para medir el gasto mensual. */
 
+import { parseAIResponse } from "./ai-response";
+
 const MODEL = "openai/gpt-5.6-sol";
 const LIGHT_MODEL = "openai/gpt-6-luna";
 const LIGHT_FNS = new Set(["telegram-intent", "daily-brief", "meal-swap", "recipe-swap", "telegram-meal", "telegram-modify"]);
@@ -76,7 +78,7 @@ export async function callAI(
     body.tools = [{ type: "function", function: { name: "respond", description: "Respuesta estructurada", parameters: schema } }];
     body.tool_choice = { type: "function", function: { name: "respond" } };
   }
-  let res!: Response;
+  let res: Response;
   for (let attempt = 0; ; attempt++) {
     res = await fetch(GATEWAY, {
       method: "POST",
@@ -96,9 +98,5 @@ export async function callAI(
   }
   const json = await res.json();
   logUsage(meta, json.usage, json.model ?? model);
-  const msg = json.choices?.[0]?.message;
-  if (schema && msg?.tool_calls?.[0]?.function?.arguments) {
-    return JSON.parse(msg.tool_calls[0].function.arguments);
-  }
-  return msg?.content ?? "";
+  return parseAIResponse(json, schema);
 }

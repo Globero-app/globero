@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Probar menú semanal completo y plan de entrenamiento con límites actuales; rechazar respuestas truncadas y JSON parcial antes de guardar, con pruebas de protección de planes existentes.
+
 - [x] Strava incluido en detección periódica con sincronización aislada, filtro autenticado por userId y resultados por usuario. 14 pruebas y compilación correctas; sincronización real no ejecutada.
 
 - [x] Corregidos límites de competición y cron semanal: ventana Madrid domingo 21:00–lunes 14:00, usuario/lote, semana correcta e idempotencia por entrenamientos; nutrición y resúmenes conservados. 28 pruebas y compilación correctas; petición sin autorización rechazada. Generación real no ejecutada.
