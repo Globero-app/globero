@@ -73,7 +73,16 @@ describe("immediate nutrition horizon", () => {
 });
 
 it("nutrition uses the same leading system prefix across profiles, goals and weeks", async () => {
-  callAI.mockResolvedValue({ dias: [], resumen: "" });
+  callAI.mockImplementation(async (messages) => ({
+    dias: [...messages[1].content.matchAll(/^- (\d{4}-\d{2}-\d{2}) \(/gm)].map((match) => ({
+      fecha: match[1], dia_semana: "lunes", entrenamiento: "Descanso",
+      objetivo_calorias_kcal: 2200, objetivo_carbohidratos_g: 280, objetivo_proteinas_g: 120,
+      ...Object.fromEntries(["desayuno", "media_manana", "comida", "merienda", "cena"].map((meal) => [meal, {
+        nombre: "Arroz", ingredientes: ["Arroz 100 g"], preparacion: "Cocer el arroz.",
+        macros: { carbohidratos_g: 56, proteinas_g: 24, grasas_g: 12, calorias_kcal: 428 },
+      }])),
+    })), resumen: "Distribuir carbohidratos según carga.",
+  }));
   const first = await generateWeeklyNutritionCore(database({ weight_kg: 71, dietary_preferences: "sin lactosa" }), "a", {
     goal: "mantenimiento", week_start: "2026-10-12",
   });
