@@ -22,9 +22,9 @@ const GOAL_RULES: Record<string, string> = {
 const MealSchema = {
   type: "object",
   properties: {
-    nombre: { type: "string" },
-    ingredientes: { type: "array", items: { type: "string" }, description: "Ingredientes con cantidades en gramos" },
-    preparacion: { type: "string", description: "Instrucciones breves y directas: máximo 1-2 frases concisas, sin introducciones ni explicaciones adicionales" },
+    nombre: { type: "string", maxLength: 60, description: "Nombre corto del plato" },
+    ingredientes: { type: "array", maxItems: 8, items: { type: "string", maxLength: 50 }, description: "Ingrediente + gramos, sin adjetivos" },
+    preparacion: { type: "string", maxLength: 140, description: "Pasos operativos, 1 frase, sin prosa" },
     macros: {
       type: "object",
       properties: {
@@ -44,7 +44,7 @@ const DaySchema = {
   properties: {
     fecha: { type: "string", description: "YYYY-MM-DD" },
     dia_semana: { type: "string", description: "lunes, martes, miércoles…" },
-    entrenamiento: { type: "string", description: "Resumen del entreno de ese día o 'Descanso'" },
+    entrenamiento: { type: "string", maxLength: 60, description: "Tipo+duración del entreno o 'Descanso'" },
     objetivo_calorias_kcal: { type: "number" },
     objetivo_carbohidratos_g: { type: "number" },
     objetivo_proteinas_g: { type: "number" },
@@ -61,7 +61,7 @@ const WeekSchema = {
   type: "object",
   properties: {
     dias: { type: "array", items: DaySchema },
-    resumen: { type: "string" },
+    resumen: { type: "string", maxLength: 200, description: "Claves técnicas de la semana, sin prosa" },
   },
   required: ["dias", "resumen"],
 };
