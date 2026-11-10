@@ -25,6 +25,15 @@ export interface AiCallMeta {
   fn: string; // nombre corto de la función que llama (p.ej. "readiness-adapt")
   userId?: string | null;
   model?: string;
+  maxTokens?: number;
+}
+
+/* Tope global de tokens de salida para acotar coste ante respuestas desbocadas. */
+export const MAX_TOKENS_DEFAULT = 16000;
+export const MAX_TOKENS_LIGHT = 4000;
+export function resolveMaxTokens(meta?: AiCallMeta): number {
+  if (meta?.maxTokens && meta.maxTokens > 0) return Math.min(meta.maxTokens, MAX_TOKENS_DEFAULT);
+  return meta?.fn && LIGHT_FNS.has(meta.fn) ? MAX_TOKENS_LIGHT : MAX_TOKENS_DEFAULT;
 }
 
 function logUsage(meta: AiCallMeta | undefined, usage: any, model: string) {
@@ -60,6 +69,7 @@ export async function callAI(
     model,
     messages: li ? [...messages, { role: "system", content: li }] : messages,
     // GPT-5.6 en chat/completions exige reasoning_effort "none" cuando hay tools.
+    max_completion_tokens: resolveMaxTokens(meta),
     reasoning_effort: model.startsWith("openai/gpt-5.6") ? "none" : "minimal",
   };
   if (schema) {
