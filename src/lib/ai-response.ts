@@ -63,7 +63,7 @@ export function parseAIResponse(response: {
   } }>;
 }, schema?: Schema): unknown {
   const choice = response.choices?.[0];
-  if (!choice?.message || choice.finish_reason === "length" || choice.finish_reason === "content_filter") {
+  if (!choice?.message || (choice.finish_reason && !["stop", "tool_calls", "function_call"].includes(choice.finish_reason))) {
     throw new IncompleteAIResponseError();
   }
   if (!schema) {
