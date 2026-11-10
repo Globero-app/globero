@@ -4,11 +4,11 @@ import type { WeatherDay } from "./weather";
 import { callAI } from "./ai-call.server";
 import { getNextActiveCompetition } from "./competition-target";
 
-const StepSchema = {
+export const StepSchema = {
   type: "object",
   properties: {
     name: { type: "string", description: "Nombre corto del bloque (≤15 chars), ej 'Calentamiento'" },
-    description: { type: "string", description: "Una única instrucción operativa concisa por bloque; sin introducciones ni explicaciones adicionales" },
+    description: { type: "string", maxLength: 120, description: "Una instrucción operativa y técnica por bloque; sin prosa accesoria ni explicaciones redundantes" },
     duration_type: { type: "string", enum: ["time", "open"] },
     duration_seconds: { type: "number", description: "Segundos si duration_type=time" },
     target: { type: "string", enum: ["power", "hr", "cadence", "open"] },
@@ -19,12 +19,12 @@ const StepSchema = {
   required: ["name", "description", "duration_type", "target", "target_low", "target_high", "intensity"],
 };
 
-const WorkoutSchema = {
+export const WorkoutSchema = {
   type: "object",
   properties: {
     name: { type: "string", description: "Nombre del entrenamiento (≤15 chars para FIT)" },
     title: { type: "string", description: "Título largo descriptivo" },
-    summary: { type: "string", description: "Resumen 2-3 frases del objetivo y estructura" },
+    summary: { type: "string", maxLength: 240, description: "Instrucción técnica de la sesión: objetivo, estructura, base de prescripción y ajustes aplicables; sin prosa accesoria ni explicaciones redundantes" },
     focus: { type: "string", enum: ["resistencia", "intervalos", "fuerza", "mixto"] },
     session_goal: {
       type: "string",
@@ -36,7 +36,7 @@ const WorkoutSchema = {
       enum: ["aerobico", "umbral", "vo2", "anaerobico", "neuromuscular"],
       description: "Sistema energético dominante de la sesión",
     },
-    why: { type: "string", description: "Una frase: por qué esta sesión hoy para este ciclista; con competición explica cómo su fecha, distancia o desnivel influye en esta sesión y su fase" },
+    why: { type: "string", maxLength: 180, description: "Justificación técnica del encaje en fase y calendario; con competición, solo fecha, distancia o desnivel relevantes; sin prosa accesoria ni redundancias" },
     estimated_tss: { type: "number" },
     scheduled_date: { type: "string", description: "Fecha planificada YYYY-MM-DD" },
     steps: { type: "array", items: StepSchema, minItems: 3 },
@@ -133,7 +133,7 @@ BIBLIOTECA Y FORMATO:
 - Trabajo/recuperación: vo2max 1:1, umbral 3:1 o 4:1, tempo continuo, neuromuscular 1:8.
 - Devuelve exactamente la cantidad indicada, en el orden y fechas del calendario. Reparte carga y recuperación según los días reales.
 - Suma duration_seconds para cumplir la duración objetivo salvo tirada larga o ajuste a rodillo. Incluye calentamiento y vuelta a la calma; duration_type='time' salvo descansos abiertos.
-- Fuerza: cadencia 50-60 rpm, Z3-Z4. name máximo 15 caracteres; title puede ser largo. description: una única instrucción operativa concisa por bloque. Todo texto visible en el idioma indicado.
+- Fuerza: cadencia 50-60 rpm, Z3-Z4. name máximo 15 caracteres; title puede ser largo. summary ≤240 caracteres, why ≤180 y description ≤120: contenido exclusivamente operativo y técnico, sin prosa accesoria ni explicaciones redundantes. Todo texto visible en el idioma indicado.
 - Alterna resistencia, intervalos y fuerza; adapta al material y al histórico del ciclista.
 - Primera sesión según readiness: 1 descanso/movilidad, 2 Z1-Z2 corto, 3 estándar, 4-5 permite subir carga.
 
@@ -374,7 +374,7 @@ weather_auto_indoor: ${autoIndoor} · umbral viento: ${windThreshold} km/h`
     ? `
 TEST DE FTP (obligatorio esta semana): ${isFirstGeneration ? "es la primera semana de entrenamientos y hay que conocer sus umbrales." : `han pasado ${weeksSinceTest === 99 ? "más de 6" : weeksSinceTest} semanas desde el último test.`}
 - Convierte la ${testIndex === 0 ? "PRIMERA" : "SEGUNDA"} sesión de la semana en un test de umbral: calentamiento progresivo de 20 min, 5 min de activación, 20 min ALL-OUT sostenidos (session_goal="umbral") y vuelta a la calma.
-- Indica claramente en el título "Test FTP 20 min" y en el summary que el resultado servirá para actualizar el FTP, el umbral de FC y las zonas.`
+- Indica "Test FTP 20 min" en el título y en summary: "Test FTP 20 min; actualizar FTP, LTHR y zonas con el resultado".`
     : "";
 
   const longRideStructure: Record<string, string> = {
