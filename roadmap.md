@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Generación IA real con perfil sintético y prompts/esquemas actuales: menú de 7 días/35 comidas (4324 tokens) y 7 entrenamientos (4135 tokens), ambos JSON completos bajo 16000. Respuestas truncadas/estructura parcial y fechas incompletas rechazadas antes de guardar; reemplazo manual conserva pendientes hasta generación correcta. Sin modificar planes reales; flujo autenticado no comprobable con Supabase externo.
+
 - [x] Strava incluido en detección periódica con sincronización aislada, filtro autenticado por userId y resultados por usuario. 14 pruebas y compilación correctas; sincronización real no ejecutada.
 
 - [x] Corregidos límites de competición y cron semanal: ventana Madrid domingo 21:00–lunes 14:00, usuario/lote, semana correcta e idempotencia por entrenamientos; nutrición y resúmenes conservados. 28 pruebas y compilación correctas; petición sin autorización rechazada. Generación real no ejecutada.

@@ -1,5 +1,6 @@
 import { diabetesPrompt } from "@/lib/diabetes";
 import { callAI } from "./ai-call.server";
+import { assertAIShape, assertPlanDates } from "./ai-response";
 
 export const NUTRITION_GOALS = ["perdida_peso", "mantenimiento", "masa_muscular"] as const;
 export type NutritionGoal = (typeof NUTRITION_GOALS)[number];
@@ -62,7 +63,7 @@ const DaySchema = {
 const WeekSchema = {
   type: "object",
   properties: {
-    dias: { type: "array", items: DaySchema },
+    dias: { type: "array", items: DaySchema, minItems: 7, maxItems: 7 },
     resumen: { type: "string", maxLength: 200, description: "Claves técnicas de la semana, sin prosa" },
   },
   required: ["dias", "resumen"],
@@ -191,6 +192,9 @@ ${preRaceBlock}${tasteBlock}`;
     { role: "system", content: NUTRITION_SYSTEM_PROMPT },
     { role: "user", content: condensePrompt(prompt) },
   ], WeekSchema, { fn: "nutrition-week" });
+
+  assertAIShape(result, WeekSchema);
+  assertPlanDates(result, "dias", "fecha", days.map((day) => day.date));
 
   const { data: saved, error } = await supabase
     .from("weekly_nutrition_plans")

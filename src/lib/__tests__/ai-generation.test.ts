@@ -54,6 +54,36 @@ it("expired accounts cannot reach the workout or nutrition AI boundary", async (
   expect(callAI).not.toHaveBeenCalled();
 });
 
+it("incomplete menu JSON cannot overwrite an existing weekly plan", async () => {
+  const db = database({});
+  const from = db.from.bind(db);
+  const upsert = vi.fn();
+  db.from = (table) => {
+    const query = from(table);
+    query.upsert = upsert;
+    return query;
+  };
+  callAI.mockResolvedValue({ dias: [], resumen: "Parcial" });
+  await expect(generateWeeklyNutritionCore(db, "owner", { goal: "mantenimiento" })).rejects.toThrow("incompleta");
+  expect(upsert).not.toHaveBeenCalled();
+});
+
+it("incomplete workout JSON cannot delete or insert pending sessions", async () => {
+  const db = database({ ftp: 250 });
+  const from = db.from.bind(db);
+  const write = vi.fn();
+  db.from = (table) => {
+    const query = from(table);
+    query.delete = write;
+    query.insert = write;
+    return query;
+  };
+  callAI.mockResolvedValue({ workouts: [] });
+  await expect(generateWorkoutsCore(db, "owner", { bike_type: "carretera", duration_minutes: 60,
+    training_days: [1,3,5], from: new Date("2026-11-15T12:00:00Z"), until: "2026-11-22" })).rejects.toThrow("incompleta");
+  expect(write).not.toHaveBeenCalled();
+});
+
 describe("immediate nutrition horizon", () => {
   it("generates at most current and next week even with four affected weeks", () => {
     expect(immediateNutritionWeeks([
@@ -73,7 +103,16 @@ describe("immediate nutrition horizon", () => {
 });
 
 it("nutrition uses the same leading system prefix across profiles, goals and weeks", async () => {
-  callAI.mockResolvedValue({ dias: [], resumen: "" });
+  callAI.mockImplementation(async (messages) => ({
+    dias: [...messages[1].content.matchAll(/^- (\d{4}-\d{2}-\d{2}) \(/gm)].map((match) => ({
+      fecha: match[1], dia_semana: "lunes", entrenamiento: "Descanso",
+      objetivo_calorias_kcal: 2200, objetivo_carbohidratos_g: 280, objetivo_proteinas_g: 120,
+      ...Object.fromEntries(["desayuno", "media_manana", "comida", "merienda", "cena"].map((meal) => [meal, {
+        nombre: "Arroz", ingredientes: ["Arroz 100 g"], preparacion: "Cocer el arroz.",
+        macros: { carbohidratos_g: 56, proteinas_g: 24, grasas_g: 12, calorias_kcal: 428 },
+      }])),
+    })), resumen: "Distribuir carbohidratos según carga.",
+  }));
   const first = await generateWeeklyNutritionCore(database({ weight_kg: 71, dietary_preferences: "sin lactosa" }), "a", {
     goal: "mantenimiento", week_start: "2026-10-12",
   });

@@ -2,6 +2,7 @@ import { fetchDailyWeather, adviseForWorkout } from "./weather-daily.server";
 import type { WeatherDay } from "./weather";
 
 import { callAI } from "./ai-call.server";
+import { assertAIShape, assertPlanDates } from "./ai-response";
 import { getNextActiveCompetition } from "./competition-target";
 
 export const StepSchema = {
@@ -431,7 +432,13 @@ HISTÓRICO READINESS 14 días: ${readinessArr.length ? compactJson(readinessArr)
   const result = await callAI([
     { role: "system", content: WORKOUTS_SYSTEM_PROMPT },
     { role: "user", content: condensePrompt(prompt) },
-  ], PlanSchema, { fn: "workouts-gen", userId });
+  ], {
+    ...PlanSchema,
+    properties: { workouts: { ...PlanSchema.properties.workouts, minItems: effectiveCount, maxItems: effectiveCount } },
+  }, { fn: "workouts-gen", userId });
+
+  assertAIShape(result, PlanSchema);
+  assertPlanDates(result, "workouts", "scheduled_date", schedule.map((slot) => slot.date));
 
   // ---- Validación y corrección determinista ----
   const items = (result.workouts as any[]).slice(0, effectiveCount).map((w, i) => {

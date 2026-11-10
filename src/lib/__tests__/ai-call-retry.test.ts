@@ -54,6 +54,18 @@ describe("selección de modelo de callAI", () => {
 });
 
 describe("reintentos de callAI", () => {
+  it("rechaza una respuesta truncada sin reintentar ni devolver JSON parcial", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response(200, {
+      choices: [{ finish_reason: "length", message: { tool_calls: [{ function: { arguments: '{"workouts":[]}' } }] } }],
+      usage: { completion_tokens: 16000 },
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+    const { callAI } = await import("../ai-call.server");
+    await expect(callAI([{ role: "user", content: "plan" }], { type: "object" }, { fn: "workouts-gen" }))
+      .rejects.toThrow("No se ha guardado el plan");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it("reintenta 429 y 503 con backoff y devuelve la respuesta al recuperar", async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(response(429))

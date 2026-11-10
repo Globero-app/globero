@@ -42,6 +42,7 @@ export const generateWorkouts = createServerFn({ method: "POST" })
       })
       .eq("id", userId);
 
+    let pendingToReplace: any[] = [];
     if (data.replace_pending) {
       const today = new Date().toISOString().slice(0, 10);
       const { data: pending } = await supabase
@@ -49,17 +50,10 @@ export const generateWorkouts = createServerFn({ method: "POST" })
         .select("*")
         .eq("user_id", userId)
         .eq("status", "pending");
-      const toDelete = (pending ?? []).filter((w: any) => {
+      pendingToReplace = (pending ?? []).filter((w: any) => {
         const d = (w.plan as any)?.scheduled_date;
         return !d || d >= today;
       });
-      if (toDelete.length) {
-        const { removeWorkoutEvent } = await import("./intervals.server");
-        for (const w of toDelete) {
-          try { await removeWorkoutEvent(supabase, userId, w); } catch { /* noop */ }
-        }
-        await supabase.from("workouts").delete().in("id", toDelete.map((w: any) => w.id));
-      }
     }
 
     // Ventana: sólo la semana en curso (hasta el domingo). Si ya no quedan días
@@ -93,6 +87,15 @@ export const generateWorkouts = createServerFn({ method: "POST" })
       until: sunday,
       nutrition_goal: data.nutrition_enabled ? (data.nutrition_goal ?? "mantenimiento") : null,
     });
+
+    // Preserve the previous plan until a complete replacement has been generated.
+    if (pendingToReplace.length) {
+      const { removeWorkoutEvent } = await import("./intervals.server");
+      for (const workout of pendingToReplace) {
+        try { await removeWorkoutEvent(supabase, userId, workout); } catch { /* noop */ }
+      }
+      await supabase.from("workouts").delete().in("id", pendingToReplace.map((workout) => workout.id));
+    }
 
     const { data: deviceProfile } = await supabase
       .from("profiles")

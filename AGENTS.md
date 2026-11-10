@@ -31,6 +31,8 @@
 
 - Route auxiliary AI tasks through the shared LIGHT_FNS allowlist and honor explicit model overrides; keep complex generation and report tasks on the default model to isolate cost optimizations.
 
+- Reject truncated, missing or schema-invalid AI output in the shared response parser and validate full scheduled dates/counts before any plan write or pending-workout replacement; syntactically valid partial JSON must not overwrite complete plans.
+
 - Preserve legacy cron callback commands and authentication when wrapping schedules; beacon table changes toggle watchdog execution, and notification windows are evaluated in Madrid time inside PostgreSQL to honor preference and DST changes without HTTP calls outside those windows.
 
 - Generate shareable workout stories client-side as 1080×1920 PNGs from completed workout data; sanitize content before rendering a single canvas for preview and export, use Web Share for browsers and cached files for Capacitor Share so private data is never uploaded or leaked by a separate export path. Optional linked-activity GPS geometry is rendered on that same canvas without map tiles; hiding location also excludes the geometry.
