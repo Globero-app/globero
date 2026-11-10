@@ -419,18 +419,18 @@ ${testBlock}
 ${scheduleBlock}
 ${weatherBlock}
 
-ACTIVIDADES RECIENTES (Intervals.icu): ${recent && recent.length ? JSON.stringify(recent) : "ninguna"}
+ACTIVIDADES RECIENTES (Intervals.icu): ${recent && recent.length ? compactJson(recent) : "ninguna"}
 
-ENTRENAMIENTOS YA REALIZADOS (prescrito vs ejecutado; RPE 1=fácil, 5=imposible): ${prevWorkouts && prevWorkouts.length ? JSON.stringify(prevWorkouts.map((w: any) => ({ tipo: w.training_type, min: w.duration_minutes, rpe: w.rpe, notas: w.feedback_notes, fecha: w.completed_at, tss_prescrito: w.planned_tss, tss_real: w.actual_tss, cumplimiento_pct: w.compliance }))) : "sin histórico"}
+ENTRENAMIENTOS YA REALIZADOS (prescrito vs ejecutado; RPE 1=fácil, 5=imposible): ${prevWorkouts && prevWorkouts.length ? compactJson(prevWorkouts.map((w: any) => ({ tipo: w.training_type, min: w.duration_minutes, rpe: w.rpe, notas: w.feedback_notes ? String(w.feedback_notes).slice(0, 120) : null, fecha: w.completed_at ? String(w.completed_at).slice(0, 10) : null, tss_prescrito: w.planned_tss, tss_real: w.actual_tss, cumplimiento_pct: w.compliance }))) : "sin histórico"}
 
-CARRERAS PASADAS: ${pastRaces && pastRaces.length ? JSON.stringify(pastRaces) : "sin carreras previas con feedback"}
+CARRERAS PASADAS: ${pastRaces && pastRaces.length ? compactJson(pastRaces) : "sin carreras previas con feedback"}
 
 READINESS DE HOY (${madridToday}): ${readinessStatus}
-HISTÓRICO READINESS 14 días: ${readinessArr.length ? JSON.stringify(readinessArr) : "sin registros"}`;
+HISTÓRICO READINESS 14 días: ${readinessArr.length ? compactJson(readinessArr) : "sin registros"}`;
 
   const result = await callAI([
     { role: "system", content: WORKOUTS_SYSTEM_PROMPT },
-    { role: "user", content: prompt },
+    { role: "user", content: condensePrompt(prompt) },
   ], PlanSchema, { fn: "workouts-gen", userId });
 
   // ---- Validación y corrección determinista ----
@@ -553,3 +553,13 @@ HISTÓRICO READINESS 14 días: ${readinessArr.length ? JSON.stringify(readinessA
   return inserted;
 }
 
+
+/** Serializa sin nulos/vacíos para ahorrar tokens de entrada. */
+function compactJson(v: unknown): string {
+  return JSON.stringify(v, (_k, x) => (x === null || x === undefined || x === "" ? undefined : x));
+}
+
+/** Colapsa líneas en blanco y espacios finales del prompt. */
+export function condensePrompt(p: string): string {
+  return p.replace(/[ \t]+$/gm, "").replace(/\n{3,}/g, "\n\n").trim();
+}

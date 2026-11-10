@@ -19,6 +19,8 @@ const GOAL_RULES: Record<string, string> = {
     "Superávit ligero (+10/+15%), proteína 2,0-2,2 g/kg repartida en las 5 tomas, carbohidratos altos alrededor del entreno y una toma proteica en la cena.",
 };
 
+import { condensePrompt } from "./workouts-gen.server";
+
 const MealSchema = {
   type: "object",
   properties: {
@@ -187,7 +189,7 @@ ${preRaceBlock}${tasteBlock}`;
 
   const result = await callAI([
     { role: "system", content: NUTRITION_SYSTEM_PROMPT },
-    { role: "user", content: prompt },
+    { role: "user", content: condensePrompt(prompt) },
   ], WeekSchema, { fn: "nutrition-week" });
 
   const { data: saved, error } = await supabase
