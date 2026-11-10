@@ -54,6 +54,36 @@ it("expired accounts cannot reach the workout or nutrition AI boundary", async (
   expect(callAI).not.toHaveBeenCalled();
 });
 
+it("incomplete menu JSON cannot overwrite an existing weekly plan", async () => {
+  const db = database({});
+  const from = db.from.bind(db);
+  const upsert = vi.fn();
+  db.from = (table) => {
+    const query = from(table);
+    query.upsert = upsert;
+    return query;
+  };
+  callAI.mockResolvedValue({ dias: [], resumen: "Parcial" });
+  await expect(generateWeeklyNutritionCore(db, "owner", { goal: "mantenimiento" })).rejects.toThrow("incompleta");
+  expect(upsert).not.toHaveBeenCalled();
+});
+
+it("incomplete workout JSON cannot delete or insert pending sessions", async () => {
+  const db = database({ ftp: 250 });
+  const from = db.from.bind(db);
+  const write = vi.fn();
+  db.from = (table) => {
+    const query = from(table);
+    query.delete = write;
+    query.insert = write;
+    return query;
+  };
+  callAI.mockResolvedValue({ workouts: [] });
+  await expect(generateWorkoutsCore(db, "owner", { bike_type: "carretera", duration_minutes: 60,
+    training_days: [1,3,5], from: new Date("2026-11-15T12:00:00Z"), until: "2026-11-22" })).rejects.toThrow("incompleta");
+  expect(write).not.toHaveBeenCalled();
+});
+
 describe("immediate nutrition horizon", () => {
   it("generates at most current and next week even with four affected weeks", () => {
     expect(immediateNutritionWeeks([
