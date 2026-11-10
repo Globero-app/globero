@@ -25,6 +25,34 @@ beforeEach(() => {
 
 afterEach(() => vi.unstubAllGlobals());
 
+describe("selección de modelo de callAI", () => {
+  it.each(["telegram-intent", "daily-brief", "meal-swap", "recipe-swap", "telegram-meal", "telegram-modify"])(
+    "%s usa gpt-5-mini",
+    async (fn) => {
+      const { resolveModel, callAI } = await import("../ai-call.server");
+      expect(resolveModel({ fn })).toBe("openai/gpt-5-mini");
+      const fetchMock = vi.fn().mockResolvedValue(ok("listo"));
+      vi.stubGlobal("fetch", fetchMock);
+      await callAI([{ role: "user", content: "hola" }], undefined, { fn });
+      expect(JSON.parse(fetchMock.mock.calls[0][1].body).model).toBe("openai/gpt-5-mini");
+    },
+  );
+
+  it.each(["workouts-gen", "nutrition-week", "menu-gen", "workout-custom", "workout-report", "unknown"])(
+    "%s conserva el modelo complejo",
+    async (fn) => {
+      const { resolveModel } = await import("../ai-call.server");
+      expect(resolveModel({ fn })).toBe("openai/gpt-5.6-sol");
+    },
+  );
+
+  it("respeta el modelo explícito y el modelo por defecto sin metadatos", async () => {
+    const { resolveModel } = await import("../ai-call.server");
+    expect(resolveModel({ fn: "recipe-swap", model: "openai/gpt-5.6-sol" })).toBe("openai/gpt-5.6-sol");
+    expect(resolveModel()).toBe("openai/gpt-5.6-sol");
+  });
+});
+
 describe("reintentos de callAI", () => {
   it("reintenta 429 y 503 con backoff y devuelve la respuesta al recuperar", async () => {
     const fetchMock = vi.fn()

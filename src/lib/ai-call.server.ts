@@ -3,7 +3,7 @@
 
 const MODEL = "openai/gpt-5.6-sol";
 const LIGHT_MODEL = "openai/gpt-5-mini";
-const LIGHT_FNS = new Set(["telegram-intent", "daily-brief", "meal-swap"]);
+const LIGHT_FNS = new Set(["telegram-intent", "daily-brief", "meal-swap", "recipe-swap", "telegram-meal", "telegram-modify"]);
 
 export function resolveModel(meta?: AiCallMeta): string {
   if (meta?.model) return meta.model;
