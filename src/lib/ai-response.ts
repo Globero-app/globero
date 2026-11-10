@@ -59,7 +59,7 @@ export function assertPlanDates(value: unknown, key: string, dateKey: string, da
 export function parseAIResponse(response: {
   choices?: Array<{ finish_reason?: string | null; message?: {
     content?: string | null;
-    tool_calls?: Array<{ function?: { arguments?: string } }>;
+    tool_calls?: Array<{ function?: { arguments?: string }; custom?: { input: string; name: string } }> | null;
   } }>;
 }, schema?: Schema): unknown {
   const choice = response.choices?.[0];
