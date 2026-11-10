@@ -27,14 +27,14 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("selección de modelo de callAI", () => {
   it.each(["telegram-intent", "daily-brief", "meal-swap", "recipe-swap", "telegram-meal", "telegram-modify"])(
-    "%s usa gpt-5-mini",
+    "%s usa GPT-6 Luna",
     async (fn) => {
       const { resolveModel, callAI } = await import("../ai-call.server");
-      expect(resolveModel({ fn })).toBe("openai/gpt-5-mini");
+      expect(resolveModel({ fn })).toBe("openai/gpt-6-luna");
       const fetchMock = vi.fn().mockResolvedValue(ok("listo"));
       vi.stubGlobal("fetch", fetchMock);
       await callAI([{ role: "user", content: "hola" }], undefined, { fn });
-      expect(JSON.parse(fetchMock.mock.calls[0][1].body).model).toBe("openai/gpt-5-mini");
+      expect(JSON.parse(fetchMock.mock.calls[0][1].body).model).toBe("openai/gpt-6-luna");
     },
   );
 
