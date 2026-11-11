@@ -144,7 +144,8 @@ export const getAiUsage = createServerFn({ method: "GET" })
 /** Uso global de IA (todos los usuarios) del mes actual. Solo admin. */
 export const getGlobalAiUsage = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((d: unknown) => z.object({ month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/).optional() }).parse(d ?? {}))
+  .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: role } = await supabase
       .from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle();

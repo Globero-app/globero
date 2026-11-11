@@ -7,11 +7,14 @@ import { AI_CREDIT_COST_USD, formatAiCostUsd, formatAiCredits } from "@/lib/ai-u
 
 export function AiUsageTab() {
   const aiFn = useServerFn(getGlobalAiUsage);
-  const q = useQuery({ queryKey: ["ai_usage_global"], queryFn: () => aiFn({ data: undefined } as any) });
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const [month, setMonth] = useState(currentMonth);
+  const q = useQuery({ queryKey: ["ai_usage_global", month], queryFn: () => aiFn({ data: { month } }) });
   const d = q.data as any;
   const locale = localeCode();
   const items = d?.items ?? [];
   const users = d?.users ?? [];
+  const models = d?.models ?? [];
 
   return (
     <div className="space-y-6">

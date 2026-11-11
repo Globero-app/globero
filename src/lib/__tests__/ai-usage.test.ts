@@ -37,4 +37,22 @@ describe("AI usage estimates", () => {
     expect(users.find((user) => user.user_id === "a")?.calls).toBe(3);
     expect(users.find((user) => user.user_id === "b")?.cost_usd).toBeCloseTo(0.001, 10);
   });
+
+  it("groups dated response names under one model and ranks its consumption", () => {
+    const models = summarizeAiUsageByModel([
+      { model: "gpt-5.6-sol", calls: 1, prompt_tokens: 1000, completion_tokens: 500 },
+      { model: "openai/gpt-5.6-sol-2026-07-09", calls: 2, prompt_tokens: 1000, completion_tokens: 500 },
+      { model: "gpt-6-luna-2026-11-01", calls: 4, prompt_tokens: 1000, completion_tokens: 500 },
+    ]);
+    expect(models).toHaveLength(2);
+    expect(models[0].model).toBe("gpt-5.6-sol");
+    expect(models[0].calls).toBe(3);
+    expect(models[0].credits).toBeCloseTo(0.112, 10);
+    expect(models[1].model).toBe("gpt-6-luna");
+  });
+
+  it("uses exact UTC boundaries for previous months and year changes", () => {
+    expect(aiUsageMonthRange("2026-02")).toEqual({ since: "2026-02-01T00:00:00.000Z", until: "2026-03-01T00:00:00.000Z" });
+    expect(aiUsageMonthRange("2025-12")).toEqual({ since: "2025-12-01T00:00:00.000Z", until: "2026-01-01T00:00:00.000Z" });
+  });
 });
