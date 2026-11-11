@@ -9,7 +9,8 @@ export function AiUsageTab() {
   const aiFn = useServerFn(getGlobalAiUsage);
   const currentMonth = new Date().toISOString().slice(0, 7);
   const [month, setMonth] = useState(currentMonth);
-  const q = useQuery({ queryKey: ["ai_usage_global", month], queryFn: () => aiFn({ data: { month } }) });
+  const validMonth = /^\d{4}-(0[1-9]|1[0-2])$/.test(month);
+  const q = useQuery({ queryKey: ["ai_usage_global", month], queryFn: () => aiFn({ data: { month } }), enabled: validMonth });
   const d = q.data as any;
   const locale = localeCode();
   const items = d?.items ?? [];

@@ -141,7 +141,7 @@ export const getAiUsage = createServerFn({ method: "GET" })
     };
   });
 
-/** Uso global de IA (todos los usuarios) del mes actual. Solo admin. */
+/** Uso global de IA (todos los usuarios) del mes seleccionado. Solo admin. */
 export const getGlobalAiUsage = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/).optional() }).parse(d ?? {}))
