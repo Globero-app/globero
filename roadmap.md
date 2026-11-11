@@ -1,7 +1,8 @@
 # Roadmap
 
-- [ ] Backend → Uso de IA: consumo mensual global y por usuario, créditos estimados por modelo y coste a 0,20 USD/crédito.
-- [ ] Backend → Usuarios: créditos del mes y coste estimado por usuario.
+- [x] Backend → Uso de IA: consumo mensual global y por usuario, créditos estimados por modelo y coste a 0,20 USD/crédito. Migración aplicada, cinco pruebas y compilación correctas.
+- [x] Backend → Usuarios: créditos del mes y coste estimado por usuario.
+- [ ] Verificación visual de Uso de IA con sesión administradora: Supabase externo no permite restaurar una sesión de prueba en el navegador.
 
 - [x] Generación IA real con perfil sintético y prompts/esquemas actuales: menú de 7 días/35 comidas (4324 tokens) y 7 entrenamientos (4135 tokens), ambos JSON completos bajo 16000. Respuestas truncadas/estructura parcial y fechas incompletas rechazadas antes de guardar; reemplazo manual conserva pendientes hasta generación correcta. Sin modificar planes reales; flujo autenticado no comprobable con Supabase externo.
 
