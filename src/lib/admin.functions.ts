@@ -30,10 +30,19 @@ export const listAllUsers = createServerFn({ method: "GET" })
       .from("garmin_devices").select("user_id").eq("status", "active");
     if (garminError) throw garminError;
     const pairedUsers = new Set(garminDevices?.map((device) => device.user_id));
-    const { data: usage } = await supabaseAdmin.rpc("ai_usage_by_user");
-    const usageMap = new Map<string, { calls: number; tokens: number }>(
-      ((usage ?? []) as any[]).map((r) => [r.user_id as string, { calls: Number(r.calls) || 0, tokens: Number(r.tokens) || 0 }]),
-    );
+    const since = new Date();
+    since.setUTCDate(1);
+    since.setUTCHours(0, 0, 0, 0);
+    const { data: usage, error: usageError } = await supabaseAdmin.rpc("ai_usage_by_user_monthly", { _since: since.toISOString() });
+    if (usageError) throw usageError;
+    const usageRows: Array<AiUsageTokens & { user_id: string | null }> = (usage ?? []).map((r) => ({
+      user_id: r.user_id,
+      model: r.model,
+      calls: Number(r.calls) || 0,
+      prompt_tokens: Number(r.prompt_tokens) || 0,
+      completion_tokens: Number(r.completion_tokens) || 0,
+    }));
+    const usageMap = new Map(summarizeAiUsageByUser(usageRows).map((row) => [row.user_id, row]));
     return list.users.map((u) => {
       const p: any = profiles?.find((x: any) => x.id === u.id) ?? null;
       const mine = usageMap.get(u.id) ?? { calls: 0, tokens: 0 };

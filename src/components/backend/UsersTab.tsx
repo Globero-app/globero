@@ -13,6 +13,7 @@ import { Field, Info, INPUT_STYLE } from "./AdminField";
 
 export function UsersTab() {
   const { user: me } = useAuth();
+  const locale = localeCode();
   const qc = useQueryClient();
   const list = useServerFn(listAllUsers);
   const create = useServerFn(createUser);
