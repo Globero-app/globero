@@ -18,9 +18,16 @@ export function AiUsageTab() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-sm text-muted-foreground">{tr("Consumo mensual global y por usuario.")} {tr("Desde")} {d?.since ?? "—"}.</p>
-        <p className="mt-1 text-xs text-muted-foreground">{tr("Estimación a 0,20 USD por crédito; no es un cargo facturado.")} ({formatAiCostUsd(AI_CREDIT_COST_USD, locale)}/{tr("crédito")})</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-sm text-muted-foreground">{tr("Consumo mensual global y por usuario.")}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{tr("Periodo consultado")}: {month}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{tr("Estimación a 0,20 USD por crédito; no es un cargo facturado.")} ({formatAiCostUsd(AI_CREDIT_COST_USD, locale)}/{tr("crédito")})</p>
+        </div>
+        <label className="grid gap-1 text-xs font-semibold text-muted-foreground">
+          {tr("Mes a consultar")}
+          <input type="month" value={month} max={currentMonth} onChange={(event) => setMonth(event.target.value)} className="rounded-lg border bg-background px-3 py-2 text-sm text-foreground" />
+        </label>
       </div>
       {q.isError && <div className="border border-destructive/30 rounded-lg p-4 text-sm text-destructive">{tr("No se pudo cargar el uso de IA.")}</div>}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">

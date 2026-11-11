@@ -152,12 +152,11 @@ export const getGlobalAiUsage = createServerFn({ method: "GET" })
     if (!role) throw new Error("Solo administradores.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const since = new Date();
-    since.setUTCDate(1);
-    since.setUTCHours(0, 0, 0, 0);
+    const month = data.month ?? new Date().toISOString().slice(0, 7);
+    const { since, until } = aiUsageMonthRange(month);
     const [summaryResult, userResult, authResult] = await Promise.all([
-      supabaseAdmin.rpc("ai_usage_summary", { _since: since.toISOString() }),
-      supabaseAdmin.rpc("ai_usage_by_user_monthly", { _since: since.toISOString() }),
+      supabaseAdmin.rpc("ai_usage_summary_period", { _since: since, _until: until }),
+      supabaseAdmin.rpc("ai_usage_by_user_period", { _since: since, _until: until }),
       supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 }),
     ]);
     if (summaryResult.error) throw summaryResult.error;
