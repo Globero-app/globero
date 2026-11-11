@@ -60,6 +60,8 @@ export const listAllUsers = createServerFn({ method: "GET" })
         connections: userConnections(p, pairedUsers.has(u.id)),
         ai_calls: mine.calls,
         ai_tokens: mine.tokens,
+        ai_credits: mine.credits,
+        ai_cost_usd: mine.cost_usd,
         roles: roles?.filter((r) => r.user_id === u.id).map((r) => r.role) ?? [],
       };
     });
