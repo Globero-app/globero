@@ -192,11 +192,14 @@ export const getGlobalAiUsage = createServerFn({ method: "GET" })
     });
     const totals = summarizeAiUsage(items);
     return {
-      since: since.toISOString().slice(0, 10),
+      month,
+      since: since.slice(0, 10),
+      until: until.slice(0, 10),
       total_calls: totals.calls,
       total_tokens: totals.tokens,
       total_credits: totals.credits,
       total_cost_usd: totals.cost_usd,
+      models: summarizeAiUsageByModel(items),
       items,
       users,
     };

@@ -53,6 +53,33 @@ export function AiUsageTab() {
       ) : (
         <>
           <section className="space-y-3">
+            <h2 className="font-display text-xl font-bold uppercase">{tr("Por modelo")}</h2>
+            <div className="overflow-x-auto border rounded-xl">
+              <table className="w-full text-sm">
+                <thead className="bg-secondary/40 text-left text-xs text-muted-foreground">
+                  <tr>
+                    <th className="px-4 py-3 font-semibold">{tr("Modelo de IA")}</th>
+                    <th className="px-4 py-3 font-semibold text-right">{tr("Llamadas")}</th>
+                    <th className="px-4 py-3 font-semibold text-right">{tr("Tokens")}</th>
+                    <th className="px-4 py-3 font-semibold text-right">{tr("Créditos mes")}</th>
+                    <th className="px-4 py-3 font-semibold text-right">{tr("Coste estimado")}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {models.map((model: any) => (
+                    <tr key={model.model}>
+                      <td className="px-4 py-3 font-medium">{model.model}</td>
+                      <td className="px-4 py-3 text-right">{model.calls.toLocaleString(locale)}</td>
+                      <td className="px-4 py-3 text-right">{model.tokens.toLocaleString(locale)}</td>
+                      <td className="px-4 py-3 text-right font-medium">{formatAiCredits(model.credits, locale)}</td>
+                      <td className="px-4 py-3 text-right font-medium">{formatAiCostUsd(model.cost_usd, locale)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+          <section className="space-y-3">
             <h2 className="font-display text-xl font-bold uppercase">{tr("Por usuario")}</h2>
             <div className="overflow-x-auto border rounded-xl">
               <table className="w-full text-sm">
