@@ -45,7 +45,7 @@ export const listAllUsers = createServerFn({ method: "GET" })
     const usageMap = new Map(summarizeAiUsageByUser(usageRows).map((row) => [row.user_id, row]));
     return list.users.map((u) => {
       const p: any = profiles?.find((x: any) => x.id === u.id) ?? null;
-      const mine = usageMap.get(u.id) ?? { calls: 0, tokens: 0 };
+      const mine = usageMap.get(u.id) ?? { calls: 0, tokens: 0, credits: 0, cost_usd: 0 };
       return {
         id: u.id,
         email: u.email,

@@ -100,8 +100,10 @@ export function UsersTab() {
                     <Info label="Email" value={u.email} />
                     <Info label={tr("País")} value={countryName(u.country) ?? "—"} />
                     <Info label={tr("Alta")} value={u.created_at ? new Date(u.created_at).toLocaleDateString("es-ES") : "—"} />
-                    <Info label={tr("Llamadas IA")} value={String(u.ai_calls ?? 0)} />
-                    <Info label={tr("Tokens IA")} value={(u.ai_tokens ?? 0).toLocaleString("es-ES")} />
+                    <Info label={tr("Llamadas IA mes")} value={String(u.ai_calls ?? 0)} />
+                    <Info label={tr("Tokens IA mes")} value={(u.ai_tokens ?? 0).toLocaleString(locale)} />
+                    <Info label={tr("Créditos mes")} value={formatAiCredits(u.ai_credits ?? 0, locale)} />
+                    <Info label={tr("Coste estimado")} value={formatAiCostUsd(u.ai_cost_usd ?? 0, locale)} />
                      {u.connections?.map((connection: { id: string; label: string; connected: boolean }) => (
                        <Info key={connection.id} label={connection.label} value={connection.connected ? tr("Conectado") : tr("No")} />
                      ))}
