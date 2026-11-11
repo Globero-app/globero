@@ -1,6 +1,10 @@
 /* Traducciones por frase original en castellano: [ca, fr, en, de]. */
 export const PHRASES: Record<string, [string, string, string, string]> = {
   "Consumo mensual global y por usuario.": ["Consum mensual global i per usuari.", "Consommation mensuelle globale et par utilisateur.", "Global and per-user monthly usage.", "Monatlicher Verbrauch insgesamt und pro Nutzer."],
+  "Por modelo": ["Per model", "Par modèle", "By model", "Nach Modell"],
+  "Modelo de IA": ["Model d'IA", "Modèle d'IA", "AI model", "KI-Modell"],
+  "Mes a consultar": ["Mes a consultar", "Mois à consulter", "Month to view", "Anzuzeigender Monat"],
+  "Periodo consultado": ["Període consultat", "Période consultée", "Selected period", "Ausgewählter Zeitraum"],
   "Desde": ["Des de", "Depuis", "Since", "Seit"],
   "Estimación a 0,20 USD por crédito; no es un cargo facturado.": ["Estimació a 0,20 USD per crèdit; no és un càrrec facturat.", "Estimation à 0,20 USD par crédit ; il ne s'agit pas d'un montant facturé.", "Estimated at $0.20 per credit; this is not an invoiced charge.", "Schätzung mit 0,20 USD pro Credit; keine tatsächliche Abrechnung."],
   "crédito": ["crèdit", "crédit", "credit", "Credit"],

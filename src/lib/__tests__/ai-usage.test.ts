@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { aiUsageCostUsd, estimateAiCredits, summarizeAiUsage, summarizeAiUsageByUser } from "../ai-usage";
+import { aiUsageCostUsd, aiUsageMonthRange, estimateAiCredits, summarizeAiUsage, summarizeAiUsageByModel, summarizeAiUsageByUser } from "../ai-usage";
 
 describe("AI usage estimates", () => {
   it("uses the current token rates for the complex model", () => {
