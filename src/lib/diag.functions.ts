@@ -154,19 +154,50 @@ export const getGlobalAiUsage = createServerFn({ method: "GET" })
     const since = new Date();
     since.setUTCDate(1);
     since.setUTCHours(0, 0, 0, 0);
-    // Agregación en SQL: evita descargar miles de filas al servidor.
-    const { data } = await supabaseAdmin.rpc("ai_usage_summary", { _since: since.toISOString() });
-    const items = ((data ?? []) as any[]).map((r) => ({
-      fn: r.fn as string,
-      model: r.model as string,
+    const [summaryResult, userResult, authResult] = await Promise.all([
+      supabaseAdmin.rpc("ai_usage_summary", { _since: since.toISOString() }),
+      supabaseAdmin.rpc("ai_usage_by_user_monthly", { _since: since.toISOString() }),
+      supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 }),
+    ]);
+    if (summaryResult.error) throw summaryResult.error;
+    if (userResult.error) throw userResult.error;
+    if (authResult.error) throw authResult.error;
+
+    const items = (summaryResult.data ?? []).map((r) => {
+      const row = {
+        fn: r.fn,
+        model: r.model,
+        calls: Number(r.calls) || 0,
+        prompt_tokens: Number(r.prompt_tokens) || 0,
+        completion_tokens: Number(r.completion_tokens) || 0,
+      };
+      const totals = summarizeAiUsage([row]);
+      return { ...row, credits: totals.credits, cost_usd: totals.cost_usd };
+    });
+    const userRows: Array<AiUsageTokens & { user_id: string | null }> = (userResult.data ?? []).map((r) => ({
+      user_id: r.user_id,
+      model: r.model,
       calls: Number(r.calls) || 0,
       prompt_tokens: Number(r.prompt_tokens) || 0,
       completion_tokens: Number(r.completion_tokens) || 0,
     }));
+    const authUsers = new Map(authResult.data.users.map((user) => [user.id, user]));
+    const users = summarizeAiUsageByUser(userRows).map((usage) => {
+      const authUser = usage.user_id ? authUsers.get(usage.user_id) : null;
+      return {
+        ...usage,
+        email: authUser?.email ?? null,
+        full_name: (authUser?.user_metadata?.full_name as string | undefined) ?? null,
+      };
+    });
+    const totals = summarizeAiUsage(items);
     return {
       since: since.toISOString().slice(0, 10),
-      total_calls: items.reduce((t, i) => t + i.calls, 0),
-      total_tokens: items.reduce((t, i) => t + i.prompt_tokens + i.completion_tokens, 0),
+      total_calls: totals.calls,
+      total_tokens: totals.tokens,
+      total_credits: totals.credits,
+      total_cost_usd: totals.cost_usd,
       items,
+      users,
     };
   });
