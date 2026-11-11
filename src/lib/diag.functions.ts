@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { summarizeAiUsage, summarizeAiUsageByUser, type AiUsageTokens } from "./ai-usage";
+import { aiUsageMonthRange, summarizeAiUsage, summarizeAiUsageByModel, summarizeAiUsageByUser, type AiUsageTokens } from "./ai-usage";
 
 /** Historial de notificaciones enviadas (Push/Telegram) del usuario. */
 export const getNotificationHistory = createServerFn({ method: "GET" })
@@ -141,22 +141,22 @@ export const getAiUsage = createServerFn({ method: "GET" })
     };
   });
 
-/** Uso global de IA (todos los usuarios) del mes actual. Solo admin. */
+/** Uso global de IA (todos los usuarios) del mes seleccionado. Solo admin. */
 export const getGlobalAiUsage = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((d: unknown) => z.object({ month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/).optional() }).parse(d ?? {}))
+  .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: role } = await supabase
       .from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle();
     if (!role) throw new Error("Solo administradores.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const since = new Date();
-    since.setUTCDate(1);
-    since.setUTCHours(0, 0, 0, 0);
+    const month = data.month ?? new Date().toISOString().slice(0, 7);
+    const { since, until } = aiUsageMonthRange(month);
     const [summaryResult, userResult, authResult] = await Promise.all([
-      supabaseAdmin.rpc("ai_usage_summary", { _since: since.toISOString() }),
-      supabaseAdmin.rpc("ai_usage_by_user_monthly", { _since: since.toISOString() }),
+      supabaseAdmin.rpc("ai_usage_summary_period", { _since: since, _until: until }),
+      supabaseAdmin.rpc("ai_usage_by_user_period", { _since: since, _until: until }),
       supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 }),
     ]);
     if (summaryResult.error) throw summaryResult.error;
@@ -192,11 +192,14 @@ export const getGlobalAiUsage = createServerFn({ method: "GET" })
     });
     const totals = summarizeAiUsage(items);
     return {
-      since: since.toISOString().slice(0, 10),
+      month,
+      since: since.slice(0, 10),
+      until: until.slice(0, 10),
       total_calls: totals.calls,
       total_tokens: totals.tokens,
       total_credits: totals.credits,
       total_cost_usd: totals.cost_usd,
+      models: summarizeAiUsageByModel(items),
       items,
       users,
     };

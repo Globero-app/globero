@@ -56,6 +56,30 @@ export function summarizeAiUsageByUser<T extends AiUsageTokens & { user_id: stri
   })).sort((a, b) => b.credits - a.credits);
 }
 
+export function canonicalAiModel(model: string): string {
+  return model.replace(/^openai\//, "").replace(/-\d{4}-\d{2}-\d{2}$/, "");
+}
+
+export function summarizeAiUsageByModel(rows: readonly AiUsageTokens[]) {
+  const groups = new Map<string, AiUsageTokens[]>();
+  for (const row of rows) {
+    const model = canonicalAiModel(row.model);
+    groups.set(model, [...(groups.get(model) ?? []), row]);
+  }
+  return [...groups.entries()].map(([model, items]) => ({
+    model,
+    ...summarizeAiUsage(items),
+  })).sort((a, b) => b.credits - a.credits);
+}
+
+export function aiUsageMonthRange(month: string): { since: string; until: string } {
+  const [year, monthNumber] = month.split("-").map(Number);
+  return {
+    since: new Date(Date.UTC(year, monthNumber - 1, 1)).toISOString(),
+    until: new Date(Date.UTC(year, monthNumber, 1)).toISOString(),
+  };
+}
+
 export function formatAiCredits(value: number, locale = "es-ES"): string {
   return value.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
 }

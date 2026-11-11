@@ -1,7 +1,7 @@
 # Roadmap
 
-- [ ] Backend → Uso de IA: desglose de llamadas, tokens, créditos y coste por modelo.
-- [ ] Backend → Uso de IA: selector de mes y consulta global/por usuario de periodos anteriores.
+- [x] Backend → Uso de IA: desglose de llamadas, tokens, créditos y coste por modelo, agrupando versiones fechadas; validado con datos reales de octubre.
+- [x] Backend → Uso de IA: selector de mes y consulta global/por usuario de periodos anteriores. Siete pruebas y compilación correctas.
 
 - [x] Backend → Uso de IA: consumo mensual global y por usuario, créditos estimados por modelo y coste a 0,20 USD/crédito. Migración aplicada, cinco pruebas y compilación correctas.
 - [x] Backend → Usuarios: créditos del mes y coste estimado por usuario.

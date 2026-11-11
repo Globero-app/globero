@@ -1715,8 +1715,28 @@ export type Database = {
           user_id: string
         }[]
       }
+      ai_usage_by_user_period: {
+        Args: { _since: string; _until: string }
+        Returns: {
+          calls: number
+          completion_tokens: number
+          model: string
+          prompt_tokens: number
+          user_id: string
+        }[]
+      }
       ai_usage_summary: {
         Args: { _since: string }
+        Returns: {
+          calls: number
+          completion_tokens: number
+          fn: string
+          model: string
+          prompt_tokens: number
+        }[]
+      }
+      ai_usage_summary_period: {
+        Args: { _since: string; _until: string }
         Returns: {
           calls: number
           completion_tokens: number
