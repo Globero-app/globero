@@ -53,7 +53,7 @@ describe("selección de modelo de callAI", () => {
     expect(resolveModel()).toBe("openai/gpt-5.6-sol");
   });
 
-  it.each(["openai/gpt-6-luna", "openai/gpt-5.6-sol", "openai/gpt-7-nova"])(
+  it.each(["openai/gpt-6-luna", "openai/gpt-5.6-sol", "openai/gpt-6.1-terra"])(
     "%s recibe reasoning_effort none",
     async (model) => {
       const fetchMock = vi.fn().mockResolvedValue(ok("listo"));
@@ -68,7 +68,7 @@ describe("selección de modelo de callAI", () => {
     const fetchMock = vi.fn().mockResolvedValue(ok("listo"));
     vi.stubGlobal("fetch", fetchMock);
     const { callAI } = await import("../ai-call.server");
-    await callAI([{ role: "user", content: "hola" }], undefined, { fn: "t", model: "anthropic/claude-opus" });
+    await callAI([{ role: "user", content: "hola" }], undefined, { fn: "t", model: "anthropic/claude-opus-5" });
     expect(JSON.parse(fetchMock.mock.calls[0][1].body).reasoning_effort).toBe("minimal");
   });
 
