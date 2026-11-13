@@ -53,6 +53,25 @@ describe("selección de modelo de callAI", () => {
     expect(resolveModel()).toBe("openai/gpt-5.6-sol");
   });
 
+  it.each(["openai/gpt-6-luna", "openai/gpt-5.6-sol", "openai/gpt-7-nova"])(
+    "%s recibe reasoning_effort none",
+    async (model) => {
+      const fetchMock = vi.fn().mockResolvedValue(ok("listo"));
+      vi.stubGlobal("fetch", fetchMock);
+      const { callAI } = await import("../ai-call.server");
+      await callAI([{ role: "user", content: "hola" }], undefined, { fn: "t", model });
+      expect(JSON.parse(fetchMock.mock.calls[0][1].body).reasoning_effort).toBe("none");
+    },
+  );
+
+  it("un modelo no-OpenAI conserva minimal", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(ok("listo"));
+    vi.stubGlobal("fetch", fetchMock);
+    const { callAI } = await import("../ai-call.server");
+    await callAI([{ role: "user", content: "hola" }], undefined, { fn: "t", model: "anthropic/claude-opus" });
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).reasoning_effort).toBe("minimal");
+  });
+
   it.each(["telegram-intent", "telegram-modify"])(
     "%s admite herramientas estructuradas con GPT-6 Luna sin minimal",
     async (fn) => {
