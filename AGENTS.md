@@ -30,6 +30,7 @@
 - Keep fixed AI generation roles, tables and format rules in a stable leading system message, with cyclist/week context in user messages; this preserves a reusable cache prefix without changing providers or models.
 
 - Route auxiliary AI tasks through the shared LIGHT_FNS allowlist and honor explicit model overrides; keep complex generation and report tasks on the default model to isolate cost optimizations.
+- Select compatible reasoning effort in the shared AI call helper; GPT-6 Luna uses `none` because it rejects `minimal`, including Telegram tool calls.
 
 - Reject truncated, missing or schema-invalid AI output in the shared response parser and validate full scheduled dates/counts before any plan write or pending-workout replacement; syntactically valid partial JSON must not overwrite complete plans.
 
