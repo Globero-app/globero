@@ -35,6 +35,7 @@ describe("selección de modelo de callAI", () => {
       vi.stubGlobal("fetch", fetchMock);
       await callAI([{ role: "user", content: "hola" }], undefined, { fn });
       expect(JSON.parse(fetchMock.mock.calls[0][1].body).model).toBe("openai/gpt-6-luna");
+      expect(JSON.parse(fetchMock.mock.calls[0][1].body).reasoning_effort).toBe("none");
     },
   );
 
@@ -51,6 +52,35 @@ describe("selección de modelo de callAI", () => {
     expect(resolveModel({ fn: "recipe-swap", model: "openai/gpt-5.6-sol" })).toBe("openai/gpt-5.6-sol");
     expect(resolveModel()).toBe("openai/gpt-5.6-sol");
   });
+
+  it.each(["telegram-intent", "telegram-modify"])(
+    "%s admite herramientas estructuradas con GPT-6 Luna sin minimal",
+    async (fn) => {
+      const fetchMock = vi.fn().mockImplementation((_url, init) => {
+        const body = JSON.parse(init.body);
+        if (body.reasoning_effort !== "none") {
+          return Promise.resolve(response(400, { error: { message: "Unsupported reasoning_effort" } }));
+        }
+        return Promise.resolve(response(200, {
+          choices: [{ finish_reason: "tool_calls", message: { tool_calls: [{ function: { arguments: '{"scheduled_date":"2026-11-14"}' } }] } }],
+        }));
+      });
+      vi.stubGlobal("fetch", fetchMock);
+      const { callAI } = await import("../ai-call.server");
+      const schema = {
+        type: "object", properties: { scheduled_date: { type: "string" } }, required: ["scheduled_date"],
+      };
+      await expect(callAI([{ role: "user", content: "Cambia el entrenamiento de hoy a mañana" }], schema, {
+        fn, model: "openai/gpt-6-luna",
+      })).resolves.toEqual({ scheduled_date: "2026-11-14" });
+      const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+      expect(body.model).toBe("openai/gpt-6-luna");
+      expect(body.reasoning_effort).toBe("none");
+      expect(body.max_completion_tokens).toBe(4000);
+      expect(body.tool_choice).toEqual({ type: "function", function: { name: "respond" } });
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    },
+  );
 });
 
 describe("reintentos de callAI", () => {

@@ -70,9 +70,9 @@ export async function callAI(
   const body: any = {
     model,
     messages: li ? [...messages, { role: "system", content: li }] : messages,
-    // GPT-5.6 en chat/completions exige reasoning_effort "none" cuando hay tools.
+    // GPT-6 Luna no admite "minimal"; GPT-5.6 exige "none" con tools.
     max_completion_tokens: resolveMaxTokens(meta),
-    reasoning_effort: model.startsWith("openai/gpt-5.6") ? "none" : "minimal",
+    reasoning_effort: model.startsWith("openai/gpt-5.6") || model === LIGHT_MODEL ? "none" : "minimal",
   };
   if (schema) {
     body.tools = [{ type: "function", function: { name: "respond", description: "Respuesta estructurada", parameters: schema } }];
