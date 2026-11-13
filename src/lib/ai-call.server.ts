@@ -70,9 +70,9 @@ export async function callAI(
   const body: any = {
     model,
     messages: li ? [...messages, { role: "system", content: li }] : messages,
-    // GPT-6 Luna no admite "minimal"; GPT-5.6 exige "none" con tools.
+    // Cualquier modelo de OpenAI usa "none"; "minimal" no está soportado y da 400.
     max_completion_tokens: resolveMaxTokens(meta),
-    reasoning_effort: model.startsWith("openai/gpt-5.6") || model === LIGHT_MODEL ? "none" : "minimal",
+    reasoning_effort: model.startsWith("openai/") ? "none" : "minimal",
   };
   if (schema) {
     body.tools = [{ type: "function", function: { name: "respond", description: "Respuesta estructurada", parameters: schema } }];
