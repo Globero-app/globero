@@ -87,7 +87,7 @@ export function ActivityFeedbackPrompt() {
         <div className="flex gap-2">
           <button type="button" onClick={submit} disabled={busy}
           className="flex-1 bg-primary text-primary-foreground py-2.5 rounded-lg font-semibold text-sm disabled:opacity-60">
-            {busy ? "Guardando…" : "Guardar y enviar a Intervals.icu"}
+            {busy ? "Guardando…" : tr("Guardar y enviar")}
           </button>
           <button type="button" onClick={() => setOpen(false)} className="px-3 rounded-lg border text-xs font-semibold"> {tr("Ahora no")} 
 
