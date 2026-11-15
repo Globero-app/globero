@@ -1,5 +1,4 @@
 import { generateChatCompletion, listModels, GatewayError, type OpenAIChatMessage } from "@lovable.dev/ai-gateway";
-import type { Json } from "@/integrations/supabase/types";
 
 // Same chat surface, tools and none reasoning, unlike the default Astra contract.
 export const FALLBACK_MODEL = "openai/gpt-5.6-terra";
