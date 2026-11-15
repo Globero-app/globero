@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_model_fallbacks: {
+        Row: {
+          active: boolean
+          created_at: string
+          fallback_model: string
+          primary_model: string
+          reason: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          fallback_model: string
+          primary_model: string
+          reason: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          fallback_model?: string
+          primary_model?: string
+          reason?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ai_usage_log: {
         Row: {
           completion_tokens: number

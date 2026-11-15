@@ -1,6 +1,7 @@
 # Roadmap
 
-- [ ] Reserva automática de IA ante retirada/no disponibilidad confirmada, con aviso persistente en Administrador y pruebas sin cambiar modelos ante errores de permisos o resultado incierto.
+- [x] Reserva automática de IA ante retirada/no disponibilidad confirmada, con aviso persistente en Administrador. 51 pruebas correctas; reserva compatible comprobada en catálogo. No cambia modelos por permisos o resultados inciertos.
+- [ ] Verificar el nuevo aviso en Administrador con sesión real: Supabase externo no permite restaurar una sesión de prueba.
 
 - [x] Backend → Uso de IA: desglose de llamadas, tokens, créditos y coste por modelo, agrupando versiones fechadas; validado con datos reales de octubre.
 - [x] Backend → Uso de IA: selector de mes y consulta global/por usuario de periodos anteriores. Siete pruebas y compilación correctas.

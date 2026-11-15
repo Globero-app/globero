@@ -2,6 +2,8 @@
    y registro de uso en ai_usage_log para medir el gasto mensual. */
 
 import { parseAIResponse } from "./ai-response";
+import { unavailableModelReason } from "./ai-fallback";
+import { callFallback, clearFallback, FALLBACK_MODEL, recordFallback } from "./ai-fallback.server";
 
 const MODEL = "openai/gpt-5.6-sol";
 const LIGHT_MODEL = "openai/gpt-6-luna";
@@ -92,11 +94,23 @@ export async function callAI(
   }
   if (!res.ok) {
     const text = await res.text();
+    let errorPayload: unknown;
+    try { errorPayload = JSON.parse(text); } catch { /* An opaque failure is not evidence of retirement. */ }
+    const reason = unavailableModelReason(res.status, errorPayload);
+    if (reason && model !== FALLBACK_MODEL) {
+      const json = await callFallback(body.messages, schema, resolveMaxTokens(meta));
+      logUsage(meta, json.usage, json.model ?? FALLBACK_MODEL);
+      const result = parseAIResponse(json, schema);
+      await recordFallback(model, reason).catch((error) => console.error("AI fallback notice", error));
+      return result;
+    }
     if (res.status === 429) throw new Error("Demasiadas peticiones a la IA. Espera unos segundos.");
     if (res.status === 402) throw new Error("Sin créditos de IA disponibles.");
     throw new Error(`AI ${res.status}: ${text.slice(0, 200)}`);
   }
   const json = await res.json();
   logUsage(meta, json.usage, json.model ?? model);
-  return parseAIResponse(json, schema);
+  const result = parseAIResponse(json, schema);
+  await clearFallback(model).catch(() => {});
+  return result;
 }
