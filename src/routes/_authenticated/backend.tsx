@@ -8,6 +8,7 @@ import { SponsorsTab } from "@/components/backend/SponsorsTab";
 import { AnnouncementsTab } from "@/components/backend/AnnouncementsTab";
 import { ErrorsTab } from "@/components/backend/ErrorsTab";
 import { AiUsageTab } from "@/components/backend/AiUsageTab";
+import { AiFallbackNotice } from "@/components/backend/AiFallbackNotice";
 
 export const Route = createFileRoute("/_authenticated/backend")({
   head: () => ({ meta: [
@@ -42,6 +43,7 @@ function BackendPage() {
           </button>
         )}
       </div>
+      <AiFallbackNotice />
       {tab === "config" ? <ConfigTab /> : tab === "users" ? <UsersTab /> : tab === "sponsors" ? <SponsorsTab /> : tab === "avisos" ? <AnnouncementsTab /> : tab === "errors" ? <ErrorsTab /> : tab === "ia" ? <AiUsageTab /> : <SiteContentTab />}
     </div>);
 

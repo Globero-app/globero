@@ -57,6 +57,18 @@ export const getSyncStatus = createServerFn({ method: "GET" })
   });
 
 /** Recuento agrupado de errores del servidor (solo admin). */
+export const getAiFallbackNotices = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data: role } = await supabase.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle();
+    if (!role) throw new Error("Solo administradores.");
+    const { data, error } = await supabase.from("ai_model_fallbacks")
+      .select("primary_model,fallback_model,reason,updated_at").eq("active", true).order("updated_at", { ascending: false });
+    if (error) throw new Error("No se pudieron consultar los avisos de IA.");
+    return data ?? [];
+  });
+
 export const getErrorStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ days: z.number().min(1).max(90).default(7) }).parse(d ?? {}))
