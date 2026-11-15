@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Reserva automática de IA ante retirada/no disponibilidad confirmada, con aviso persistente en Administrador y pruebas sin cambiar modelos ante errores de permisos o resultado incierto.
+
 - [x] Backend → Uso de IA: desglose de llamadas, tokens, créditos y coste por modelo, agrupando versiones fechadas; validado con datos reales de octubre.
 - [x] Backend → Uso de IA: selector de mes y consulta global/por usuario de periodos anteriores. Siete pruebas y compilación correctas.
 
