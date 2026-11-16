@@ -5,6 +5,7 @@ import { callAI } from "./ai-call.server";
 import { assertAIShape, assertPlanDates } from "./ai-response";
 import { getNextActiveCompetition } from "./competition-target";
 import { loadWorkoutContinuity } from "./workout-continuity.server";
+import { validateContinuityReferences } from "./workout-continuity";
 
 export const StepSchema = {
   type: "object",
@@ -39,11 +40,13 @@ export const WorkoutSchema = {
       description: "Sistema energético dominante de la sesión",
     },
     why: { type: "string", maxLength: 180, description: "Justificación técnica del encaje en fase y calendario; con competición, solo fecha, distancia o desnivel relevantes; sin prosa accesoria ni redundancias" },
+    continuity_note: { type: "string", maxLength: 240, description: "Nota breve por sesión: fecha y título de sesiones realizadas u omitidas relevantes y cómo influyen en esta prescripción. Sin histórico relevante, indícalo; no inventes sesiones ni fatiga." },
+    continuity_references: { type: "array", items: { type: "object", properties: { fecha: { type: "string" }, estado: { type: "string", enum: ["realizado", "omitido", "no_realizado"] } }, required: ["fecha", "estado"] } },
     estimated_tss: { type: "number" },
     scheduled_date: { type: "string", description: "Fecha planificada YYYY-MM-DD" },
     steps: { type: "array", items: StepSchema, minItems: 3 },
   },
-  required: ["name", "title", "summary", "focus", "session_goal", "energy_system", "why", "steps"],
+  required: ["name", "title", "summary", "focus", "session_goal", "energy_system", "why", "continuity_note", "continuity_references", "steps"],
 };
 
 
@@ -112,6 +115,7 @@ PERIODIZACIÓN (respeta fase, semana, progresión y descarga decididas por el si
 - Descarga: reduce volumen e intensidad, máximo una sesión de calidad corta, resto Z1-Z2.
 - Progresa volumen o densidad respecto a la semana anterior según el factor indicado.
 - CONTINUIDAD ENTRE SEMANAS: usa fechas, sesiones realizadas, RPE y sensaciones del histórico; el lunes no reinicia la recuperación. Una sesión omitida, no realizada o sin confirmar NO genera fatiga ni justifica «recuperación después de tirada larga». Contrasta con actividades realmente registradas (pueden no estar vinculadas). Sin evidencia no supongas que se hizo lo prescrito. Recuperación solo por carga real, readiness o descarga programada, explicando su motivo real. No acumules ni traslades automáticamente sesiones perdidas; adapta la progresión a lo ejecutado.
+- En continuity_note explica para CADA entrenamiento qué sesiones previas concretas influyeron y por qué (fecha, título y realizada/omitida). continuity_references debe citar exactamente sus fechas y estados del histórico sesiones; nunca sin_confirmar. Las omitidas ajustan progresión, no añaden fatiga. Si ninguna influye, indica que no hay sesiones previas relevantes y usa referencias vacías. No confundas sesiones de esta nueva planificación con histórico real.
 - Con competición: base → construcción → pico → tapering; última sesión corta de activación.
 
 AJUSTES POR PERFIL:
@@ -461,6 +465,7 @@ HISTÓRICO READINESS 14 días: ${readinessArr.length ? compactJson(readinessArr)
     };
 
     const v = validateWorkout(w, ctx);
+    const continuityReferences = validateContinuityReferences(w.continuity_references, continuity);
     return {
       focus: w.focus ?? "mixto",
       plan: v.plan,
@@ -471,6 +476,8 @@ HISTÓRICO READINESS 14 días: ${readinessArr.length ? compactJson(readinessArr)
       isLong,
       weather,
       advice,
+      continuityNote: w.continuity_note,
+      continuityReferences,
     };
   });
 
@@ -492,6 +499,8 @@ HISTÓRICO READINESS 14 días: ${readinessArr.length ? compactJson(readinessArr)
 
     plan: {
       ...it.plan,
+      continuity_note: it.continuityNote,
+      continuity_references: it.continuityReferences,
       target_basis: basis,
       competition_id: competition?.id ?? null,
       competition_name: competition?.name ?? null,
