@@ -47,8 +47,9 @@ export async function buildTelegramContext(
     .from("workouts")
     .select("id,status,duration_minutes,bike_type,plan,completed_at")
     .eq("user_id", userId)
-    .order("created_at", { ascending: true })
-    .limit(200);
+    .gte("plan->>scheduled_date", weekStart)
+    .lte("plan->>scheduled_date", weekEndISO)
+    .order("created_at", { ascending: true });
 
   const weekWorkouts = ((allWorkouts ?? []) as any[])
     .map((w) => ({ ...w, date: w.plan?.scheduled_date ?? null }))

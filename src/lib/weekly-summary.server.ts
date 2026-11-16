@@ -1,14 +1,16 @@
 /* Resumen semanal automático: cumplimiento de la semana que acaba y
    objetivos de la siguiente. Se envía por push y/o Telegram según preferencia. */
 
-import { buildTrainingLoad, isoDate, madridTodayISO, weekStart } from "./training-load.server";
+import { buildTrainingLoad, isoDate, madridTodayISO } from "./training-load.server";
+import { weeklyWorkoutWindow } from "./weekly-workout-window";
 
 const DAY = 86400000;
 
 export async function buildWeeklySummaryText(supabase: any, userId: string) {
   const today = madridTodayISO();
   const todayMs = new Date(`${today}T12:00:00Z`).getTime();
-  const thisWeek = weekStart(today);
+  const targetWeek = weeklyWorkoutWindow(new Date()).mondayISO;
+  const thisWeek = isoDate(new Date(new Date(`${targetWeek}T12:00:00Z`).getTime() - 7 * DAY));
   const nextWeek = isoDate(new Date(new Date(`${thisWeek}T12:00:00Z`).getTime() + 7 * DAY));
   const from = thisWeek;
 
@@ -18,7 +20,8 @@ export async function buildWeeklySummaryText(supabase: any, userId: string) {
     .from("workouts")
     .select("status,plan,planned_tss,actual_tss,compliance,duration_minutes,rpe,session_goal")
     .eq("user_id", userId)
-    .limit(300);
+    .gte("plan->>scheduled_date", from)
+    .lt("plan->>scheduled_date", isoDate(new Date(new Date(`${nextWeek}T12:00:00Z`).getTime() + 7 * DAY)));
 
   const all = (workouts ?? []) as any[];
   const inWeek = (d: string) => d >= from && d < nextWeek;

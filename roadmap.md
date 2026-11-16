@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Revisión transversal de semanas incompletas: generación manual/automática, Telegram, calendario, listados, resúmenes y tareas SQL; proteger sesiones existentes y evitar lecturas truncadas del historial.
+
 - [x] Semana de Miguel reparada: creados miércoles 18, viernes 20 y domingo 22; lunes completado intacto, guardado confirmado. Otros 12 usuarios automáticos con semanas completas. Comprobación por fechas corregida en cron y generación anticipada; 26 pruebas y compilación correctas. Corrección automática pendiente de publicación; vista autenticada no verificable con Supabase externo.
 
 - [x] Nota de continuidad en cada tarjeta; nuevas generaciones guardan explicación por sesión y referencias verificadas. Planes antiguos indican contexto no registrado sin inventarlo.
