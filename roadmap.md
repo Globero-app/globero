@@ -1,5 +1,11 @@
 # Roadmap
 
+- [x] Revisión transversal por lectura de código: Entrenamientos/generador/tarjetas, Inicio/consejo/readiness/avisos locales, Calendario/reprogramación, Progreso/carga/resumen, Telegram/contexto/modificación/readiness, rodillo, ajustes rápidos/diarios y propuestas/redistribución; cron semanal, generación anticipada por actividad, daily-adjust y readiness-push. Corregidos histórico compartido, consejo/caché, selección de sesiones vencidas/omitidas, baja adherencia sin fatiga y compensación automática de carga perdida. 79 pruebas correctas; compilación correcta. Historial completado y envíos existentes intactos.
+- [x] Migraciones locales revisadas: tablas/estados de workouts y disparadores de fechas no prescriben recuperación ni generan entrenamientos; ninguna modificación de permisos o configuración. Funciones y cron desplegados no comprobados en esta revisión.
+
+- [x] Continuidad semanal: generación manual y automática consideran estados, fechas, RPE y sensaciones de la semana anterior; una tirada no realizada no justifica recuperación. Caso domingo/lunes y generación a mitad de semana comprobados; 48 pruebas correctas. No modifica planes existentes.
+- [ ] Verificar una nueva generación con la cuenta real: Supabase externo sin sesión de prueba disponible.
+
 - [x] Reserva automática de IA ante retirada/no disponibilidad confirmada, con aviso persistente en Administrador. 51 pruebas correctas; reserva compatible comprobada en catálogo. No cambia modelos por permisos o resultados inciertos.
 - [ ] Verificar el nuevo aviso en Administrador con sesión real: Supabase externo no permite restaurar una sesión de prueba.
 

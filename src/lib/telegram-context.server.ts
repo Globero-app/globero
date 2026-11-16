@@ -16,6 +16,8 @@ export async function buildTelegramContext(
   today: string,
 ): Promise<TelegramContext> {
   const userId = profile.id as string;
+  const { loadWorkoutContinuity, continuityPrompt } = await import("./workout-continuity.server");
+  const history = await loadWorkoutContinuity(supabaseAdmin, userId, today, today);
   const { pickTodayWorkout, READINESS_LABELS } = await import("./readiness.server");
 
   const { data: pending } = await supabaseAdmin
@@ -97,6 +99,7 @@ READINESS DE HOY: ${readinessToday ? `${(readinessToday as any).score}/5 — ${R
 ENTRENO DE HOY: ${workout ? `${workout.plan?.title ?? "—"} · ${workout.duration_minutes} min · ${workout.bike_type}${workout.plan?.summary ? ` — ${workout.plan.summary}` : ""}${Array.isArray(workout.plan?.steps) ? `\nBloques: ${workout.plan.steps.map((st: any) => `${st.name ?? st.type ?? "-"} ${st.duration_minutes ?? st.minutes ?? ""}′${st.zone ? ` ${st.zone}` : ""}`).join(" | ")}` : ""}` : "no hay entreno pendiente"}
 ENTRENOS DE LA SEMANA:
 ${weekWorkouts.length ? weekWorkouts.join("\n") : "sin entrenos esta semana"}
+${continuityPrompt(history)}
 MENÚ DE HOY:
 ${menuText}
 RESUMEN NUTRICIONAL SEMANAL: ${nutriPlan?.resumen ?? "n/a"}

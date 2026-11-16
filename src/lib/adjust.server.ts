@@ -132,7 +132,7 @@ export async function todayWorkout(supabase: any, userId: string) {
     .from("workouts")
     .select("*")
     .eq("user_id", userId)
-    .neq("status", "completed")
+    .eq("status", "pending")
     .limit(100);
   return ((data ?? []) as any[]).find((w) => (w.plan as any)?.scheduled_date === today) ?? null;
 }

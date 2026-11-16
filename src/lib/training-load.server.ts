@@ -283,20 +283,24 @@ export function prescribeWeek(load: TrainingLoadSummary, opts: {
   const cycle = Number(p.deload_every_weeks) >= 2 ? Number(p.deload_every_weeks) : 4;
   const deload = opts.deload || (opts.block_week_index ? opts.block_week_index % cycle === 0 : false);
 
-  if (load.tsb < tsbLimit || (load.readiness_7d !== null && load.readiness_7d <= readinessLimit) || (load.adherence_pct !== null && load.adherence_pct < 60)) {
+  if (load.tsb < tsbLimit || (load.readiness_7d !== null && load.readiness_7d <= readinessLimit)) {
     mode = "recovery";
     factor = 0.6;
     hard = 1;
     reasons.push(
       load.tsb < tsbLimit ? `fatiga alta (TSB ${load.tsb}, su umbral ${tsbLimit})` : "",
       load.readiness_7d !== null && load.readiness_7d <= readinessLimit ? `readiness bajo (${load.readiness_7d}/5, su umbral ${readinessLimit})` : "",
-      load.adherence_pct !== null && load.adherence_pct < 60 ? `adherencia ${load.adherence_pct}%` : "",
     );
   } else if (deload) {
     mode = "recovery";
     factor = 0.62;
     hard = 1;
     reasons.push(`descarga programada (ciclo personal ${cycle}:1)`);
+  } else if (load.adherence_pct !== null && load.adherence_pct < 60) {
+    mode = "maintain";
+    factor = 0.95;
+    hard = Math.min(hard, 1);
+    reasons.push(`adherencia ${load.adherence_pct}%: ajustar a lo realizado, sin asumir fatiga ni recuperar sesiones perdidas`);
   } else if (load.tsb > 10 && (load.readiness_7d === null || load.readiness_7d >= 4)) {
     mode = "overload";
     factor = 1.12;
@@ -314,7 +318,7 @@ export function prescribeWeek(load: TrainingLoadSummary, opts: {
   }
 
   const pf = Number(opts.progression_factor);
-  if (Number.isFinite(pf) && pf > 0 && mode !== "recovery") {
+  if (Number.isFinite(pf) && pf > 0 && mode !== "recovery" && !(load.adherence_pct !== null && load.adherence_pct < 60)) {
     factor = pf * (factor / 1.06);
     reasons.push(`sobrecarga progresiva del bloque (x${pf.toFixed(2)})`);
   }

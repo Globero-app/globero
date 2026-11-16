@@ -50,12 +50,12 @@ export const AdaptSchema = {
 /** Escoge el entrenamiento pendiente correspondiente a hoy. */
 export function pickTodayWorkout(workouts: any[], today: string): any | null {
   if (!workouts || !workouts.length) return null;
-  const scheduled = workouts.find((w) => (w.plan?.scheduled_date ?? null) === today);
+  const pending = workouts.filter((w) => w.status === "pending");
+  const scheduled = pending.find((w) => (w.plan?.scheduled_date ?? null) === today);
   if (scheduled) return scheduled;
-  const undated = workouts.filter((w) => !w.plan?.scheduled_date);
+  const undated = pending.filter((w) => !w.plan?.scheduled_date);
   if (undated.length) return undated[0];
-  const past = workouts.filter((w) => (w.plan?.scheduled_date ?? "") < today);
-  return past.length ? past[past.length - 1] : null;
+  return null;
 }
 
 export function buildAdaptPrompt(opts: {

@@ -28,6 +28,10 @@ export const convertWorkoutToTrainer = createServerFn({ method: "POST" })
 
     const plan: any = workout.plan ?? {};
     const basis: "power" | "hr" = plan.target_basis === "hr" ? "hr" : "power";
+    const { loadWorkoutContinuity, continuityPrompt } = await import("./workout-continuity.server");
+    const { madridTodayISO } = await import("./training-load.server");
+    const today = madridTodayISO();
+    const history = await loadWorkoutContinuity(supabase, userId, plan.scheduled_date ?? today, today);
 
     const prompt = `Eres un entrenador profesional de ciclismo. Adapta el siguiente entrenamiento de exterior para hacerlo EN RODILLO (indoor trainer).
 
@@ -35,6 +39,8 @@ ENTRENAMIENTO ORIGINAL (JSON):
 ${JSON.stringify({ title: plan.title, summary: plan.summary, focus: plan.focus, duration_minutes: workout.duration_minutes, steps: plan.steps ?? [] })}
 
 REFERENCIAS DEL CICLISTA: FTP ${profile?.ftp ?? "n/a"}W · FC máx ${(profile as any)?.max_hr ?? "n/a"} ppm · LTHR ${(profile as any)?.lthr ?? "n/a"} ppm
+
+${continuityPrompt(history)}
 
 REGLAS OBLIGATORIAS:
 1. Duración TOTAL entre 60 y 90 minutos (la suma de duration_seconds debe estar entre 3600 y 5400 s). Nunca más de 90 min.

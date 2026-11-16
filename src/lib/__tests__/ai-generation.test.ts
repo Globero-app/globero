@@ -175,3 +175,38 @@ it("coach keeps fixed role and format stable across context and language", async
   expect(a[0].content).toBe(b[0].content);
   expect(a[1].content).not.toBe(b[1].content);
 });
+
+it.each(["pending", "skipped", "completed"])("the shared generation core passes the actual %s Sunday state into Monday's plan", async (status) => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date("2026-11-16T09:24:00Z"));
+  try {
+    const db = database({ ftp: 250 });
+    const from = db.from.bind(db);
+    const bounds: Array<[string, string]> = [];
+    db.from = (table) => {
+      const query = from(table);
+      let continuityRead = false;
+      query.gte = (column: string, value: string) => {
+        if (column === "plan->>scheduled_date") { continuityRead = true; bounds.push([column, value]); }
+        return query;
+      };
+      query.lte = (column: string, value: string) => { if (continuityRead) bounds.push([column, value]); return query; };
+      query.then = (resolve: (value: any) => any) => Promise.resolve({ data: table === "workouts" && continuityRead ? [{
+        status, duration_minutes: 180, actual_tss: 150, rpe: 4,
+        plan: { scheduled_date: "2026-11-15", title: "Tirada larga", long_ride: true },
+      }] : [], count: 1 }).then(resolve);
+      return query;
+    };
+    callAI.mockRejectedValue(new Error("captured request"));
+    await expect(generateWorkoutsCore(db, "owner", { bike_type: "carretera", duration_minutes: 60,
+      training_days: [1,3,5], from: new Date("2026-11-15T12:00:00Z"), until: "2026-11-22" }))
+      .rejects.toThrow("captured request");
+    expect(bounds).toEqual([["plan->>scheduled_date", "2026-11-09"], ["plan->>scheduled_date", "2026-11-15"]]);
+    const prompt = callAI.mock.calls[0][0][1].content as string;
+    const line = prompt.split("\n").find((text) => text.startsWith("CONTINUIDAD CON"));
+    const context = JSON.parse(line?.slice(line.indexOf(": ") + 2) ?? "{}");
+    expect(context.sesiones[0]).toMatchObject({ estado: status === "completed" ? "realizado" : status === "skipped" ? "omitido" : "no_realizado",
+      tss_real: status === "completed" ? 150 : 0 });
+    expect(context.ultima_realizada ?? null).toEqual(status === "completed" ? context.sesiones[0] : null);
+  } finally { vi.useRealTimers(); }
+});

@@ -139,6 +139,14 @@ export async function modifyTodayWorkout(opts: {
     return;
   }
   const { callAI, AdaptSchema } = await import("./readiness.server");
+  const { loadWorkoutContinuity, continuityPrompt } = await import("./workout-continuity.server");
+  const { madridTodayISO } = await import("./training-load.server");
+  const today = madridTodayISO();
+  const requestedDate =
+    typeof analysis.new_scheduled_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(analysis.new_scheduled_date)
+      ? (analysis.new_scheduled_date as string)
+      : null;
+  const history = await loadWorkoutContinuity(supabaseAdmin, userId, requestedDate ?? today, today);
   const adapted = await callAI(
     [
       {
@@ -148,6 +156,9 @@ export async function modifyTodayWorkout(opts: {
 PETICIÓN: "${analysis.change_request || text}"
 
 ${context}
+
+FECHA RESULTANTE: ${requestedDate ?? today}
+${continuityPrompt(history)}
 
 ENTRENAMIENTO ORIGINAL (JSON): ${JSON.stringify({ ...(workout.plan as any), competition_id: undefined })}
 Duración original: ${workout.duration_minutes} min · Bici: ${workout.bike_type}
@@ -162,10 +173,6 @@ INSTRUCCIONES:
     AdaptSchema,
     { fn: "telegram-modify", userId },
   );
-  const requestedDate =
-    typeof analysis.new_scheduled_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(analysis.new_scheduled_date)
-      ? (analysis.new_scheduled_date as string)
-      : null;
   const newPlan = {
     ...(workout.plan as any),
     name: adapted.name,

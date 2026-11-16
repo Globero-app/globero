@@ -4,6 +4,7 @@ import type { WeatherDay } from "./weather";
 import { callAI } from "./ai-call.server";
 import { assertAIShape, assertPlanDates } from "./ai-response";
 import { getNextActiveCompetition } from "./competition-target";
+import { loadWorkoutContinuity } from "./workout-continuity.server";
 
 export const StepSchema = {
   type: "object",
@@ -110,6 +111,7 @@ PERIODIZACIÓN (respeta fase, semana, progresión y descarga decididas por el si
 - Transición: Z1-Z2, recuperación activa.
 - Descarga: reduce volumen e intensidad, máximo una sesión de calidad corta, resto Z1-Z2.
 - Progresa volumen o densidad respecto a la semana anterior según el factor indicado.
+- CONTINUIDAD ENTRE SEMANAS: usa fechas, sesiones realizadas, RPE y sensaciones del histórico; el lunes no reinicia la recuperación. Una sesión omitida, no realizada o sin confirmar NO genera fatiga ni justifica «recuperación después de tirada larga». Contrasta con actividades realmente registradas (pueden no estar vinculadas). Sin evidencia no supongas que se hizo lo prescrito. Recuperación solo por carga real, readiness o descarga programada, explicando su motivo real. No acumules ni traslades automáticamente sesiones perdidas; adapta la progresión a lo ejecutado.
 - Con competición: base → construcción → pico → tapering; última sesión corta de activación.
 
 AJUSTES POR PERFIL:
@@ -240,6 +242,7 @@ COMPETICIÓN OBJETIVO:
   if (!schedule.length) throw new Error("No hay días de entrenamiento disponibles");
   const effectiveCount = schedule.length;
   const longDay = input.long_ride_day ?? null;
+  const continuity = await loadWorkoutContinuity(supabase, userId, schedule[0].date, madridToday);
 
   // ---- Perfil tipológico y meteorología ----
   const cyclistType = (profile.cyclist_type as string) ?? "mixto";
@@ -419,6 +422,8 @@ ${libraryBlock}
 ${testBlock}
 ${scheduleBlock}
 ${weatherBlock}
+
+CONTINUIDAD CON LA SEMANA ANTERIOR (estado comprobado a ${madridToday}; min_prescritos NO implica ejecución): ${compactJson(continuity)}
 
 ACTIVIDADES RECIENTES (Intervals.icu): ${recent && recent.length ? compactJson(recent) : "ninguna"}
 

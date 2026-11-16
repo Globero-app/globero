@@ -106,7 +106,7 @@ export async function markSkippedAndPropose(supabase: any, userId: string, today
         supabase,
         userId,
         "⏭️ Semana ajustada",
-        `No quedan días libres esta semana, así que "${plan.title ?? plan.name ?? "Sesión"}" se retira y la carga se reparte entre las sesiones que quedan.`,
+        `No quedan días libres esta semana, así que "${plan.title ?? plan.name ?? "Sesión"}" se retira sin añadir su carga a las sesiones que quedan.`,
       );
     }
   }
@@ -302,8 +302,8 @@ export async function adjustTodayByReadiness(supabase: any, userId: string, toda
     userId,
     toRecovery ? "🛌 Hoy toca recuperación activa" : "🔻 Sesión de hoy suavizada",
     toRecovery
-      ? `${causa}: cambiamos el entreno por un rodaje muy suave en Z1 de ${res.minutes} min. La carga se reparte en el resto de la semana.`
-      : `${causa}: hoy bajamos intensidad (${res.minutes} min). La carga se reparte en el resto de la semana.`,
+      ? `${causa}: cambiamos el entreno por un rodaje muy suave en Z1 de ${res.minutes} min, sin compensar la carga reducida en otras sesiones.`
+      : `${causa}: hoy bajamos intensidad (${res.minutes} min), sin compensar la carga reducida en otras sesiones.`,
   );
 
   return { adjusted: true, minutes: res.minutes, level: toRecovery ? "recuperacion" : "suave", hrv };

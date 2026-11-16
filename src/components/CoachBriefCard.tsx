@@ -15,9 +15,9 @@ export function CoachBriefCard() {
     queryKey: ["coach-today", user?.id],
     queryFn: async () => await fetchCoach({ data: undefined }),
     enabled: !!user,
-    staleTime: 1000 * 60 * 60,
+    staleTime: 0,
     gcTime: 1000 * 60 * 120,
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: true
   });
 
   if (!user) return null;
