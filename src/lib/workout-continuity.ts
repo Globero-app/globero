@@ -45,3 +45,17 @@ export function summarizeWorkoutContinuity(rows: ContinuityWorkout[], firstDate:
   return { desde: since, hasta: until, sesiones: sessions,
     ultima_realizada: sessions.filter((s) => s.estado === "realizado").at(-1) ?? null };
 }
+
+/** Persist only verifiable generation-time references, never reconstruct them from later history. */
+export function validateContinuityReferences(
+  references: { fecha: string; estado: string }[],
+  history: ReturnType<typeof summarizeWorkoutContinuity>,
+) {
+  return references.map((reference) => {
+    const session = history.sesiones.find((s) => s.fecha === reference.fecha && s.estado === reference.estado);
+    if (!session || !["realizado", "omitido", "no_realizado"].includes(session.estado)) {
+      throw new Error("La explicación cita una sesión anterior no comprobada.");
+    }
+    return { fecha: session.fecha, estado: session.estado, titulo: session.titulo };
+  });
+}

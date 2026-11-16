@@ -1,10 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { continuityWindow, summarizeWorkoutContinuity } from "../workout-continuity";
+import { continuityWindow, summarizeWorkoutContinuity, validateContinuityReferences } from "../workout-continuity";
 
 const sunday = { duration_minutes: 180, actual_tss: 150, rpe: 4,
   plan: { scheduled_date: "2026-11-15", title: "Tirada larga", long_ride: true } };
 
 describe("cross-week actual training context", () => {
+  it.each(["completed", "skipped"])("preserves the verified %s session cited in a new workout", (status) => {
+    const history = summarizeWorkoutContinuity([{ ...sunday, status }], "2026-11-16", "2026-11-16");
+    const estado = status === "completed" ? "realizado" : "omitido";
+    expect(validateContinuityReferences([{ fecha: "2026-11-15", estado }], history))
+      .toEqual([{ fecha: "2026-11-15", estado, titulo: "Tirada larga" }]);
+  });
+  it("rejects invented sessions and completed claims for a missed ride", () => {
+    const history = summarizeWorkoutContinuity([{ ...sunday, status: "skipped" }], "2026-11-16", "2026-11-16");
+    expect(() => validateContinuityReferences([{ fecha: "2026-11-15", estado: "realizado" }], history)).toThrow();
+    expect(() => validateContinuityReferences([{ fecha: "2026-11-14", estado: "omitido" }], history)).toThrow();
+  });
+  it("allows empty references without inventing previous training", () => {
+    expect(validateContinuityReferences([], summarizeWorkoutContinuity([], "2026-11-16", "2026-11-16"))).toEqual([]);
+  });
   it("includes the previous Sunday when the next plan starts on Monday", () => {
     expect(continuityWindow("2026-11-16")).toEqual({ since: "2026-11-09", until: "2026-11-15" });
   });

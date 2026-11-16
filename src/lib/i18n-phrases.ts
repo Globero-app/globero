@@ -1,5 +1,7 @@
 /* Traducciones por frase original en castellano: [ca, fr, en, de]. */
 export const PHRASES: Record<string, [string, string, string, string]> = {
+  "Continuidad semanal": ["Continuïtat setmanal", "Continuité hebdomadaire", "Weekly continuity", "Wochenübergreifende Planung"],
+  "No se registró el contexto de sesiones anteriores al crear este entrenamiento.": ["No es va registrar el context de sessions anteriors en crear aquest entrenament.", "Le contexte des séances précédentes n'a pas été enregistré lors de la création de cet entraînement.", "Previous-session context was not recorded when this workout was created.", "Der Kontext vorheriger Einheiten wurde bei der Erstellung dieses Trainings nicht gespeichert."],
   "Consumo mensual global y por usuario.": ["Consum mensual global i per usuari.", "Consommation mensuelle globale et par utilisateur.", "Global and per-user monthly usage.", "Monatlicher Verbrauch insgesamt und pro Nutzer."],
   "Por modelo": ["Per model", "Par modèle", "By model", "Nach Modell"],
   "Modelo de IA": ["Model d'IA", "Modèle d'IA", "AI model", "KI-Modell"],
