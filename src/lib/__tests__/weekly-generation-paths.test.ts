@@ -11,7 +11,7 @@ vi.mock("../competition-target", () => ({ getNextActiveCompetition: vi.fn().mock
 vi.mock("../training-load.server", () => ({
   madridTodayISO: () => mocks.today,
   isoDate: (date: Date) => date.toISOString().slice(0, 10),
-  weekStart: () => "2026-11-09",
+  weekStart: () => mocks.today === "2026-11-15" ? "2026-11-09" : "2026-11-16",
 }));
 vi.mock("../intervals.server", () => ({ syncWorkoutEvent: vi.fn() }));
 vi.mock("../weekly-summary.server", () => ({ sendWeeklySummary: vi.fn() }));
