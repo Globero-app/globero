@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { weeklyWorkoutParams, weeklyWorkoutWindow } from "@/lib/weekly-workout-window";
+import { missingWeeklyDates, weeklyWorkoutParams, weeklyWorkoutWindow } from "@/lib/weekly-workout-window";
+import { getNextActiveCompetition } from "@/lib/competition-target";
 
 /**
  * Cron semanal (domingo 21:00–lunes 14:00 Europa/Madrid). Genera los entrenamientos mixtos
@@ -48,21 +49,24 @@ export const Route = createFileRoute("/api/public/hooks/weekly-workouts")({
           if (!days.length) continue;
 
           try {
-            // Idempotencia por calendario real; una marca antigua no bloquea una semana vacía.
-            if (!force) {
+            // Conserva fechas existentes; una sola sesión no cubre toda la semana.
               const { data: existing, error: existingError } = await supabaseAdmin
                 .from("workouts")
-                .select("id")
+                .select("id,status,plan")
                 .eq("user_id", u.id)
                 .gte("plan->>scheduled_date", mondayISO)
-                .lte("plan->>scheduled_date", untilSunday)
-                .limit(1);
+                .lte("plan->>scheduled_date", untilSunday);
               if (existingError) throw existingError;
-              if (existing?.length) {
+              const excludedDates = (existing ?? [])
+                .filter((w) => !force || w.status !== "pending")
+                .map((w) => String((w.plan as any)?.scheduled_date ?? ""));
+              const competition = await getNextActiveCompetition(supabaseAdmin, u.id, madrid);
+              const missing = missingWeeklyDates(days, mondayISO, untilSunday, excludedDates,
+                competition?.date > madrid ? competition.date : null);
+              if (!missing.length) {
                 results.push({ user: u.id, skipped: true, reason: "workouts_exist" });
                 continue;
               }
-            }
             processed++;
             const inserted = await generateWorkoutsCore(supabaseAdmin, u.id, {
               bike_type: (u as any).weekly_bike_type ?? "carretera",
@@ -70,7 +74,8 @@ export const Route = createFileRoute("/api/public/hooks/weekly-workouts")({
               target_basis: (u as any).weekly_target_basis === "hr" ? "hr" : "power",
               training_days: days,
               long_ride_day: (u as any).weekly_long_ride_day ?? null,
-              max_count: days.length,
+              max_count: missing.length,
+              excluded_dates: excludedDates,
               from,
               until: untilSunday,
               nutrition_goal: (u as any).nutrition_plan_enabled ? ((u as any).nutrition_goal ?? "mantenimiento") : null,

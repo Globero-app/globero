@@ -4,12 +4,14 @@ import { weeklyWorkoutParams, weeklyWorkoutWindow } from "../weekly-workout-wind
 const mocks = vi.hoisted(() => ({
   auth: vi.fn(), generate: vi.fn(), nutrition: vi.fn(), sync: vi.fn(), summary: vi.fn(),
   profiles: [] as any[], existing: new Set<string>(), queries: [] as any[],
+  partial: new Map<string, any[]>(),
 }));
 vi.mock("@/lib/cron-auth.server", () => ({ verifyCronRequest: mocks.auth }));
 vi.mock("@/lib/workouts-gen.server", () => ({ generateWorkoutsCore: mocks.generate }));
 vi.mock("@/lib/nutrition-gen.server", () => ({ generateWeeklyNutritionCore: mocks.nutrition }));
 vi.mock("@/lib/intervals.server", () => ({ syncWorkoutEvent: mocks.sync }));
 vi.mock("@/lib/weekly-summary.server", () => ({ sendWeeklySummary: mocks.summary }));
+vi.mock("@/lib/competition-target", () => ({ getNextActiveCompetition: vi.fn().mockResolvedValue(null) }));
 vi.mock("@/integrations/supabase/client.server", () => ({
   supabaseAdmin: {
     from(table: string) {
@@ -29,7 +31,9 @@ vi.mock("@/integrations/supabase/client.server", () => ({
           mocks.queries.push({ table, filters, update });
           const rows = table === "profiles"
             ? mocks.profiles.filter((p) => filters.every(([k, v]) => p[k] === v))
-            : mocks.existing.has(String(filters.find(([k]) => k === "user_id")?.[1])) ? [{ id: "existing" }] : [];
+            : mocks.partial.get(String(filters.find(([k]) => k === "user_id")?.[1])) ??
+              (mocks.existing.has(String(filters.find(([k]) => k === "user_id")?.[1]))
+                ? ["2026-11-09", "2026-11-11", "2026-11-13"].map((date) => ({ id: date, status: "pending", plan: { scheduled_date: date } })) : []);
           return Promise.resolve({ data: rows.slice(0, cap), error: null }).then(resolve);
         },
       };
@@ -60,6 +64,7 @@ beforeEach(() => {
     nutrition_plan_enabled: true, weekly_last_generated_at: "2026-11-09T07:00:00Z",
   }));
   mocks.existing.clear();
+  mocks.partial.clear();
   mocks.queries = [];
 });
 
@@ -88,6 +93,18 @@ describe("Madrid weekly window", () => {
 });
 
 describe("weekly cron", () => {
+  it("fills Miguel's Wednesday, Friday and Sunday without regenerating completed Monday", async () => {
+    vi.setSystemTime(new Date("2026-11-16T08:00:00Z"));
+    mocks.profiles[0].weekly_training_days = [5, 0, 3, 1];
+    mocks.partial.set(id(1), [{ status: "completed", plan: { scheduled_date: "2026-11-16" } }]);
+    await run("?limit=1");
+    expect(mocks.generate.mock.calls[0]?.[2]).toMatchObject({ max_count: 3, excluded_dates: ["2026-11-16"], until: "2026-11-22" });
+  });
+  it("preserves completed dates even on an explicitly forced repair", async () => {
+    mocks.partial.set(id(1), [{ status: "completed", plan: { scheduled_date: "2026-11-09" } }]);
+    await run(`?userId=${id(1)}`);
+    expect(mocks.generate.mock.calls[0]?.[2]).toMatchObject({ max_count: 2, excluded_dates: ["2026-11-09"] });
+  });
   it("rejects unauthenticated forced requests", async () => {
     mocks.auth.mockResolvedValue(false);
     expect((await run("?force=1")).status).toBe(401);

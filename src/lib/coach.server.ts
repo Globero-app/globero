@@ -29,6 +29,7 @@ async function loadContext(supabase: any, userId: string) {
     .select("id,status,plan,duration_minutes,bike_type,planned_tss")
     .eq("user_id", userId)
     .eq("status", "pending")
+    .eq("plan->>scheduled_date", today)
     .limit(200);
   const todayWorkout = ((workouts ?? []) as any[]).find((w) => String(w.plan?.scheduled_date ?? "") === today) ?? null;
 

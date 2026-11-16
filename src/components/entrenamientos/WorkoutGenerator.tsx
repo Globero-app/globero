@@ -130,6 +130,7 @@ export function WorkoutGenerator({ profile }: {profile: any;}) {
       const n = Array.isArray(inserted) ? inserted.length : trainingDays.length;
       toast.success(hasCompetition ? `Plan para tu competición creado: ${n} entrenamientos` : `${n} entrenamiento${n > 1 ? "s" : ""} generado${n > 1 ? "s" : ""}`);
       qc.invalidateQueries({ queryKey: ["workouts"] });
+      qc.invalidateQueries({ queryKey: ["calendar"] });
       const ids = Array.isArray(inserted) ? inserted.map((w: any) => w.id) : [];
       if (intervalsConnected && ids.length > 0) {
         const yes = window.confirm(`¿Quieres subir los ${ids.length} entrenamientos a Intervals.icu en los días seleccionados?`);
@@ -309,7 +310,7 @@ export function WorkoutGenerator({ profile }: {profile: any;}) {
 
       <div className="flex flex-col sm:flex-row gap-2">
         <button
-          disabled={generateMut.isPending || competitions.isPending || competitions.isError || trainingDays.length === 0 || autoEnabled}
+          disabled={generateMut.isPending || competitions.isPending || competitions.isError || trainingDays.length === 0}
           onClick={() => { if (requireAccess()) generateMut.mutate(undefined); }}
           className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 disabled:opacity-50 w-full sm:w-auto">
           

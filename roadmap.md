@@ -1,5 +1,9 @@
 # Roadmap
 
+- [x] Revisión transversal por código: cron, generación anticipada/detección, núcleo IA, generación manual/botón, Entrenamientos, Calendario, Telegram, Inicio/consejo/avisos, Nutrición, Progreso/semanas, redistribución e importación. Corregida generación manual por huecos y botón bloqueado por automatización; acotadas lecturas de Calendario/Telegram/nutrición/consejo/avisos; resumen usa semana anterior y objetivo correctos también el lunes. SQL consultado: cron activo, ninguna función SQL decide generación semanal. 50 pruebas y compilación correctas. Sin cambios adicionales de registros; publicación y comprobación visual autenticada siguen pendientes por Supabase externo.
+
+- [x] Semana de Miguel reparada: creados miércoles 18, viernes 20 y domingo 22; lunes completado intacto, guardado confirmado. Otros 12 usuarios automáticos con semanas completas. Comprobación por fechas corregida en cron y generación anticipada; 26 pruebas y compilación correctas. Corrección automática pendiente de publicación; vista autenticada no verificable con Supabase externo.
+
 - [x] Nota de continuidad en cada tarjeta; nuevas generaciones guardan explicación por sesión y referencias verificadas. Planes antiguos indican contexto no registrado sin inventarlo.
 
 - [x] Revisión transversal por lectura de código: Entrenamientos/generador/tarjetas, Inicio/consejo/readiness/avisos locales, Calendario/reprogramación, Progreso/carga/resumen, Telegram/contexto/modificación/readiness, rodillo, ajustes rápidos/diarios y propuestas/redistribución; cron semanal, generación anticipada por actividad, daily-adjust y readiness-push. Corregidos histórico compartido, consejo/caché, selección de sesiones vencidas/omitidas, baja adherencia sin fatiga y compensación automática de carga perdida. 79 pruebas correctas; compilación correcta. Historial completado y envíos existentes intactos.

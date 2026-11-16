@@ -26,7 +26,7 @@ export const generateWorkouts = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => GenInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { generateWorkoutsCore } = await import("./workouts-gen.server");
+    const { buildSchedule, generateWorkoutsCore } = await import("./workouts-gen.server");
 
     // Guarda las preferencias para la generación automática de los domingos
     await supabase
@@ -75,6 +75,18 @@ export const generateWorkouts = createServerFn({ method: "POST" })
       sunday = addDays(sunday, 7);
     }
 
+    const { data: covered, error: coverageError } = await supabase.from("workouts")
+      .select("status,plan")
+      .eq("user_id", userId)
+      .gte("plan->>scheduled_date", fromISO)
+      .lte("plan->>scheduled_date", sunday);
+    if (coverageError) throw new Error(coverageError.message);
+    const excludedDates = (covered ?? [])
+      .filter((w) => !data.replace_pending || w.status !== "pending")
+      .map((w) => String((w.plan as any)?.scheduled_date ?? ""));
+    if (!buildSchedule(data.training_days, data.max_count ?? data.training_days.length, sunday,
+      new Date(`${fromISO}T12:00:00Z`), excludedDates).length) return [];
+
     const inserted = await generateWorkoutsCore(supabase, userId, {
       bike_type: data.bike_type,
       duration_minutes: data.duration_minutes,
@@ -83,6 +95,7 @@ export const generateWorkouts = createServerFn({ method: "POST" })
       training_days: data.training_days,
       long_ride_day: data.long_ride_day ?? null,
       max_count: data.max_count,
+      excluded_dates: excludedDates,
       from: new Date(`${fromISO}T12:00:00Z`),
       until: sunday,
       nutrition_goal: data.nutrition_enabled ? (data.nutrition_goal ?? "mantenimiento") : null,

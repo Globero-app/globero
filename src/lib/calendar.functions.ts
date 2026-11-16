@@ -26,7 +26,8 @@ export const getCalendar = createServerFn({ method: "GET" })
     const toIso = `${data.to}T23:59:59.999Z`;
 
     const [wRes, cRes, aRes] = await Promise.all([
-      supabase.from("workouts").select("id, training_type, duration_minutes, status, plan, completed_at, created_at").eq("user_id", userId),
+      supabase.from("workouts").select("id, training_type, duration_minutes, status, plan, completed_at, created_at").eq("user_id", userId)
+        .or(`and(plan->>scheduled_date.gte.${data.from},plan->>scheduled_date.lte.${data.to}),and(plan->>scheduled_date.is.null,completed_at.gte.${fromIso},completed_at.lte.${toIso}),and(plan->>scheduled_date.is.null,completed_at.is.null,created_at.gte.${fromIso},created_at.lte.${toIso})`),
       supabase.from("competitions").select("id, name, date, type, distance_km, elevation_m").eq("user_id", userId).gte("date", data.from).lte("date", data.to),
       supabase.from("intervals_activities").select("id, name, type, distance, moving_time, total_elevation_gain, start_date").eq("user_id", userId).gte("start_date", fromIso).lte("start_date", toIso),
     ]);

@@ -135,6 +135,8 @@ export async function generateWeeklyNutritionCore(
     .from("workouts")
     .select("training_type,duration_minutes,plan,status")
     .eq("user_id", userId)
+    .gte("plan->>scheduled_date", weekStart)
+    .lte("plan->>scheduled_date", weekEnd)
     .order("created_at", { ascending: false })
     .limit(120);
 
