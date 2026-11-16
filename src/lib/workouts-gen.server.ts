@@ -59,7 +59,7 @@ const PlanSchema = {
 const DAY_NAMES = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
 /** Genera las próximas fechas (YYYY-MM-DD) que caen en los días permitidos, empezando mañana (o desde `from`). */
-export function buildSchedule(days: number[], count: number, maxDate?: string, from?: Date): { date: string; dow: number }[] {
+export function buildSchedule(days: number[], count: number, maxDate?: string, from?: Date, excludedDates: string[] = []): { date: string; dow: number }[] {
   const allowed = new Set(days);
   const out: { date: string; dow: number }[] = [];
   const cursor = from ? new Date(from) : new Date();
@@ -68,7 +68,7 @@ export function buildSchedule(days: number[], count: number, maxDate?: string, f
     cursor.setUTCDate(cursor.getUTCDate() + 1);
     const iso = cursor.toISOString().slice(0, 10);
     if (maxDate && iso > maxDate) break;
-    if (allowed.has(cursor.getUTCDay())) out.push({ date: iso, dow: cursor.getUTCDay() });
+    if (allowed.has(cursor.getUTCDay()) && !excludedDates.includes(iso)) out.push({ date: iso, dow: cursor.getUTCDay() });
   }
   return out;
 }
@@ -86,6 +86,8 @@ export type GenCoreInput = {
   until?: string | null;
   /** Tope de sesiones (por defecto, tantas como días de entreno). */
   max_count?: number;
+  /** Dates already covered by existing sessions must remain untouched. */
+  excluded_dates?: string[];
   /** Objetivo del plan nutricional para adaptar los entrenamientos. */
   nutrition_goal?: string | null;
 };
@@ -242,7 +244,7 @@ COMPETICIÓN OBJETIVO:
   const compDate = competition && competition.date > madridToday ? competition.date : null;
   const limits = [compDate, input.until].filter(Boolean) as string[];
   const maxDate = limits.length ? limits.sort()[0] : undefined;
-  const schedule = buildSchedule(chosenDays, maxCount, maxDate, input.from);
+  const schedule = buildSchedule(chosenDays, maxCount, maxDate, input.from, input.excluded_dates);
   if (!schedule.length) throw new Error("No hay días de entrenamiento disponibles");
   const effectiveCount = schedule.length;
   const longDay = input.long_ride_day ?? null;

@@ -3,6 +3,8 @@
    23:30 y se crean los de la semana siguiente + resumen semanal. */
 
 import { isoDate, madridTodayISO, weekStart } from "./training-load.server";
+import { missingWeeklyDates } from "./weekly-workout-window";
+import { getNextActiveCompetition } from "./competition-target";
 
 const DAY = 86400000;
 const addDays = (iso: string, n: number) => isoDate(new Date(new Date(`${iso}T12:00:00Z`).getTime() + n * DAY));
@@ -24,17 +26,6 @@ export async function maybeGenerateNextWeekEarly(supabase: any, userId: string):
   const days = ((u.weekly_training_days ?? []) as any[]).map(Number).filter((d) => d >= 0 && d <= 6);
   if (!days.length) return 0;
 
-  // Idempotencia: ya generado hoy
-  if (u.weekly_last_generated_at) {
-    const last = new Intl.DateTimeFormat("en-CA", {
-      timeZone: "Europe/Madrid",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).format(new Date(u.weekly_last_generated_at));
-    if (last === today) return 0;
-  }
-
   const monday = weekStart(today);
   const nextMonday = addDays(monday, 7);
   const nextSunday = addDays(monday, 13);
@@ -43,7 +34,8 @@ export async function maybeGenerateNextWeekEarly(supabase: any, userId: string):
     .from("workouts")
     .select("status,plan")
     .eq("user_id", userId)
-    .limit(300);
+    .gte("plan->>scheduled_date", monday)
+    .lte("plan->>scheduled_date", nextSunday);
   const all = (rows ?? []) as any[];
   const week = all.filter((w) => {
     const d = String(w.plan?.scheduled_date ?? "");
@@ -51,8 +43,11 @@ export async function maybeGenerateNextWeekEarly(supabase: any, userId: string):
   });
   if (!week.length || week.some((w) => w.status !== "completed")) return 0;
 
-  // Si ya existen sesiones de la semana siguiente, no duplicar
-  if (all.some((w) => String(w.plan?.scheduled_date ?? "") >= nextMonday)) return 0;
+  const excludedDates = all.map((w) => String(w.plan?.scheduled_date ?? ""));
+  const competition = await getNextActiveCompetition(supabase, userId, today);
+  const missing = missingWeeklyDates(days, nextMonday, nextSunday, excludedDates,
+    competition?.date > today ? competition.date : null);
+  if (!missing.length) return 0;
 
   const { generateWorkoutsCore } = await import("./workouts-gen.server");
   const inserted = await generateWorkoutsCore(supabase, userId, {
@@ -61,7 +56,8 @@ export async function maybeGenerateNextWeekEarly(supabase: any, userId: string):
     target_basis: u.weekly_target_basis === "hr" ? "hr" : "power",
     training_days: days,
     long_ride_day: u.weekly_long_ride_day ?? null,
-    max_count: days.length,
+    max_count: missing.length,
+    excluded_dates: excludedDates,
     from: new Date(`${today}T12:00:00Z`),
     until: nextSunday,
     nutrition_goal: u.nutrition_plan_enabled ? (u.nutrition_goal ?? "mantenimiento") : null,

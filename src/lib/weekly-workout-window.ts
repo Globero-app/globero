@@ -6,6 +6,19 @@ export const weeklyWorkoutParams = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(3),
 });
 
+/** An existing session covers its date, not the entire week. */
+export function missingWeeklyDates(days: number[], monday: string, sunday: string, existing: string[], competitionDate?: string | null) {
+  const covered = new Set(existing);
+  const cursor = new Date(`${monday}T12:00:00Z`);
+  const dates: string[] = [];
+  for (let i = 0; i < 7; i++, cursor.setUTCDate(cursor.getUTCDate() + 1)) {
+    const date = cursor.toISOString().slice(0, 10);
+    if (date > sunday || (competitionDate && date > competitionDate)) break;
+    if (days.includes(cursor.getUTCDay()) && !covered.has(date)) dates.push(date);
+  }
+  return dates;
+}
+
 /** Calendar arithmetic uses Madrid's date at UTC noon to avoid DST shifts. */
 export function weeklyWorkoutWindow(now: Date) {
   const parts = new Intl.DateTimeFormat("en-GB", {

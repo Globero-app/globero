@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Reparar semana incompleta de Miguel, comprobar alcance entre usuarios y evitar que una sesión aislada bloquee el resto conservando sesiones existentes.
+
 - [x] Nota de continuidad en cada tarjeta; nuevas generaciones guardan explicación por sesión y referencias verificadas. Planes antiguos indican contexto no registrado sin inventarlo.
 
 - [x] Revisión transversal por lectura de código: Entrenamientos/generador/tarjetas, Inicio/consejo/readiness/avisos locales, Calendario/reprogramación, Progreso/carga/resumen, Telegram/contexto/modificación/readiness, rodillo, ajustes rápidos/diarios y propuestas/redistribución; cron semanal, generación anticipada por actividad, daily-adjust y readiness-push. Corregidos histórico compartido, consejo/caché, selección de sesiones vencidas/omitidas, baja adherencia sin fatiga y compensación automática de carga perdida. 79 pruebas correctas; compilación correcta. Historial completado y envíos existentes intactos.
