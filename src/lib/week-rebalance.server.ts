@@ -76,7 +76,8 @@ export async function rebalanceWeekCore(
   const sum = current.reduce((a: number, c: { tss: number }) => a + c.tss, 0);
   if (sum <= 0) return { changed: false, reason: "sin_carga", workouts: [] };
 
-  const factor = Math.min(1.35, Math.max(0.7, target / sum));
+  // Missing sessions do not create a debt to add to the remaining rides.
+  const factor = Math.min(1, Math.max(0.7, target / sum));
   if (Math.abs(factor - 1) < 0.05) return { changed: false, reason: "ya_equilibrada", workouts: [] };
 
   const { validateWorkout } = await import("./workout-validator.server");

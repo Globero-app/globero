@@ -133,6 +133,17 @@ describe("prescribeWeek", () => {
     expect(w.mode).toBe("maintain");
   });
 
+  it("missing rides do not imply fatigue or progression debt", () => {
+    const w = prescribeWeek(load({ adherence_pct: 40, tsb: 15, readiness_7d: 4.5 }), { ...opts, progression_factor: 1.2 });
+    expect(w.mode).toBe("maintain");
+    expect(w.target_tss).toBe(285);
+    expect(w.hard_sessions_max).toBe(1);
+  });
+
+  it("real fatigue still requires recovery even when sessions were missed", () => {
+    expect(prescribeWeek(load({ adherence_pct: 40, tsb: -30 }), opts).mode).toBe("recovery");
+  });
+
   it("nunca baja de 40 TSS", () => {
     const w = prescribeWeek(load({ avg_weekly_tss_3w: 0, tsb: -40 }), { sessions: 1, duration_minutes: 20 });
     expect(w.target_tss).toBeGreaterThanOrEqual(40);
