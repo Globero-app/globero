@@ -30,6 +30,7 @@ export function useTodayPushTriggers() {
         .from("workouts")
         .select("id,plan,status,duration_minutes,training_type")
         .eq("user_id", user!.id)
+        .eq("plan->>scheduled_date", today)
         .eq("status", "pending");
       const match = (data ?? []).find((w) => {
         const p = w.plan as any;
