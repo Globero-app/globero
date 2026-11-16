@@ -22,6 +22,7 @@ const db = {
   from(table: string) {
     const query: any = {
       select: () => query, eq: () => query, not: () => query, order: () => query, limit: () => query,
+      gte: () => query, lte: () => query,
       maybeSingle: () => Promise.resolve({ data: table === "profiles" ? { weight_kg: 70 } : null }),
       then: (resolve: (value: unknown) => unknown) => Promise.resolve({ data: [] }).then(resolve),
     };
