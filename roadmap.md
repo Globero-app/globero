@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Continuidad semanal: distinguir entrenamientos realizados, omitidos y sin confirmar de la semana anterior al generar la siguiente; verificar el caso domingo sin tirada y lunes.
+
 - [x] Reserva automática de IA ante retirada/no disponibilidad confirmada, con aviso persistente en Administrador. 51 pruebas correctas; reserva compatible comprobada en catálogo. No cambia modelos por permisos o resultados inciertos.
 - [ ] Verificar el nuevo aviso en Administrador con sesión real: Supabase externo no permite restaurar una sesión de prueba.
 
