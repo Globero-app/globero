@@ -1,6 +1,7 @@
 # Roadmap
 
-- [ ] Continuidad semanal: distinguir entrenamientos realizados, omitidos y sin confirmar de la semana anterior al generar la siguiente; verificar el caso domingo sin tirada y lunes.
+- [x] Continuidad semanal: generación manual y automática consideran estados, fechas, RPE y sensaciones de la semana anterior; una tirada no realizada no justifica recuperación. Caso domingo/lunes y generación a mitad de semana comprobados; 48 pruebas correctas. No modifica planes existentes.
+- [ ] Verificar una nueva generación con la cuenta real: Supabase externo sin sesión de prueba disponible.
 
 - [x] Reserva automática de IA ante retirada/no disponibilidad confirmada, con aviso persistente en Administrador. 51 pruebas correctas; reserva compatible comprobada en catálogo. No cambia modelos por permisos o resultados inciertos.
 - [ ] Verificar el nuevo aviso en Administrador con sesión real: Supabase externo no permite restaurar una sesión de prueba.
