@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Reparar semana incompleta de Miguel, comprobar alcance entre usuarios y evitar que una sesión aislada bloquee el resto conservando sesiones existentes.
+- [x] Semana de Miguel reparada: creados miércoles 18, viernes 20 y domingo 22; lunes completado intacto, guardado confirmado. Otros 12 usuarios automáticos con semanas completas. Comprobación por fechas corregida en cron y generación anticipada; 26 pruebas y compilación correctas. Corrección automática pendiente de publicación; vista autenticada no verificable con Supabase externo.
 
 - [x] Nota de continuidad en cada tarjeta; nuevas generaciones guardan explicación por sesión y referencias verificadas. Planes antiguos indican contexto no registrado sin inventarlo.
 
