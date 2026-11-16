@@ -3,6 +3,7 @@ import { diabetesCoachContext } from "@/lib/diabetes";
    Solo servidor: no importar desde el cliente. */
 
 import { buildTrainingLoad, madridTodayISO } from "./training-load.server";
+import { loadWorkoutContinuity, continuityPrompt, CONTINUITY_RULE } from "./workout-continuity.server";
 
 export interface CoachAlert {
   kind: string;
@@ -12,7 +13,7 @@ export interface CoachAlert {
 }
 
 const DAY = 86400000;
-const COACH_SYSTEM_PROMPT = "Eres un coach profesional de ciclismo. Devuelve UNA sola frase (máx. 200 caracteres), concreta y accionable, sin markdown ni emojis.";
+const COACH_SYSTEM_PROMPT = `Eres un coach profesional de ciclismo. Devuelve UNA sola frase (máx. 200 caracteres), concreta y accionable, sin markdown ni emojis. ${CONTINUITY_RULE}`;
 
 function daysAgoISO(n: number): string {
   return new Date(new Date(`${madridTodayISO()}T12:00:00Z`).getTime() - n * DAY).toISOString().slice(0, 10);
@@ -27,7 +28,7 @@ async function loadContext(supabase: any, userId: string) {
     .from("workouts")
     .select("id,status,plan,duration_minutes,bike_type,planned_tss")
     .eq("user_id", userId)
-    .neq("status", "completed")
+    .eq("status", "pending")
     .limit(200);
   const todayWorkout = ((workouts ?? []) as any[]).find((w) => String(w.plan?.scheduled_date ?? "") === today) ?? null;
 
@@ -63,6 +64,8 @@ export async function buildDailyBrief(supabase: any, userId: string) {
     import("./server-i18n"),
   ]);
   const lang = await getUserLang(userId);
+  const history = await loadWorkoutContinuity(supabase, userId, today, today);
+  const continuitySig = briefHash(JSON.stringify(history));
 
   const lines: string[] = [];
   if (todayWorkout) {
@@ -99,12 +102,12 @@ export async function buildDailyBrief(supabase: any, userId: string) {
       : "rest",
   );
   const cache = ((profile as any)?.daily_brief_cache ?? null) as
-    | { date?: string; hash?: string; advice?: string; workoutSig?: string }
+    | { date?: string; hash?: string; advice?: string; workoutSig?: string; continuitySig?: string }
     | null;
   const cachedAdvice = String(cache?.advice ?? "").trim();
   const sameDay = cache?.date === today && !!cachedAdvice;
   const workoutChanged = cache?.hash !== inputHash && cache?.workoutSig !== workoutSig;
-  let advice = sameDay && !workoutChanged ? cachedAdvice : "";
+  let advice = sameDay && !workoutChanged && cache?.continuitySig === continuitySig ? cachedAdvice : "";
   if (!advice) {
     try {
       const { callAI } = await import("./ai-call.server");
@@ -114,7 +117,7 @@ export async function buildDailyBrief(supabase: any, userId: string) {
             role: "system",
             content: COACH_SYSTEM_PROMPT,
           },
-          { role: "user", content: `${langInstruction(lang)}\n${lines.join("\n")}` },
+          { role: "user", content: `${langInstruction(lang)}\n${lines.join("\n")}\n${continuityPrompt(history)}` },
         ],
         undefined,
         { fn: "daily-brief", userId },
@@ -124,7 +127,7 @@ export async function buildDailyBrief(supabase: any, userId: string) {
       if (advice) {
         void supabase
           .from("profiles")
-          .update({ daily_brief_cache: { date: today, hash: inputHash, workoutSig, advice } })
+          .update({ daily_brief_cache: { date: today, hash: inputHash, workoutSig, continuitySig, advice } })
           .eq("id", userId)
           .then(() => {});
       }

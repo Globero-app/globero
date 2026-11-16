@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Revisión transversal de continuidad: generación, Telegram, consejo diario, ajustes y redistribución; no asumir fatiga ni recuperar carga por sesiones no realizadas.
+
 - [x] Continuidad semanal: generación manual y automática consideran estados, fechas, RPE y sensaciones de la semana anterior; una tirada no realizada no justifica recuperación. Caso domingo/lunes y generación a mitad de semana comprobados; 48 pruebas correctas. No modifica planes existentes.
 - [ ] Verificar una nueva generación con la cuenta real: Supabase externo sin sesión de prueba disponible.
 

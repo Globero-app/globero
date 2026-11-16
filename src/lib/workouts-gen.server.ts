@@ -4,7 +4,7 @@ import type { WeatherDay } from "./weather";
 import { callAI } from "./ai-call.server";
 import { assertAIShape, assertPlanDates } from "./ai-response";
 import { getNextActiveCompetition } from "./competition-target";
-import { continuityWindow, summarizeWorkoutContinuity } from "./workout-continuity";
+import { loadWorkoutContinuity } from "./workout-continuity.server";
 
 export const StepSchema = {
   type: "object",
@@ -242,16 +242,7 @@ COMPETICIÓN OBJETIVO:
   if (!schedule.length) throw new Error("No hay días de entrenamiento disponibles");
   const effectiveCount = schedule.length;
   const longDay = input.long_ride_day ?? null;
-  const historyWindow = continuityWindow(schedule[0].date);
-  const { data: continuityRows, error: continuityError } = await supabase
-    .from("workouts")
-    .select("status,duration_minutes,actual_tss,rpe,feedback_notes,completed_at,plan")
-    .eq("user_id", userId)
-    .gte("plan->>scheduled_date", historyWindow.since)
-    .lte("plan->>scheduled_date", historyWindow.until)
-    .order("created_at", { ascending: false });
-  if (continuityError) throw new Error("No se pudo consultar la semana anterior; vuelve a intentarlo.");
-  const continuity = summarizeWorkoutContinuity(continuityRows ?? [], schedule[0].date, madridToday);
+  const continuity = await loadWorkoutContinuity(supabase, userId, schedule[0].date, madridToday);
 
   // ---- Perfil tipológico y meteorología ----
   const cyclistType = (profile.cyclist_type as string) ?? "mixto";
