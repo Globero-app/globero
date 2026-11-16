@@ -207,6 +207,6 @@ it.each(["pending", "skipped", "completed"])("the shared generation core passes 
     const context = JSON.parse(line?.slice(line.indexOf(": ") + 2) ?? "{}");
     expect(context.sesiones[0]).toMatchObject({ estado: status === "completed" ? "realizado" : status === "skipped" ? "omitido" : "no_realizado",
       tss_real: status === "completed" ? 150 : 0 });
-    expect(context.ultima_realizada === null).toBe(status !== "completed");
+    expect(context.ultima_realizada ?? null).toEqual(status === "completed" ? context.sesiones[0] : null);
   } finally { vi.useRealTimers(); }
 });
