@@ -1,5 +1,7 @@
 # Architecture rules
 
+- Share actual history across plans and advice; missed rides imply no fatigue.
+
 - Derive weekly cron dates and execution eligibility through the tested Madrid calendar helper; use persisted scheduled workouts for weekly idempotency and bound generation attempts per request while preserving summary delivery.
 
 - Resolve on-demand reports and workout feedback through a shared owner-scoped completed-workout resolver; match activities on the session's Madrid date, preserve stored feedback, and keep manual-session feedback separate from provider IDs. Explicit regeneration bypasses report reuse without deleting the previous report before success.
