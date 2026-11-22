@@ -3,7 +3,7 @@ import { missingWeeklyDates, weeklyWorkoutParams, weeklyWorkoutWindow } from "@/
 import { getNextActiveCompetition } from "@/lib/competition-target";
 
 /**
- * Cron semanal (domingo 21:00–lunes 14:00 Europa/Madrid). Genera los entrenamientos mixtos
+ * Cron semanal (viernes 21:00–lunes 14:00 Europa/Madrid). Genera los entrenamientos mixtos
  * de la semana siguiente para cada usuario con generación automática activada,
  * según sus días de entreno, su día de tirada larga y su progreso previo.
  *

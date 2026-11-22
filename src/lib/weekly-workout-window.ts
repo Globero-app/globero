@@ -30,9 +30,9 @@ export function weeklyWorkoutWindow(now: Date) {
   const base = new Date(`${date}T12:00:00Z`);
   const dow = base.getUTCDay();
   const minutes = Number(value("hour")) * 60 + Number(value("minute"));
-  const allowed = (dow === 0 && minutes >= 21 * 60) || (dow === 1 && minutes <= 14 * 60);
+  const allowed = (dow === 5 && minutes >= 21 * 60) || dow === 6 || dow === 0 || (dow === 1 && minutes <= 14 * 60);
   const monday = new Date(base);
-  monday.setUTCDate(base.getUTCDate() + (dow === 0 ? 1 : 1 - dow));
+  monday.setUTCDate(base.getUTCDate() + (dow >= 5 || dow === 0 ? (8 - dow) % 7 : 1 - dow));
   const sunday = new Date(monday);
   sunday.setUTCDate(monday.getUTCDate() + 6);
   const from = new Date(monday);
