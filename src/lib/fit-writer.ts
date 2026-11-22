@@ -2,6 +2,8 @@
 // Supports: file_id, workout, workout_step (power/HR/cadence/open targets).
 // Reference: Garmin FIT SDK Profile.
 
+import { workoutPowerSteps } from "./workout-power";
+
 const FIT_PROTOCOL = 0x20;
 const FIT_PROFILE = 2140;
 
@@ -24,6 +26,7 @@ export interface FitWorkoutStep {
 export interface FitWorkout {
   name: string;           // ≤15 chars in FIT, we truncate
   sport?: "cycling";      // default cycling
+  indoor?: boolean;
   steps: FitWorkoutStep[];
 }
 
@@ -91,7 +94,7 @@ const INTENSITY_MAP: Record<Intensity, number> = {
 };
 
 // wkt_step_duration enum
-const DUR_TIME = 0, DUR_OPEN = 1;
+const DUR_TIME = 0, DUR_OPEN = 5;
 // wkt_step_target enum
 const TGT_HR = 1, TGT_CAD = 3, TGT_POWER = 4, TGT_OPEN = 2;
 
@@ -121,9 +124,10 @@ export function encodeWorkoutFit(wk: FitWorkout): Uint8Array {
   // --- workout (global 26) local=1
   body.bytes(defMsg(1, 26, [
     [8, 16, T_STRING], // wkt_name (16 bytes)
-    [4, 2, T_UINT16],  // num_valid_steps
+    [6, 2, T_UINT16],  // num_valid_steps
     [254, 2, T_UINT16],// message_index (set 0)
-    [5, 1, T_UINT8],   // sport
+    [4, 1, T_ENUM],    // sport
+    [11, 1, T_ENUM],   // sub_sport
   ]));
   const w = new Buf();
   w.u8(dataHeader(1));
@@ -131,6 +135,7 @@ export function encodeWorkoutFit(wk: FitWorkout): Uint8Array {
   w.u16(wk.steps.length);
   w.u16(0);
   w.u8(SPORT_CYCLING);
+  w.u8(wk.indoor ? 6 : 0); // indoor_cycling / generic
   body.bytes(w.toArray());
 
   // --- workout_step (global 27) local=2
@@ -145,7 +150,7 @@ export function encodeWorkoutFit(wk: FitWorkout): Uint8Array {
     [3, 1, T_ENUM],     // target_type
     [7, 1, T_ENUM],     // intensity
   ]));
-  wk.steps.forEach((s, i) => {
+  workoutPowerSteps(wk.steps, !!wk.indoor).forEach((s, i) => {
     const sb = new Buf();
     sb.u8(dataHeader(2));
     sb.u16(i);
@@ -154,12 +159,13 @@ export function encodeWorkoutFit(wk: FitWorkout): Uint8Array {
     // target_value=0 (custom); use custom_target_value_low/high for ranges
     sb.u32(0);
     // Power values use offset 1000 (watts + 1000) per FIT spec when using "power" target with custom_value_low/high
-    let lo = s.target_low ?? 0, hi = s.target_high ?? 0;
+    let lo = Math.round(s.target_low ?? s.target_high ?? 0), hi = Math.round(s.target_high ?? s.target_low ?? 0);
     let tgt = TGT_OPEN;
     if (s.target === "power") {
       tgt = TGT_POWER;
-      lo = (lo > 0 ? lo + 1000 : 0);
-      hi = (hi > 0 ? hi + 1000 : 0);
+      // Even 0 W must carry the offset: raw 0 would mean 0% FTP, not watts.
+      lo = Math.max(0, lo) + 1000;
+      hi = Math.max(0, hi) + 1000;
     } else if (s.target === "hr") {
       tgt = TGT_HR;
       // <100 → %max, ≥100 → bpm (per FIT). We assume bpm here; values >100 are bpm directly.

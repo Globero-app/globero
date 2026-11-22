@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Exterior conserva rangos; rodillo usa objetivos fijos en tarjeta, generación, conversión y envío a Intervals/Wahoo/Garmin. FIT corregido (campos de deporte/pasos, duración abierta y potencia absoluta con offset 1000); 28 pruebas y lector oficial Garmin verifican integridad y objetivo ERG.
+- [ ] Verificar ERG en rodillo físico y conversión autenticada: requiere dispositivo y sesión de Supabase externo.
+
 - [x] Revisión transversal por código: cron, generación anticipada/detección, núcleo IA, generación manual/botón, Entrenamientos, Calendario, Telegram, Inicio/consejo/avisos, Nutrición, Progreso/semanas, redistribución e importación. Corregida generación manual por huecos y botón bloqueado por automatización; acotadas lecturas de Calendario/Telegram/nutrición/consejo/avisos; resumen usa semana anterior y objetivo correctos también el lunes. SQL consultado: cron activo, ninguna función SQL decide generación semanal. 50 pruebas y compilación correctas. Sin cambios adicionales de registros; publicación y comprobación visual autenticada siguen pendientes por Supabase externo.
 
 - [x] Semana de Miguel reparada: creados miércoles 18, viernes 20 y domingo 22; lunes completado intacto, guardado confirmado. Otros 12 usuarios automáticos con semanas completas. Comprobación por fechas corregida en cron y generación anticipada; 26 pruebas y compilación correctas. Corrección automática pendiente de publicación; vista autenticada no verificable con Supabase externo.

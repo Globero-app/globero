@@ -106,6 +106,7 @@ const WORKOUTS_SYSTEM_PROMPT = `Eres un entrenador profesional de ciclismo. Dise
 BASE DE PRESCRIPCIÓN (respeta la base indicada):
 - FC: todos los steps con esfuerzo usan target='hr', target_low/target_high en PPM; nunca power. Zonas sobre LTHR: Z1 <81%, Z2 81-89%, Z3 90-93%, Z4 94-99%, Z5 100-102%, Z5b >102%. Si solo hay FC máx: Z1 <68%, Z2 69-83%, Z3 84-94%, Z4 95-105%. Sin FC máx estima 220-edad; sin LTHR estima 92% de FC máx.
 - Potencia: todos los steps con esfuerzo usan target='power' y VATIOS calculados sobre FTP: Z2 56-75%, Z3 76-90%, Z4 91-105%, Z5 106-120%, Z6 121-150%. Solo sin FTP usa hr u open.
+- Exterior: conserva rangos target_low<target_high. Rodillo (indoor=true): objetivo fijo target_low=target_high en vatios absolutos para ERG.
 - Menciona la base de prescripción en summary.
 
 PERIODIZACIÓN (respeta fase, semana, progresión y descarga decididas por el sistema):
@@ -466,7 +467,7 @@ HISTÓRICO READINESS 14 días: ${readinessArr.length ? compactJson(readinessArr)
       long_ride: isLong,
     };
 
-    const v = validateWorkout(w, ctx);
+    const v = validateWorkout({ ...w, indoor: !!w.indoor || input.bike_type === "rodillo" }, ctx);
     const continuityReferences = validateContinuityReferences(w.continuity_references, continuity);
     return {
       focus: w.focus ?? "mixto",

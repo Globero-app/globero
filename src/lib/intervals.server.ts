@@ -1,4 +1,5 @@
 /** Cliente servidor para la API de Intervals.icu */
+import { workoutPowerSteps } from "./workout-power";
 
 const BASE = "https://intervals.icu/api/v1";
 
@@ -110,7 +111,7 @@ export function hrRangeToLthrPct(
 
 /** Convierte los steps del plan en el "workout doc" de Intervals.icu */
 export function buildWorkoutDoc(plan: any, basis: "power" | "hr", refs: ZoneRefs): string {
-  const steps = Array.isArray(plan?.steps) ? plan.steps : [];
+  const steps = workoutPowerSteps<any>(Array.isArray(plan?.steps) ? plan.steps : [], !!plan?.indoor);
   const ftp = refs.ftp;
   // En rodillo (VirtualRide) Intervals usa un FTP propio que puede ser 0:
   // se envían vatios absolutos para que el render no dependa de ese ajuste.
@@ -153,15 +154,8 @@ export function buildWorkoutDoc(plan: any, basis: "power" | "hr", refs: ZoneRefs
     if (s.target === "power" && low > 0) {
       const wl = Math.round(low);
       const wh = Math.round(high || low);
-      if (indoor && ftp && ftp > 0) {
-        // En rodillo se envía el % como objetivo (Intervals lo resuelve con el
-        // FTP de VirtualRide, ya sincronizado) y los vatios absolutos como texto.
-        const pl = Math.round((low / ftp) * 100);
-        const ph = Math.round(((high || low) / ftp) * 100);
-        target = pl === ph ? `${pl}%` : `${pl}-${ph}%`;
-        name = `(${wl === wh ? `${wl}w` : `${wl}-${wh}w`})${name ? ` ${name}` : ""}`;
-      } else if (indoor) {
-        target = wl === wh ? `${wl}w` : `${wl}-${wh}w`;
+      if (indoor) {
+        target = `${wl}w`;
       } else if (ftp && ftp > 0) {
         const pl = Math.round((low / ftp) * 100);
         const ph = Math.round(((high || low) / ftp) * 100);
@@ -202,7 +196,7 @@ export async function intervalsCreateEvent(
   date: string,
   refs: ZoneRefs,
 ): Promise<string> {
-  const doc = buildWorkoutDoc(workout.plan, workout.plan?.target_basis === "hr" ? "hr" : "power", refs);
+  const doc = buildWorkoutDoc({ ...workout.plan, indoor: !!(workout.plan?.indoor || workout.bike_type === "rodillo") }, workout.plan?.target_basis === "hr" ? "hr" : "power", refs);
   const created = await call(creds, "/events", {
     method: "POST",
     body: JSON.stringify(eventBody(workout, doc, date)),
@@ -217,7 +211,7 @@ export async function intervalsUpdateEvent(
   date: string,
   refs: ZoneRefs,
 ) {
-  const doc = buildWorkoutDoc(workout.plan, workout.plan?.target_basis === "hr" ? "hr" : "power", refs);
+  const doc = buildWorkoutDoc({ ...workout.plan, indoor: !!(workout.plan?.indoor || workout.bike_type === "rodillo") }, workout.plan?.target_basis === "hr" ? "hr" : "power", refs);
   await call(creds, `/events/${eventId}`, {
     method: "PUT",
     body: JSON.stringify(eventBody(workout, doc, date)),

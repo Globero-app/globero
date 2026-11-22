@@ -3,6 +3,7 @@
 
 import { computePowerZones, computeHrZones } from "./zones";
 import { estimatePlanTss } from "./training-load.server";
+import { workoutPowerSteps } from "./workout-power";
 
 const HARD = new Set(["interval"]);
 
@@ -135,7 +136,7 @@ export function validateWorkout(plan: any, ctx: ValidateCtx): { plan: any; tss: 
     sec = total();
   }
 
-  out.steps = steps;
+  out.steps = workoutPowerSteps(steps, !!out.indoor);
   const tss = estimatePlanTss(out, ctx.ftp, ctx.lthr, ctx.maxHr, targetMin);
   out.estimated_tss = tss;
   out.target_basis = ctx.basis;

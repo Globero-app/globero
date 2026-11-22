@@ -7,6 +7,7 @@
  */
 import { encodeZwo } from "./zwo-writer";
 import { hammerheadTiming } from "./hammerhead-activity";
+import { workoutPowerSteps } from "./workout-power";
 import { credsFromProfile, hrRangeToLthrPct, type ZoneRefs } from "./intervals.server";
 
 const WAHOO = "https://api.wahooligan.com";
@@ -83,7 +84,7 @@ function stepKind(s: any, i: number, n: number): "wu" | "cd" | "recover" | "acti
 }
 
 function wahooPlanJson(workout: any, refs: ZoneRefs) {
-  const steps: any[] = Array.isArray(workout?.plan?.steps) ? workout.plan.steps : [];
+  const steps: any[] = workoutPowerSteps(Array.isArray(workout?.plan?.steps) ? workout.plan.steps : [], !!(workout?.plan?.indoor || workout?.bike_type === "rodillo"));
   const intervals = steps.map((s, i) => {
     const secs = Number(s.duration_seconds) || 300;
     const low = Number(s.target_low) || 0;
@@ -119,7 +120,7 @@ function wahooPlanJson(workout: any, refs: ZoneRefs) {
 }
 
 function garminWorkoutJson(workout: any, refs: ZoneRefs) {
-  const steps: any[] = Array.isArray(workout?.plan?.steps) ? workout.plan.steps : [];
+  const steps: any[] = workoutPowerSteps(Array.isArray(workout?.plan?.steps) ? workout.plan.steps : [], !!(workout?.plan?.indoor || workout?.bike_type === "rodillo"));
   const ref = hrRef(refs);
   const INT: Record<string, string> = { wu: "WARMUP", cd: "COOLDOWN", recover: "RECOVERY", active: "ACTIVE" };
   return {

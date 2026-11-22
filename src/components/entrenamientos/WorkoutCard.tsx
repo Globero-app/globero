@@ -22,6 +22,7 @@ import { estimateIF } from "@/lib/fueling";
 import { WorkoutStoryShare } from './WorkoutStoryShare';
 import { WorkoutStatusBadge } from './WorkoutStatusBadge';
 import { canActOnWorkout } from '@/lib/workout-status';
+import { workoutPowerSteps } from '@/lib/workout-power';
 
 export type ZoneRefs = {ftp: number | null;lthr: number | null;maxHr: number | null;};
 
@@ -84,7 +85,7 @@ export function WorkoutCard({
   });
   const isIndoor = w.bike_type === "rodillo" || !!(w.plan as any)?.indoor;
 
-  const plan = w.plan ?? {};
+  const plan = { ...(w.plan ?? {}), steps: workoutPowerSteps(w.plan?.steps ?? [], isIndoor) };
   const completed = w.status === "completed";
   const needsFeedback = needsWorkoutReport(w.status, plan);
   const skipped = w.status === "skipped";
@@ -94,6 +95,7 @@ export function WorkoutCard({
     const fit: FitWorkout = {
       name: plan.name ?? "Workout",
       sport: "cycling",
+      indoor: isIndoor,
       steps: (plan.steps ?? []).map((s: any): FitWorkoutStep => ({
         name: s.name,
         duration_type: s.duration_type === "open" ? "open" : "time",
@@ -541,6 +543,7 @@ function formatDuration(sec: number) {
 
 function targetLabel(s: any) {
   const u = s.target === "power" ? "W" : s.target === "hr" ? "bpm" : s.target === "cadence" ? "rpm" : "";
+  if (s.target_low != null && s.target_low === s.target_high) return `${s.target_low} ${u}`;
   if (s.target_low && s.target_high) return `${s.target_low}–${s.target_high} ${u}`;
   if (s.target_low) return `${s.target_low} ${u}`;
   return "—";

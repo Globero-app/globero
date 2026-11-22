@@ -22,6 +22,13 @@ const basePlan = () => ({
 });
 
 describe("validateWorkout", () => {
+  it("keeps exterior zone ranges and fixes only indoor power at their midpoint", () => {
+    const outdoor = validateWorkout(basePlan(), ctx).plan;
+    const indoor = validateWorkout({ ...basePlan(), indoor: true }, ctx).plan;
+    expect(outdoor.steps[1].target_high).toBeGreaterThan(outdoor.steps[1].target_low);
+    expect(indoor.steps[1].target_low).toBe(Math.round((outdoor.steps[1].target_low + outdoor.steps[1].target_high) / 2));
+    expect(indoor.steps[1].target_high).toBe(indoor.steps[1].target_low);
+  });
   it("garantiza calentamiento y vuelta a la calma", () => {
     const p = basePlan();
     p.steps = p.steps.slice(1, 2); // sin warmup ni cooldown

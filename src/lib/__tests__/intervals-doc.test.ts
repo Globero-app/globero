@@ -20,10 +20,16 @@ describe("buildWorkoutDoc", () => {
     expect(doc).toContain("10m 55-75% Calentamiento");
   });
 
-  it("rodillo con FTP: % como objetivo y vatios entre paréntesis, sin (0-0w)", () => {
+  it("rodillo con FTP: objetivo fijo en vatios absolutos", () => {
     const doc = buildWorkoutDoc({ indoor: true, steps: [step({})] }, "power", refs);
-    expect(doc).toContain("10m 55-75% (138-188w) Calentamiento");
+    expect(doc).toContain("10m 163w Calentamiento");
+    expect(doc).not.toContain("%");
     expect(doc).not.toContain("(0-0");
+  });
+
+  it("rodillo sin FTP conserva el mismo objetivo absoluto", () => {
+    const doc = buildWorkoutDoc({ indoor: true, steps: [step({})] }, "power", { ...refs, ftp: null });
+    expect(doc).toContain("10m 163w Calentamiento");
   });
 
   it("rodillo: elimina tokens de zona del nombre", () => {

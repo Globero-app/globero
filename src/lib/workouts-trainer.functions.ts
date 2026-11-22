@@ -3,6 +3,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { callAI } from "./ai-call.server";
 import { WorkoutSchema } from "./workouts-schemas";
+import { workoutPowerSteps } from "./workout-power";
 
 const TrainerInput = z.object({ workout_id: z.string().uuid() });
 
@@ -46,13 +47,13 @@ REGLAS OBLIGATORIAS:
 1. Duración TOTAL entre 60 y 90 minutos (la suma de duration_seconds debe estar entre 3600 y 5400 s). Nunca más de 90 min.
 2. Mantén el objetivo fisiológico del entrenamiento original; si el original era más largo, condensa el trabajo (más densidad, menos rodaje).
 3. Base de prescripción: ${basis === "hr" ? "FRECUENCIA CARDÍACA (target='hr' en ppm)" : "POTENCIA/FTP (target='power' en vatios)"} en todos los steps con esfuerzo.
-4. Sin descansos abiertos largos: en rodillo usa siempre duration_type='time'.
+4. Sin descansos abiertos largos: en rodillo usa siempre duration_type='time'. Potencia fija para ERG: target_low=target_high en vatios absolutos; nunca rangos ni porcentajes.
 5. Incluye calentamiento y vuelta a la calma. Añade cambios de cadencia para evitar monotonía.
 6. name MÁXIMO 15 caracteres. Todo en ESPAÑOL. Indica en "summary" que es una sesión de rodillo.`;
 
     const result = await callAI([{ role: "user", content: prompt }], WorkoutSchema, { fn: "workout-custom", userId });
 
-    const steps = (result.steps ?? []) as any[];
+    const steps = workoutPowerSteps((result.steps ?? []) as any[], true);
     const totalSec = steps.reduce((acc, s) => acc + (Number(s.duration_seconds) || 0), 0);
     const mins = Math.min(90, Math.max(60, totalSec > 0 ? Math.round(totalSec / 60) : 75));
 
