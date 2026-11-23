@@ -5,6 +5,7 @@ import {
   estimatePlanTss,
   computeCtlAtl,
   prescribeWeek,
+  baseWeeklyTss,
   type TrainingLoadSummary,
 } from "@/lib/training-load.server";
 
@@ -49,6 +50,25 @@ describe("estimateActivityTss", () => {
     expect(estimateActivityTss({ moving_time: 86400 }, null, null, null)).toBe(1200);
     expect(estimateActivityTss({ moving_time: 86401 }, null, null, null)).toBe(1);
     expect(estimateActivityTss({ moving_time: 38557999 }, null, null, null)).toBe(536);
+  });
+});
+
+describe("ajustes TSS real", () => {
+  it("prioriza la potencia normalizada sobre los watts medios", () => {
+    expect(estimateActivityTss({ moving_time: 3600, average_watts: 180, normalized_watts: 250 }, 250, null, null)).toBe(100);
+  });
+  it("estima LTHR al 88% de la FCmáx", () => {
+    // FCmáx 200 -> LTHR 176
+    expect(estimateActivityTss({ moving_time: 3600, average_heartrate: 176 }, null, null, 200)).toBe(100);
+  });
+});
+
+describe("baseWeeklyTss", () => {
+  it("excluye la semana de descarga de la media", () => {
+    expect(baseWeeklyTss([300, 300, 300, 180, 0])).toBe(300);
+  });
+  it("usa las 3 últimas semanas normales", () => {
+    expect(baseWeeklyTss([200, 300, 330, 360])).toBe(330);
   });
 });
 
@@ -122,10 +142,19 @@ describe("prescribeWeek", () => {
     expect(w.reason).toContain("descarga");
   });
 
-  it("sobrecarga si está fresco y con readiness alto", () => {
-    const w = prescribeWeek(load({ tsb: 15, readiness_7d: 4.5 }), opts);
+  it("sobrecarga solo con RPE bajo, readiness alto y TSB > 25% del CTL", () => {
+    const w = prescribeWeek(load({ tsb: 15, readiness_7d: 4.5, avg_rpe: 2 }), opts);
     expect(w.mode).toBe("overload");
     expect(w.target_tss).toBeGreaterThan(300);
+  });
+
+  it("no sobrecarga solo por TSB > 10 sin RPE bajo", () => {
+    expect(prescribeWeek(load({ tsb: 15, readiness_7d: 4.5 }), opts).mode).not.toBe("overload");
+  });
+
+  it("no sobrecarga si el TSB no supera el 25% del CTL", () => {
+    // CTL 80 -> umbral 20
+    expect(prescribeWeek(load({ ctl: 80, tsb: 15, readiness_7d: 4.5, avg_rpe: 2 }), opts).mode).not.toBe("overload");
   });
 
   it("mantiene si el RPE medio es alto", () => {

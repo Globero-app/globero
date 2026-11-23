@@ -48,6 +48,20 @@ export function madridTodayISO(): string {
   }).format(new Date());
 }
 
+/** LTHR estimado (% FCmáx) cuando el usuario no ha indicado su umbral real. */
+export const DEFAULT_LTHR_PCT = 0.88;
+
+/** Media de las 3 últimas semanas de carga normal, excluyendo semanas de descarga
+ *  (< 70% de la mediana de las semanas previas con carga). */
+export function baseWeeklyTss(prevWeeks: number[]): number {
+  const nonZero = prevWeeks.filter((t) => t > 0).sort((a, b) => a - b);
+  if (!nonZero.length) return 0;
+  const median = nonZero[Math.floor(nonZero.length / 2)]!;
+  const normal = prevWeeks.filter((t) => t >= median * 0.7);
+  const last3 = normal.slice(-3);
+  return last3.length ? last3.reduce((x, y) => x + y, 0) / last3.length : 0;
+}
+
 /** Inicio de semana (lunes) en ISO. */
 export function weekStart(dateISO: string): string {
   const d = new Date(`${dateISO}T12:00:00Z`);
@@ -61,6 +75,8 @@ export function weekStart(dateISO: string): string {
 export function estimateActivityTss(a: {
   moving_time?: number | null;
   average_watts?: number | null;
+  /** Potencia normalizada / weighted average power si existe. */
+  normalized_watts?: number | null;
   average_heartrate?: number | null;
   icu_training_load?: number | null;
   suffer_score?: number | null;
@@ -70,13 +86,14 @@ export function estimateActivityTss(a: {
   const hours = activityDurationSeconds(a.moving_time) / 3600;
   if (hours <= 0) return 0;
 
-  // 1) Potencia
-  if (ftp && ftp > 0 && a.average_watts && a.average_watts > 0) {
-    const intensity = Number(a.average_watts) / ftp;
+  // 1) Potencia: NP prioritaria, watts medios como último recurso
+  const watts = Number(a.normalized_watts) > 0 ? Number(a.normalized_watts) : Number(a.average_watts) || 0;
+  if (ftp && ftp > 0 && watts > 0) {
+    const intensity = watts / ftp;
     return Math.round(hours * intensity * intensity * 100);
   }
   // 2) Frecuencia cardíaca (hrTSS aproximado sobre LTHR)
-  const ref = lthr && lthr > 0 ? lthr : maxHr && maxHr > 0 ? Math.round(maxHr * 0.92) : null;
+  const ref = lthr && lthr > 0 ? lthr : maxHr && maxHr > 0 ? Math.round(maxHr * DEFAULT_LTHR_PCT) : null;
   if (ref && a.average_heartrate && a.average_heartrate > 0) {
     const ratio = Number(a.average_heartrate) / ref;
     return Math.round(hours * ratio * ratio * 100);
@@ -91,7 +108,7 @@ export function estimateActivityTss(a: {
 export function estimatePlanTss(plan: any, ftp: number | null, lthr: number | null, maxHr: number | null, fallbackMinutes = 60): number {
   const steps: any[] = Array.isArray(plan?.steps) ? plan.steps : [];
   if (!steps.length) return Math.round((fallbackMinutes / 60) * 55);
-  const hrRef = lthr && lthr > 0 ? lthr : maxHr && maxHr > 0 ? Math.round(maxHr * 0.92) : null;
+  const hrRef = lthr && lthr > 0 ? lthr : maxHr && maxHr > 0 ? Math.round(maxHr * DEFAULT_LTHR_PCT) : null;
   let sumIf2Sec = 0;
   let totalSec = 0;
   for (const s of steps) {
@@ -144,7 +161,7 @@ export async function buildTrainingLoad(supabase: any, userId: string, profile: 
   const [{ data: acts }, { data: workouts }] = await Promise.all([
     supabase
       .from("intervals_activities")
-      .select("moving_time,average_watts,average_heartrate,icu_training_load,start_date,distance,total_elevation_gain,name")
+      .select("moving_time,average_watts,average_heartrate,icu_training_load,start_date,distance,total_elevation_gain,name,normalized_watts:raw->icu_weighted_avg_watts")
       .eq("user_id", userId)
       .gte("start_date", `${since}T00:00:00Z`)
       .order("start_date", { ascending: false })
@@ -189,8 +206,8 @@ export async function buildTrainingLoad(supabase: any, userId: string, profile: 
     weekly.push({ week_start: ws, tss: Math.round(weekMap.get(ws) ?? 0) });
   }
 
-  const last3 = weekly.slice(-4, -1); // 3 semanas de calendario previas a la actual
-  const avg3 = last3.length ? last3.reduce((s, w) => s + w.tss, 0) / last3.length : 0;
+  // Base: 3 últimas semanas de carga normal previas a la actual (sin descargas)
+  const avg3 = baseWeeklyTss(weekly.slice(0, -1).map((w) => w.tss));
   const currentWeek = weekly[weekly.length - 1]!.tss;
   // Solo tiene sentido hablar de rampa con una base previa suficiente y carga real esta semana
   const ramp_pct =
@@ -301,11 +318,15 @@ export function prescribeWeek(load: TrainingLoadSummary, opts: {
     factor = 0.95;
     hard = Math.min(hard, 1);
     reasons.push(`adherencia ${load.adherence_pct}%: ajustar a lo realizado, sin asumir fatiga ni recuperar sesiones perdidas`);
-  } else if (load.tsb > 10 && (load.readiness_7d === null || load.readiness_7d >= 4)) {
+  } else if (
+    load.avg_rpe !== null && load.avg_rpe <= 2 &&
+    load.readiness_7d !== null && load.readiness_7d >= 4 &&
+    load.tsb > Math.max(10, load.ctl * 0.25)
+  ) {
     mode = "overload";
     factor = 1.12;
     hard = Math.min(opts.sessions, hard + 1);
-    reasons.push(`muy fresco (TSB ${load.tsb}) y readiness alto`);
+    reasons.push(`RPE bajo (${load.avg_rpe}/5), readiness alto y fresco respecto a su CTL (TSB ${load.tsb})`);
   } else if (load.avg_rpe !== null && load.avg_rpe >= 4.2) {
     mode = "maintain";
     factor = 0.95;
