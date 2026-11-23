@@ -345,9 +345,10 @@ export function prescribeWeek(load: TrainingLoadSummary, opts: {
   }
 
   let target = Math.round(base * factor);
-  // Techo personal: nunca por encima de lo que ya ha completado bien (+8%)
-  if (ceiling && mode !== "recovery" && target > ceiling * 1.08) {
-    target = Math.round(ceiling * 1.08);
+  // Techo personal dinámico: +12% en sobrecarga, +8% en el resto
+  const headroom = mode === "overload" ? 1.12 : 1.08;
+  if (ceiling && mode !== "recovery" && target > ceiling * headroom) {
+    target = Math.round(ceiling * headroom);
     reasons.push(`limitado a su techo personal (${ceiling} TSS)`);
   }
 
@@ -360,7 +361,7 @@ export function prescribeWeek(load: TrainingLoadSummary, opts: {
     polarized_note:
       mode === "recovery"
         ? "Reparto: 95% del tiempo en Z1-Z2, como máximo un bloque corto de calidad."
-        : "Reparto polarizado: ~80% del tiempo total de la semana en Z1-Z2 y ~20% en Z4 o superior; evita la zona gris Z3 prolongada.",
+        : "Reparto polarizado en minutos (no en TSS): ~80% del tiempo total de la semana en Z1-Z2 y ~20% en Z4 o superior; evita la zona gris Z3 prolongada.",
   };
 }
 
@@ -375,7 +376,7 @@ export function loadPromptBlock(load: TrainingLoadSummary, week: WeekPrescriptio
   const distribution: Record<string, string> = week.mode === "recovery" ? {
     es: "95 % del tiempo en Z1-Z2; como máximo, un bloque corto de calidad.", ca: "95 % del temps en Z1-Z2; com a màxim, un bloc curt de qualitat.", fr: "95 % du temps en Z1-Z2 ; au maximum un court bloc de qualité.", en: "95% of the time in Z1-Z2, with at most one short quality block.", de: "95 % der Zeit in Z1-Z2, höchstens ein kurzer Qualitätsblock.",
   } : {
-    es: "Reparto polarizado: ~80 % en Z1-Z2 y ~20 % en Z4 o superior; evita la zona gris Z3 prolongada.", ca: "Distribució polaritzada: ~80 % en Z1-Z2 i ~20 % en Z4 o superior; evita la zona grisa Z3 prolongada.", fr: "Répartition polarisée : ~80 % en Z1-Z2 et ~20 % en Z4 ou plus ; évite la zone grise Z3 prolongée.", en: "Polarized distribution: ~80% in Z1-Z2 and ~20% in Z4 or above; avoid prolonged Z3 gray-zone work.", de: "Polarisierte Verteilung: ~80 % in Z1-Z2 und ~20 % in Z4 oder höher; längere Z3-Grauzonenbelastung vermeiden.",
+    es: "Reparto polarizado medido en MINUTOS de pedaleo (no en TSS): ~80 % del tiempo en Z1-Z2 y ~20 % en Z4 o superior; evita la zona gris Z3 prolongada.", ca: "Distribució polaritzada en MINUTS (no TSS): ~80 % en Z1-Z2 i ~20 % en Z4 o superior; evita la zona grisa Z3 prolongada.", fr: "Répartition polarisée en MINUTES (pas en TSS) : ~80 % en Z1-Z2 et ~20 % en Z4 ou plus ; évite la zone grise Z3 prolongée.", en: "Polarized distribution measured in riding MINUTES (not TSS): ~80% of time in Z1-Z2 and ~20% in Z4 or above; avoid prolonged Z3 gray-zone work.", de: "Polarisierte Verteilung in MINUTEN (nicht TSS): ~80 % in Z1-Z2 und ~20 % in Z4 oder höher; längere Z3-Grauzonenbelastung vermeiden.",
   };
   return `
 ${instruction[lang] ?? instruction.es}
