@@ -11,7 +11,8 @@ export async function sendBeaconEmails(opts: {
 }) {
   const lovableKey = process.env["LOVABLE_API_KEY"];
   if (!lovableKey) throw new Error("Email no configurado");
-  const { kind, link, beacon } = opts;
+  const { kind, beacon } = opts;
+  const link = esc(opts.link);
   const rider = esc(opts.riderName || "Un ciclista");
   const maps = beacon.last_lat != null ? `https://maps.google.com/?q=${beacon.last_lat},${beacon.last_lon}` : null;
   const urgent = kind === "sos" || kind === "stale";

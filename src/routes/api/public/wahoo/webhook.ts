@@ -29,6 +29,7 @@ export const Route = createFileRoute("/api/public/wahoo/webhook")({
               await refreshAthleteProfile(supabaseAdmin, uid, p);
             },
             deauthorize: async (wid) => {
+              if (!expected) return; // sin token verificado no se aceptan desautorizaciones
               const { error } = await supabaseAdmin
                 .from("profiles")
                 .update({ wahoo_user_id: null, wahoo_access_token: null, wahoo_refresh_token: null, wahoo_token_expires_at: null } as any)

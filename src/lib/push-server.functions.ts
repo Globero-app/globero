@@ -15,6 +15,8 @@ export const saveSubscription = createServerFn({ method: "POST" })
     const { userId } = context as any;
     // Admin client: el guardado no debe depender de las políticas RLS del usuario.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: owner } = await supabaseAdmin.from("push_subscriptions").select("user_id").eq("endpoint", data.endpoint).maybeSingle();
+    if (owner && owner.user_id !== userId) throw new Error("Suscripción no disponible");
     const { error } = await supabaseAdmin.from("push_subscriptions").upsert({
       user_id: userId,
       endpoint: data.endpoint,
@@ -42,6 +44,8 @@ export const saveDeviceToken = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { userId } = context as any;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: owner } = await supabaseAdmin.from("device_push_tokens").select("user_id").eq("token", data.token).maybeSingle();
+    if (owner && owner.user_id !== userId) throw new Error("Dispositivo no disponible");
     const { error } = await supabaseAdmin.from("device_push_tokens").upsert(
       { user_id: userId, token: data.token, platform: data.platform, last_used_at: new Date().toISOString() },
       { onConflict: "token" },

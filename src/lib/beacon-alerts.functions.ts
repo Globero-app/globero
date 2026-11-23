@@ -14,11 +14,12 @@ export const notifyBeaconContacts = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context as any;
     const { data: beacon } = await supabase.from("safety_beacons")
-      .select("id,share_token,last_lat,last_lon,battery_pct").eq("id", data.beaconId).eq("user_id", userId).maybeSingle();
+      .select("id,share_token,status,expires_at,last_lat,last_lon,battery_pct").eq("id", data.beaconId).eq("user_id", userId).maybeSingle();
     if (!beacon) throw new Error("Baliza no encontrada");
-    let q = supabase.from("emergency_contacts").select("email").eq("user_id", userId);
-    if (data.kind !== "sos") q = q.eq("notify_on_start", true);
-    const { data: contacts } = await q;
+    // Solo SOS real sobre baliza vigente; máx. 5 contactos.
+    if (data.kind !== "sos" || beacon.status !== "sos" || new Date(beacon.expires_at).getTime() < Date.now()) return { sent: 0 };
+    if (!/^[A-Za-z0-9_-]{8,128}$/.test(String(beacon.share_token))) throw new Error("Baliza no válida");
+    const { data: contacts } = await supabase.from("emergency_contacts").select("email").eq("user_id", userId).order("created_at").limit(5);
     if (!contacts?.length) return { sent: 0 };
     const { data: prof } = await supabase.from("profiles").select("full_name,email").eq("id", userId).maybeSingle();
     const { sendBeaconEmails } = await import("./beacon-email.server");

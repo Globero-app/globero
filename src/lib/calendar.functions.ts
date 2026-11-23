@@ -3,8 +3,8 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const RangeInput = z.object({
-  from: z.string(), // YYYY-MM-DD
-  to: z.string(),
+  from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), // YYYY-MM-DD
+  to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
 
 export type CalendarEvent = {
