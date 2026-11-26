@@ -73,10 +73,11 @@ describe("Madrid weekly window", () => {
     ["2026-11-08T19:59:00Z", true], ["2026-11-08T20:00:00Z", true],
     ["2026-11-08T22:30:00Z", true], ["2026-11-08T23:00:00Z", true],
     ["2026-11-09T13:00:00Z", true], ["2026-11-09T13:01:00Z", false],
-    ["2026-11-10T20:00:00Z", false], ["2026-11-13T19:59:00Z", false],
-    ["2026-11-13T20:00:00Z", true], ["2026-11-14T10:00:00Z", true],
+    ["2026-11-10T20:00:00Z", false], ["2026-11-13T20:59:00Z", false],
+    ["2026-11-13T21:00:00Z", true], ["2026-11-14T10:00:00Z", true],
+    ["2026-07-10T19:59:00Z", false], ["2026-07-10T20:00:00Z", true],
     ["2026-07-12T19:00:00Z", true], ["2026-07-13T12:01:00Z", false],
-  ])("checks Friday 21:00 to Monday 14:00 for %s", (date, allowed) => {
+  ])("checks Friday 22:00 to Monday 14:00 for %s", (date, allowed) => {
     expect(weeklyWorkoutWindow(new Date(date)).allowed).toBe(allowed);
   });
   it.each(["2026-11-06T20:00:00Z", "2026-11-07T10:00:00Z", "2026-11-08T20:00:00Z", "2026-11-09T08:00:00Z"])("plans the same week from Friday–Monday %s", (date) => {
